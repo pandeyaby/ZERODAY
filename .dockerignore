@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+data/*.db
+data/*.db-*
+data/zeroday-store.json
+data/st3gg
+.venv-st3gg
+coverage
+*.md
+!README.md
+!vendor/plinius/README.md
+.env*
+.DS_Store

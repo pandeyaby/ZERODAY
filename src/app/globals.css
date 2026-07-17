@@ -1,26 +1,177 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-0: #070b10;
+  --bg-1: #0c1219;
+  --bg-2: #121a24;
+  --bg-3: #182232;
+  --line: #243044;
+  --line-bright: #3a4d66;
+  --text: #e8eef7;
+  --muted: #8b9bb0;
+  --accent: #3dffa8;
+  --accent-dim: #1a6b4a;
+  --warn: #f0b429;
+  --danger: #ff5c7a;
+  --cisco: #049fd9;
+  --splunk: #65a637;
+  --paloalto: #f04e23;
+  --fortinet: #ee3124;
+  --crowdstrike: #ec0000;
+  --aws: #ff9900;
+  --glow: rgba(61, 255, 168, 0.15);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-0);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(4, 159, 217, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 90% 0%, rgba(101, 166, 55, 0.1), transparent 50%),
+    radial-gradient(800px 400px at 50% 100%, rgba(61, 255, 168, 0.06), transparent 45%),
+    linear-gradient(180deg, var(--bg-0), #05080c 40%, var(--bg-0));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Subtle grid atmosphere */
+body::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(36, 48, 68, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 48, 68, 0.35) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+  opacity: 0.35;
+  z-index: 0;
+}
+
+#__next,
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: rgba(61, 255, 168, 0.3);
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--glow);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px var(--glow);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(18, 26, 36, 0.92), rgba(12, 18, 25, 0.88));
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.kbd {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-bright);
+  background: var(--bg-2);
+  color: var(--muted);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--line-bright);
+  border-radius: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.scanline-overlay::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, rgba(61, 255, 168, 0.04), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
 }

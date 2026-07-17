@@ -1,0 +1,23 @@
+# Splunk Detection Engineering — Cisco Sources (Purple Team)
+
+name: Splunk Detection Engineering — Cisco Sources
+brief: >
+  Purple-team validation of Cisco→Splunk sourcetypes, SPL hygiene in shared apps,
+  and ATT&CK coverage gaps on splunk.staging.lab
+loadouts:
+  - splunk
+  - cisco
+targets:
+  - hostname: splunk.staging.lab
+    product: Splunk ES
+    vendor: Splunk
+    environment: staging
+authorization:
+  required: true
+  rules_of_engagement: >
+    Metadata aggregations only. No raw event export containing PII/secrets.
+phases:
+  - coordinator
+  - recon
+  - ghost
+  - analyst
