@@ -37,6 +37,10 @@ next-env.d.ts
 /data/zeroday-store.json
 /data/st3gg/
 !/data/.gitkeep
+# Localization reports (keep outside scanned repos)
+/zeroday-reports/
+# Optional extracted official Antares CLI (gated HF download)
+/vendor/antares-cli/
 # ST3GG local Python venv (npm run plinius:st3gg-deps)
 .venv-st3gg/
 # Local / machine junk

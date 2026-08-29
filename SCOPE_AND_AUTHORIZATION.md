@@ -2,6 +2,10 @@
 #
 # Adapted for vendor security stacks (Cisco, Splunk, extensible loadouts).
 # Inspired by T3MP3ST's engagement model.
+#
+# Antares localization (zeroday locate) is defensive-only: ranked files +
+# evidence + SARIF. Never exploits, PoCs, payloads, or attack procedures.
+# Localization is not proof of exploitability. No auto-merge.
 
 ## The four pillars
 
