@@ -37,6 +37,7 @@ export ANTARES_ENDPOINT="http://127.0.0.1:8000/v1/completions"
 ```
 
 ZERODAY never downloads weights in this increment and never bypasses the gate.
+Even when Hugging Face access is approved for `antares-1b` / `antares-350m`, **do not** pull `model.safetensors` onto this machine — document and run live inference on an operator workstation only.
 
 ## CLI contract (Cisco)
 
