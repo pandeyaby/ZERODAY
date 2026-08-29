@@ -103,21 +103,22 @@ Preview CWEs locally with **no inference**:
 npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
 ```
 
-**Weights (gated)** — accept Cisco terms on [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b), then serve locally. Antares requires **`POST /v1/completions`** (chat completions are rejected):
+**Weights (gated)** — accept Cisco terms on [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b), then serve locally. Antares requires streaming **`POST /v1/completions`** (chat completions are rejected; validated with vLLM 0.19.1):
 
 ```bash
 vllm serve fdtn-ai/antares-1b
+# Use the exact served model id with the CLI / ZERODAY --model
 export ANTARES_ENDPOINT="http://127.0.0.1:8000/v1/completions"
 
 npm run zeroday -- locate --cwe CWE-89 --repo /path/to/your/repo --live \
   --endpoint "$ANTARES_ENDPOINT"
 ```
 
-ZERODAY creates a read-only snapshot, shells into `antares query`, adapts the result into ZERODAY’s report shape, and writes SARIF + markdown. This increment does **not** download model weights.
+ZERODAY creates a read-only snapshot (Antares caps: 100k files / 2 GiB / 256 MiB per file), shells into `antares query`, adapts the result into ZERODAY’s report shape, and writes SARIF (file-level, note severity) + markdown. This increment does **not** download model weights.
 
-Optional: the same CLI also ships as the gated `assets/antares-cli.zip` on the HF repo — PyPI is the path we document.
+Optional: the same CLI also ships as the gated `assets/antares-cli.zip` on the HF repo — **skip for Increment 1**; use PyPI.
 
-Configure `~/.antares/profiles.toml` as in Cisco’s [Antares Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) when you want named profiles.
+Configure `~/.antares/profiles.toml` as in Cisco’s [Antares Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) when you want named profiles. Default profile context is **16,384** tokens (not the 1B’s full 128K). Linux/macOS only.
 
 ---
 

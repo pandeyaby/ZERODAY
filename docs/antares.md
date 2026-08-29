@@ -22,7 +22,7 @@ export PATH="$(uv tool dir --bin):$PATH"
 antares --version   # antares-cli 0.1.0+
 ```
 
-The gated Hugging Face ZIP (`assets/antares-cli.zip`) is the same product; PyPI is the ungated path ZERODAY documents for Increment 1.
+Install from PyPI only for daily use. The public source is https://github.com/cisco-foundation-ai/antares-cli — read it if needed; do not clone it onto operator machines as the install path. The gated Hugging Face ZIP (`assets/antares-cli.zip`) is the same product; skip it for Increment 1.
 
 ## Gated weights (live inference only)
 
@@ -42,9 +42,11 @@ ZERODAY never downloads weights in this increment and never bypasses the gate.
 
 | Fact | Detail |
 |------|--------|
-| Inference route | `POST /v1/completions` only (chat templates break the tool prompt) |
-| Outputs | JSON + Markdown + SARIF (file-level) |
+| Inference route | Streaming `POST /v1/completions` only (chat templates break the tool prompt) |
+| Validated with | vLLM 0.19.1 |
+| Outputs | JSON + Markdown + SARIF (file-level, **note** severity) |
 | Snapshot | Read-only; allowlisted inspection utils; default tool budget 15 |
+| Snapshot caps | 100k files / 2 GiB total / 256 MiB per file |
 | `antares plan` | **Local** — does not call inference |
 | Platform | Linux / macOS (native Windows not supported) |
 | Default profile context | 16,384 tokens (not the 1B’s full 128K) |

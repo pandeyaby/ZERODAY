@@ -63,6 +63,7 @@ describe("SARIF emitter", () => {
     assert.equal(sarif.runs[0].tool.driver.name, "ZERODAY");
     assert.equal(sarif.runs[0].results.length, 1);
     assert.equal(sarif.runs[0].results[0].ruleId, "CWE-89");
+    assert.equal(sarif.runs[0].results[0].level, "note");
     assert.equal(
       sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri,
       "src/users.js",

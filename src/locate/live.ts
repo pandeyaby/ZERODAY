@@ -32,8 +32,8 @@ export const ANTARES_INSTALL_HINT =
   "Install the official CLI from PyPI: `uv tool install cisco-antares-cli` " +
   "then ensure `$(uv tool dir --bin)` is on PATH. " +
   "Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b " +
-  "and serve locally with vLLM (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. " +
-  "Do not use /v1/chat/completions.";
+  "and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. " +
+  "Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI.";
 
 export function detectAntaresCli(): {
   binary: string | null;

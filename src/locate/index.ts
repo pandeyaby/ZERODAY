@@ -90,6 +90,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       result.warnings.push(
         `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
       );
+      result.warnings.push(...snap.warnings);
     } else {
       // Fixture path still creates a snapshot for UX parity / future sandbox wiring
       const snap = createSnapshot(repo);
@@ -99,6 +100,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       result.warnings.push(
         `Read-only snapshot: ${snap.fileCount} files (destroyed after run)`,
       );
+      result.warnings.push(...snap.warnings);
       if (!antares.binary) {
         result.warnings.push(
           `Live Antares CLI not on PATH. ${antares.sourceHint}`,

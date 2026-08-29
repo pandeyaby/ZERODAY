@@ -45,9 +45,10 @@ interface SarifRun {
   properties: Record<string, unknown>;
 }
 
-function levelForRank(rank: number): "error" | "warning" | "note" {
-  if (rank === 1) return "error";
-  if (rank <= 3) return "warning";
+function levelForRank(_rank: number): "error" | "warning" | "note" {
+  // Antares CLI emits file-level findings at SARIF "note" severity.
+  // ZERODAY preserves that contract; rank lives in properties.submission_rank.
+  void _rank;
   return "note";
 }
 
