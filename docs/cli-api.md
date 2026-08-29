@@ -4,7 +4,16 @@
 
 [Open in app](http://localhost:3333/docs/cli-api)
 
-## CLI
+## Antares localization (primary)
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --fixture
+npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
+```
+
+See [antares.md](./antares.md).
+
+## War Room CLI
 
 ```bash
 export ZERODAY_URL=http://127.0.0.1:3333

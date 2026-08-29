@@ -1,6 +1,8 @@
 # ZERODAY Documentation
 
-In-app docs (recommended): **http://localhost:3333/docs**
+**Antares localization (product spine):** [antares.md](./antares.md) · see also the root [README](../README.md).
+
+In-app War Room docs: **http://localhost:3333/docs**
 
 ## Start here (by audience)
 
@@ -15,6 +17,7 @@ In-app docs (recommended): **http://localhost:3333/docs**
 
 | Guide | File / route |
 |-------|----------------|
+| Antares + ZERODAY | [antares.md](./antares.md) |
 | Overview | [overview.md](./overview.md) · `/docs/overview` |
 | Getting Started | [getting-started.md](./getting-started.md) · `/docs/getting-started` |
 | War Room | [war-room.md](./war-room.md) · `/docs/war-room` |

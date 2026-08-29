@@ -1,23 +1,29 @@
 #!/usr/bin/env node
 /**
- * ZERODAY CLI — headless / CI parity with the War Room.
+ * ZERODAY CLI — Antares localization daily driver + War Room headless parity.
  *
- * Usage:
- *   npx tsx cli/index.ts health
- *   npx tsx cli/index.ts missions
- *   npx tsx cli/index.ts launch "Assess Cisco DNA + Splunk staging"
- *   npx tsx cli/index.ts authorize <missionId> --by "Lead"
- *   npx tsx cli/index.ts start <missionId>
- *   npx tsx cli/index.ts status <missionId>
- *   npx tsx cli/index.ts stego transform --id base64 --text "hello"
+ * Primary (Increment 1):
+ *   npx tsx cli/index.ts locate --cve CVE-2024-89001 --repo fixtures/locate/demo-app
+ *   npx tsx cli/index.ts locate --cwe CWE-89 --fixture
+ *   npx tsx cli/index.ts locate --ghsa GHSA-demo-0000-sql1 --repo /path --live
+ *
+ * War Room (existing):
+ *   npx tsx cli/index.ts health|missions|launch|…
  */
 
 import { Command } from "commander";
+import path from "node:path";
+import {
+  locate,
+  defaultFixtureRepo,
+  detectAntaresCli,
+  runAntaresPlan,
+} from "../src/locate/index.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 
-async function api(path: string, init?: RequestInit) {
-  const res = await fetch(`${BASE}${path}`, {
+async function api(pathName: string, init?: RequestInit) {
+  const res = await fetch(`${BASE}${pathName}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
   });
@@ -32,7 +38,170 @@ async function api(path: string, init?: RequestInit) {
 }
 
 const program = new Command();
-program.name("zeroday").description("ZERODAY — enterprise AI red team CLI").version("0.1.0");
+program
+  .name("zeroday")
+  .description(
+    "ZERODAY — local-first Antares vulnerability localization + security workstation",
+  )
+  .version("0.3.0");
+
+program
+  .command("plan")
+  .description(
+    "Preview CWE portfolio for a repo via official `antares plan` (local, no inference)",
+  )
+  .argument("[repo]", "Repository path", "")
+  .option("--max-cwes <n>", "Max automatic CWE checks", "5")
+  .option("--cwe <id>", "Exact CWE id(s), comma-separated (expert mode)")
+  .option("--format <fmt>", "summary|json", "json")
+  .action(
+    async (
+      repoArg: string,
+      opts: { maxCwes: string; cwe?: string; format: string },
+    ) => {
+      const repo =
+        repoArg && repoArg.length > 0
+          ? path.resolve(repoArg)
+          : defaultFixtureRepo();
+      const result = runAntaresPlan(repo, {
+        maxCwes: Number(opts.maxCwes) || 5,
+        cwe: opts.cwe,
+        format: opts.format === "summary" ? "summary" : "json",
+      });
+      if (!result.ok) {
+        console.error(result.stderr || "antares plan failed");
+        console.error(
+          "Tip: install with `uv tool install cisco-antares-cli` (no weights needed for plan).",
+        );
+        process.exitCode = 2;
+        return;
+      }
+      process.stdout.write(result.stdout);
+    },
+  );
+
+program
+  .command("locate")
+  .description(
+    "Localize vulnerability candidates with Antares (fixture or live). Defensive only.",
+  )
+  .option("--cwe <id>", "CWE id (e.g. CWE-89)")
+  .option("--cve <id>", "CVE id (mapped to CWE for Antares)")
+  .option("--ghsa <id>", "GHSA id (mapped to CWE for Antares)")
+  .option(
+    "--repo <path>",
+    "Local repository path (default: fixture demo-app)",
+    "",
+  )
+  .option("--fixture", "Force recorded/fixture mode (no GPU / no HF weights)", false)
+  .option("--live", "Force live official Antares CLI path", false)
+  .option("--output <dir>", "Report output directory")
+  .option(
+    "--endpoint <url>",
+    "OpenAI-compatible endpoint base or full /v1/completions URL (live)",
+  )
+  .option("--model <id>", "Served model id (live)")
+  .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
+  .option("--json", "Print LocalizationResult JSON to stdout", false)
+  .action(async (opts: {
+    cwe?: string;
+    cve?: string;
+    ghsa?: string;
+    repo: string;
+    fixture: boolean;
+    live: boolean;
+    output?: string;
+    endpoint?: string;
+    model?: string;
+    failOnFindings: boolean;
+    json: boolean;
+  }) => {
+    const advisory = opts.cwe || opts.cve || opts.ghsa;
+    if (!advisory) {
+      console.error(
+        "Provide one of --cwe, --cve, or --ghsa.\n" +
+          "Example: zeroday locate --cwe CWE-89 --fixture",
+      );
+      process.exitCode = 2;
+      return;
+    }
+    if ([opts.cwe, opts.cve, opts.ghsa].filter(Boolean).length > 1) {
+      console.error("Pass only one of --cwe / --cve / --ghsa.");
+      process.exitCode = 2;
+      return;
+    }
+
+    const repo =
+      opts.repo && opts.repo.length > 0
+        ? path.resolve(opts.repo)
+        : defaultFixtureRepo();
+
+    // Default to fixture when not explicitly live — shippable UX without weights
+    const fixture = opts.live ? false : opts.fixture || !opts.live;
+
+    try {
+      const artifacts = await locate({
+        repo,
+        advisory,
+        fixture: fixture && !opts.live,
+        live: opts.live,
+        outputDir: opts.output,
+        endpoint: opts.endpoint || process.env.ANTARES_ENDPOINT,
+        model: opts.model || process.env.ANTARES_MODEL,
+        failOnFindings: opts.failOnFindings,
+      });
+
+      if (opts.json) {
+        console.log(JSON.stringify(artifacts.result, null, 2));
+      } else {
+        const r = artifacts.result;
+        console.log("");
+        console.log("ZERODAY locate");
+        console.log("──────────────");
+        console.log(`Advisory : ${r.advisory.id} → ${r.advisory.cweId}`);
+        console.log(`Mode     : ${r.mode}`);
+        console.log(`Model    : ${r.model}`);
+        console.log(`Target   : ${r.targetRepo}`);
+        console.log(`Findings : ${r.summary.findingCount}`);
+        console.log("");
+        if (r.rankedFiles.length) {
+          console.log("Ranked files:");
+          for (const f of r.rankedFiles) {
+            console.log(`  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`);
+          }
+          console.log("");
+        } else {
+          console.log("No vulnerable files submitted.");
+          console.log("");
+        }
+        console.log("Artifacts:");
+        console.log(`  JSON    ${artifacts.jsonPath}`);
+        console.log(`  SARIF   ${artifacts.sarifPath}`);
+        console.log(`  Report  ${artifacts.reportPath}`);
+        console.log(`  Comment ${artifacts.commentPath}`);
+        console.log("");
+        console.log(
+          "Posture: localization only · not exploit proof · no PoC · no auto-merge",
+        );
+        if (r.mode === "fixture") {
+          const live = detectAntaresCli();
+          console.log("");
+          console.log(
+            live.binary
+              ? `Tip: Antares CLI found at ${live.binary} — rerun with --live`
+              : `Tip: ${live.sourceHint}`,
+          );
+        }
+      }
+
+      if (opts.failOnFindings && artifacts.result.rankedFiles.length > 0) {
+        process.exitCode = 1;
+      }
+    } catch (e) {
+      console.error(`locate failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
 
 program
   .command("health")

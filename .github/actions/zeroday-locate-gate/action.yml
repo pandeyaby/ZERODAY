@@ -1,0 +1,158 @@
+name: ZERODAY locate gate
+description: >
+  Fixture Antares localization CI gate — SARIF upload + reviewable PR comment.
+  No model weights, no HF pull, no GPU. Never auto-merges. Localization ≠ exploitability.
+inputs:
+  cwe:
+    description: CWE id for fixture localization (e.g. CWE-89)
+    required: false
+    default: CWE-89
+  repo:
+    description: Path to scan (fixture demo-app by default)
+    required: false
+    default: fixtures/locate/demo-app
+  output:
+    description: Report output directory
+    required: false
+    default: zeroday-reports/ci
+  fail-on-findings:
+    description: >
+      If true, fail the job AFTER SARIF upload + PR comment when candidates exist.
+      Failure means "review localization candidates" — not exploitability proof.
+    required: false
+    default: "false"
+  upload-sarif:
+    description: Upload report.sarif to GitHub Code Scanning
+    required: false
+    default: "true"
+  post-comment:
+    description: Post (or update) a PR comment with ranked files + evidence
+    required: false
+    default: "true"
+  sarif-category:
+    description: Code Scanning category for this upload
+    required: false
+    default: zeroday-antares
+outputs:
+  sarif-path:
+    description: Path to report.sarif
+    value: ${{ steps.locate.outputs.sarif-path }}
+  finding-count:
+    description: Number of ranked candidate files
+    value: ${{ steps.locate.outputs.finding-count }}
+  comment-path:
+    description: Path to comment.md
+    value: ${{ steps.locate.outputs.comment-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Unit tests (locate surface)
+      shell: bash
+      run: npm test
+
+    - name: Fixture locate (no weights)
+      id: locate
+      shell: bash
+      env:
+        CWE: ${{ inputs.cwe }}
+        REPO: ${{ inputs.repo }}
+        OUT: ${{ inputs.output }}
+      run: |
+        set -euo pipefail
+        mkdir -p "$OUT"
+        npm run zeroday -- locate --cwe "$CWE" --repo "$REPO" --fixture --output "$OUT"
+        test -f "$OUT/report.sarif"
+        test -f "$OUT/report.json"
+        test -f "$OUT/comment.md"
+        COUNT="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(String(r.summary.findingCount))")"
+        echo "sarif-path=$OUT/report.sarif" >> "$GITHUB_OUTPUT"
+        echo "comment-path=$OUT/comment.md" >> "$GITHUB_OUTPUT"
+        echo "json-path=$OUT/report.json" >> "$GITHUB_OUTPUT"
+        echo "finding-count=$COUNT" >> "$GITHUB_OUTPUT"
+        echo "ZERODAY fixture locate complete — findings=$COUNT (localization only)"
+
+    - name: Optional antares plan (no inference)
+      continue-on-error: true
+      shell: bash
+      env:
+        REPO: ${{ inputs.repo }}
+      run: |
+        set -euo pipefail
+        if command -v uv >/dev/null 2>&1; then
+          uv tool install cisco-antares-cli >/dev/null
+          export PATH="$(uv tool dir --bin):$PATH"
+        fi
+        if command -v antares >/dev/null 2>&1; then
+          npm run zeroday -- plan "$REPO" --max-cwes 5 --format json | head -c 4000
+        else
+          echo "cisco-antares-cli not on PATH — skipping plan (locate fixture already ran)"
+        fi
+
+    - name: Upload SARIF to GitHub Code Scanning
+      if: inputs.upload-sarif == 'true'
+      continue-on-error: true
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.locate.outputs.sarif-path }}
+        category: ${{ inputs.sarif-category }}
+
+    - name: Post reviewable PR comment
+      if: inputs.post-comment == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      env:
+        COMMENT_PATH: ${{ steps.locate.outputs.comment-path }}
+      with:
+        script: |
+          const fs = require('fs');
+          const marker = '<!-- zeroday-antares-locate-ci -->';
+          const body = marker + '\n' + fs.readFileSync(process.env.COMMENT_PATH, 'utf8');
+          const { owner, repo } = context.repo;
+          const issue_number = context.payload.pull_request.number;
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner, repo, issue_number, per_page: 100,
+          });
+          const existing = comments.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner, repo, comment_id: existing.id, body,
+            });
+            core.info(`Updated PR comment ${existing.id}`);
+          } else {
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            core.info('Created PR comment');
+          }
+
+    - name: Summarize for Actions UI
+      shell: bash
+      env:
+        COUNT: ${{ steps.locate.outputs.finding-count }}
+        SARIF: ${{ steps.locate.outputs.sarif-path }}
+      run: |
+        {
+          echo "## ZERODAY locate gate"
+          echo ""
+          echo "- Findings (localization candidates): **${COUNT}**"
+          echo "- SARIF: \`${SARIF}\`"
+          echo "- Posture: localization only · not exploitability proof · no auto-merge"
+          echo "- Mode: fixture (no model weights / no HF pull)"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Reviewable fail-on-findings (optional)
+      if: inputs.fail-on-findings == 'true' && steps.locate.outputs.finding-count != '0'
+      shell: bash
+      env:
+        COUNT: ${{ steps.locate.outputs.finding-count }}
+      run: |
+        echo "::error title=ZERODAY localization review::${COUNT} ranked candidate file(s) for human review. This is NOT proof of exploitability. SARIF + PR comment were published. No auto-merge."
+        exit 1
