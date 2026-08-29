@@ -138,13 +138,52 @@ Engagement doctrine for the optional War Room remains in [`SCOPE_AND_AUTHORIZATI
 
 ---
 
-## What is NOT in Increment 1
+## What is NOT included (yet / never)
 
-- GitHub Action / pre-commit CI gate (next increment — surface is designed for it)
-- Auto-remediation or auto-merge
-- Exploit / PoC generation (never)
+- Auto-remediation or auto-merge (**never**)
+- Exploit / PoC generation (**never**)
 - Antares-3B
-- Cloud inference of private source
+- Cloud inference of private source / weight downloads in CI
+- Live GPU inference in the GitHub Action (fixture only — by design)
+
+---
+
+## GitHub Action CI gate (Increment 2)
+
+Drop-in workflow a platform team can leave on forever. Runs on `ubuntu-latest` with **no GPU and no model weights**.
+
+### Enable (one file)
+
+The workflow ships at [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml). On this repo it already runs on every PR/push to `main`.
+
+To adopt elsewhere:
+
+1. Copy `.github/workflows/zeroday-locate.yml` and `.github/actions/zeroday-locate-gate/` into your repo (or call the composite action after vendoring).
+2. Ensure GitHub **Code Scanning** is available (public repos: on by default for SARIF upload; private: enable code scanning / Advanced Security as needed).
+3. Leave it on. PRs get:
+   - Fixture `zeroday locate` → `report.sarif` (SARIF 2.1.0, file-level, **note** severity)
+   - Upload to Code Scanning (`category: zeroday-antares-fixture`)
+   - A reviewable PR comment (ranked files + evidence + exploration trace)
+   - Job summary — findings are never silent
+
+### Soft fail by default
+
+Findings do **not** fail the job by default — localization is not exploitability, and we do not block merge by pretending otherwise. SARIF + the PR comment are the review surface.
+
+To fail *after* publishing findings (still labeled as review, not exploit proof):
+
+```bash
+# Repository variable
+ZERODAY_FAIL_ON_FINDINGS=true
+```
+
+### Local parity with CI
+
+```bash
+npm ci && npm test
+npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/demo-app --fixture --output zeroday-reports/ci
+# → zeroday-reports/ci/{report.json,report.sarif,report.md,comment.md}
+```
 
 ---
 
@@ -164,19 +203,20 @@ War Room headless commands (`health`, `missions`, …) remain available when the
 
 ---
 
-## Architecture (Increment 1)
+## Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  zeroday locate --cwe|--cve|--ghsa  --repo  [--fixture|--live]│
 │  zeroday plan [repo]   ← antares plan, no inference          │
+│  GitHub Action → fixture locate → SARIF upload + PR comment  │
 ├──────────────────────────────────────────────────────────────┤
 │  parse advisory → CWE                                        │
-│  read-only snapshot (tmpdir, chmod, destroy after run)       │
+│  read-only snapshot (tmpdir, Antares caps, destroy after run)│
 │  ┌─ fixture: recorded Antares-style localization ─────────┐  │
 │  └─ live: official cisco-antares-cli query on snapshot ───┘  │
 │  no-exploit invariant gate                                   │
-│  report.json + report.sarif + report.md                      │
+│  report.json + report.sarif + report.md + comment.md         │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -188,12 +228,14 @@ Optional: the existing **War Room** UI (`npm run dev` → http://localhost:3333)
 
 | Path | Purpose |
 |------|---------|
-| `cli/index.ts` | `zeroday` CLI (`locate` + War Room) |
-| `src/locate/` | Parse, snapshot, fixture, live adapter, SARIF, report, invariants |
+| `cli/index.ts` | `zeroday` CLI (`locate` / `plan` + War Room) |
+| `src/locate/` | Parse, snapshot, fixture, live adapter, SARIF, report, comment, invariants |
 | `fixtures/locate/demo-app/` | Tiny intentional CWE-89 surface |
 | `fixtures/locate/recordings/` | Recorded localizations for offline UX |
-| `tests/locate/` | SARIF shape, input parsing, no-exploit invariant, e2e fixture |
-| `docs/` | Workstation / War Room guides |
+| `.github/workflows/zeroday-locate.yml` | Drop-in CI gate |
+| `.github/actions/zeroday-locate-gate/` | Composite Action (SARIF + PR comment) |
+| `tests/locate/` | SARIF, parse, invariant, comment, e2e fixture |
+| `docs/` | Antares + workstation guides |
 
 ---
 
@@ -203,14 +245,14 @@ Optional: the existing **War Room** UI (`npm run dev` → http://localhost:3333)
 npm test
 ```
 
-Covers advisory parsing, SARIF 2.1.0 shape, the no-exploit invariant (including the shipped CWE-89 recording), and end-to-end fixture `locate`.
+Covers advisory parsing, SARIF 2.1.0 shape (note severity), the no-exploit invariant, PR comment posture, end-to-end fixture `locate`, and `antares plan` when the CLI is installed.
 
 ---
 
-## Roadmap (not this PR)
+## Roadmap (later)
 
-1. **CI gate** — GitHub Action / pre-commit: run Antares-1B (or 350M) on diff/repo snapshot; fail or comment with reviewable SARIF.
-2. **Sandbox harden** — isolated container, `network=none`, command timeout (beyond today’s snapshot destroy).
+1. **Live CI** (optional, opt-in) — Antares-1B/350M on self-hosted runners with local `/v1/completions` — never download weights into GitHub-hosted runners by default.
+2. **Sandbox harden** — isolated container, `network=none`, command timeout.
 3. **Human-asked patch drafts** — CodeGuard-aligned, localization-first, never with a PoC.
 4. War Room wiring so localize runs show up in the Evidence Vault.
 
@@ -221,4 +263,5 @@ Covers advisory parsing, SARIF 2.1.0 shape, the no-exploit invariant (including 
 Engagement posture: authorized / defensive use only. No warranty.
 
 - **Antares** — Cisco Foundation AI ([site](https://cisco-foundation-ai.github.io/antares/), [collection](https://huggingface.co/collections/fdtn-ai/antares))
+- Official CLI — [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
 - Optional Plinius adapters — see [`vendor/plinius/README.md`](./vendor/plinius/README.md)

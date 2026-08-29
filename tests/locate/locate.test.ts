@@ -20,10 +20,13 @@ describe("locate end-to-end (fixture)", () => {
     assert.ok(fs.existsSync(artifacts.jsonPath));
     assert.ok(fs.existsSync(artifacts.sarifPath));
     assert.ok(fs.existsSync(artifacts.reportPath));
+    assert.ok(fs.existsSync(artifacts.commentPath));
 
     const sarif = JSON.parse(fs.readFileSync(artifacts.sarifPath, "utf8"));
     assert.equal(isValidSarifShape(sarif), true);
     assert.ok(artifacts.result.rankedFiles[0].filePath.includes("users.js"));
+    const comment = fs.readFileSync(artifacts.commentPath, "utf8");
+    assert.match(comment, /Human review required/);
   });
 
   it("accepts CVE mapped to CWE-89", async () => {

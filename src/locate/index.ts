@@ -10,6 +10,7 @@ import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
 import { runLiveAntaresCli, detectAntaresCli, runAntaresPlan } from "./live";
 import { toSarif } from "./sarif";
 import { toHumanReport } from "./report";
+import { toPullRequestComment } from "./comment";
 import {
   assertNoExploitInvariant,
   collectResultTexts,
@@ -20,6 +21,7 @@ export {
   parseAdvisorySafe as parseAdvisory,
   toSarif,
   toHumanReport,
+  toPullRequestComment,
   defaultFixtureRepo,
   detectAntaresCli,
   runAntaresPlan,
@@ -30,6 +32,7 @@ export interface LocateArtifacts {
   jsonPath: string;
   sarifPath: string;
   reportPath: string;
+  commentPath: string;
 }
 
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
@@ -108,17 +111,23 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       }
     }
 
-    assertNoExploitInvariant(collectResultTexts(result));
+    assertNoExploitInvariant([
+      ...collectResultTexts(result),
+      toHumanReport(result),
+      toPullRequestComment(result),
+    ]);
 
     const jsonPath = path.join(outputDir, "report.json");
     const sarifPath = path.join(outputDir, "report.sarif");
     const reportPath = path.join(outputDir, "report.md");
+    const commentPath = path.join(outputDir, "comment.md");
 
     fs.writeFileSync(jsonPath, JSON.stringify(result, null, 2));
     fs.writeFileSync(sarifPath, JSON.stringify(toSarif(result), null, 2));
     fs.writeFileSync(reportPath, toHumanReport(result));
+    fs.writeFileSync(commentPath, toPullRequestComment(result));
 
-    return { result, outputDir, jsonPath, sarifPath, reportPath };
+    return { result, outputDir, jsonPath, sarifPath, reportPath, commentPath };
   } finally {
     if (snapshotPath) {
       destroySnapshot(snapshotPath);

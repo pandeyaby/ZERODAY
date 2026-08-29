@@ -151,7 +151,7 @@ export function toSarif(result: LocalizationResult): SarifLog {
         tool: {
           driver: {
             name: "ZERODAY",
-            version: "0.2.0",
+            version: "0.3.0",
             informationUri: "https://github.com/pandeyaby/ZERODAY",
             rules,
           },

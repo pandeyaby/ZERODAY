@@ -43,7 +43,7 @@ program
   .description(
     "ZERODAY — local-first Antares vulnerability localization + security workstation",
   )
-  .version("0.2.0");
+  .version("0.3.0");
 
 program
   .command("plan")
@@ -175,9 +175,10 @@ program
           console.log("");
         }
         console.log("Artifacts:");
-        console.log(`  JSON  ${artifacts.jsonPath}`);
-        console.log(`  SARIF ${artifacts.sarifPath}`);
-        console.log(`  Report ${artifacts.reportPath}`);
+        console.log(`  JSON    ${artifacts.jsonPath}`);
+        console.log(`  SARIF   ${artifacts.sarifPath}`);
+        console.log(`  Report  ${artifacts.reportPath}`);
+        console.log(`  Comment ${artifacts.commentPath}`);
         console.log("");
         console.log(
           "Posture: localization only · not exploit proof · no PoC · no auto-merge",

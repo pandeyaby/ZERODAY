@@ -78,7 +78,12 @@ Compose, do not replace:
 Every successful `locate` writes:
 
 - `report.json` — ZERODAY `LocalizationResult`
-- `report.sarif` — SARIF 2.1.0 for GitHub Code Scanning
+- `report.sarif` — SARIF 2.1.0 for GitHub Code Scanning (**note** severity)
 - `report.md` — human report
+- `comment.md` — reviewable PR comment body (CI)
 
 Posture flags are embedded: localization only, not exploit proof, no PoC, no auto-merge.
+
+## CI gate
+
+See root README → **GitHub Action CI gate**. Workflow: `.github/workflows/zeroday-locate.yml`.

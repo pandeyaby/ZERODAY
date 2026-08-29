@@ -1,0 +1,64 @@
+# ZERODAY Antares localization CI gate (Increment 2)
+#
+# Fixture-only — no model weights, no HF pull, no GPU.
+# Uploads SARIF (note severity) + posts a reviewable PR comment.
+# Never auto-merges. Localization ≠ exploitability.
+#
+# Drop-in: leave this workflow on forever. Optional soft-fail by default;
+# set repository variable ZERODAY_FAIL_ON_FINDINGS=true to fail after
+# findings are visible (still not an exploitability claim).
+
+name: ZERODAY locate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+concurrency:
+  group: zeroday-locate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  locate:
+    name: Fixture localize → SARIF + PR comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: List PR diff (context only)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          echo "## PR changed files (context — fixture locate uses recorded Antares run)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          git fetch origin "${{ github.base_ref }}" --depth=1 2>/dev/null || true
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" | head -100 | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: ZERODAY locate gate
+        uses: ./.github/actions/zeroday-locate-gate
+        with:
+          cwe: CWE-89
+          repo: fixtures/locate/demo-app
+          output: zeroday-reports/ci
+          # Default soft: findings visible via SARIF + comment; do not block merge
+          # as if localization proved exploitability. Opt in via repo variable.
+          fail-on-findings: ${{ vars.ZERODAY_FAIL_ON_FINDINGS || 'false' }}
+          upload-sarif: "true"
+          post-comment: "true"
+          sarif-category: zeroday-antares-fixture
+
+      - name: Upload report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-locate-reports
+          path: zeroday-reports/ci/
+          if-no-files-found: error
