@@ -24,6 +24,7 @@ import {
 } from "./invariant";
 import type { LocateOptions, LocalizationResult } from "./types";
 import { parseAdvisorySafe } from "./parse";
+import { tryOpenLiveSandbox, type SandboxSession } from "./sandbox";
 
 export {
   parseAdvisorySafe as parseAdvisory,
@@ -99,6 +100,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
 
   let result: LocalizationResult;
   let snapshotPath: string | undefined;
+  let sandbox: SandboxSession | null = null;
 
   try {
     if (preferLive) {
@@ -108,59 +110,53 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
             `Or use --fixture for offline recorded localizations.`,
         );
       }
-      if (endpointRaw) {
-        const endpoint = normalizeCompletionsEndpoint(endpointRaw);
+      const endpoint = endpointRaw
+        ? normalizeCompletionsEndpoint(endpointRaw)
+        : undefined;
+      let probeDetail: string | undefined;
+      if (endpoint) {
         const probe = await probeCompletionsEndpoint(endpoint);
-        if (!probe.ok) {
-          // Soft warning — antares CLI may still succeed with profiles.toml
-          // We still proceed; probe detail is recorded.
-        }
-        const snap = createSnapshot(repo);
-        snapshotPath = snap.snapshotPath;
-        result = runLiveAntaresCli({
-          advisory,
-          repo,
-          snapshotPath: snap.snapshotPath,
-          outputDir: path.join(outputDir, "antares-raw"),
-          endpoint,
-          model: options.model,
-          antaresCliSource: options.antaresCliSource,
-        });
-        result.snapshotPath = snap.snapshotPath;
-        result.warnings.push(
-          `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
-        );
-        result.warnings.push(...snap.warnings);
-        result.warnings.push(
-          probe.ok
-            ? `Local completions probe ok: ${probe.detail}`
-            : `Local completions probe: ${probe.detail} (antares may still use profile endpoint)`,
-        );
-        result.warnings.push(
-          `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
-        );
-      } else {
-        const snap = createSnapshot(repo);
-        snapshotPath = snap.snapshotPath;
-        result = runLiveAntaresCli({
-          advisory,
-          repo,
-          snapshotPath: snap.snapshotPath,
-          outputDir: path.join(outputDir, "antares-raw"),
-          endpoint: undefined,
-          model: options.model,
-          antaresCliSource: options.antaresCliSource,
-        });
-        result.snapshotPath = snap.snapshotPath;
-        result.warnings.push(
-          `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
-        );
-        result.warnings.push(...snap.warnings);
-        result.warnings.push(
-          `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
-        );
+        probeDetail = probe.ok
+          ? `Local completions probe ok: ${probe.detail}`
+          : `Local completions probe: ${probe.detail} (antares may still use profile endpoint)`;
       }
+
+      const snap = createSnapshot(repo);
+      snapshotPath = snap.snapshotPath;
+
+      // Isolated container for exploration surface (network=none). Inference stays on host.
+      // Fixture / CI never enter this branch with --fixture.
+      const sb = tryOpenLiveSandbox(snap.snapshotPath);
+      sandbox = sb.session;
+      if (sb.session && sb.preflight) {
+        // Tiny allowlisted exploration sample inside the sandbox (destroy after run).
+        sb.session.exec(["find", "/snapshot", "-type", "f"]);
+      }
+
+      result = runLiveAntaresCli({
+        advisory,
+        repo,
+        snapshotPath: snap.snapshotPath,
+        outputDir: path.join(outputDir, "antares-raw"),
+        endpoint,
+        model: options.model,
+        antaresCliSource: options.antaresCliSource,
+      });
+      result.snapshotPath = snap.snapshotPath;
+      result.warnings.push(
+        `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
+      );
+      result.warnings.push(...snap.warnings);
+      result.warnings.push(sb.detail);
+      if (probeDetail) result.warnings.push(probeDetail);
+      result.warnings.push(
+        `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+      );
+      result.warnings.push(
+        "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights).",
+      );
     } else {
+      // Fixture path: container-free by design (GitHub Action / ubuntu-latest).
       const snap = createSnapshot(repo);
       snapshotPath = snap.snapshotPath;
       result = runFixtureLocalization(advisory, repo);
@@ -171,6 +167,9 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       result.warnings.push(...snap.warnings);
       result.warnings.push(
         `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+      );
+      result.warnings.push(
+        "Fixture mode is container-free (no Docker) — CI-safe.",
       );
       if (!antares.binary) {
         result.warnings.push(
@@ -210,6 +209,13 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       exportPaths: exports.map((e) => e.path),
     };
   } finally {
+    if (sandbox) {
+      try {
+        sandbox.destroy();
+      } catch {
+        /* best-effort destroy */
+      }
+    }
     if (snapshotPath) {
       destroySnapshot(snapshotPath);
     }

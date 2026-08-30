@@ -59,16 +59,11 @@ This is a workstation those teams can run. It is **not** an official Cisco / Spl
 
 1. **Customer source never leaves the machine** for cloud inference.
 2. Read-only snapshot → destroy after run.
-3. Live inference talks only to **your** local `/v1/completions` endpoint (or the official CLI you installed).
-4. CI / fixture mode uses **recorded** localizations — **no GPU, no weight download**.
+3. **Live exploration sandbox** (when Docker is available): isolated `ubuntu:24.04` container, `network=none`, 10s command timeout, memory/CPU limits, allowlisted `grep`/`find`/`cat`/… only, destroy after run. Inference stays on the host (`vllm serve` → `/v1/completions`) because the sandbox has no network.
+4. **Fixture / GitHub Action stay container-free** — no Docker-in-Docker on `ubuntu-latest`.
+5. Live inference talks only to **your** local `/v1/completions` endpoint (or the official CLI you installed).
 
-**Weights are gated.** Accept Cisco’s terms on Hugging Face for `fdtn-ai/antares-1b`. ZERODAY never scrapes or bypasses that gate and **never downloads `model.safetensors`**.
-
-```bash
-vllm serve fdtn-ai/antares-1b
-# then point ZERODAY at the completions endpoint
-```
-
+**Weights are gated.** Accept Cisco’s terms on Hugging Face for `fdtn-ai/antares-1b`. ZERODAY never scrapes or bypasses that gate and **never downloads `model.safetensors`**. Live still needs an **operator** workstation with vLLM + HF access — CI will not pull weights.
 ---
 
 ## Quick start (fixture — no GPU)
@@ -240,6 +235,20 @@ zeroday locate --cwe|--cve|--ghsa  --repo  [--fixture | --endpoint]
 ```
 
 Optional War Room UI (`npm run dev` → http://localhost:3333) remains in-tree. Antares localization is the product spine.
+
+### Live sandbox (operator machines with Docker)
+
+```
+live locate
+  ├─ create read-only snapshot (host tmp)
+  ├─ SandboxSession (docker ubuntu:24.04)
+  │    network=none · --read-only · mem/cpu limits · /snapshot:ro
+  │    allowlisted exec: grep|find|cat|ls|…
+  │    destroy after run
+  └─ antares query on host → POST host /v1/completions (needs network to vLLM)
+```
+
+Fixture + Action: **no container**. Docker tests skip when the daemon is absent.
 
 ---
 
