@@ -105,14 +105,18 @@ npm test
 
 ## Live locate (local vLLM)
 
+**Fixture** (`--fixture`) is what CI and juniors use — recorded localization, no GPU, no HF token.
+
+**Live** is opt-in on an operator workstation after accepting gated HF terms:
+
 ```bash
 uv tool install cisco-antares-cli
 export PATH="$(uv tool dir --bin):$PATH"
 
-# Accept HF terms for fdtn-ai/antares-1b on an operator workstation, then:
+# Accept HF terms for fdtn-ai/antares-1b, then serve locally (do not pull weights into CI):
 vllm serve fdtn-ai/antares-1b
 
-# --endpoint implies live (unless --fixture). Completions only.
+# --endpoint implies live (unless --fixture). Completions only — not chat.
 npm run zeroday -- locate --cve CVE-2024-89001 --repo /path/to/repo \
   --endpoint http://127.0.0.1:8000/v1
 ```
@@ -127,27 +131,29 @@ npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
 
 ---
 
-## Defender exporters
+## Defender exporters — how the CUSTOMER ingests them
 
-One internal finding model → official schemas only. **Local files. No vendor cloud calls. No fake credentials.**
+ZERODAY writes **local files only**. Your team wires ingest. There are **no** partnership claims, **no** live vendor API pushes, and **no** bundled credentials.
 
 ```bash
-npm run zeroday -- export --format asff --from zeroday-reports/.../report.json
-npm run zeroday -- export --format splunk --from .../report.json
-npm run zeroday -- export --format xsoar --from .../report.json
-npm run zeroday -- export --format fortisiem --from .../report.json
-npm run zeroday -- export --format crowdstrike --from .../report.json
-npm run zeroday -- export --format sarif --from .../report.json
+npm run zeroday -- export --format asff|splunk|xsoar|fortisiem|crowdstrike|sarif \
+  --from zeroday-reports/.../report.json
 ```
 
-| Format | File | Contract |
-|--------|------|----------|
-| `sarif` | `report.sarif` | SARIF 2.1.0, file-level **note**, `partialFingerprints` — no invented line regions |
-| `asff` | `asff-findings.json` | SchemaVersion **2018-10-08**, `{"Findings":[…]}`, severity in **FindingProviderFields**, Types `…/Vulnerabilities/<CWE-id>`, Resources `Other` — placeholders for account/ARN; **no** BatchImportFindings |
-| `splunk` | `splunk-cim-vulnerabilities.json` | CIM Vulnerabilities fields; recommend sourcetype **`zeroday:antares:json`** for a **customer TA**; **no** ES Notable schema |
-| `xsoar` | `xsoar-incidents.json` | Incident dicts for a Cortex XSOAR mapper; **no** live incident POST |
-| `fortisiem` | `fortisiem-custom.json` | Generic keys for a customer parser / rawupload config; **no** live `/rawupload` |
-| `crowdstrike` | `crowdstrike-hec-events.ndjson` | HEC JSON objects; **no** `#cps` tags; **no** live HEC |
+(`locate` already writes every format beside `report.json`.)
+
+| File | Who | How **you** ingest (customer-owned) |
+|------|-----|-------------------------------------|
+| `report.sarif` | GitHub Code Scanning | Action uploads via `github/codeql-action/upload-sarif` (already in our workflow). Or upload the file in your own workflow. File-level **note**; `partialFingerprints` for dedupe. Do not invent line regions. |
+| `asff-findings.json` | AWS Security Hub | Customer replaces `AwsAccountId` / ARN placeholders, then **their** process calls `BatchImportFindings` (or a custom product ARN they registered). ZERODAY never calls AWS. SchemaVersion `2018-10-08`; severity in `FindingProviderFields`; `Types` use **CWE id** (not an invented CVE); `Resources.Type=Other` + `Details.Other.FilePath`. |
+| `splunk-cim-vulnerabilities.json` | Splunk (CIM / ESCU) | Build a **customer TA**: set sourcetype **`zeroday:antares:json`**, map CIM Vulnerabilities fields (`dest`, `dvc`, `signature`, `severity`, `category`, `xref`, `signature_id`, `vendor_product`). `cve` only when the advisory input was a real CVE — never invent `cvss`. **Not** ES Notable JSON (there is no create-notable ingest schema here). |
+| `xsoar-incidents.json` | Palo Alto Cortex XSOAR | Feed the JSON **array** into a customer mapper / generic webhook playbook (`type`, `name`, `occurred`, `severity`, `details`, `cwe`, `file_path`). XSOAR does **not** natively ingest SARIF. No live incident POST from ZERODAY. |
+| `fortisiem-custom.json` | Fortinet FortiSIEM | Point a **customer** XML parser or rawupload job at the generic keys (`vendor`, `model`, `eventType`, `severity`, `cwe`, `filePath`, `title`, `description`, `occurred`). No official finding schema; we do not claim `PH_DEV_MON_CUSTOM_JSON`. No live `/rawupload`. |
+| `crowdstrike-hec-events.ndjson` | CrowdStrike LogScale | Ship NDJSON with a **customer** HEC / ingest token (`host`, `message`, `cwe`, `file_path`, `signature`, `severity`, `vendor`, `product`). No `#cps` parser tags. No live HEC from ZERODAY. |
+
+Foundry: these are **Detector-lane candidates** only — true-positive waits for human triage. Compose [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) roles; do not auto-publish tickets or mark exploited.
+
+Full field notes: [`docs/exporters.md`](./docs/exporters.md).
 
 ---
 
