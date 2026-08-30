@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 /**
- * ZERODAY CLI — Antares localization daily driver + War Room headless parity.
+ * ZERODAY CLI — wraps cisco-antares-cli for daily-driver localization.
  *
- * Primary (Increment 1):
- *   npx tsx cli/index.ts locate --cve CVE-2024-89001 --repo fixtures/locate/demo-app
- *   npx tsx cli/index.ts locate --cwe CWE-89 --fixture
- *   npx tsx cli/index.ts locate --ghsa GHSA-demo-0000-sql1 --repo /path --live
- *
- * War Room (existing):
- *   npx tsx cli/index.ts health|missions|launch|…
+ *   zeroday locate --cwe CWE-89 --fixture
+ *   zeroday locate --cve CVE-… --repo /path --endpoint http://localhost:8000/v1
+ *   zeroday export --format asff --from zeroday-reports/.../report.json
+ *   zeroday draft-fix --i-asked-for-a-fix --from …/report.json
  */
 
 import { Command } from "commander";
+import fs from "node:fs";
 import path from "node:path";
 import {
   locate,
@@ -19,6 +17,20 @@ import {
   detectAntaresCli,
   runAntaresPlan,
 } from "../src/locate/index.ts";
+import {
+  EXPORT_FORMATS,
+  writeExport,
+  defaultExportFilename,
+  type ExportFormat,
+} from "../src/locate/export/index.ts";
+import {
+  draftFix,
+  DRAFT_FIX_FLAG,
+  EXPLOIT_REFUSAL,
+  requestLooksLikeExploit,
+} from "../src/locate/draft-fix.ts";
+import type { LocalizationResult } from "../src/locate/types.ts";
+import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 
@@ -37,18 +49,26 @@ async function api(pathName: string, init?: RequestInit) {
   return json;
 }
 
+function loadResult(fromPath: string): LocalizationResult {
+  const abs = path.resolve(fromPath);
+  if (!fs.existsSync(abs)) {
+    throw new Error(`Report not found: ${abs}`);
+  }
+  return JSON.parse(fs.readFileSync(abs, "utf8")) as LocalizationResult;
+}
+
 const program = new Command();
 program
   .name("zeroday")
   .description(
-    "ZERODAY — local-first Antares vulnerability localization + security workstation",
+    "ZERODAY — local-first Antares vulnerability localization daily driver",
   )
-  .version("0.3.0");
+  .version("0.4.0");
 
 program
   .command("plan")
   .description(
-    "Preview CWE portfolio for a repo via official `antares plan` (local, no inference)",
+    "Preview CWE portfolio via official `antares plan` (local, no inference)",
   )
   .argument("[repo]", "Repository path", "")
   .option("--max-cwes <n>", "Max automatic CWE checks", "5")
@@ -83,22 +103,27 @@ program
 program
   .command("locate")
   .description(
-    "Localize vulnerability candidates with Antares (fixture or live). Defensive only.",
+    "Localize vulnerability candidates (wraps `antares query` when live). Defensive only.",
   )
   .option("--cwe <id>", "CWE id (e.g. CWE-89)")
-  .option("--cve <id>", "CVE id (mapped to CWE for Antares)")
-  .option("--ghsa <id>", "GHSA id (mapped to CWE for Antares)")
+  .option("--cve <id>", "CVE id (resolved to CWE via vendored map / NVD)")
+  .option("--ghsa <id>", "GHSA id (resolved to CWE via vendored map / GHSA API)")
+  .option(
+    "--map-cwe <id>",
+    "Explicit CWE override when CVE/GHSA cannot be resolved",
+  )
   .option(
     "--repo <path>",
     "Local repository path (default: fixture demo-app)",
     "",
   )
-  .option("--fixture", "Force recorded/fixture mode (no GPU / no HF weights)", false)
+  .option("--fixture", "Force recorded/fixture mode (CI — no GPU / no weights)", false)
   .option("--live", "Force live official Antares CLI path", false)
+  .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "OpenAI-compatible endpoint base or full /v1/completions URL (live)",
+    "Local vLLM / OpenAI-compatible endpoint (implies live unless --fixture). Completions only.",
   )
   .option("--model <id>", "Served model id (live)")
   .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
@@ -107,9 +132,11 @@ program
     cwe?: string;
     cve?: string;
     ghsa?: string;
+    mapCwe?: string;
     repo: string;
     fixture: boolean;
     live: boolean;
+    offline: boolean;
     output?: string;
     endpoint?: string;
     model?: string;
@@ -136,17 +163,21 @@ program
         ? path.resolve(opts.repo)
         : defaultFixtureRepo();
 
-    // Default to fixture when not explicitly live — shippable UX without weights
-    const fixture = opts.live ? false : opts.fixture || !opts.live;
+    const endpoint =
+      opts.endpoint || process.env.ANTARES_ENDPOINT || undefined;
 
     try {
       const artifacts = await locate({
         repo,
         advisory,
-        fixture: fixture && !opts.live,
+        fixture: opts.fixture,
         live: opts.live,
+        offline: opts.offline,
+        explicitCwe: opts.mapCwe || (opts.cwe && opts.cve ? opts.cwe : undefined),
         outputDir: opts.output,
-        endpoint: opts.endpoint || process.env.ANTARES_ENDPOINT,
+        endpoint: endpoint
+          ? normalizeCompletionsEndpoint(endpoint)
+          : undefined,
         model: opts.model || process.env.ANTARES_MODEL,
         failOnFindings: opts.failOnFindings,
       });
@@ -167,7 +198,9 @@ program
         if (r.rankedFiles.length) {
           console.log("Ranked files:");
           for (const f of r.rankedFiles) {
-            console.log(`  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`);
+            console.log(
+              `  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
+            );
           }
           console.log("");
         } else {
@@ -175,20 +208,25 @@ program
           console.log("");
         }
         console.log("Artifacts:");
-        console.log(`  JSON    ${artifacts.jsonPath}`);
-        console.log(`  SARIF   ${artifacts.sarifPath}`);
-        console.log(`  Report  ${artifacts.reportPath}`);
-        console.log(`  Comment ${artifacts.commentPath}`);
+        console.log(`  JSON     ${artifacts.jsonPath}`);
+        console.log(`  SARIF    ${artifacts.sarifPath}`);
+        console.log(`  Report   ${artifacts.reportPath}`);
+        console.log(`  Comment  ${artifacts.commentPath}`);
+        for (const p of artifacts.exportPaths) {
+          if (p !== artifacts.sarifPath) {
+            console.log(`  Export   ${p}`);
+          }
+        }
         console.log("");
         console.log(
-          "Posture: localization only · not exploit proof · no PoC · no auto-merge",
+          "Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge",
         );
         if (r.mode === "fixture") {
           const live = detectAntaresCli();
           console.log("");
           console.log(
             live.binary
-              ? `Tip: Antares CLI found at ${live.binary} — rerun with --live`
+              ? `Tip: Antares CLI at ${live.binary} — rerun with --endpoint http://127.0.0.1:8000/v1`
               : `Tip: ${live.sourceHint}`,
           );
         }
@@ -199,6 +237,115 @@ program
       }
     } catch (e) {
       console.error(`locate failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("export")
+  .description(
+    "Project report.json into defender schemas (local files only — no vendor cloud calls)",
+  )
+  .requiredOption(
+    "--format <fmt>",
+    `One of: ${EXPORT_FORMATS.join("|")}`,
+  )
+  .option(
+    "--from <report.json>",
+    "Path to LocalizationResult report.json",
+  )
+  .option("--output <path>", "Output file path")
+  .option("--aws-account-id <id>", "ASFF AwsAccountId placeholder")
+  .option("--region <region>", "ASFF region placeholder", "us-east-1")
+  .action((opts: {
+    format: string;
+    from?: string;
+    output?: string;
+    awsAccountId?: string;
+    region: string;
+  }) => {
+    const format = opts.format as ExportFormat;
+    if (!EXPORT_FORMATS.includes(format)) {
+      console.error(
+        `Unknown format '${opts.format}'. Use: ${EXPORT_FORMATS.join("|")}`,
+      );
+      process.exitCode = 2;
+      return;
+    }
+    if (!opts.from) {
+      console.error("Provide --from path/to/report.json");
+      process.exitCode = 2;
+      return;
+    }
+    try {
+      const result = loadResult(opts.from);
+      const out =
+        opts.output ||
+        path.join(path.dirname(path.resolve(opts.from)), defaultExportFilename(format));
+      const written = writeExport(result, format, out, {
+        awsAccountId: opts.awsAccountId,
+        region: opts.region,
+      });
+      console.log(`Wrote ${written.format} → ${written.path} (${written.bytes} bytes)`);
+      console.log("Local file only — no vendor API push.");
+    } catch (e) {
+      console.error(`export failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("draft-fix")
+  .description(
+    "CodeGuard-aligned patch DRAFT (requires --i-asked-for-a-fix). Never auto-merge.",
+  )
+  .option(DRAFT_FIX_FLAG, "Required human gate — I asked for a fix", false)
+  .option("--from <report.json>", "Path to LocalizationResult report.json")
+  .option("--repo <path>", "Repo path for source context snippets")
+  .option("--output <dir>", "Output directory for patch-draft.md")
+  .option("--also-poc", "If set, refuse PoC/exploit in one sentence; still emit draft", false)
+  .action((opts: {
+    iAskedForAFix: boolean;
+    from?: string;
+    repo?: string;
+    output?: string;
+    alsoPoc: boolean;
+  }) => {
+    // Commander maps --i-asked-for-a-fix to iAskedForAFix
+    if (!opts.iAskedForAFix) {
+      console.error(
+        `draft-fix requires the explicit human flag ${DRAFT_FIX_FLAG}.`,
+      );
+      process.exitCode = 2;
+      return;
+    }
+    if (!opts.from) {
+      console.error("Provide --from path/to/report.json");
+      process.exitCode = 2;
+      return;
+    }
+    try {
+      const result = loadResult(opts.from);
+      const outputDir =
+        opts.output ||
+        path.join(path.dirname(path.resolve(opts.from)), "drafts");
+      const alsoAskedForPoC =
+        opts.alsoPoc ||
+        requestLooksLikeExploit(process.argv.join(" "));
+      const artifact = draftFix({
+        iAskedForAFix: true,
+        alsoAskedForPoC,
+        result,
+        repoPath: opts.repo ? path.resolve(opts.repo) : result.targetRepo,
+        outputDir,
+      });
+      if (artifact.refusedExploit) {
+        console.error(EXPLOIT_REFUSAL);
+      }
+      console.log(`Wrote patch DRAFT → ${artifact.path}`);
+      console.log("Human review required. Never auto-merge.");
+    } catch (e) {
+      console.error(`draft-fix failed: ${(e as Error).message}`);
       process.exitCode = 2;
     }
   });

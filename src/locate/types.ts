@@ -73,13 +73,20 @@ export interface LocateOptions {
   advisory: string;
   /** Force fixture even if live tools are available */
   fixture?: boolean;
-  /** Force live Antares path */
+  /** Force live Antares path (also implied when endpoint is set) */
   live?: boolean;
+  /** Skip NVD/GHSA network resolve */
+  offline?: boolean;
+  /** Explicit CWE when CVE/GHSA cannot be resolved */
+  explicitCwe?: string;
   outputDir?: string;
-  /** OpenAI-compatible completions URL (live helper; prefer official antares CLI) */
+  /** OpenAI-compatible completions URL — implies live unless --fixture */
   endpoint?: string;
   model?: string;
   /** Path to extracted official Antares CLI source (optional) */
   antaresCliSource?: string;
   failOnFindings?: boolean;
+  /** ASFF placeholder account */
+  awsAccountId?: string;
+  awsRegion?: string;
 }

@@ -1,0 +1,66 @@
+{
+  "$schema_note": "Vendored advisory→CWE map for offline/fixture use. Live resolve may enrich via NVD/GHSA public APIs (metadata only — never exploit writeups).",
+  "categories": {
+    "CWE-22": "path-traversal",
+    "CWE-78": "os-command-injection",
+    "CWE-79": "xss",
+    "CWE-89": "sql-injection",
+    "CWE-94": "code-injection",
+    "CWE-200": "information-exposure",
+    "CWE-287": "authentication",
+    "CWE-352": "csrf",
+    "CWE-434": "unrestricted-upload",
+    "CWE-502": "deserialization",
+    "CWE-611": "xxe",
+    "CWE-798": "hardcoded-credentials",
+    "CWE-862": "missing-authorization",
+    "CWE-918": "ssrf"
+  },
+  "advisories": {
+    "CWE-22": {
+      "cweId": "CWE-22",
+      "category": "path-traversal",
+      "title": "Improper Limitation of a Pathname to a Restricted Directory"
+    },
+    "CWE-78": {
+      "cweId": "CWE-78",
+      "category": "os-command-injection",
+      "title": "Improper Neutralization of Special Elements used in an OS Command"
+    },
+    "CWE-79": {
+      "cweId": "CWE-79",
+      "category": "xss",
+      "title": "Improper Neutralization of Input During Web Page Generation (XSS)"
+    },
+    "CWE-89": {
+      "cweId": "CWE-89",
+      "category": "sql-injection",
+      "title": "Improper Neutralization of Special Elements used in an SQL Command"
+    },
+    "CVE-2024-89001": {
+      "cweId": "CWE-89",
+      "category": "sql-injection",
+      "title": "Demo SQL injection advisory (fixture)"
+    },
+    "ghsa-demo-0000-sql1": {
+      "cweId": "CWE-89",
+      "category": "sql-injection",
+      "title": "Demo GHSA mapped to CWE-89 (fixture)"
+    },
+    "CVE-2021-44228": {
+      "cweId": "CWE-502",
+      "category": "deserialization",
+      "title": "Apache Log4j2 JNDI lookup (historical mapping)"
+    },
+    "CVE-2017-5638": {
+      "cweId": "CWE-94",
+      "category": "code-injection",
+      "title": "Apache Struts Jakarta multipart parser (historical mapping)"
+    },
+    "CVE-2014-0160": {
+      "cweId": "CWE-200",
+      "category": "information-exposure",
+      "title": "OpenSSL Heartbleed (historical mapping)"
+    }
+  }
+}

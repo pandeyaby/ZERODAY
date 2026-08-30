@@ -65,6 +65,7 @@ export function toPullRequestComment(result: LocalizationResult): string {
   lines.push(``);
   lines.push(`- Localization only · not exploitability proof`);
   lines.push(`- SARIF uploaded at **note** severity (GitHub Code Scanning)`);
+  lines.push(`- Foundry Detector-lane **candidate** — true-positive waits for human triage`);
   lines.push(`- Sister pieces: Foundry Security Spec · CodeGuard (compose, don’t replace)`);
   lines.push(``);
   lines.push(

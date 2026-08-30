@@ -144,7 +144,8 @@ runs:
           echo ""
           echo "- Findings (localization candidates): **${COUNT}**"
           echo "- SARIF: \`${SARIF}\`"
-          echo "- Posture: localization only · not exploitability proof · no auto-merge"
+          echo "- Also written: asff / splunk / xsoar / fortisiem / crowdstrike local projections"
+          echo "- Posture: detector-lane candidate · localization only · not exploitability proof · no auto-merge"
           echo "- Mode: fixture (no model weights / no HF pull)"
         } >> "$GITHUB_STEP_SUMMARY"
 

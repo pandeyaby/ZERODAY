@@ -37,6 +37,7 @@ interface SarifRun {
         region?: { startLine: number; endLine?: number };
       };
     }>;
+    partialFingerprints?: Record<string, string>;
     properties: Record<string, unknown>;
   }>;
   originalUriBaseIds: {
@@ -102,6 +103,7 @@ export function toSarif(result: LocalizationResult): SarifLog {
     const ruleIndex = ruleIds.get(cwe) ?? 0;
     const primary = file.evidence[0];
     const evidenceNotes = file.evidence.map((e) => e.note).join("; ");
+    const uri = file.filePath.replace(/\\/g, "/");
 
     return {
       ruleId: cwe,
@@ -115,20 +117,27 @@ export function toSarif(result: LocalizationResult): SarifLog {
         {
           physicalLocation: {
             artifactLocation: {
-              uri: file.filePath.replace(/\\/g, "/"),
+              uri,
               uriBaseId: "%SRCROOT%",
             },
-            ...(primary?.startLine
+            // File-level note. Omit region unless the source report had a real line —
+            // never invent line-accurate regions for GitHub Code Scanning.
+            ...(typeof primary?.startLine === "number"
               ? {
                   region: {
                     startLine: primary.startLine,
-                    ...(primary.endLine ? { endLine: primary.endLine } : {}),
+                    ...(typeof primary.endLine === "number"
+                      ? { endLine: primary.endLine }
+                      : {}),
                   },
                 }
               : {}),
           },
         },
       ],
+      partialFingerprints: {
+        primaryLocationLineHash: `${cwe}|${uri}|${file.rank}`,
+      },
       properties: {
         submission_rank: file.rank,
         cwe_ids: file.cweIds,
@@ -137,6 +146,7 @@ export function toSarif(result: LocalizationResult): SarifLog {
         likelihood_of_exploit: file.likelihoodOfExploit ?? "",
         exploration_steps: result.explorationTrace.length,
         zeroday_posture: result.posture,
+        foundry_lane: "detector-candidate",
       },
     };
   });

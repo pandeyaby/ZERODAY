@@ -1,89 +1,51 @@
 # Antares + ZERODAY
 
-How ZERODAY wraps Cisco Foundation AI’s Antares for daily-driver localization.
+ZERODAY wraps Cisco Foundation AI’s Antares for daily-driver localization.
+It does **not** reimplement `cisco-antares-cli`.
 
-## Official sources
-
-- Site / paper: https://cisco-foundation-ai.github.io/antares/
-- Collection: https://huggingface.co/collections/fdtn-ai/antares
-- Antares-1B (default): https://huggingface.co/fdtn-ai/antares-1b
-- Antares-350m (edge): https://huggingface.co/fdtn-ai/antares-350m
-- Blog: https://blogs.cisco.com/ai/introducing-antares-the-most-efficient-open-weight-ai-models-for-vulnerability-localization
-- Cookbook quickstart: https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md
-- Official CLI (PyPI): [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/) · source https://github.com/cisco-foundation-ai/antares-cli
-
-Antares-3B is Cisco-internal. ZERODAY does not ship or claim it.
-
-## Install the official CLI (no weights)
+## Official CLI (v0.1.0)
 
 ```bash
 uv tool install cisco-antares-cli
-export PATH="$(uv tool dir --bin):$PATH"
-antares --version   # antares-cli 0.1.0+
+antares --version
 ```
 
-Install from PyPI only for daily use. The public source is https://github.com/cisco-foundation-ai/antares-cli — read it if needed; do not clone it onto operator machines as the install path. The gated Hugging Face ZIP (`assets/antares-cli.zip`) is the same product; skip it for Increment 1.
+| Command | Role |
+|---------|------|
+| `antares query PATH --cwe` | Live localization (needs `/v1/completions`) |
+| `antares plan PATH` | Local CWE portfolio — **no inference** |
+| `antares sweep` | Multi-CWE sweeps |
+| `--export FILE.tar.gz` | Bundle Antares reports |
 
-## Gated weights (live inference only)
+There is **no** `antares locate`. `zeroday locate` wraps `query` (and `plan` via `zeroday plan`).
 
-1. Sign in to Hugging Face.
-2. Open `fdtn-ai/antares-1b` and **accept Cisco’s access conditions**.
-3. Serve locally — **do not** use chat completions:
+## Completions only
 
 ```bash
-vllm serve fdtn-ai/antares-1b
-# Antares requires streaming POST /v1/completions
-export ANTARES_ENDPOINT="http://127.0.0.1:8000/v1/completions"
+vllm serve fdtn-ai/antares-1b   # validated with vLLM 0.19.1
+# POST /v1/completions — chat completions are rejected
+npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
 ```
 
-ZERODAY never downloads weights in this increment and never bypasses the gate.
-Even when Hugging Face access is approved for `antares-1b` / `antares-350m`, **do not** pull `model.safetensors` onto this machine — document and run live inference on an operator workstation only.
+Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
 
-## CLI contract (Cisco)
+## Models
 
-| Fact | Detail |
-|------|--------|
-| Inference route | Streaming `POST /v1/completions` only (chat templates break the tool prompt) |
-| Validated with | vLLM 0.19.1 |
-| Outputs | JSON + Markdown + SARIF (file-level, **note** severity) |
-| Snapshot | Read-only; allowlisted inspection utils; default tool budget 15 |
-| Snapshot caps | 100k files / 2 GiB total / 256 MiB per file |
-| `antares plan` | **Local** — does not call inference |
-| Platform | Linux / macOS (native Windows not supported) |
-| Default profile context | 16,384 tokens (not the 1B’s full 128K) |
+| Model | File F1 | Context |
+|-------|---------|---------|
+| `fdtn-ai/antares-1b` | 0.209 | 128K |
+| `fdtn-ai/antares-350m` | 0.135 | 32K |
+| Antares-3B | — | Cisco-internal; never claimed |
 
-## Fixture vs plan vs live
+## Snapshot / platform
 
-| Mode | Command | Needs |
-|------|---------|-------|
-| Fixture | `zeroday locate --cwe CWE-89 --fixture` | Nothing — recorded localization |
-| Plan | `zeroday plan [repo]` | `cisco-antares-cli` — **no GPU / no weights** |
-| Live | `zeroday locate --cwe CWE-89 --repo PATH --live` | CLI + local `/v1/completions` endpoint + accepted HF terms |
+100k files / 2 GiB / 256 MiB per file · Linux/macOS · native Windows not supported.
 
-## Data boundary
+## Sister pieces
 
-- ZERODAY copies the target into a temp read-only snapshot, then deletes it.
-- Live mode may send prompts + path listings + excerpts to **your** endpoint only.
-- Keep reports outside the scanned repo (`zeroday-reports/` is gitignored).
+- [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — Detector-lane **candidates** only; human triage for true-positive
+- [Project CodeGuard](https://project-codeguard.org/) — patch DRAFT rule map (`--i-asked-for-a-fix`)
 
-## Sister Cisco pieces
+## Exporters
 
-Compose, do not replace:
-
-- **Foundry Security Spec** — harness / roles / reviewable outputs
-- **CodeGuard** — secure-coding rules (patch drafts only after a human asks — later increment)
-
-## Outputs
-
-Every successful `locate` writes:
-
-- `report.json` — ZERODAY `LocalizationResult`
-- `report.sarif` — SARIF 2.1.0 for GitHub Code Scanning (**note** severity)
-- `report.md` — human report
-- `comment.md` — reviewable PR comment body (CI)
-
-Posture flags are embedded: localization only, not exploit proof, no PoC, no auto-merge.
-
-## CI gate
-
-See root README → **GitHub Action CI gate**. Workflow: `.github/workflows/zeroday-locate.yml`.
+See root README. Local projection from `report.json` only — no vendor cloud pushes.

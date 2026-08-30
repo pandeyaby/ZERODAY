@@ -1,16 +1,21 @@
 /**
- * Live Antares path: prefer Cisco's official `antares` CLI
+ * Live Antares path: WRAP Cisco's official `antares` CLI
  * (`uv tool install cisco-antares-cli` — public on PyPI).
+ *
+ * cisco-antares-cli v0.1.0 provides: query, sweep, plan (no inference),
+ * reports json/md/sarif, --export FILE.tar.gz. There is NO `antares locate`.
+ * ZERODAY `zeroday locate` wraps `antares query` — we do not reimplement the CLI.
  *
  * Model weights remain gated on Hugging Face — we never download or bypass that.
  * Live inference requires a local OpenAI-compatible POST /v1/completions endpoint
- * (chat completions are rejected by Antares).
+ * (chat completions are rejected by Antares). Validated with vLLM 0.19.1.
  */
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, RankedFile, TraceStep } from "./types";
+import { normalizeCompletionsEndpoint } from "./completions";
 
 export interface LiveLocateParams {
   advisory: AdvisoryRef;
@@ -106,10 +111,7 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
   ];
 
   if (params.endpoint) {
-    const endpoint = params.endpoint.endsWith("/v1/completions")
-      ? params.endpoint
-      : `${params.endpoint.replace(/\/$/, "")}/v1/completions`;
-    args.push("--endpoint", endpoint);
+    args.push("--endpoint", normalizeCompletionsEndpoint(params.endpoint));
   }
   if (params.model) {
     args.push("--model", params.model);
