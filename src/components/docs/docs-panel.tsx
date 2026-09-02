@@ -5,6 +5,7 @@ import { getAudienceDocs, getReferenceDocs } from "@/lib/docs/content";
 import { BookOpen, Code2, Compass, Layers, Users } from "lucide-react";
 
 const PERSONA_ICON: Record<string, React.ReactNode> = {
+  Operators: <Compass size={16} />,
   "Non-technical": <Users size={16} />,
   "First-time": <Compass size={16} />,
   Developers: <Code2 size={16} />,

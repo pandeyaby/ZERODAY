@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "next dev --turbopack -p 3333",
+    "war-room": "next dev --turbopack -p 3333",
+    "play": "next dev --turbopack -p 3333",
     "build": "next build",
     "start": "next start -p 3333",
     "lint": "eslint .",

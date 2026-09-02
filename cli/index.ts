@@ -393,6 +393,73 @@ program
   });
 
 program
+  .command("play")
+  .description(
+    "Local fixture playground — print how-to URL, or run locate/classify/demo without the UI",
+  )
+  .option(
+    "--action <name>",
+    "Optional headless run: locate | classify | demo (default: print start instructions)",
+  )
+  .option(
+    "--scenario <name>",
+    "Classify scenario when --action classify",
+    "software_defect",
+  )
+  .action(async (opts: { action?: string; scenario: string }) => {
+    if (!opts.action) {
+      console.log("");
+      console.log("ZERODAY local playground");
+      console.log("───────────────────────");
+      console.log("Start the War Room (fixtures only, no gated weights):");
+      console.log("");
+      console.log("  npm run war-room");
+      console.log("  # alias:  npm run play");
+      console.log("");
+      console.log("Then open:");
+      console.log("  http://localhost:3333/play");
+      console.log("  http://localhost:3333/?tab=howto   (War Room → How to use tab)");
+      console.log("");
+      console.log("Headless fixture runs (same engines, no UI):");
+      console.log("  npm run zeroday -- play --action locate");
+      console.log("  npm run zeroday -- play --action classify --scenario possible_breach");
+      console.log("  npm run zeroday -- play --action demo");
+      console.log("");
+      console.log(
+        "Honesty: fixtures only · no live network · no weight download · no PoCs · no auto-merge",
+      );
+      return;
+    }
+
+    const {
+      runPlaygroundLocate,
+      runPlaygroundClassify,
+      runPlaygroundDemo,
+    } = await import("../src/playground/index.ts");
+
+    try {
+      if (opts.action === "locate") {
+        const r = await runPlaygroundLocate();
+        console.log(JSON.stringify(r, null, 2));
+      } else if (opts.action === "classify") {
+        const r = await runPlaygroundClassify({ scenario: opts.scenario });
+        console.log(JSON.stringify(r, null, 2));
+      } else if (opts.action === "demo") {
+        const r = await runPlaygroundDemo();
+        console.log(JSON.stringify(r, null, 2));
+      } else {
+        console.error(
+          `Unknown --action '${opts.action}'. Use locate | classify | demo (or omit for start instructions).`,
+        );
+        process.exitCode = 2;
+      }
+    } catch (e) {
+      console.error(`play failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
   .command("draft-fix")
   .description(
     "CodeGuard-aligned patch DRAFT (requires --i-asked-for-a-fix). Never auto-merge.",

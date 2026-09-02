@@ -25,6 +25,7 @@ export type DocBlock =
 
 /** Pick-your-path guides — shown as featured cards on /docs. */
 export const AUDIENCE_DOC_SLUGS = [
+  "howto",
   "for-everyone",
   "first-time-users",
   "for-developers",
@@ -32,6 +33,65 @@ export const AUDIENCE_DOC_SLUGS = [
 ] as const;
 
 export const DOC_SECTIONS: DocSection[] = [
+  {
+    slug: "howto",
+    title: "How to use ZERODAY",
+    summary:
+      "Best way for a person, how orgs should use it, and the local fixture playground.",
+    group: "audience",
+    persona: "Operators",
+    body: [
+      {
+        type: "p",
+        text: "This is the durable, honest guide to what ZERODAY’s code actually does. The same content lives in the War Room under the How to use tab and at /play.",
+      },
+      {
+        type: "h3",
+        text: "Best way for a person",
+      },
+      {
+        type: "ul",
+        items: [
+          "Morning/PR — leave the GitHub Action on forever (fixture locate → SARIF → reviewable comment → soft-fail). No GPU in CI.",
+          "Known CWE/CVE/GHSA — run `zeroday locate` locally. Live needs vLLM + HF-gated Antares-1B on the operator GPU; source never leaves the machine.",
+          "CISO — `zeroday demo` or `classify` → ciso.md / ciso.json. Localization is not exploitability. Human review required.",
+          "Never auto-merge. Draft-fix only with `--i-asked-for-a-fix`. No PoCs.",
+        ],
+      },
+      {
+        type: "h3",
+        text: "How orgs should use it",
+      },
+      {
+        type: "ul",
+        items: [
+          "Platform eng — Action on every repo; no GPU in CI.",
+          "Security analyst — locate on a workstation; ingest SARIF in GitHub Code Scanning.",
+          "SOC / Splunk / Cisco Security Cloud buyer — take Splunk CIM JSON, ASFF, and the CISO object as FILES your team ingests with your credentials. We do not push to your clouds.",
+          "Four-class classifier is fixture-driven (possible_breach | infra_failure | software_defect | agent_misfire | needs_human). Ambiguous → needs_human. Do not claim live agent-misfire SOC.",
+        ],
+      },
+      {
+        type: "h3",
+        text: "Local fixture playground",
+      },
+      {
+        type: "code",
+        lang: "bash",
+        text: "npm run war-room\n# open http://localhost:3333/play\n# or War Room → How to use (shortcut h)",
+      },
+      {
+        type: "p",
+        text: "Buttons run existing fixture paths: locate CWE-89, classify each scenario, mixed `zeroday demo`. The UI shows a SARIF summary, Splunk-shaped JSON snippet, and CISO markdown. No live telemetry, no simulated attacks, no exploits, no gated weights.",
+      },
+      {
+        type: "callout",
+        tone: "ok",
+        title: "Also headless",
+        text: "npm run zeroday -- play --action locate|classify|demo",
+      },
+    ],
+  },
   {
     slug: "for-everyone",
     title: "For Non-Technical Readers",
@@ -499,6 +559,7 @@ export const DOC_SECTIONS: DocSection[] = [
         type: "table",
         headers: ["Tab", "Key", "Purpose"],
         rows: [
+          ["How to use", "h", "Person + org usage guide + fixture playground"],
           ["Missions", "1", "Scope, phases, authorization, start/abort"],
           ["Live Operators", "2", "Operator cell + event stream"],
           ["Evidence Vault", "3", "Hashed, redacted tool outputs"],
@@ -517,6 +578,7 @@ export const DOC_SECTIONS: DocSection[] = [
       {
         type: "ul",
         items: [
+          "h — How to use (org guide + fixture playground)",
           "/ — focus mission brief",
           "a — acknowledge authorization",
           "s — start mission",
@@ -785,9 +847,19 @@ export const DOC_SECTIONS: DocSection[] = [
           ["GET/POST", "/api/tools", "Arsenal catalog + execute"],
           ["GET/POST", "/api/stego", "Stego lab"],
           ["GET/POST", "/api/plinius", "Plinius bridge + research gates"],
+          ["GET/POST", "/api/playground", "Fixture locate/classify/demo (local playground)"],
           ["GET/POST", "/api/settings", "App / LLM settings"],
           ["GET", "/api/mcp", "MCP-shaped tool catalog"],
         ],
+      },
+      {
+        type: "h3",
+        text: "Fixture playground",
+      },
+      {
+        type: "code",
+        lang: "bash",
+        text: "npm run war-room\n# → http://localhost:3333/play\nnpm run zeroday -- play --action locate",
       },
     ],
   },

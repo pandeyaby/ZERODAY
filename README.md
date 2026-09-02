@@ -290,7 +290,17 @@ zeroday locate --cwe|--cve|--ghsa  --repo  [--fixture | --endpoint]
         └─ exporters → sarif | asff | splunk | xsoar | fortisiem | crowdstrike
 ```
 
-Optional War Room UI (`npm run dev` → http://localhost:3333) remains in-tree. Antares localization is the product spine.
+Optional War Room UI (`npm run war-room` → http://localhost:3333) remains in-tree. Antares localization is the product spine.
+
+**How to use + fixture playground (local only):**
+
+```bash
+npm run war-room
+# open http://localhost:3333/play
+# or War Room → How to use tab (shortcut h)
+```
+
+Buttons run fixture `locate` / `classify` / `demo` and show SARIF summary, Splunk-shaped JSON, and CISO markdown on screen. No Vercel deploy required. Headless: `npm run zeroday -- play --action locate`.
 
 ### Live sandbox (operator machines with Docker)
 

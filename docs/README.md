@@ -8,6 +8,7 @@ In-app War Room docs: **http://localhost:3333/docs**
 
 | Audience | Guide | Route |
 |----------|-------|-------|
+| Operators / orgs | [howto.md](./howto.md) | `/play` · `/docs/howto` · War Room **How to use** |
 | Non-technical | [for-everyone.md](./for-everyone.md) | `/docs/for-everyone` |
 | First-time users | [first-time-users.md](./first-time-users.md) | `/docs/first-time-users` |
 | Developers | [for-developers.md](./for-developers.md) | `/docs/for-developers` |

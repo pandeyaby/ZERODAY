@@ -6,6 +6,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { StegoLab } from "@/components/stego/stego-lab";
 import { PliniusPanel } from "@/components/plinius/plinius-panel";
 import { DocsPanel } from "@/components/docs/docs-panel";
+import { OrgUsagePanel } from "@/components/war-room/org-usage-panel";
 import type {
   EvidenceRecord,
   Finding,
@@ -19,6 +20,7 @@ import {
   Activity,
   Archive,
   BookOpen,
+  Building2,
   Crosshair,
   FileText,
   FlaskConical,
@@ -34,6 +36,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Tab =
+  | "howto"
   | "missions"
   | "operators"
   | "evidence"
@@ -46,6 +49,7 @@ type Tab =
   | "settings";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; shortcut: string }[] = [
+  { id: "howto", label: "How to use", icon: <Building2 size={14} />, shortcut: "h" },
   { id: "missions", label: "Missions", icon: <Crosshair size={14} />, shortcut: "1" },
   { id: "operators", label: "Live Operators", icon: <Radio size={14} />, shortcut: "2" },
   { id: "evidence", label: "Evidence Vault", icon: <Archive size={14} />, shortcut: "3" },
@@ -58,8 +62,17 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; shortcut: string }[
   { id: "settings", label: "Settings", icon: <Settings2 size={14} />, shortcut: "8" },
 ];
 
-export function WarRoom() {
-  const [tab, setTab] = useState<Tab>("missions");
+function initialTab(): Tab {
+  if (typeof window === "undefined") return "missions";
+  const q = new URLSearchParams(window.location.search).get("tab");
+  if (q === "howto" || q === "play" || q === "org") return "howto";
+  if (TABS.some((t) => t.id === q)) return q as Tab;
+  if (window.location.pathname === "/play") return "howto";
+  return "missions";
+}
+
+export function WarRoom({ defaultTab }: { defaultTab?: Tab } = {}) {
+  const [tab, setTab] = useState<Tab>(defaultTab || "missions");
   const [missions, setMissions] = useState<Mission[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<{
@@ -101,6 +114,10 @@ export function WarRoom() {
     const json = await res.json();
     setDetail(json);
   }, []);
+
+  useEffect(() => {
+    if (!defaultTab) setTab(initialTab());
+  }, [defaultTab]);
 
   useEffect(() => {
     void refreshMissions();
@@ -269,11 +286,21 @@ export function WarRoom() {
           <div className="flex-1" />
 
           <div className="hidden md:flex items-center gap-2 text-[var(--muted)] text-xs">
+            <span className="kbd">h</span> how-to
             <span className="kbd">/</span> brief
             <span className="kbd">1-9</span> tabs
             <span className="kbd">a</span> auth
             <span className="kbd">s</span> start
           </div>
+
+          <Link
+            href="/play"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[var(--muted)] hover:text-[var(--accent)] border border-[var(--line)] hover:border-[var(--accent)]/40 rounded-md px-2.5 py-1.5 transition"
+            title="Org usage + fixture playground"
+          >
+            <Building2 size={14} />
+            How to use
+          </Link>
 
           <Link
             href="/docs"
@@ -366,7 +393,9 @@ export function WarRoom() {
 
         {/* Main panel */}
         <section className="space-y-4 animate-fade-up" style={{ animationDelay: "60ms" }}>
-          {tab === "stego" ? (
+          {tab === "howto" ? (
+            <OrgUsagePanel />
+          ) : tab === "stego" ? (
             <StegoLab />
           ) : tab === "plinius" ? (
             <PliniusPanel />
@@ -493,13 +522,22 @@ function EmptyState() {
       <p className="text-[var(--muted)] mt-2 max-w-md mx-auto text-sm">
         Launch a natural-language brief or select an example mission from the queue.
       </p>
-      <Link
-        href="/docs/first-time-users"
-        className="inline-flex items-center gap-2 mt-6 text-sm text-[var(--accent)] hover:underline"
-      >
-        <BookOpen size={16} />
-        First-time user guide
-      </Link>
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
+        <Link
+          href="/play"
+          className="inline-flex items-center gap-2 text-sm text-[var(--accent)] hover:underline"
+        >
+          <Building2 size={16} />
+          How to use + fixture playground
+        </Link>
+        <Link
+          href="/docs/first-time-users"
+          className="inline-flex items-center gap-2 text-sm text-[var(--accent)] hover:underline"
+        >
+          <BookOpen size={16} />
+          First-time user guide
+        </Link>
+      </div>
     </div>
   );
 }
