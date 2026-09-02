@@ -155,5 +155,13 @@ export {
   isTelemetryFixture,
   TELEMETRY_SCHEMA,
 };
+export {
+  runMixedPack,
+  FOUR_FINDING_CLASSES,
+  MIXED_SCENARIOS,
+  TELEMETRY_EXPORTER_HOOK,
+  toPackSplunkEvents,
+} from "./pack";
+export type { MixedPackResult, PackCase } from "./pack";
 export type { CisoObject, ClassificationLabel } from "./types";
 export type { TelemetryFixture } from "./telemetry";

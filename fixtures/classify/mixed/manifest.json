@@ -1,0 +1,54 @@
+{
+  "schema": "zeroday-mixed-pack-manifest-v1",
+  "title": "Mixed fixture pack — all four finding classes",
+  "no_live_network": true,
+  "no_gated_weights": true,
+  "scenarios": [
+    {
+      "name": "software_defect",
+      "expect": "software_defect",
+      "inputs": ["fixtures/classify/software_defect/report.json"]
+    },
+    {
+      "name": "possible_breach",
+      "expect": "possible_breach",
+      "inputs": ["fixtures/classify/possible_breach/telemetry.json"],
+      "notes": "East-west / lateral-shaped NetFlow-like INPUT only — not simulated movement"
+    },
+    {
+      "name": "infra_failure",
+      "expect": "infra_failure",
+      "inputs": ["fixtures/classify/infra_failure/telemetry.json"]
+    },
+    {
+      "name": "agent_misfire",
+      "expect": "agent_misfire",
+      "inputs": ["fixtures/classify/agent_misfire/telemetry.json"],
+      "notes": "Classifier output on fixture only — not live agent detection"
+    },
+    {
+      "name": "needs_human",
+      "expect": "needs_human",
+      "inputs": ["fixtures/classify/needs_human/telemetry.json"],
+      "notes": "Ambiguous competing signals"
+    }
+  ],
+  "run": "npm run zeroday -- demo --output zeroday-reports/mixed-pack",
+  "outputs": [
+    "locate/report.sarif",
+    "locate/splunk-cim-vulnerabilities.json",
+    "locate/asff-findings.json",
+    "classify/*/ciso.json",
+    "classify/*/ciso.md",
+    "pack-summary.md",
+    "pack-summary.json",
+    "pack-splunk-classifications.json",
+    "ciso-all.md"
+  ],
+  "telemetry_exporter_hook": {
+    "schema": "zeroday-telemetry-v1",
+    "customer_path": "Drop NetFlow/syslog-shaped JSON matching the schema into `zeroday classify --telemetry <file>`; existing SARIF/ASFF/Splunk CIM locate exporters unchanged; pack also writes pack-splunk-classifications.json for a customer TA",
+    "no_live_pull": true,
+    "no_push": true
+  }
+}

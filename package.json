@@ -22,7 +22,8 @@
     "plinius:st3gg-deps": "python3 -m venv .venv-st3gg && .venv-st3gg/bin/pip install -r vendor/plinius/st3gg/requirements.txt",
     "export": "tsx cli/index.ts export",
     "draft-fix": "tsx cli/index.ts draft-fix",
-    "classify": "tsx cli/index.ts classify"
+    "classify": "tsx cli/index.ts classify",
+    "demo": "tsx cli/index.ts demo"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

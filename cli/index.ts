@@ -34,6 +34,7 @@ import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
 import {
   runClassify,
   listClassifyScenarios,
+  runMixedPack,
 } from "../src/classify/index.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
@@ -346,6 +347,47 @@ program
       }
     } catch (e) {
       console.error(`classify failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("demo")
+  .description(
+    "Exec mixed fixture pack: all four finding classes + SARIF + Splunk CIM + CISO markdown (no weights, no live network)",
+  )
+  .option(
+    "--output <dir>",
+    "Pack output directory",
+    "zeroday-reports/mixed-pack",
+  )
+  .action(async (opts: { output: string }) => {
+    try {
+      const pack = await runMixedPack(opts.output);
+      console.log("");
+      console.log("ZERODAY mixed fixture pack");
+      console.log("─────────────────────────");
+      console.log(`Output     : ${pack.outputDir}`);
+      console.log(`SARIF      : ${pack.sarifPath}`);
+      console.log(`Splunk CIM : ${pack.splunkPath}`);
+      console.log(`ASFF       : ${pack.asffPath}`);
+      console.log(`Pack MD    : ${pack.packMarkdownPath}`);
+      console.log(`Pack JSON  : ${pack.packJsonPath}`);
+      console.log(`Class Splunk: ${pack.packSplunkPath}`);
+      console.log("");
+      console.log("Classes:");
+      for (const c of pack.cases) {
+        console.log(
+          `  ${c.scenario.padEnd(18)} → ${c.classification}` +
+            (c.east_west_suspected ? " (east-west suspected from telemetry INPUT)" : ""),
+        );
+      }
+      console.log("");
+      console.log(
+        "Honesty: fixture-driven · telemetry INPUT only · not live SOC · not live agent-misfire detection · human review required · no auto-merge",
+      );
+    } catch (e) {
+      console.error(`demo failed: ${(e as Error).message}`);
       process.exitCode = 2;
     }
   });

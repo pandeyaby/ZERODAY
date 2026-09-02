@@ -1,30 +1,31 @@
-# Classify — fixture-driven CISO rollup
+# Classify + mixed pack
 
-`zeroday classify` combines an Antares **locate** result (optional) with a local **telemetry** fixture (optional) into one CISO object (`ciso.json` + `ciso.md`).
+## Labels (exactly one)
 
-## Labels
+`possible_breach` | `infra_failure` | `software_defect` | `agent_misfire`
 
-`possible_breach` | `infra_failure` | `software_defect` | `agent_misfire` | `needs_human`
+Ambiguous / competing signals → **`needs_human`**. Every CISO object sets `needs_human: true`. Never auto-label malice as truth without a human. Localization is not exploitability.
 
-- Ambiguous / competing signals → **`needs_human`**
-- Every object sets `needs_human: true` and `human_review_required: true`
-- **`agent_misfire` is a classifier output on fixtures only** — not live agent detection
-- Not proof of exploitability or of a live adversary; not a production SOC
+`agent_misfire` is **fixture classifier output only** — not live agent detection.
 
-## Telemetry input schema
+## Telemetry INPUT (not a scanner)
 
-`zeroday-telemetry-v1` — see `fixtures/classify/*/telemetry.json`. No live Cisco/Splunk/Talos feeds.
+Schema `zeroday-telemetry-v1` (`fixtures/classify/*/telemetry.json`). NetFlow / firewall / infra / agent_session shaped. **East-west / lateral** tags feed `possible_breach` (or `needs_human` if ambiguous). We do **not** simulate, generate, or demonstrate movement.
 
-## Scenarios
+### Exporter hook (customer-owned)
 
-| Scenario | Expected |
-|----------|----------|
-| `software_defect` | locate CWE-89 only |
-| `possible_breach` | lateral-movement telemetry |
-| `infra_failure` | infra timeout/DNS telemetry |
-| `agent_misfire` | agent_session misfire tags |
-| `needs_human` | lateral + agent competing |
+| Artifact | Role |
+|----------|------|
+| `report.sarif` / `splunk-cim-vulnerabilities.json` / `asff-findings.json` | Existing locate exporters (unchanged) |
+| `ciso.json` / `ciso.md` | Splunk+Cisco CISO rollup (locate evidence + telemetry ids) |
+| `pack-splunk-classifications.json` | Classification events for a customer TA (`zeroday:antares:classify`) |
+
+Drop customer telemetry JSON into `zeroday classify --telemetry <file>`. No live Cisco/Splunk pulls. No push.
+
+## Exec demo
 
 ```bash
-npm run zeroday -- classify --scenario software_defect
+npm run zeroday -- demo --output zeroday-reports/mixed-pack
 ```
+
+Manifest: `fixtures/classify/mixed/manifest.json`.

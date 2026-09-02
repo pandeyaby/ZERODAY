@@ -37,35 +37,39 @@ This is a workstation those teams can run. It is **not** an official Cisco / Spl
 
 ## 60-second demo (no gated weights)
 
-Copy-paste after clone. Fixture path only — no GPU, no HF token, no model download.
+Copy-paste after clone. Fixture path only — no GPU, no HF token, no model download, no live network.
+
+### A) Locate → SARIF + Splunk (one command)
 
 ```bash
 npm install
 npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/demo
-# → report.sarif (GitHub Code Scanning)
-# → splunk-cim-vulnerabilities.json + asff-findings.json (local; customer ingests)
 ls zeroday-reports/demo/report.sarif zeroday-reports/demo/splunk-cim-vulnerabilities.json
 ```
 
-Optional re-export (same files, explicit command):
+### B) Mixed pack — all four finding classes + CISO object (exec demo)
+
+Shows `software_defect` | `possible_breach` | `infra_failure` | `agent_misfire` (plus ambiguous `needs_human`). Telemetry is **INPUT only** (no movement simulation).
 
 ```bash
-npm run zeroday -- export --format splunk --from zeroday-reports/demo/report.json
-npm run zeroday -- export --format sarif --from zeroday-reports/demo/report.json
+npm install
+npm run zeroday -- demo --output zeroday-reports/mixed-pack
+ls zeroday-reports/mixed-pack/locate/report.sarif \
+   zeroday-reports/mixed-pack/locate/splunk-cim-vulnerabilities.json \
+   zeroday-reports/mixed-pack/pack-summary.md \
+   zeroday-reports/mixed-pack/ciso-all.md \
+   zeroday-reports/mixed-pack/pack-splunk-classifications.json
 ```
 
-### Second copy-paste — classify on bundled fixtures
+Manifest: `fixtures/classify/mixed/manifest.json`. Scenarios under `fixtures/classify/<name>/`.
+
+Single-scenario classify (same engine):
 
 ```bash
-npm run zeroday -- classify --scenario software_defect --output zeroday-reports/ciso-software
 npm run zeroday -- classify --scenario possible_breach --output zeroday-reports/ciso-breach
-npm run zeroday -- classify --scenario infra_failure --output zeroday-reports/ciso-infra
-npm run zeroday -- classify --scenario agent_misfire --output zeroday-reports/ciso-agent
-npm run zeroday -- classify --scenario needs_human --output zeroday-reports/ciso-ambiguous
-# → ciso.json + ciso.md  (always needs_human: true)
 ```
 
-Fixture names live under `fixtures/classify/<scenario>/`.
+**Honesty:** fixture-driven classifier — not a production SOC watching the live network; `agent_misfire` is fixture classifier output only; every CISO object requires human review (`needs_human: true`); never auto-label malice as truth without a human.
 
 ---
 

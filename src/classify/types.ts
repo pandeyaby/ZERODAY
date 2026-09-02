@@ -36,6 +36,10 @@ export interface CisoObject {
   generatedAt: string;
   /** Primary label — never treat as proof without human review */
   classification: ClassificationLabel;
+  /** Alias of classification for Splunk/Cisco buyers (same value) */
+  finding_class: ClassificationLabel;
+  /** Set when telemetry input shows east-west / lateral-shaped hops (INPUT only) */
+  east_west_suspected: boolean;
   /** 0–1 heuristic confidence of the classifier rule match — not exploitability */
   confidence: number;
   /** Always true: human review required before treating label as truth */
@@ -49,6 +53,7 @@ export interface CisoObject {
     noAutoMerge: true;
     noPoC: true;
     fixtureDrivenClassifier: true;
+    telemetryInputOnly: true;
   };
   inputs: {
     locateReport?: string;

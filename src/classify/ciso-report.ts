@@ -16,6 +16,10 @@ export function toCisoMarkdown(ciso: CisoObject): string {
   lines.push(`| | |`);
   lines.push(`|--|--|`);
   lines.push(`| Classification | \`${ciso.classification}\` |`);
+  lines.push(`| Finding class | \`${ciso.finding_class}\` |`);
+  lines.push(
+    `| East-west suspected (telemetry input) | ${ciso.east_west_suspected ? "yes — review as possible_breach / needs_human" : "no"} |`,
+  );
   lines.push(`| Confidence (rule heuristic) | ${ciso.confidence} |`);
   lines.push(`| Needs human | **yes** (always) |`);
   lines.push(`| Generated | ${ciso.generatedAt} |`);

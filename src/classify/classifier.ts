@@ -132,6 +132,8 @@ export function classify(input: ClassifyInput): ClassifyResult {
     schema: "zeroday-ciso-v1",
     generatedAt: new Date().toISOString(),
     classification,
+    finding_class: classification,
+    east_west_suspected: signals.possibleBreach,
     confidence,
     needs_human: true,
     human_review_required: true,
@@ -143,6 +145,7 @@ export function classify(input: ClassifyInput): ClassifyResult {
       noAutoMerge: true,
       noPoC: true,
       fixtureDrivenClassifier: true,
+      telemetryInputOnly: true,
     },
     inputs: {
       locateReport: input.locateReportPath,
@@ -165,6 +168,8 @@ export function isValidCisoObject(doc: unknown): doc is CisoObject {
   if (d.schema !== "zeroday-ciso-v1") return false;
   if (d.needs_human !== true || d.human_review_required !== true) return false;
   if (typeof d.classification !== "string") return false;
+  if (d.finding_class !== d.classification) return false;
+  if (typeof d.east_west_suspected !== "boolean") return false;
   if (!Array.isArray(d.evidence)) return false;
   const posture = d.posture as Record<string, unknown> | undefined;
   if (!posture?.fixtureDrivenClassifier) return false;
