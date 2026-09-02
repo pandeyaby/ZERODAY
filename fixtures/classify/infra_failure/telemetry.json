@@ -1,0 +1,26 @@
+{
+  "schema": "zeroday-telemetry-v1",
+  "source": "fixture",
+  "title": "Infrastructure failure fixture",
+  "description": "INPUT only — synthetic infra timeouts/DNS for infra_failure classification.",
+  "events": [
+    {
+      "id": "infra-101",
+      "timestamp": "2026-08-30T11:00:00.000Z",
+      "type": "infra",
+      "src_host": "edge-lb-1",
+      "failure_code": "UPSTREAM_TIMEOUT",
+      "tags": ["infra_failure", "outage"],
+      "notes": "Fixture: upstream timeout to origin pool"
+    },
+    {
+      "id": "infra-102",
+      "timestamp": "2026-08-30T11:00:05.000Z",
+      "type": "infra",
+      "src_host": "resolver-a",
+      "failure_code": "DNS_SERVFAIL",
+      "tags": ["infra_failure"],
+      "notes": "Fixture: DNS SERVFAIL for internal zone"
+    }
+  ]
+}

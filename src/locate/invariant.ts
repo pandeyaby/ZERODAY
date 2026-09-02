@@ -4,7 +4,7 @@
 
 /** Phrases that mention forbidden topics only to refuse them — allow these. */
 const DEFENSIVE_ALLOWLIST =
-  /\b(not\s+(an?\s+)?(exploit|poc|payload)|no\s+(poc|exploit|payload)|never\s+(an?\s+)?(exploit|poc)|localization\s+only|not\s+proof\s+of\s+exploitability|not\s+exploit\s+proof|likelihood_of_exploit|noPoC|no_poc|offensive\s+demonstration\s+code\s+is\s+out\s+of\s+scope)\b/gi;
+  /\b(not\s+(an?\s+)?(exploit|poc|payload)|not\s+an?\s+exploit\s+or\s+poc|no\s+(poc|exploit|payload)|never\s+(an?\s+)?(exploit|poc)|refuses?\s+exploits?,\s*pocs?|localization\s+only|not\s+proof\s+of\s+exploitability|not\s+exploit\s+proof|likelihood_of_exploit|noPoC|no_poc|offensive\s+demonstration\s+code\s+is\s+out\s+of\s+scope)\b/gi;
 
 const FORBIDDEN_PATTERNS: { id: string; re: RegExp; hint: string }[] = [
   {

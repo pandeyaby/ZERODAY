@@ -1,0 +1,41 @@
+{
+  "schema": "zeroday-telemetry-v1",
+  "source": "fixture",
+  "title": "Lateral movement shaped NetFlow/firewall fixture",
+  "description": "INPUT only — synthetic east-west hops across hosts for possible_breach classification. Not a live Cisco feed.",
+  "events": [
+    {
+      "id": "nf-001",
+      "timestamp": "2026-08-30T10:00:00.000Z",
+      "type": "netflow",
+      "src_host": "workstation-21",
+      "dst_host": "app-tier-03",
+      "protocol": "tcp/445",
+      "action": "allow",
+      "tags": ["lateral_movement", "east_west"],
+      "notes": "Fixture: lateral movement shaped hop workstation → app tier"
+    },
+    {
+      "id": "fw-002",
+      "timestamp": "2026-08-30T10:00:12.000Z",
+      "type": "firewall",
+      "src_host": "app-tier-03",
+      "dst_host": "db-primary-01",
+      "protocol": "tcp/5432",
+      "action": "allow",
+      "tags": ["lateral_movement", "east_west"],
+      "notes": "Fixture: continued east-west to database host"
+    },
+    {
+      "id": "nf-003",
+      "timestamp": "2026-08-30T10:00:40.000Z",
+      "type": "netflow",
+      "src_host": "db-primary-01",
+      "dst_host": "backup-vault-02",
+      "protocol": "tcp/22",
+      "action": "allow",
+      "tags": ["lateral_movement"],
+      "notes": "Fixture: third host in path — multi-host lateral pattern"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ZERODAY pre-commit — fixture-safe localize gate (no GPU, no weights).
+# Install: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
+# Or: git config core.hooksPath hooks
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$ROOT"
+
+if [[ ! -f package.json ]]; then
+  echo "ZERODAY pre-commit: no package.json — skip"
+  exit 0
+fi
+
+if [[ ! -d node_modules ]]; then
+  echo "ZERODAY pre-commit: node_modules missing — run npm ci"
+  exit 1
+fi
+
+echo "ZERODAY pre-commit: fixture locate (CWE-89)…"
+OUT="${TMPDIR:-/tmp}/zeroday-precommit-$$"
+mkdir -p "$OUT"
+npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/demo-app --fixture --output "$OUT" >/dev/null
+test -f "$OUT/report.sarif"
+test -f "$OUT/report.json"
+test -f "$OUT/asff-findings.json"
+rm -rf "$OUT"
+echo "ZERODAY pre-commit: ok (localization notes only — soft gate, never blocks on findings)"
+exit 0

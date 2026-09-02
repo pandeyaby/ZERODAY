@@ -9,77 +9,144 @@
  ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
 ```
 
-**The daily-driver security workstation around Cisco Foundation AI’s Antares models.**
+**Local-first Antares daily driver for Cisco Security + Observability + Splunk desks.**
 
-Cisco shipped the models. ZERODAY is what a security engineer opens every morning — and what a platform team leaves on every PR.
+### The agentic-era question (context — not a ZERODAY claim)
 
-> **One command a junior analyst can run. A report a CISO can read. Localization first. Human in the loop. Forever.**
+When something goes wrong in an agentic stack, a leader still has to answer: was it a **possible breach**, an **infra failure**, a **software defect**, or a **legitimate agent with bad judgment** — and the adversary may already be inside (and may itself be an agent). **Code and telemetry have to stay together** for a human to decide. ZERODAY does **not** watch the live network and does **not** claim production detection of agent misfires or live adversaries.
+
+### What ZERODAY actually does
+
+| Capability | Reality |
+|------------|---------|
+| Antares-native local vulnerability localization | CWE / CVE / GHSA → ranked files + evidence (`locate`) |
+| Source stays on the machine | No cloud inference of customer source |
+| SARIF | GitHub Code Scanning (note severity) |
+| Splunk CIM + ASFF files | **Customer** ingests; we do not push |
+| CI gate | Fixture-only Action you can leave on forever |
+| Human review | Localization ≠ exploitability; **no auto-merge** |
+| Patch DRAFT | Only with `--i-asked-for-a-fix` |
+| Live explore sandbox | Docker `network=none` when available |
+| **Classify (fixture-driven)** | Rollup label `possible_breach` \| `infra_failure` \| `software_defect` \| `agent_misfire` \| `needs_human` from **local** locate + telemetry fixtures — **always** `needs_human` / human review required; ambiguous → `needs_human` |
+
+> **Honesty:** `agent_misfire` appears only as a **classifier output on fixtures** that support it — not as live agent-misfire detection.
+
+This is a workstation those teams can run. It is **not** an official Cisco / Splunk partnership product and invents no executive quotes.
 
 ---
 
-## What ZERODAY is
+## 60-second demo (no gated weights)
 
-ZERODAY turns [Antares](https://cisco-foundation-ai.github.io/antares/) — open-weight SLMs for **agentic vulnerability localization** — into a local-first daily driver:
+Copy-paste after clone. Fixture path only — no GPU, no HF token, no model download, no live network.
 
-| You give | You get |
-|----------|---------|
-| A **CWE**, **CVE**, or **GHSA** + a local repo path | Ranked candidate files, evidence spans, exploration trace |
-| | **SARIF** for GitHub Code Scanning |
-| | A human report a CISO can skim |
-| | JSON for tooling |
+### A) Locate → SARIF + Splunk (one command)
 
-It does **not** write exploits, PoCs, payloads, or attack procedures. Localization is **not** proof of exploitability. Fixes are never auto-merged. Optional CodeGuard-aligned patch *drafts* are a later increment and only after a human asks.
+```bash
+npm install
+npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/demo
+ls zeroday-reports/demo/report.sarif zeroday-reports/demo/splunk-cim-vulnerabilities.json
+```
 
-Sister Cisco pieces we **compose**, not replace: **Foundry Security Spec** and **CodeGuard**.
+### B) Mixed pack — all four finding classes + CISO object (exec demo)
+
+Shows `software_defect` | `possible_breach` | `infra_failure` | `agent_misfire` (plus ambiguous `needs_human`). Telemetry is **INPUT only** (no movement simulation).
+
+```bash
+npm install
+npm run zeroday -- demo --output zeroday-reports/mixed-pack
+ls zeroday-reports/mixed-pack/locate/report.sarif \
+   zeroday-reports/mixed-pack/locate/splunk-cim-vulnerabilities.json \
+   zeroday-reports/mixed-pack/pack-summary.md \
+   zeroday-reports/mixed-pack/ciso-all.md \
+   zeroday-reports/mixed-pack/pack-splunk-classifications.json
+```
+
+Manifest: `fixtures/classify/mixed/manifest.json`. Scenarios under `fixtures/classify/<name>/`.
+
+Single-scenario classify (same engine):
+
+```bash
+npm run zeroday -- classify --scenario possible_breach --output zeroday-reports/ciso-breach
+```
+
+**Honesty:** fixture-driven classifier — not a production SOC watching the live network; `agent_misfire` is fixture classifier output only; every CISO object requires human review (`needs_human: true`); never auto-label malice as truth without a human.
+
+---
+
+## What it is
+
+ZERODAY wraps [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/) (`antares query` / `plan` / `sweep`) into a defensive workstation:
+
+| You give | You get (local files) |
+|----------|------------------------|
+| **CWE**, **CVE**, or **GHSA** + a local repo | Ranked candidate files, evidence, exploration trace |
+| | **CISO one-pager** (`report.md`) |
+| | **SARIF 2.1.0** (GitHub Code Scanning, note severity) |
+| | **ASFF** · **Splunk CIM** · **XSOAR** · **FortiSIEM** · **CrowdStrike HEC** projections |
+| | Optional **patch DRAFT** only with `--i-asked-for-a-fix` |
+
+It does **not** write exploits, PoCs, payloads, or attack procedures. Localization is **not** proof of exploitability. Findings are **Detector-lane candidates** (Foundry Security Spec roles) — true-positive waits for human triage. Fixes are never auto-merged.
+
+Sister pieces we **compose**, not replace: [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) · [Project CodeGuard](https://project-codeguard.org/).
+
+This is a workstation those teams can run. It is **not** an official Cisco / Splunk / Palo Alto / Fortinet / CrowdStrike / AWS partnership product.
 
 ---
 
 ## What Antares is
 
-[Antares](https://huggingface.co/collections/fdtn-ai/antares) (Cisco Foundation AI) is a family of compact models for **file-level vulnerability localization**. Given a CWE and terminal access to a repository snapshot, the model explores with `grep` / `find` / `cat` (budget ~15 calls) and submits `submit_vulnerable_files` or `submit_no_vulnerability_found`.
+[Antares](https://cisco-foundation-ai.github.io/antares/) (Cisco Foundation AI) — **localization SLMs**, not exploit writers.
 
-| Model | Role | Notes |
-|-------|------|-------|
-| [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) | Laptop / workstation | File F1 0.209, 128K context, **highest recall** — ZERODAY’s default |
-| [`fdtn-ai/antares-350m`](https://huggingface.co/fdtn-ai/antares-350m) | Edge | Smaller footprint |
-| Antares-3B | Cisco-internal | **Not** available here — we never claim it |
+| Model | Notes |
+|-------|-------|
+| [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) | File F1 **0.209**, 128K — ZERODAY default |
+| [`fdtn-ai/antares-350m`](https://huggingface.co/fdtn-ai/antares-350m) | File F1 **0.135**, 32K — edge |
+| Antares-3B | Cisco-internal — **we never claim it** |
 
-- Paper / site: https://cisco-foundation-ai.github.io/antares/
-- Blog: https://blogs.cisco.com/ai/introducing-antares-the-most-efficient-open-weight-ai-models-for-vulnerability-localization
-- Collection: https://huggingface.co/collections/fdtn-ai/antares
-- Built on **IBM Granite 4.0**
-- Official **Antares CLI**: public PyPI package [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/) (`uv tool install cisco-antares-cli`); also mirrored as gated `assets/antares-cli.zip` on HF. Read-only snapshot, OpenAI-compatible **`/v1/completions`** endpoint only, human / JSON / SARIF out.
-
-**Weights are gated.** Accept Cisco’s terms on Hugging Face for [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b). ZERODAY never scrapes or bypasses that gate.
+- Official CLI: PyPI [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/) (`uv tool install cisco-antares-cli`)
+- Inference: streaming **`POST /v1/completions` only** (not chat). Validated with **vLLM 0.19.1**
+- Agent loop: CWE + category → up to ~15 terminal calls (`grep`/`find`/`cat`) → `submit_vulnerable_files` or `submit_no_vulnerability_found`
+- Snapshot caps: 100k files / 2 GiB / 256 MiB per file · Linux/macOS (native **Windows not supported**)
+- There is **no** `antares locate` — ZERODAY `locate` wraps `antares query`
 
 ---
 
 ## Local-first promise
 
-1. **Code never leaves the machine** for cloud inference of customer source.
-2. Runs against a **read-only snapshot** (copied, scanned, destroyed).
-3. Live inference talks only to a **local** OpenAI-compatible Antares endpoint (or the official CLI you installed).
-4. Fixture mode ships recorded localizations so the UX works **without GPU weights**.
+1. **Customer source never leaves the machine** for cloud inference.
+2. Read-only snapshot → destroy after run.
+3. **Live exploration sandbox** (when Docker is available): isolated `ubuntu:24.04` container, `network=none`, 10s command timeout, memory/CPU limits, allowlisted `grep`/`find`/`cat`/… only, destroy after run. Inference stays on the host (`vllm serve` → `/v1/completions`) because the sandbox has no network.
+4. **Fixture / GitHub Action stay container-free** — no Docker-in-Docker on `ubuntu-latest`.
+5. Live inference talks only to **your** local `/v1/completions` endpoint (or the official CLI you installed).
 
+**Weights are gated.** Accept Cisco’s terms on Hugging Face for `fdtn-ai/antares-1b`. ZERODAY never scrapes or bypasses that gate and **never downloads `model.safetensors`**. Live still needs an **operator** workstation with vLLM + HF access — CI will not pull weights.
 ---
 
-## Quick start (fixture — no GPU, no HF token)
+## Quick start (fixture — no GPU)
 
 ```bash
 npm install
 
-# One command — works out of the box
+# One command
 npm run zeroday -- locate --cwe CWE-89 --fixture
 
-# Or against the bundled demo app explicitly
+# CVE / GHSA (resolved → CWE via vendored map; offline-safe in fixture)
 npm run zeroday -- locate --cve CVE-2024-89001 --repo fixtures/locate/demo-app --fixture
 ```
 
-Artifacts land in `zeroday-reports/<advisory>-<timestamp>/`:
+Artifacts in `zeroday-reports/<advisory>-<timestamp>/`:
 
-- `report.json` — ranked files, evidence, exploration trace
-- `report.sarif` — GitHub Code Scanning compatible
-- `report.md` — human / CISO report
+| File | Purpose |
+|------|---------|
+| `report.json` | Internal localization result |
+| `report.md` | CISO one-pager |
+| `report.sarif` | GitHub Code Scanning |
+| `asff-findings.json` | AWS Security Hub ASFF (local) |
+| `splunk-cim-vulnerabilities.json` | Splunk CIM Vulnerabilities (local) |
+| `xsoar-incidents.json` | Cortex XSOAR mapper input (local) |
+| `fortisiem-custom.json` | FortiSIEM customer parser JSON (local) |
+| `crowdstrike-hec-events.ndjson` | CrowdStrike HEC-shaped events (local) |
+| `comment.md` | Reviewable PR comment body |
 
 ```bash
 npm test
@@ -87,103 +154,112 @@ npm test
 
 ---
 
-## Live mode (official Antares CLI + local weights)
+## Live locate (local vLLM)
 
-**CLI (ungated, PyPI):**
+**Fixture** (`--fixture`) is what CI and juniors use — recorded localization, no GPU, no HF token.
+
+**Live** is opt-in on an operator workstation after accepting gated HF terms:
 
 ```bash
 uv tool install cisco-antares-cli
 export PATH="$(uv tool dir --bin):$PATH"
-antares --version
+
+# Accept HF terms for fdtn-ai/antares-1b, then serve locally (do not pull weights into CI):
+vllm serve fdtn-ai/antares-1b
+
+# --endpoint implies live (unless --fixture). Completions only — not chat.
+npm run zeroday -- locate --cve CVE-2024-89001 --repo /path/to/repo \
+  --endpoint http://127.0.0.1:8000/v1
 ```
 
-Preview CWEs locally with **no inference**:
+ZERODAY resolves CVE/GHSA → CWE (vendored map, or public NVD/GHSA **metadata** APIs — never exploit-DB writeups), snapshots the repo, wraps **`antares query`**, and writes the report + exporters. Optional `--map-cwe CWE-89` when resolve cannot map.
+
+`antares plan` stays local (no inference):
 
 ```bash
 npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
 ```
 
-**Weights (gated)** — accept Cisco terms on [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b), then serve locally. Antares requires streaming **`POST /v1/completions`** (chat completions are rejected; validated with vLLM 0.19.1):
+---
+
+## Defender exporters — how the CUSTOMER ingests them
+
+ZERODAY writes **local files only**. Your team wires ingest. There are **no** partnership claims, **no** live vendor API pushes, and **no** bundled credentials.
 
 ```bash
-vllm serve fdtn-ai/antares-1b
-# Use the exact served model id with the CLI / ZERODAY --model
-export ANTARES_ENDPOINT="http://127.0.0.1:8000/v1/completions"
-
-npm run zeroday -- locate --cwe CWE-89 --repo /path/to/your/repo --live \
-  --endpoint "$ANTARES_ENDPOINT"
+npm run zeroday -- export --format asff|splunk|xsoar|fortisiem|crowdstrike|sarif \
+  --from zeroday-reports/.../report.json
 ```
 
-ZERODAY creates a read-only snapshot (Antares caps: 100k files / 2 GiB / 256 MiB per file), shells into `antares query`, adapts the result into ZERODAY’s report shape, and writes SARIF (file-level, note severity) + markdown. This increment does **not** download model weights.
+(`locate` already writes every format beside `report.json`.)
 
-Optional: the same CLI also ships as the gated `assets/antares-cli.zip` on the HF repo — **skip for Increment 1**; use PyPI.
+| File | Who | How **you** ingest (customer-owned) |
+|------|-----|-------------------------------------|
+| `report.sarif` | GitHub Code Scanning | Action uploads via `github/codeql-action/upload-sarif` (already in our workflow). Or upload the file in your own workflow. File-level **note**; `partialFingerprints` for dedupe. Do not invent line regions. |
+| `asff-findings.json` | AWS Security Hub | Customer replaces `AwsAccountId` / ARN placeholders, then **their** process calls `BatchImportFindings` (or a custom product ARN they registered). ZERODAY never calls AWS. SchemaVersion `2018-10-08`; severity in `FindingProviderFields`; `Types` use **CWE id** (not an invented CVE); `Resources.Type=Other` + `Details.Other.FilePath`. |
+| `splunk-cim-vulnerabilities.json` | Splunk (CIM / ESCU) | Build a **customer TA**: set sourcetype **`zeroday:antares:json`**, map CIM Vulnerabilities fields (`dest`, `dvc`, `signature`, `severity`, `category`, `xref`, `signature_id`, `vendor_product`). `cve` only when the advisory input was a real CVE — never invent `cvss`. **Not** ES Notable JSON (there is no create-notable ingest schema here). |
+| `xsoar-incidents.json` | Palo Alto Cortex XSOAR | Feed the JSON **array** into a customer mapper / generic webhook playbook (`type`, `name`, `occurred`, `severity`, `details`, `cwe`, `file_path`). XSOAR does **not** natively ingest SARIF. No live incident POST from ZERODAY. |
+| `fortisiem-custom.json` | Fortinet FortiSIEM | Point a **customer** XML parser or rawupload job at the generic keys (`vendor`, `model`, `eventType`, `severity`, `cwe`, `filePath`, `title`, `description`, `occurred`). No official finding schema; we do not claim `PH_DEV_MON_CUSTOM_JSON`. No live `/rawupload`. |
+| `crowdstrike-hec-events.ndjson` | CrowdStrike LogScale | Ship NDJSON with a **customer** HEC / ingest token (`host`, `message`, `cwe`, `file_path`, `signature`, `severity`, `vendor`, `product`). No `#cps` parser tags. No live HEC from ZERODAY. |
 
-Configure `~/.antares/profiles.toml` as in Cisco’s [Antares Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) when you want named profiles. Default profile context is **16,384** tokens (not the 1B’s full 128K). Linux/macOS only.
+Foundry: these are **Detector-lane candidates** only — true-positive waits for human triage. Compose [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) roles; do not auto-publish tickets or mark exploited.
+
+Full field notes: [`docs/exporters.md`](./docs/exporters.md).
 
 ---
 
-## Acceptable use (defensive only)
+## Patch drafts (gated)
+
+```bash
+npm run zeroday -- draft-fix --i-asked-for-a-fix \
+  --from zeroday-reports/.../report.json \
+  --repo fixtures/locate/demo-app
+```
+
+Maps CWE → existing Project CodeGuard `codeguard-*.md` rules. **DRAFT only.** Never auto-merge. Never “CodeGuard-approved.” If anyone also asks for a PoC/exploit: **one-sentence refuse**, still only the patch draft.
+
+---
+
+## GitHub Action (leave it on)
+
+[`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml) — **fixture-only**, `ubuntu-latest`, **no GPU / no weights**.
+
+- Fixture `locate` → SARIF upload (note) + reviewable PR comment + soft-fail
+- Findings do **not** fail the job by default (localization ≠ exploitability)
+- Opt-in: repo variable `ZERODAY_FAIL_ON_FINDINGS=true`
+
+### Pre-commit (optional)
+
+```bash
+git config core.hooksPath hooks
+# or: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
+```
+
+Runs fixture locate only — never pulls weights.
+
+---
+
+## Acceptable use
 
 | Allowed | Not allowed |
 |---------|-------------|
-| Localize candidate files for CWEs you are authorized to assess | Exploits, PoCs, payloads, attack procedures |
-| Emit SARIF for code scanning / human review | Auto-merge of “fixes” |
-| Draft patches **later**, only when a human asks | Treating localization as exploitability proof |
-| Compose with Foundry Security Spec / CodeGuard | Claiming Antares-3B access |
-| Fixture demos on the bundled demo-app | Bypassing Hugging Face gating |
-
-If asked for both a fix and a PoC: **ship the fix only; refuse the PoC.**
-
-Engagement doctrine for the optional War Room remains in [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md).
+| Localize candidate files you are authorized to assess | Exploits, PoCs, payloads, attack procedures |
+| Emit SARIF / ASFF / CIM / SIEM **local** files | Auto-merge · live vendor API pushes · invented CVSS/line numbers |
+| Draft patches only with `--i-asked-for-a-fix` | Treating localization as exploitability proof |
+| Compose Foundry + CodeGuard | Claiming Antares-3B or vendor partnerships |
+| Fixture demos without HF access | Bypassing Hugging Face gating / downloading weights in CI |
 
 ---
 
-## What is NOT included (yet / never)
+## What it is not
 
+- An exploit / PoC generator (**never**)
 - Auto-remediation or auto-merge (**never**)
-- Exploit / PoC generation (**never**)
 - Antares-3B
-- Cloud inference of private source / weight downloads in CI
-- Live GPU inference in the GitHub Action (fixture only — by design)
-
----
-
-## GitHub Action CI gate (Increment 2)
-
-Drop-in workflow a platform team can leave on forever. Runs on `ubuntu-latest` with **no GPU and no model weights**.
-
-### Enable (one file)
-
-The workflow ships at [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml). On this repo it already runs on every PR/push to `main`.
-
-To adopt elsewhere:
-
-1. Copy `.github/workflows/zeroday-locate.yml` and `.github/actions/zeroday-locate-gate/` into your repo (or call the composite action after vendoring).
-2. Ensure GitHub **Code Scanning** is available (public repos: on by default for SARIF upload; private: enable code scanning / Advanced Security as needed).
-3. Leave it on. PRs get:
-   - Fixture `zeroday locate` → `report.sarif` (SARIF 2.1.0, file-level, **note** severity)
-   - Upload to Code Scanning (`category: zeroday-antares-fixture`)
-   - A reviewable PR comment (ranked files + evidence + exploration trace)
-   - Job summary — findings are never silent
-
-### Soft fail by default
-
-Findings do **not** fail the job by default — localization is not exploitability, and we do not block merge by pretending otherwise. SARIF + the PR comment are the review surface.
-
-To fail *after* publishing findings (still labeled as review, not exploit proof):
-
-```bash
-# Repository variable
-ZERODAY_FAIL_ON_FINDINGS=true
-```
-
-### Local parity with CI
-
-```bash
-npm ci && npm test
-npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/demo-app --fixture --output zeroday-reports/ci
-# → zeroday-reports/ci/{report.json,report.sarif,report.md,comment.md}
-```
+- A thin CLI wrapper with no report/export spine
+- Cloud inference of private source
+- Native Windows support (match Antares CLI: Linux/macOS)
+- An official Cisco/Splunk/Palo/Fortinet/CrowdStrike/AWS product
 
 ---
 
@@ -191,51 +267,44 @@ npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/demo-app --fixture
 
 ```bash
 npm run zeroday -- locate --cwe CWE-89 --fixture
-npm run zeroday -- locate --cve CVE-2024-89001 --repo ./my-app --fixture
-npm run zeroday -- locate --ghsa GHSA-demo-0000-sql1 --fixture
-npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
-npm run zeroday -- locate --cwe CWE-89 --repo ./my-app --live --endpoint http://127.0.0.1:8000/v1/completions
-npm run zeroday -- locate --cwe CWE-89 --fixture --json
-npm run zeroday -- locate --cwe CWE-89 --fixture --fail-on-findings   # CI-shaped exit
+npm run zeroday -- locate --cve CVE-2024-89001 --repo ./app --endpoint http://127.0.0.1:8000/v1
+npm run zeroday -- plan ./app --max-cwes 5
+npm run zeroday -- export --format asff --from ./zeroday-reports/.../report.json
+npm run zeroday -- draft-fix --i-asked-for-a-fix --from ./zeroday-reports/.../report.json
 ```
-
-War Room headless commands (`health`, `missions`, …) remain available when the Next.js app is running — see [`docs/cli-api.md`](./docs/cli-api.md).
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  zeroday locate --cwe|--cve|--ghsa  --repo  [--fixture|--live]│
-│  zeroday plan [repo]   ← antares plan, no inference          │
-│  GitHub Action → fixture locate → SARIF upload + PR comment  │
-├──────────────────────────────────────────────────────────────┤
-│  parse advisory → CWE                                        │
-│  read-only snapshot (tmpdir, Antares caps, destroy after run)│
-│  ┌─ fixture: recorded Antares-style localization ─────────┐  │
-│  └─ live: official cisco-antares-cli query on snapshot ───┘  │
-│  no-exploit invariant gate                                   │
-│  report.json + report.sarif + report.md + comment.md         │
-└──────────────────────────────────────────────────────────────┘
+zeroday locate --cwe|--cve|--ghsa  --repo  [--fixture | --endpoint]
+        │
+        ├─ resolve advisory → CWE + category (vendored / NVD / GHSA metadata)
+        ├─ read-only snapshot (Antares caps) → destroy after run
+        ├─ fixture: recorded localization
+        └─ live: WRAP antares query → POST /v1/completions (cisco-antares-cli)
+        │
+        ├─ no-exploit invariant
+        ├─ report.json + report.md (CISO) + comment.md
+        └─ exporters → sarif | asff | splunk | xsoar | fortisiem | crowdstrike
 ```
 
-Optional: the existing **War Room** UI (`npm run dev` → http://localhost:3333) remains in-tree as the broader workstation shell (missions, evidence vault, vendor loadouts). Antares localization is the product spine.
+Optional War Room UI (`npm run dev` → http://localhost:3333) remains in-tree. Antares localization is the product spine.
 
----
+### Live sandbox (operator machines with Docker)
 
-## Project layout
+```
+live locate
+  ├─ create read-only snapshot (host tmp)
+  ├─ SandboxSession (docker ubuntu:24.04)
+  │    network=none · --read-only · mem/cpu limits · /snapshot:ro
+  │    allowlisted exec: grep|find|cat|ls|…
+  │    destroy after run
+  └─ antares query on host → POST host /v1/completions (needs network to vLLM)
+```
 
-| Path | Purpose |
-|------|---------|
-| `cli/index.ts` | `zeroday` CLI (`locate` / `plan` + War Room) |
-| `src/locate/` | Parse, snapshot, fixture, live adapter, SARIF, report, comment, invariants |
-| `fixtures/locate/demo-app/` | Tiny intentional CWE-89 surface |
-| `fixtures/locate/recordings/` | Recorded localizations for offline UX |
-| `.github/workflows/zeroday-locate.yml` | Drop-in CI gate |
-| `.github/actions/zeroday-locate-gate/` | Composite Action (SARIF + PR comment) |
-| `tests/locate/` | SARIF, parse, invariant, comment, e2e fixture |
-| `docs/` | Antares + workstation guides |
+Fixture + Action: **no container**. Docker tests skip when the daemon is absent.
 
 ---
 
@@ -245,23 +314,14 @@ Optional: the existing **War Room** UI (`npm run dev` → http://localhost:3333)
 npm test
 ```
 
-Covers advisory parsing, SARIF 2.1.0 shape (note severity), the no-exploit invariant, PR comment posture, end-to-end fixture `locate`, and `antares plan` when the CLI is installed.
-
----
-
-## Roadmap (later)
-
-1. **Live CI** (optional, opt-in) — Antares-1B/350M on self-hosted runners with local `/v1/completions` — never download weights into GitHub-hosted runners by default.
-2. **Sandbox harden** — isolated container, `network=none`, command timeout.
-3. **Human-asked patch drafts** — CodeGuard-aligned, localization-first, never with a PoC.
-4. War Room wiring so localize runs show up in the Evidence Vault.
+Covers: CVE/GHSA parse + resolve, exporter schema smoke, no-exploit invariant, draft-fix gate, completions endpoint normalize, fixture locate, Action-shaped outputs. CI stays on `ubuntu-latest` without GPU.
 
 ---
 
 ## License & credits
 
-Engagement posture: authorized / defensive use only. No warranty.
+Authorized / defensive use only. No warranty.
 
 - **Antares** — Cisco Foundation AI ([site](https://cisco-foundation-ai.github.io/antares/), [collection](https://huggingface.co/collections/fdtn-ai/antares))
 - Official CLI — [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
-- Optional Plinius adapters — see [`vendor/plinius/README.md`](./vendor/plinius/README.md)
+- Foundry Security Spec · Project CodeGuard — compose, don’t replace
