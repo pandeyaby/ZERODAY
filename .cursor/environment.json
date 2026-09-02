@@ -1,0 +1,17 @@
+{
+  "name": "ZERODAY",
+  "install": "npm ci",
+  "ports": [
+    {
+      "name": "war-room",
+      "port": 3333
+    }
+  ],
+  "terminals": [
+    {
+      "name": "war-room",
+      "command": "npm run dev",
+      "description": "ZERODAY War Room Next.js dev server on http://localhost:3333"
+    }
+  ]
+}
