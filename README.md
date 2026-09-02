@@ -9,11 +9,63 @@
  ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
 ```
 
-**Local-first daily driver around Cisco Foundation AI Antares — for the security engineer who leaves it on.**
+**Local-first Antares daily driver for Cisco Security + Observability + Splunk desks.**
 
-> One command for a junior analyst. One page for a CISO. Exporters a platform team can wire forever. Localization first. Human in the loop.
+### The agentic-era question (context — not a ZERODAY claim)
 
-Built so a Foundation AI / Talos / ESCU / AWS Security engineer can star it, run it on a workstation, and keep the GitHub Action soft-failing forever — without downloading 3.7GB weights into CI.
+When something goes wrong in an agentic stack, a leader still has to answer: was it a **possible breach**, an **infra failure**, a **software defect**, or a **legitimate agent with bad judgment** — and the adversary may already be inside (and may itself be an agent). **Code and telemetry have to stay together** for a human to decide. ZERODAY does **not** watch the live network and does **not** claim production detection of agent misfires or live adversaries.
+
+### What ZERODAY actually does
+
+| Capability | Reality |
+|------------|---------|
+| Antares-native local vulnerability localization | CWE / CVE / GHSA → ranked files + evidence (`locate`) |
+| Source stays on the machine | No cloud inference of customer source |
+| SARIF | GitHub Code Scanning (note severity) |
+| Splunk CIM + ASFF files | **Customer** ingests; we do not push |
+| CI gate | Fixture-only Action you can leave on forever |
+| Human review | Localization ≠ exploitability; **no auto-merge** |
+| Patch DRAFT | Only with `--i-asked-for-a-fix` |
+| Live explore sandbox | Docker `network=none` when available |
+| **Classify (fixture-driven)** | Rollup label `possible_breach` \| `infra_failure` \| `software_defect` \| `agent_misfire` \| `needs_human` from **local** locate + telemetry fixtures — **always** `needs_human` / human review required; ambiguous → `needs_human` |
+
+> **Honesty:** `agent_misfire` appears only as a **classifier output on fixtures** that support it — not as live agent-misfire detection.
+
+This is a workstation those teams can run. It is **not** an official Cisco / Splunk partnership product and invents no executive quotes.
+
+---
+
+## 60-second demo (no gated weights)
+
+Copy-paste after clone. Fixture path only — no GPU, no HF token, no model download.
+
+```bash
+npm install
+npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/demo
+# → report.sarif (GitHub Code Scanning)
+# → splunk-cim-vulnerabilities.json + asff-findings.json (local; customer ingests)
+ls zeroday-reports/demo/report.sarif zeroday-reports/demo/splunk-cim-vulnerabilities.json
+```
+
+Optional re-export (same files, explicit command):
+
+```bash
+npm run zeroday -- export --format splunk --from zeroday-reports/demo/report.json
+npm run zeroday -- export --format sarif --from zeroday-reports/demo/report.json
+```
+
+### Second copy-paste — classify on bundled fixtures
+
+```bash
+npm run zeroday -- classify --scenario software_defect --output zeroday-reports/ciso-software
+npm run zeroday -- classify --scenario possible_breach --output zeroday-reports/ciso-breach
+npm run zeroday -- classify --scenario infra_failure --output zeroday-reports/ciso-infra
+npm run zeroday -- classify --scenario agent_misfire --output zeroday-reports/ciso-agent
+npm run zeroday -- classify --scenario needs_human --output zeroday-reports/ciso-ambiguous
+# → ciso.json + ciso.md  (always needs_human: true)
+```
+
+Fixture names live under `fixtures/classify/<scenario>/`.
 
 ---
 

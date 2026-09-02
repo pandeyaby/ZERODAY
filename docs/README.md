@@ -20,6 +20,7 @@ In-app War Room docs: **http://localhost:3333/docs**
 | Antares + ZERODAY | [antares.md](./antares.md) |
 | Defender exporters | [exporters.md](./exporters.md) |
 | Exploration sandbox | [sandbox.md](./sandbox.md) |
+| Classify (CISO rollup) | [classify.md](./classify.md) |
 | Overview | [overview.md](./overview.md) · `/docs/overview` |
 | Getting Started | [getting-started.md](./getting-started.md) · `/docs/getting-started` |
 | War Room | [war-room.md](./war-room.md) · `/docs/war-room` |

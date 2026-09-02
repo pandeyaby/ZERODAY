@@ -1,0 +1,25 @@
+{
+  "schema": "zeroday-telemetry-v1",
+  "source": "fixture",
+  "title": "Ambiguous: lateral movement + agent misfire",
+  "description": "Competing signals — classifier MUST emit needs_human.",
+  "events": [
+    {
+      "id": "amb-001",
+      "timestamp": "2026-08-30T13:00:00.000Z",
+      "type": "netflow",
+      "src_host": "host-a",
+      "dst_host": "host-b",
+      "tags": ["lateral_movement", "east_west"],
+      "notes": "Fixture: lateral movement shaped hop"
+    },
+    {
+      "id": "amb-002",
+      "timestamp": "2026-08-30T13:00:10.000Z",
+      "type": "agent_session",
+      "agent_id": "change-bot-2",
+      "tags": ["agent_misfire", "bad_judgment"],
+      "notes": "Fixture: legitimate agent with bad judgment overlapping the same window"
+    }
+  ]
+}

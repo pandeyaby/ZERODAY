@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start -p 3333",
     "lint": "eslint .",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsx --test \"tests/**/*.test.ts\"",
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "locate": "tsx cli/index.ts locate",
@@ -21,7 +21,8 @@
     "plinius:status": "tsx -e \"import { listPliniusStatus } from './src/plinius/registry.ts'; console.log(JSON.stringify(listPliniusStatus(),null,2))\"",
     "plinius:st3gg-deps": "python3 -m venv .venv-st3gg && .venv-st3gg/bin/pip install -r vendor/plinius/st3gg/requirements.txt",
     "export": "tsx cli/index.ts export",
-    "draft-fix": "tsx cli/index.ts draft-fix"
+    "draft-fix": "tsx cli/index.ts draft-fix",
+    "classify": "tsx cli/index.ts classify"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

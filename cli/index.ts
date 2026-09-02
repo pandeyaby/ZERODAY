@@ -31,6 +31,10 @@ import {
 } from "../src/locate/draft-fix.ts";
 import type { LocalizationResult } from "../src/locate/types.ts";
 import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
+import {
+  runClassify,
+  listClassifyScenarios,
+} from "../src/classify/index.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 
@@ -290,6 +294,58 @@ program
       console.log("Local file only — no vendor API push.");
     } catch (e) {
       console.error(`export failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("classify")
+  .description(
+    "Fixture-driven CISO rollup (locate + optional local telemetry). Human review required. Not a live SOC.",
+  )
+  .option(
+    "--scenario <name>",
+    `Bundled fixtures/classify/<name> (${listClassifyScenarios().join("|") || "see fixtures/classify"})`,
+  )
+  .option("--from <report.json>", "Locate LocalizationResult report.json")
+  .option(
+    "--telemetry <file.json>",
+    "Local zeroday-telemetry-v1 fixture (no live Cisco/Splunk feeds)",
+  )
+  .option("--output <dir>", "Output directory for ciso.json + ciso.md")
+  .option("--json", "Print CISO object JSON to stdout", false)
+  .action((opts: {
+    scenario?: string;
+    from?: string;
+    telemetry?: string;
+    output?: string;
+    json: boolean;
+  }) => {
+    try {
+      const artifacts = runClassify({
+        scenario: opts.scenario,
+        fromLocate: opts.from,
+        telemetry: opts.telemetry,
+        outputDir: opts.output,
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(artifacts.ciso, null, 2));
+      } else {
+        console.log("");
+        console.log("ZERODAY classify");
+        console.log("───────────────");
+        console.log(`Classification : ${artifacts.ciso.classification}`);
+        console.log(`Confidence     : ${artifacts.ciso.confidence}`);
+        console.log(`Needs human    : yes (always)`);
+        console.log(`CISO JSON      : ${artifacts.jsonPath}`);
+        console.log(`CISO report    : ${artifacts.markdownPath}`);
+        console.log("");
+        console.log(
+          "Honesty: fixture-driven classifier · not production SOC · not live agent-misfire detection · not exploit proof · no auto-merge",
+        );
+      }
+    } catch (e) {
+      console.error(`classify failed: ${(e as Error).message}`);
       process.exitCode = 2;
     }
   });
