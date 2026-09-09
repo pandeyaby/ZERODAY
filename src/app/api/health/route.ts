@@ -14,7 +14,7 @@ export async function GET() {
     product: "agent-operator",
     defaultPath: "keyless-operate",
     persistence: backend,
-    stripped: ["plinius", "stego", "kill-chain-missions"],
+    stripped: ["offensive-missions", "research-jailbreak-packs", "mutation-lab"],
     time: new Date().toISOString(),
   });
 }

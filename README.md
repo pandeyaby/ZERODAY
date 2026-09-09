@@ -118,7 +118,7 @@ npm run play
 # http://localhost:3333/play  — How orgs use this + fixture buttons
 ```
 
-Fixture-only UI. No offensive mission / stego / jailbreak tabs.
+Fixture-only UI. Defensive tabs only (usage, vendor packs, docs, settings).
 
 ---
 

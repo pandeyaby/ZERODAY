@@ -22,7 +22,7 @@ workflow for authorized codebases.
 - Live vendor API pushes or bundled cloud credentials
 - Cloud inference of customer source
 - Auto-merge or “CodeGuard-approved” claims
-- Red / purple team engagement theater, offensive mission UIs, stego labs, jailbreak packs
+- Red / purple team engagement theater, offensive mission UIs, mutation labs, jailbreak packs
 
 If asked for a fix **and** a PoC: emit only a gated patch **DRAFT**
 (`--i-asked-for-a-fix`) and **refuse the PoC in one sentence**.

@@ -26,6 +26,9 @@ const FORBIDDEN_PACKAGE_SCRIPTS = [
   "plinius:st3gg-deps",
 ];
 
+const FORBIDDEN_PRODUCT_PATTERNS =
+  /plinius|stego|tokenade|nmap_syn|Exploiter|elder-plinius|G0DM0D3|L1B3RT4S/i;
+
 describe("strip confirmation — no offensive product surface", () => {
   it("removed Plinius / stego / kill-chain modules from tree", () => {
     for (const rel of FORBIDDEN_PATHS) {
@@ -63,8 +66,24 @@ describe("strip confirmation — no offensive product surface", () => {
       path.join(root, "SCOPE_AND_AUTHORIZATION.md"),
       "utf8",
     );
-    assert.doesNotMatch(scope, /Plinius|G0DM0D3|T3MP3ST|kill-chain|Gated PoC/i);
+    assert.doesNotMatch(scope, FORBIDDEN_PRODUCT_PATTERNS);
     assert.match(scope, /defensive/i);
     assert.match(scope, /evidence/i);
+  });
+
+  it("Dockerfile / health / README product paths have no forbidden tokens", () => {
+    for (const rel of [
+      "Dockerfile",
+      "src/app/api/health/route.ts",
+      "cli/index.ts",
+      "package.json",
+    ]) {
+      const text = fs.readFileSync(path.join(root, rel), "utf8");
+      assert.doesNotMatch(
+        text,
+        FORBIDDEN_PRODUCT_PATTERNS,
+        `${rel} must not contain forbidden product tokens`,
+      );
+    }
   });
 });

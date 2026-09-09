@@ -22,4 +22,4 @@ npm run zeroday -- sweep   # TODO stub — use operate/locate first
 | GET/POST | `/api/settings` | Local prefs |
 | GET/POST | `/api/playground` | Fixture locate / classify / demo |
 
-No missions, stego, or Plinius routes.
+No missions or research-lab routes.
