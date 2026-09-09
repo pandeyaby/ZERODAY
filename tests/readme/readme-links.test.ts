@@ -70,4 +70,34 @@ describe("README adoption path sanity", () => {
       "completions_server.py missing",
     );
   });
+
+  it("Proof section links sample SARIF + images (no private paths)", () => {
+    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    const proofIdx = readme.indexOf("## Proof");
+    const liveIdx = readme.indexOf("30-minute live path");
+    assert.ok(proofIdx >= 0, "missing Proof section");
+    assert.ok(proofIdx < liveIdx || liveIdx < 0, "Proof should lead near top");
+    assert.match(readme, /examples\/sample-live-sarif\/report\.sarif/);
+    assert.match(readme, /docs\/images\/zeroday-locate-cli\.png/);
+    assert.match(readme, /docs\/images\/zeroday-sarif-findings\.png/);
+    assert.match(readme, /demo-proof\.sh/);
+    assert.doesNotMatch(readme, /Webuzz|\/Users\//);
+
+    const sample = path.join(root, "examples/sample-live-sarif/report.sarif");
+    assert.ok(fs.existsSync(sample));
+    const sarif = JSON.parse(fs.readFileSync(sample, "utf8"));
+    assert.equal(sarif.version, "2.1.0");
+    assert.match(sarif.runs[0].tool.driver.name, /ZERODAY|Antares/);
+    assert.ok(sarif.runs[0].results.length >= 1);
+    const blob = JSON.stringify(sarif);
+    assert.doesNotMatch(blob, /\/workspace\/|\/Users\/|Webuzz/);
+
+    for (const img of [
+      "docs/images/zeroday-locate-cli.png",
+      "docs/images/zeroday-sarif-findings.png",
+      "docs/images/zeroday-live-path.png",
+    ]) {
+      assert.ok(fs.existsSync(path.join(root, img)), `missing ${img}`);
+    }
+  });
 });

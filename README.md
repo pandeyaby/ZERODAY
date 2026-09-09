@@ -6,6 +6,54 @@ Sister pieces (compose, don’t duplicate): [Antares](https://cisco-foundation-a
 
 ---
 
+## Proof
+
+Public artifacts you can open without a GPU — **fixture-shaped** sample (same SARIF schema as live; `mode` differs). No customer paths. No tokens.
+
+**(a) 30-min live one-liner** (product path — needs local completions + HF license accept):
+
+```bash
+npm run zeroday -- locate --repo <authorized-repo> --cwe CWE-89 --endpoint http://127.0.0.1:8000/v1
+# model defaults to fdtn-ai/antares-1b · helper: bash scripts/quickstart-live.sh <repo>
+```
+
+**(b) Sample SARIF snippet** ([full file](./examples/sample-live-sarif/report.sarif) · [excerpt](./examples/sample-live-sarif/report.excerpt.sarif.json)):
+
+```json
+{
+  "version": "2.1.0",
+  "runs": [{
+    "tool": { "driver": { "name": "ZERODAY-Antares" } },
+    "results": [{
+      "ruleId": "CWE-89",
+      "level": "note",
+      "message": {
+        "text": "SQL query built via string concatenation — rank 1. … (Localization only; not exploitability proof.)"
+      },
+      "locations": [{
+        "physicalLocation": {
+          "artifactLocation": { "uri": "src/users.js", "uriBaseId": "%SRCROOT%" },
+          "region": { "startLine": 8, "endLine": 10 }
+        }
+      }],
+      "properties": { "submission_rank": 1, "mode": "fixture" }
+    }]
+  }]
+}
+```
+
+Regenerate the checked-in sample (CI-safe): `bash scripts/demo-proof.sh`
+
+**(c) Screenshots**
+
+![ZERODAY locate CLI — ranked files + SARIF path](./docs/images/zeroday-locate-cli.png)
+
+![SARIF findings list — CWE-89 note severity](./docs/images/zeroday-sarif-findings.png)
+
+![30-min live path one-liner](./docs/images/zeroday-live-path.png)
+
+---
+
 ## 30-minute live path: Antares → SARIF
 
 This is the **product path** — real local inference, not a fixture. Budget: install → accept HF terms → serve → one command → `report.sarif`.

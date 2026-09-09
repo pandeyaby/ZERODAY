@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY-Antares",
+          "version": "0.3.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-89",
+              "name": "CWE-89",
+              "shortDescription": {
+                "text": "CWE-89 candidate file (Antares localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY/Antares localized a candidate for CWE-89. This is file-level localization for human review \u2014 not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/89.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-89"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "SQL query built via string concatenation \u2014 rank 1. User-controlled `name` is concatenated into a SQL string before db.query. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/users.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|src/users.js|1"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "CWE-89",
+            "mode": "fixture",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 6,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Request parameter passed to unsafe finder \u2014 rank 2. HTTP query `name` flows into findUserByName without neutralization. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/app.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|src/app.js|2"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "CWE-89",
+            "mode": "fixture",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 6,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///examples/sample-live-sarif/demo-app/"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cwe",
+          "id": "CWE-89",
+          "cweId": "CWE-89",
+          "title": "Improper Neutralization of Special Elements used in an SQL Command"
+        },
+        "model": "fixture/antares-1b-recorded",
+        "mode": "fixture",
+        "generatedAt": "2026-09-09T02:52:36.369Z",
+        "summary": {
+          "findingCount": 2,
+          "incompleteReason": null,
+          "terminalCallBudget": 15,
+          "terminalCallsUsed": 6
+        },
+        "explorationTrace": [
+          {
+            "step": 1,
+            "tool": "find",
+            "command": "find . -type f -name '*.js'",
+            "summary": "Listed JavaScript sources under the read-only snapshot."
+          },
+          {
+            "step": 2,
+            "tool": "grep",
+            "command": "grep -Rni 'SELECT' .",
+            "summary": "Found SQL-like strings in src/users.js."
+          },
+          {
+            "step": 3,
+            "tool": "grep",
+            "command": "grep -Rni 'query' src/",
+            "summary": "Correlated db.query call sites with string concatenation."
+          },
+          {
+            "step": 4,
+            "tool": "cat",
+            "command": "cat src/users.js",
+            "summary": "Read findUserByName; confirmed unparameterized SQL construction."
+          },
+          {
+            "step": 5,
+            "tool": "cat",
+            "command": "cat src/app.js",
+            "summary": "Confirmed request input reaches the unsafe helper."
+          },
+          {
+            "step": 6,
+            "tool": "submit",
+            "command": "submit_vulnerable_files",
+            "summary": "Submitted src/users.js (rank 1) and src/app.js (rank 2)."
+          }
+        ],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "Public sample regenerated via locate --fixture (CI / no-GPU).",
+          "Live runs use the same SARIF schema with mode=live."
+        ]
+      }
+    }
+  ]
+}

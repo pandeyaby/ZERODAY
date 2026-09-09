@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY-Antares",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "SQL query built via string concatenation — rank 1. User-controlled `name` is concatenated into a SQL string before db.query. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/users.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|src/users.js|1"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "CWE-89",
+            "mode": "fixture",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 6,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Request parameter passed to unsafe finder — rank 2. HTTP query `name` flows into findUserByName without neutralization. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/app.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|src/app.js|2"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "CWE-89",
+            "mode": "fixture",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 6,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ]
+    }
+  ]
+}
