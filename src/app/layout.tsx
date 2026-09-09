@@ -18,9 +18,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZERODAY — War Room",
+  title: "ZERODAY — Agent Operator",
   description:
-    "Enterprise AI red/purple team harness for Cisco + Splunk. Scope · Authorization · Evidence · Retest.",
+    "Keyless defensive security operator for Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, and AWS Security. Localization + durable evidence. No exploits.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

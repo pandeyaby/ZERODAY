@@ -1,55 +1,53 @@
-# SCOPE AND AUTHORIZATION — Plinian Doctrine (ZERODAY)
-#
-# Adapted for vendor security stacks (Cisco, Splunk, extensible loadouts).
-# Inspired by T3MP3ST's engagement model.
-#
-# Antares localization (zeroday locate) is defensive-only: ranked files +
-# evidence + SARIF. Never exploits, PoCs, payloads, or attack procedures.
-# Localization is not proof of exploitability. No auto-merge.
+# SCOPE AND AUTHORIZATION — Defensive localization & evidence audit
 
-## The four pillars
+ZERODAY is a **defensive** security operator harness. It turns an existing AI
+coding agent (or optional local Antares) into a structured, auditable localization
+workflow for authorized codebases.
 
-1. **Scope** — Explicit targets only (hostname, CIDR, URL, product). Off-scope hosts
-   receive `SCOPE DENIED`. Cloud metadata endpoints are denied unless explicitly listed.
+## What is in scope
 
-2. **Authorization** — Every mission requires an acknowledged AuthorizationRecord
-   (who, when, RoE, optional ticket ref). Missions cannot start without it.
+1. **Localization** — Given a CWE / CVE / GHSA and a local repository you are
+   authorized to assess, produce ranked candidate files with evidence quotes.
+2. **Evidence audit** — Every material claim links to hashed, reviewable artifacts
+   (JSON + Markdown + SARIF + vendor projections) under `zeroday-reports/<run>/`.
+3. **Human review** — `needs_human` is always required. Localization is **not**
+   proof of exploitability. No auto-merge.
+4. **Vendor projections (local files)** — SARIF, ASFF, Splunk CIM, XSOAR,
+   FortiSIEM, CrowdStrike HEC-shaped NDJSON for **customer-owned** ingest.
 
-3. **Evidence** — Every material claim links to durable, SHA-256 hashed evidence.
-   Secrets are redacted by default. No raw credentials in the vault without gates.
+## What is out of scope
 
-4. **Retest** — High/critical findings enter `needs_retest` and must pass independent
-   retest before promotion to confirmed claims.
+- Exploits, PoCs, payloads, shellcode, attack procedures (even localhost / lab / fiction)
+- Network scanning, credential theft, access bypass
+- Live vendor API pushes or bundled cloud credentials
+- Cloud inference of customer source
+- Auto-merge or “CodeGuard-approved” claims
+- Red / purple team engagement theater, offensive mission UIs, stego labs, jailbreak packs
 
-## Tool modes
+If asked for a fix **and** a PoC: emit only a gated patch **DRAFT**
+(`--i-asked-for-a-fix`) and **refuse the PoC in one sentence**.
 
-| Mode | Meaning |
-|------|---------|
-| `safe_local` | Lab/simulation/offline analysis (default for recon/scan) |
-| `receipt_required` | Human spicy-approval required before execution |
-| `catalog_only` | Describe capability; do not execute |
+## Authorization
 
-## Authorized use only
+Only run ZERODAY against repositories and systems you own or have explicit written
+permission to assess. Unauthorized targeting is illegal. Responsibility rests with
+the operator.
 
-ZERODAY is for internal red/purple team engagements, written bug-bounty scopes,
-vendor product security validation, detection engineering labs, and controlled ranges.
+## Default path (keyless)
 
-Unauthorized targeting of systems you do not own or lack written permission to test
-is illegal. Responsibility rests with the operator.
+```
+zeroday operate --repo <path> --cwe CWE-89
+```
 
-## Plinius research libraries
+The coding agent already running the tool explores a read-only snapshot and
+submits structured JSON. No Antares HF token. No vendor API keys.
 
-G0DM0D3, CL4R1T4S, L1B3RT4S, and OBLITERATUS are **optional** local research clones (not shipped in the ZERODAY product tree).
-They remain **disabled** until an operator:
+Optional `--live` Antares (`zeroday locate --endpoint …`) requires an operator-hosted
+completions-only endpoint for `fdtn-ai/antares-1b`. ZERODAY never downloads
+`model.safetensors` and never pulls gated weights in CI.
 
-1. Acknowledges the research authorized-use statement
-2. Enables the master research gate
-3. Enables specific libraries
-4. (For content) enables content reads; L1B3RT4S / OBLITERATUS also need a receipt
+## Evidence
 
-ZERODAY never auto-injects jailbreak packs into missions and refuses in-process
-abliteration/jailbreak execution — run those upstream tools only in an isolated lab VM
-under written RoE. All research browse/preview actions are audited to the Evidence Vault.
-
-T3MP3ST and ST3GG are production adapters and do not require the research gate.
-ST3GG encode/decode remain `receipt_required` and path-sandboxed.
+- Vault: `zeroday-reports/<run-id>/evidence/`
+- Manifest: `evidence/manifest.json` (SHA-256 of inputs, submission, outputs)
+- Offline check: `zeroday verify --from <run-dir>`

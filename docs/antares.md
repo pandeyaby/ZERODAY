@@ -22,9 +22,13 @@ There is **no** `antares locate`. `zeroday locate` wraps `query` (and `plan` via
 ## Completions only
 
 ```bash
-vllm serve fdtn-ai/antares-1b   # validated with vLLM 0.19.1
+vllm serve fdtn-ai/antares-1b   # Antares CLI expects vLLM 0.19.1+ completions
 # POST /v1/completions — chat completions are rejected
+# ZERODAY does not claim independent “validated with vLLM” proof
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
+
+# Keyless default (no Antares weights):
+npm run zeroday -- operate --cwe CWE-89 --fixture
 ```
 
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.

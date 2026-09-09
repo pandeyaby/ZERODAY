@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbRepo } from "@/lib/db/repo";
-import { listLoadouts } from "@/loadouts/registry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,14 +7,16 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return NextResponse.json({
     settings: dbRepo.getSettings(),
-    loadouts: listLoadouts(),
     envHints: {
-      OPENROUTER_API_KEY: Boolean(process.env.OPENROUTER_API_KEY),
-      ANTHROPIC_API_KEY: Boolean(process.env.ANTHROPIC_API_KEY),
-      OPENAI_API_KEY: Boolean(process.env.OPENAI_API_KEY),
-      OLLAMA_HOST: process.env.OLLAMA_HOST || null,
-      ZERODAY_LLM_BASE_URL: process.env.ZERODAY_LLM_BASE_URL || null,
+      ANTARES_ENDPOINT: process.env.ANTARES_ENDPOINT || null,
+      ANTARES_MODEL: process.env.ANTARES_MODEL || null,
     },
+    honesty: [
+      "Keyless by default — coding agent operator path needs no HF token",
+      "Optional local Antares via completions-only endpoint",
+      "No vendor API credentials bundled",
+      "Fixture playground never downloads weights",
+    ],
   });
 }
 

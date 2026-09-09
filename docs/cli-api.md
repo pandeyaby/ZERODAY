@@ -1,41 +1,25 @@
-# CLI & HTTP API
+# CLI / API reference
 
-> Headless/CI parity and integration endpoints.
-
-[Open in app](http://localhost:3333/docs/cli-api)
-
-## Antares localization (primary)
+## CLI
 
 ```bash
+npm run zeroday -- operate --cwe CWE-89 --fixture
+npm run zeroday -- verify --from zeroday-reports/<run>
 npm run zeroday -- locate --cwe CWE-89 --fixture
-npm run zeroday -- plan fixtures/locate/demo-app --max-cwes 5
+npm run zeroday -- classify --scenario possible_breach
+npm run zeroday -- demo
+npm run zeroday -- export --format asff --from path/to/report.json
+npm run zeroday -- draft-fix --i-asked-for-a-fix --from path/to/report.json
+npm run zeroday -- play --action locate
+npm run zeroday -- sweep   # TODO stub — use operate/locate first
 ```
 
-See [antares.md](./antares.md).
+## Local UI API (npm run play)
 
-## War Room CLI
+| Method | Path | Role |
+|--------|------|------|
+| GET | `/api/health` | Health |
+| GET/POST | `/api/settings` | Local prefs |
+| GET/POST | `/api/playground` | Fixture locate / classify / demo |
 
-```bash
-export ZERODAY_URL=http://127.0.0.1:3333
-npm run cli -- health
-npm run cli -- missions
-npm run cli -- launch "Assess Cisco DNA + Splunk staging"
-npm run cli -- authorize <missionId> --by "Lead"
-npm run cli -- start <missionId>
-npm run cli -- status <missionId>
-```
-
-## Main HTTP routes
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET | /api/health | Health + persistence backend |
-| GET/POST | /api/missions | List / create / authorize / start / abort |
-| GET | /api/missions/:id | Full mission detail |
-| GET | /api/evidence | Evidence vault |
-| GET/POST | /api/findings | Findings ledger |
-| GET/POST | /api/retest | Retest queue |
-| GET/POST | /api/tools | Arsenal catalog + execute |
-| GET/POST | /api/stego | Stego lab |
-| GET/POST | /api/settings | App / LLM settings |
-| GET | /api/mcp | MCP-shaped tool catalog |
+No missions, stego, or Plinius routes.
