@@ -57,18 +57,27 @@ describe("README adoption path sanity", () => {
     assert.match(script, /mode.*live|expected 'live'/);
   });
 
-  it("documents Mac MPS greedy server and model default", () => {
+  it("documents Mac MPS float32 server and model default", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     assert.match(readme, /completions_server\.py/);
-    assert.match(readme, /greedy/i);
+    assert.match(readme, /float32/i);
+    assert.match(readme, /float16/i);
+    assert.match(readme, /false fix|greedy is a false fix/i);
     assert.match(readme, /MPS|Apple Silicon/);
     assert.match(readme, /fdtn-ai\/antares-1b/);
     assert.match(readme, /Incomplete runs|submit_vulnerable_files/);
     assert.match(readme, /--tool-budget/);
     assert.ok(
       fs.existsSync(path.join(root, "scripts/completions_server.py")),
-      "completions_server.py missing",
     );
+    const server = fs.readFileSync(
+      path.join(root, "scripts/completions_server.py"),
+      "utf8",
+    );
+    assert.match(server, /select_torch_dtype_name/);
+    assert.match(server, /skip_special_tokens\s*=\s*False/);
+    assert.match(server, /is_degenerate_exclamation_run/);
+    assert.match(server, /map_frequency_to_repetition_penalty/);
   });
 
   it("Proof section links sample SARIF + images (no private paths)", () => {

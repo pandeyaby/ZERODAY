@@ -49,7 +49,7 @@ export interface ClassifyIncompleteInput {
 const TIP_HEALTH =
   "Check completions server health: GET /v1/models → 200; smoke POST /v1/completions (not chat).";
 const TIP_MPS =
-  "Mac MPS: float16 sampling can NaN — use greedy decoding (`python scripts/completions_server.py`).";
+  "Mac MPS: float16 produces NaN logits → '!' forever — use float32 (`python scripts/completions_server.py`; greedy is a false fix). Prefer vLLM on CUDA when available.";
 const TIP_BUDGET = `Raise exploration budget: zeroday locate … --tool-budget ${LIVE_RECOVERY_TOOL_BUDGET} (Antares range 1–50).`;
 const TIP_COMPLETIONS =
   "Confirm endpoint is POST /v1/completions only — /v1/chat/completions breaks the Antares tool prompt.";
