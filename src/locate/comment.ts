@@ -52,7 +52,7 @@ export function toPullRequestComment(result: LocalizationResult): string {
         ? result.summary.incompleteTips
         : [
             "check completions health",
-            "Mac MPS → float32 completions server (scripts/completions_server.py)",
+            "prefer vLLM/CUDA; Mac MPS float32+greedy is bang-safe but tool-schema unreliable (scripts/completions_server.py)",
             "raise --tool-budget",
           ];
       lines.push(

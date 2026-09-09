@@ -82,13 +82,16 @@ ZERODAY never downloads `model.safetensors` for you (and CI never pulls weights)
 Antares CLI expects an OpenAI-compatible **`POST /v1/completions`** endpoint (chat completions are rejected). The Antares CLI documents vLLM 0.19.1+ for this; ZERODAY does **not** claim independent “validated with vLLM \<version\>” proof.
 
 ```bash
-# CUDA / Linux GPU (typical)
+# CUDA / Linux GPU (recommended for schema-faithful live Antares)
 vllm serve fdtn-ai/antares-1b
 # → http://127.0.0.1:8000/v1/completions
 
-# Mac Apple Silicon (MPS): float16 compute produces NaN logits → `!` forever.
-# Greedy is a false fix. Use float32 (this helper does). Prefer vLLM on CUDA when available.
-# Optional helper (completions-only; rejects /v1/chat/completions):
+# Mac Apple Silicon (MPS) — two distinct failure modes:
+#   (a) float16 → NaN logits → `!` forever (bangs). Fix: float32 (this helper).
+#   (b) even float32 often emits malformed tool_call JSON (e.g. run/termina vs
+#       name/arguments) → 0 executed tools. ZERODAY does not soft-rewrite tool JSON.
+# vLLM/CUDA is recommended for schema-faithful live Antares. MPS float32 is
+# bang-safe but tool-schema unreliable. Helper defaults to greedy on MPS.
 python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 ```
 
@@ -121,7 +124,7 @@ Artifacts land under `zeroday-reports/<run>/` (or the `--output` dir):
 
 **Invariant:** if `--endpoint` / `--live` is set and the endpoint is down, locate **exits non-zero**. It will not quietly write a fixture recording and call it done.
 
-**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Live defaults: `--tool-budget 30`, best-effort one re-query with raised budget, `--fail-on-incomplete` (exit 2). Tips: check server health; Mac MPS float32 helper (`scripts/completions_server.py` — not float16/greedy); `--tool-budget 45`.
+**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Live defaults: `--tool-budget 30`, best-effort one re-query with raised budget, `--fail-on-incomplete` (exit 2). Tips: check server health; prefer **vLLM/CUDA** for live Antares (MPS float32 is bang-safe but tool-schema unreliable); `--tool-budget 45`.
 
 ### Live incomplete runs (troubleshooting)
 
@@ -138,7 +141,7 @@ When a live Mac/GPU run finishes with `incompleteReason` like *“Model ended wi
 **Next actions (printed in CLI + report.md):**
 
 1. `GET /v1/models` healthy; smoke `POST /v1/completions` (not chat)
-2. Mac MPS → float32 completions server (`python scripts/completions_server.py`; float16 is broken)
+2. Prefer **vLLM/CUDA** for schema-faithful tools. On Mac MPS: float32+greedy (`scripts/completions_server.py`) stops float16 `!` bangs, but tool_call JSON may still be malformed (`run`/`termina` vs `name`/`arguments`) — ZERODAY does not rewrite it
 3. Raise budget: `--tool-budget 45` or `ANTARES_TOOL_BUDGET=45`
 4. Optional: `--no-live-recovery` to skip the best-effort re-query; `--no-fail-on-incomplete` to exit 0 while still writing the incomplete report
 

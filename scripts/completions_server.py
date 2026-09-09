@@ -3,15 +3,19 @@
 
 Why this exists
 ---------------
-Antares CLI requires POST /v1/completions (NOT chat). On Apple Silicon (MPS),
-**float16 compute produces NaN logits** → argmax collapses to token 0 (`!`) forever
-→ Antares live runs see tool_call_count=0 / no_submit. **Greedy decoding is a
-false fix.** Use **float32 on MPS**; float16 remains OK on CUDA. Prefer vLLM on
-CUDA when a GPU is available.
+Antares CLI requires POST /v1/completions (NOT chat). On Apple Silicon (MPS):
 
-This is a workstation helper — not CI, not a production inference stack, not a
-Cisco partnership. Accept HF terms for fdtn-ai/antares-1b yourself before loading
-weights. ZERODAY never downloads model.safetensors in CI.
+  (a) **float16 bangs:** float16 compute → NaN logits → argmax token 0 (`!`) forever.
+      Fix: load **float32 on MPS** (this server). Greedy alone does **not** fix bangs.
+  (b) **malformed tool JSON:** even with float32, MPS often emits broken tool_call
+      schema (e.g. `run`/`termina` instead of `name`/`arguments`) → 0 executed tools.
+      ZERODAY does **not** soft-rewrite tool JSON. Prefer **vLLM on CUDA** for
+      schema-faithful live Antares.
+
+Default on MPS: float32 + **greedy** (`do_sample=False`; client temperature ignored
+unless `--honor-temperature`). Still a workstation helper — not CI, not production,
+not a Cisco partnership. Accept HF terms for fdtn-ai/antares-1b yourself.
+ZERODAY never downloads model.safetensors in CI.
 
 Usage
 -----
@@ -134,6 +138,11 @@ def is_degenerate_token_ids(
     return (n_dom / len(token_ids)) >= ratio
 
 
+def should_force_greedy_on_mps(*, device: str, honor_temperature: bool) -> bool:
+    """MPS defaults to greedy; --honor-temperature opts into client sampling."""
+    return device == "mps" and not honor_temperature
+
+
 def _pick_device(prefer: str) -> str:
     import torch
 
@@ -156,13 +165,24 @@ def _pick_device(prefer: str) -> str:
 
 
 class CompletionsServer:
-    def __init__(self, model_id: str, device: str, max_new_tokens: int) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        device: str,
+        max_new_tokens: int,
+        *,
+        honor_temperature: bool = False,
+    ) -> None:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.model_id = model_id
         self.device = device
         self.max_new_tokens = max_new_tokens
+        self.honor_temperature = honor_temperature
+        self.force_greedy = should_force_greedy_on_mps(
+            device=device, honor_temperature=honor_temperature
+        )
         self.torch = torch
         self.dtype_name = select_torch_dtype_name(device)
         dtype = getattr(torch, self.dtype_name)
@@ -177,11 +197,20 @@ class CompletionsServer:
             )
         if device == "mps":
             print(
-                "note: MPS float16 is broken for Antares (NaN logits → '!' forever). "
-                "Using float32. Prefer vLLM on CUDA when available.",
+                "note: MPS (a) float16 → NaN/`!` bangs — using float32; "
+                "(b) tool_call JSON schema is often malformed on MPS — "
+                "vLLM/CUDA recommended for schema-faithful live Antares. "
+                "ZERODAY does not soft-rewrite tool JSON.",
                 file=sys.stderr,
                 flush=True,
             )
+            if self.force_greedy:
+                print(
+                    "note: MPS greedy by default (do_sample=False; client "
+                    "temperature ignored). Pass --honor-temperature to sample.",
+                    file=sys.stderr,
+                    flush=True,
+                )
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -253,9 +282,16 @@ class CompletionsServer:
             "max_new_tokens": max(1, min(int(n), 2048)),
             "pad_token_id": self.tokenizer.eos_token_id,
         }
-        # float32 on MPS allows normal sampling; do not force greedy (false fix)
         temp = 0.0 if temperature is None else float(temperature)
-        if temp > 0:
+        if self.force_greedy:
+            if temp > 0:
+                print(
+                    f"note: temperature={temp} ignored — MPS greedy by default "
+                    "(pass --honor-temperature to sample)",
+                    file=sys.stderr,
+                )
+            gen_kwargs["do_sample"] = False
+        elif temp > 0:
             gen_kwargs["do_sample"] = True
             gen_kwargs["temperature"] = temp
         else:
@@ -284,9 +320,9 @@ class CompletionsServer:
         if is_degenerate_token_ids(id_list) or is_degenerate_exclamation_run(text):
             raise RuntimeError(
                 "Degenerate completion detected (near-constant '!' / token-id 0). "
-                "On Mac MPS this usually means float16 NaN logits — this server "
-                "must load with float32 on MPS. Do not rely on greedy decoding. "
-                "Prefer vLLM on CUDA when available. "
+                "On Mac MPS this is usually float16 NaN logits — load float32 "
+                "(this server does). Greedy alone does not fix bangs. "
+                "Prefer vLLM on CUDA for schema-faithful Antares. "
                 f"(device={self.device}, dtype={self.dtype_name})"
             )
         if "nan" in text.lower() and len(text.strip()) < 8:
@@ -340,6 +376,7 @@ def make_handler(server: CompletionsServer):
                         "model": server.model_id,
                         "device": server.device,
                         "dtype": server.dtype_name,
+                        "force_greedy": server.force_greedy,
                     },
                 )
                 return
@@ -417,7 +454,8 @@ def make_handler(server: CompletionsServer):
 def main() -> int:
     p = argparse.ArgumentParser(
         description=(
-            "Mac MPS-safe /v1/completions server for Antares (float32 on MPS; not chat)."
+            "Mac MPS-safe /v1/completions server for Antares "
+            "(float32 + greedy on MPS by default; not chat)."
         )
     )
     p.add_argument(
@@ -434,11 +472,24 @@ def main() -> int:
         help="auto prefers MPS on Apple Silicon (loads float32 there)",
     )
     p.add_argument("--max-new-tokens", type=int, default=256)
+    p.add_argument(
+        "--honor-temperature",
+        action="store_true",
+        help=(
+            "On MPS, honor client temperature / sampling instead of forcing greedy. "
+            "Default: ignore temperature on MPS (do_sample=False)."
+        ),
+    )
     args = p.parse_args()
 
     device = _pick_device(args.device)
     try:
-        svc = CompletionsServer(args.model, device, args.max_new_tokens)
+        svc = CompletionsServer(
+            args.model,
+            device,
+            args.max_new_tokens,
+            honor_temperature=bool(args.honor_temperature),
+        )
     except Exception as e:  # noqa: BLE001
         print(f"Failed to load model: {e}", file=sys.stderr)
         print(
@@ -451,7 +502,8 @@ def main() -> int:
     httpd = ThreadingHTTPServer((args.host, args.port), make_handler(svc))
     print(
         f"Serving completions-only on http://{args.host}:{args.port}/v1 "
-        f"(model={args.model}, device={device}, dtype={svc.dtype_name})",
+        f"(model={args.model}, device={device}, dtype={svc.dtype_name}, "
+        f"force_greedy={svc.force_greedy})",
         flush=True,
     )
     try:

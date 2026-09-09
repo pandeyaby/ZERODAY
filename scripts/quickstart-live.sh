@@ -10,7 +10,7 @@
 #   3. Accept HF license: https://huggingface.co/fdtn-ai/antares-1b
 #   4. Serve locally:
 #        - GPU/CUDA: vllm serve fdtn-ai/antares-1b
-#        - Mac MPS:  python scripts/completions_server.py   # float32 (float16 NaNs; greedy false fix)
+#        - Mac MPS:  python scripts/completions_server.py   # float32+greedy; bang-safe, tool-schema unreliable — prefer vLLM/CUDA
 #      (Antares CLI expects completions-only POST /v1/completions — not chat)
 #
 # This script FAILS LOUD if the endpoint is down or if --fixture would be used.
@@ -118,7 +118,7 @@ if [[ -n "$INCOMPLETE" ]]; then
   echo ""
   echo "NOTE: Incomplete submission (class=$CLASS) — Antares did not submit files."
   echo "  $INCOMPLETE"
-  echo "  Tips: Mac MPS → float32 (scripts/completions_server.py; not float16/greedy); --tool-budget 45; check /v1/completions health."
+  echo "  Tips: prefer vLLM/CUDA; Mac MPS float32+greedy stops bangs but tool schema may still fail (scripts/completions_server.py); --tool-budget 45; check /v1/completions health."
   echo "  Findings were NOT invented. Live exit is non-zero by default (--fail-on-incomplete)."
   exit 2
 fi

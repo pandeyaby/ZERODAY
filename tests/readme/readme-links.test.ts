@@ -62,7 +62,9 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /completions_server\.py/);
     assert.match(readme, /float32/i);
     assert.match(readme, /float16/i);
-    assert.match(readme, /false fix|greedy is a false fix/i);
+    assert.match(readme, /malformed tool_call|tool-schema unreliable|tool_call JSON/i);
+    assert.match(readme, /vLLM\/CUDA|vLLM on CUDA/i);
+    assert.match(readme, /does not soft-rewrite|does not rewrite/i);
     assert.match(readme, /MPS|Apple Silicon/);
     assert.match(readme, /fdtn-ai\/antares-1b/);
     assert.match(readme, /Incomplete runs|submit_vulnerable_files/);
@@ -78,6 +80,7 @@ describe("README adoption path sanity", () => {
     assert.match(server, /skip_special_tokens\s*=\s*False/);
     assert.match(server, /is_degenerate_exclamation_run/);
     assert.match(server, /map_frequency_to_repetition_penalty/);
+    assert.match(server, /should_force_greedy_on_mps|--honor-temperature/);
   });
 
   it("Proof section links sample SARIF + images (no private paths)", () => {

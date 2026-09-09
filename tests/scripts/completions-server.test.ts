@@ -107,4 +107,31 @@ describe("completions_server.py helpers (no GPU)", () => {
       false,
     );
   });
+
+  it("forces greedy on MPS unless --honor-temperature", () => {
+    assert.equal(
+      JSON.parse(
+        pyEval(
+          'mod.should_force_greedy_on_mps(device="mps", honor_temperature=False)',
+        ),
+      ),
+      true,
+    );
+    assert.equal(
+      JSON.parse(
+        pyEval(
+          'mod.should_force_greedy_on_mps(device="mps", honor_temperature=True)',
+        ),
+      ),
+      false,
+    );
+    assert.equal(
+      JSON.parse(
+        pyEval(
+          'mod.should_force_greedy_on_mps(device="cuda", honor_temperature=False)',
+        ),
+      ),
+      false,
+    );
+  });
 });
