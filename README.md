@@ -120,7 +120,28 @@ Artifacts land under `zeroday-reports/<run>/` (or the `--output` dir):
 
 **Invariant:** if `--endpoint` / `--live` is set and the endpoint is down, locate **exits non-zero**. It will not quietly write a fixture recording and call it done.
 
-**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Tips: check server health; on Mac MPS use greedy (`scripts/completions_server.py`); raise budget with `--tool-budget 30`.
+**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Live defaults: `--tool-budget 30`, best-effort one re-query with raised budget, `--fail-on-incomplete` (exit 2). Tips: check server health; Mac MPS greedy (`scripts/completions_server.py`); `--tool-budget 45`.
+
+### Live incomplete runs (troubleshooting)
+
+When a live Mac/GPU run finishes with `incompleteReason` like *“Model ended without an explicit final submission”* and **0 ranked files**:
+
+| Class | Meaning |
+|-------|---------|
+| `no_submit` | Model stopped without `submit_*` tools |
+| `budget_exhausted` | Tool budget used up before submit |
+| `timeout` | CLI / remote deadline hit |
+| `endpoint_error` | Completions endpoint failed |
+| `parse_failure` | No usable `report.json` |
+
+**Next actions (printed in CLI + report.md):**
+
+1. `GET /v1/models` healthy; smoke `POST /v1/completions` (not chat)
+2. Mac MPS → greedy (`python scripts/completions_server.py`)
+3. Raise budget: `--tool-budget 45` or `ANTARES_TOOL_BUDGET=45`
+4. Optional: `--no-live-recovery` to skip the best-effort re-query; `--no-fail-on-incomplete` to exit 0 while still writing the incomplete report
+
+ZERODAY never invents ranked files to “fill” an incomplete run.
 
 ### Sample SARIF excerpt (shape)
 

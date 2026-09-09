@@ -8,13 +8,25 @@ import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
-import { runLiveAntaresCli, detectAntaresCli, runAntaresPlan, runAntaresSweep } from "./live";
+import {
+  detectAntaresCli,
+  runAntaresPlan,
+  runAntaresSweep,
+  runLiveAntaresCliWithRecovery,
+} from "./live";
 import { normalizeCompletionsEndpoint } from "./completions";
 import {
   assertLiveEndpointHealthy,
   resolveLocateMode,
 } from "./live-guard";
 import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "./model";
+import {
+  shouldFailOnIncomplete,
+  formatIncompleteCliBlock,
+  resolveLiveToolBudget,
+  DEFAULT_LIVE_TOOL_BUDGET,
+  classifyIncomplete,
+} from "./incomplete";
 import { toSarif } from "./sarif";
 import { toHumanReport } from "./report";
 import { toPullRequestComment } from "./comment";
@@ -42,6 +54,11 @@ export {
   assertLiveEndpointHealthy,
   resolveLiveModel,
   DEFAULT_ANTARES_MODEL,
+  shouldFailOnIncomplete,
+  formatIncompleteCliBlock,
+  resolveLiveToolBudget,
+  DEFAULT_LIVE_TOOL_BUDGET,
+  classifyIncomplete,
 };
 export type { LocateOptions, LocalizationResult };
 
@@ -55,6 +72,8 @@ export interface LocateArtifacts {
   exportPaths: string[];
   evidenceDir?: string;
   manifestPath?: string;
+  /** True when caller should exit non-zero for incomplete live */
+  failIncomplete?: boolean;
 }
 
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
@@ -142,16 +161,19 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         sb.session.exec(["find", "/snapshot", "-type", "f"]);
       }
 
-      result = runLiveAntaresCli({
-        advisory,
-        repo,
-        snapshotPath: snap.snapshotPath,
-        outputDir: path.join(outputDir, "antares-raw"),
-        endpoint,
-        model: resolveLiveModel(options.model),
-        toolBudget: options.toolBudget,
-        antaresCliSource: options.antaresCliSource,
-      });
+      result = runLiveAntaresCliWithRecovery(
+        {
+          advisory,
+          repo,
+          snapshotPath: snap.snapshotPath,
+          outputDir: path.join(outputDir, "antares-raw"),
+          endpoint,
+          model: resolveLiveModel(options.model),
+          toolBudget: resolveLiveToolBudget(options.toolBudget),
+          antaresCliSource: options.antaresCliSource,
+        },
+        { recovery: options.liveRecovery !== false },
+      );
       if (result.mode !== "live") {
         throw new Error(
           `Live locate invariant broken: expected mode=live, got mode=${result.mode}. ` +
@@ -280,6 +302,11 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       exportPaths: exports.map((e) => e.path),
       evidenceDir: vault.evidenceDir,
       manifestPath,
+      failIncomplete: shouldFailOnIncomplete({
+        mode: result.mode,
+        failOnIncomplete: options.failOnIncomplete,
+        incomplete: Boolean(result.summary.incompleteReason),
+      }),
     };
   } finally {
     if (sandbox) {

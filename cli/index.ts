@@ -34,6 +34,10 @@ import type { LocalizationResult } from "../src/locate/types.ts";
 import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
 import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "../src/locate/model.ts";
 import {
+  formatIncompleteCliBlock,
+  DEFAULT_LIVE_TOOL_BUDGET,
+} from "../src/locate/incomplete.ts";
+import {
   runClassify,
   listClassifyScenarios,
   runMixedPack,
@@ -329,7 +333,21 @@ program
   )
   .option(
     "--tool-budget <n>",
-    "Antares exploration budget 1–50 (live; raise when runs end incomplete)",
+    `Antares exploration budget 1–50 (live; default ${DEFAULT_LIVE_TOOL_BUDGET})`,
+  )
+  .option(
+    "--fail-on-incomplete",
+    "Exit 2 when live run is incomplete (default for live)",
+  )
+  .option(
+    "--no-fail-on-incomplete",
+    "Allow incomplete live runs to exit 0 (still writes report)",
+    false,
+  )
+  .option(
+    "--no-live-recovery",
+    "Skip best-effort live re-query when model stops without submit",
+    false,
   )
   .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
   .option("--json", "Print LocalizationResult JSON to stdout", false)
@@ -346,6 +364,9 @@ program
     endpoint?: string;
     model?: string;
     toolBudget?: string;
+    failOnIncomplete?: boolean;
+    noFailOnIncomplete: boolean;
+    noLiveRecovery: boolean;
     failOnFindings: boolean;
     json: boolean;
   }) => {
@@ -385,6 +406,10 @@ program
         ? toolBudgetRaw
         : undefined;
 
+    let failOnIncomplete: boolean | undefined;
+    if (opts.noFailOnIncomplete) failOnIncomplete = false;
+    else if (opts.failOnIncomplete === true) failOnIncomplete = true;
+
     try {
       const artifacts = await locate({
         repo,
@@ -399,6 +424,8 @@ program
           : undefined,
         model,
         toolBudget,
+        failOnIncomplete,
+        liveRecovery: !opts.noLiveRecovery,
         failOnFindings: opts.failOnFindings,
       });
 
@@ -415,7 +442,7 @@ program
         console.log(`Target   : ${r.targetRepo}`);
         console.log(`Findings : ${r.summary.findingCount}`);
         if (r.summary.incompleteReason) {
-          console.log(`Incomplete: ${r.summary.incompleteReason}`);
+          console.log(`Incomplete: yes [${r.summary.incompleteClass ?? "unknown"}]`);
         }
         console.log("");
         if (r.rankedFiles.length) {
@@ -430,8 +457,14 @@ program
           console.log(
             "No submission — incomplete localization (not a clean negative; findings not invented).",
           );
+          console.log("");
           console.log(
-            "Tips: check completions health; Mac MPS → greedy (scripts/completions_server.py); --tool-budget 30.",
+            formatIncompleteCliBlock({
+              incomplete: true,
+              class: r.summary.incompleteClass ?? "unknown",
+              reason: r.summary.incompleteReason,
+              tips: r.summary.incompleteTips ?? [],
+            }),
           );
           console.log("");
         } else {
@@ -483,6 +516,9 @@ program
 
       if (opts.failOnFindings && artifacts.result.rankedFiles.length > 0) {
         process.exitCode = 1;
+      }
+      if (artifacts.failIncomplete) {
+        process.exitCode = 2;
       }
     } catch (e) {
       console.error(`locate failed: ${(e as Error).message}`);

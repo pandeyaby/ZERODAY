@@ -57,19 +57,27 @@ export function toHumanReport(
       );
       lines.push(``);
       lines.push(`**Reason:** ${result.summary.incompleteReason}`);
+      if (result.summary.incompleteClass) {
+        lines.push(`**Class:** \`${result.summary.incompleteClass}\``);
+      }
+      if (result.summary.recoveryAttempted) {
+        lines.push(
+          `**Recovery:** best-effort re-query with raised \`--tool-budget\` was attempted (not guaranteed).`,
+        );
+      }
       lines.push(``);
       lines.push(`**Operator tips:**`);
       lines.push(``);
-      lines.push(
-        `1. Confirm the completions server is healthy (\`GET /v1/models\`, greedy \`POST /v1/completions\`).`,
-      );
-      lines.push(
-        `2. On Mac MPS, float16 sampling can produce NaNs — use greedy decoding (see \`scripts/completions_server.py\`).`,
-      );
-      lines.push(
-        `3. Increase exploration budget: \`zeroday locate … --tool-budget 30\` (Antares \`--tool-budget\`, range 1–50).`,
-      );
-      lines.push(`4. Re-run live locate; still incomplete → human review of the exploration trace below.`);
+      const tips =
+        result.summary.incompleteTips && result.summary.incompleteTips.length
+          ? result.summary.incompleteTips
+          : [
+              "Confirm the completions server is healthy (`GET /v1/models`, greedy `POST /v1/completions`).",
+              "On Mac MPS, float16 sampling can produce NaNs — use greedy decoding (see `scripts/completions_server.py`).",
+              "Increase exploration budget: `zeroday locate … --tool-budget 45` (Antares `--tool-budget`, range 1–50).",
+              "Re-run live locate; still incomplete → human review of the exploration trace below.",
+            ];
+      tips.forEach((t, i) => lines.push(`${i + 1}. ${t}`));
       lines.push(``);
     } else {
       lines.push(

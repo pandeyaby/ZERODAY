@@ -45,7 +45,7 @@ python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 
 **Model ID:** with `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (`--model` / `ANTARES_MODEL` override). Antares CLI requires this explicit id.
 
-**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` says so — no invented findings. Raise `--tool-budget 30` / fix server health / use Mac greedy server.
+**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` classifies the reason (`no_submit` / `budget_exhausted` / `timeout` / `endpoint_error` / `parse_failure`) — no invented findings. Live defaults `--tool-budget 30`, best-effort one re-query, `--fail-on-incomplete` (exit 2). Raise `--tool-budget 45` / fix server health / use Mac greedy server. See README § Live incomplete runs.
 
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
 

@@ -62,8 +62,12 @@ describe("incomplete Antares submission surfacing", () => {
     );
     assert.equal(result.rankedFiles.length, 0);
     assert.ok(result.summary.incompleteReason);
-    assert.match(result.summary.incompleteReason!, /submit_vulnerable_files/);
-    assert.match(result.summary.incompleteReason!, /tool-budget|Do not invent/i);
+    assert.match(result.summary.incompleteReason!, /submit_vulnerable_files|explicit final submission/i);
+    assert.match(result.summary.incompleteReason!, /did not invent/i);
+    assert.equal(result.summary.incompleteClass, "no_submit");
+    assert.ok(
+      (result.summary.incompleteTips ?? []).some((t) => /tool-budget/i.test(t)),
+    );
 
     const md = toHumanReport(result);
     assert.match(md, /Incomplete localization/);

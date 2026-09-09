@@ -25,7 +25,7 @@ CWE="${2:-CWE-89}"
 OUT="${3:-zeroday-reports/live-quickstart}"
 ENDPOINT="${ANTARES_ENDPOINT:-http://127.0.0.1:8000/v1}"
 MODEL="${ANTARES_MODEL:-fdtn-ai/antares-1b}"
-TOOL_BUDGET="${ANTARES_TOOL_BUDGET:-}"
+TOOL_BUDGET="${ANTARES_TOOL_BUDGET:-30}"
 
 die() {
   echo "ERROR: $*" >&2
@@ -84,12 +84,10 @@ LOCATE_ARGS=(
   --repo "$REPO"
   --endpoint "$ENDPOINT"
   --model "$MODEL"
+  --tool-budget "$TOOL_BUDGET"
   --live
   --output "$OUT"
 )
-if [[ -n "$TOOL_BUDGET" ]]; then
-  LOCATE_ARGS+=(--tool-budget "$TOOL_BUDGET")
-fi
 
 npm run zeroday -- locate "${LOCATE_ARGS[@]}"
 
@@ -116,11 +114,13 @@ echo "  Report  $MD"
 echo "  Comment $OUT/comment.md"
 echo "  Findings: $COUNT"
 if [[ -n "$INCOMPLETE" ]]; then
+  CLASS="$(node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));process.stdout.write(r.summary.incompleteClass||'unknown')" "$JSON")"
   echo ""
-  echo "NOTE: Incomplete submission (Antares did not submit files)."
+  echo "NOTE: Incomplete submission (class=$CLASS) — Antares did not submit files."
   echo "  $INCOMPLETE"
-  echo "  Tips: Mac MPS → greedy (scripts/completions_server.py); ANTARES_TOOL_BUDGET=30; check server health."
-  echo "  Findings were NOT invented."
+  echo "  Tips: Mac MPS → greedy (scripts/completions_server.py); --tool-budget 45; check /v1/completions health."
+  echo "  Findings were NOT invented. Live exit is non-zero by default (--fail-on-incomplete)."
+  exit 2
 fi
 echo ""
 echo "Posture: localization only · not exploitability proof · no PoC · needs_human"
