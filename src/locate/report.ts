@@ -72,8 +72,8 @@ export function toHumanReport(
         result.summary.incompleteTips && result.summary.incompleteTips.length
           ? result.summary.incompleteTips
           : [
-              "Confirm the completions server is healthy (`GET /v1/models`, greedy `POST /v1/completions`).",
-              "On Mac MPS, float16 sampling can produce NaNs — use greedy decoding (see `scripts/completions_server.py`).",
+              "Confirm the completions server is healthy (`GET /v1/models`, `POST /v1/completions`).",
+              "Prefer vLLM/CUDA for live Antares. Mac MPS: float32 stops float16 `!` bangs, but tool_call schema is often still malformed — ZERODAY does not rewrite it (`scripts/completions_server.py`).",
               "Increase exploration budget: `zeroday locate … --tool-budget 45` (Antares `--tool-budget`, range 1–50).",
               "Re-run live locate; still incomplete → human review of the exploration trace below.",
             ];
@@ -154,7 +154,7 @@ export function toHumanReport(
       `1. Treat this run as **incomplete** — do not close the advisory as clean.`,
     );
     lines.push(
-      `2. Fix server health / Mac MPS greedy decoding / raise \`--tool-budget\`, then re-run live locate.`,
+      `2. Prefer vLLM/CUDA; on Mac MPS use float32+greedy helper (bang-safe, tool-schema unreliable) / raise \`--tool-budget\`, then re-run live locate.`,
     );
     lines.push(
       `3. Only after a complete submission (ranked files **or** explicit \`submit_no_vulnerability_found\`) triage candidates.`,

@@ -35,17 +35,20 @@ bash scripts/quickstart-live.sh /path CWE-89
 ## Completions only
 
 ```bash
-# CUDA
+# CUDA (recommended — schema-faithful tool_call JSON)
 vllm serve fdtn-ai/antares-1b
 
-# Mac MPS — float16 sampling can NaN; use greedy decoding:
+# Mac MPS — two modes:
+#   (a) float16 NaN → `!` bangs; float32 fixes bangs (this helper; greedy by default)
+#   (b) tool_call schema often malformed on MPS → 0 tools; prefer vLLM/CUDA
+# ZERODAY does not soft-rewrite tool JSON. Local helper only — not a partnership claim:
 python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 # POST /v1/completions — chat completions are rejected
 ```
 
 **Model ID:** with `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (`--model` / `ANTARES_MODEL` override). Antares CLI requires this explicit id.
 
-**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` classifies the reason (`no_submit` / `budget_exhausted` / `timeout` / `endpoint_error` / `parse_failure`) — no invented findings. Live defaults `--tool-budget 30`, best-effort one re-query, `--fail-on-incomplete` (exit 2). Raise `--tool-budget 45` / fix server health / use Mac greedy server. See README § Live incomplete runs.
+**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` classifies the reason (`no_submit` / `budget_exhausted` / `timeout` / `endpoint_error` / `parse_failure`) — no invented findings. Live defaults `--tool-budget 30`, best-effort one re-query, `--fail-on-incomplete` (exit 2). Raise `--tool-budget 45` / fix server health / prefer vLLM on CUDA (MPS float32 is bang-safe but tool-schema unreliable). See README § Live incomplete runs.
 
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
 
