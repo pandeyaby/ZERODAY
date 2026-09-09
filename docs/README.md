@@ -3,6 +3,7 @@
 | Doc | Purpose |
 |-----|---------|
 | [howto.md](./howto.md) | Person + org usage + playground |
+| [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
 | [exporters.md](./exporters.md) | Customer ingest paths |
 | [vendor-packs/README.md](./vendor-packs/README.md) | Desk-by-desk operator packs |
 | [evidence.md](./evidence.md) | Evidence vault |

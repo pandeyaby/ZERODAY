@@ -8,7 +8,7 @@ import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
-import { runLiveAntaresCli, detectAntaresCli, runAntaresPlan } from "./live";
+import { runLiveAntaresCli, detectAntaresCli, runAntaresPlan, runAntaresSweep } from "./live";
 import {
   assertNotChatCompletions,
   normalizeCompletionsEndpoint,
@@ -35,6 +35,7 @@ export {
   defaultFixtureRepo,
   detectAntaresCli,
   runAntaresPlan,
+  runAntaresSweep,
   resolveAdvisory,
 };
 export type { LocateOptions, LocalizationResult };

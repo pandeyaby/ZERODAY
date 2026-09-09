@@ -16,6 +16,7 @@ import {
   defaultFixtureRepo,
   detectAntaresCli,
   runAntaresPlan,
+  runAntaresSweep,
 } from "../src/locate/index.ts";
 import {
   EXPORT_FORMATS,
@@ -85,7 +86,12 @@ program
   .option("--fixture", "Use recorded agent submission (CI — offline/keyless)", false)
   .option("--from <submission.json>", "Path to agent submission JSON")
   .option("--stdin", "Read submission JSON from stdin", false)
-  .option("--brief-only", "Emit operator brief + schema only", false)
+  .option("--brief-only", "Emit operator brief + schema only (alias of --emit-brief)", false)
+  .option("--emit-brief", "Emit operator brief + schema + AGENT_PROMPT (await agent)", false)
+  .option(
+    "--agent <flavor>",
+    "One-shot prompt flavor: cursor | stdout | claude (implies --emit-brief)",
+  )
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option("--json", "Print LocalizationResult JSON to stdout", false)
@@ -99,6 +105,8 @@ program
     from?: string;
     stdin: boolean;
     briefOnly: boolean;
+    emitBrief: boolean;
+    agent?: string;
     offline: boolean;
     output?: string;
     json: boolean;
@@ -123,6 +131,21 @@ program
         ? path.resolve(opts.repo)
         : defaultFixtureRepo();
 
+    const agentFlavor =
+      opts.agent === "cursor" || opts.agent === "claude" || opts.agent === "stdout"
+        ? opts.agent
+        : opts.agent
+          ? null
+          : undefined;
+    if (opts.agent && agentFlavor === null) {
+      console.error("--agent must be one of: cursor | stdout | claude");
+      process.exitCode = 2;
+      return;
+    }
+
+    const emitBrief =
+      opts.emitBrief || opts.briefOnly || Boolean(agentFlavor);
+
     try {
       const artifacts = await operate({
         repo,
@@ -130,7 +153,9 @@ program
         fixture: opts.fixture,
         from: opts.from,
         stdin: opts.stdin,
-        briefOnly: opts.briefOnly,
+        briefOnly: emitBrief,
+        emitBrief,
+        agentPrompt: agentFlavor || (emitBrief ? "stdout" : undefined),
         offline: opts.offline,
         explicitCwe: opts.mapCwe,
         outputDir: opts.output,
@@ -152,6 +177,20 @@ program
         console.log(`  Spec     ${artifacts.instructionsPath}`);
         console.log(`  Schema   ${artifacts.schemaPath}`);
         console.log(`  Submit   ${artifacts.submissionPath}`);
+        if (artifacts.agentPromptPath) {
+          console.log(`  Prompt   ${artifacts.agentPromptPath}`);
+        }
+        if (emitBrief) {
+          console.log("");
+          console.log("Next (coding agent):");
+          console.log(`  1. Follow ${artifacts.agentPromptPath || artifacts.instructionsPath}`);
+          console.log(`  2. Explore readonly-snapshot/ (or repo) with list/grep/read only`);
+          console.log(`  3. Write ${artifacts.submissionPath}`);
+          console.log(
+            `  4. npm run zeroday -- operate --cwe ${artifacts.result.advisory.cweId} --from ${artifacts.submissionPath} --repo ${repo} --output ${artifacts.outputDir}-packaged`,
+          );
+          console.log(`  5. npm run zeroday -- verify --from <packaged-run-dir>`);
+        }
         if (artifacts.jsonPath) {
           console.log("");
           console.log("Artifacts:");
@@ -171,9 +210,16 @@ program
         console.log(
           "Posture: keyless default · localization only · not exploit proof · no PoC · needs_human · no auto-merge",
         );
-        console.log(
-          `Verify:  npm run zeroday -- verify --from ${artifacts.outputDir}`,
-        );
+        if (artifacts.jsonPath) {
+          console.log(
+            `Verify:  npm run zeroday -- verify --from ${artifacts.outputDir}`,
+          );
+        }
+        if (agentFlavor && artifacts.agentPromptPath) {
+          console.log("");
+          console.log("——— agent one-shot prompt ———");
+          process.stdout.write(fs.readFileSync(artifacts.agentPromptPath, "utf8"));
+        }
       }
     } catch (e) {
       console.error(`operate failed: ${(e as Error).message}`);
@@ -677,24 +723,80 @@ program
 program
   .command("sweep")
   .description(
-    "TODO: wrap official `antares sweep` for live multi-CWE (sandbox + local endpoint). Not shipped yet — use operate/locate first.",
+    "Wrap official `antares sweep` for live multi-CWE (needs local completions endpoint). Offline/fixture: clear message, exit 0.",
   )
-  .action(() => {
-    console.log("");
-    console.log("zeroday sweep — not shipped yet");
-    console.log("──────────────────────────────");
-    console.log(
-      "Planned: thin wrap of official `antares sweep` for live multi-CWE on an operator workstation",
-    );
-    console.log(
-      "(Docker network=none sandbox + local /v1/completions). Critical path is operate + verify.",
-    );
-    console.log("");
-    console.log("Today:");
-    console.log("  npm run zeroday -- operate --cwe CWE-89 --fixture");
-    console.log("  npm run zeroday -- locate --cwe CWE-89 --fixture");
-    console.log("  npm run zeroday -- plan ./repo --max-cwes 5");
-    process.exitCode = 0;
+  .argument("[repo]", "Repository path", "")
+  .option("--max-cwes <n>", "Max automatic CWE checks", "5")
+  .option("--workers <n>", "Concurrent investigations", "2")
+  .option("--cwe <id>", "Exact CWE id(s), comma-separated")
+  .option(
+    "--endpoint <url>",
+    "Local vLLM / OpenAI-compatible completions URL (required for live)",
+  )
+  .option("--model <id>", "Served model id")
+  .option("--output <dir>", "Antares sweep output directory")
+  .option("--fixture", "Explicit offline/no-op mode", false)
+  .action((
+    repoArg: string,
+    opts: {
+      maxCwes: string;
+      workers: string;
+      cwe?: string;
+      endpoint?: string;
+      model?: string;
+      output?: string;
+      fixture: boolean;
+    },
+  ) => {
+    const endpoint =
+      opts.endpoint || process.env.ANTARES_ENDPOINT || undefined;
+    if (opts.fixture || !endpoint) {
+      console.log("");
+      console.log("zeroday sweep — offline / no live endpoint");
+      console.log("─────────────────────────────────────────");
+      console.log(
+        "Live multi-CWE sweep needs a local completions endpoint (Antares CLI + vLLM 0.19.1+).",
+      );
+      console.log("ZERODAY does not download model weights. CI stays fixture-only.");
+      console.log("");
+      console.log("Keyless default today:");
+      console.log("  npm run zeroday -- operate --cwe CWE-89 --fixture");
+      console.log("  npm run zeroday -- operate --cwe CWE-89 --emit-brief --agent cursor");
+      console.log("");
+      console.log("When you host Antares locally:");
+      console.log(
+        "  npm run zeroday -- sweep ./repo --endpoint http://127.0.0.1:8000/v1 --max-cwes 5",
+      );
+      process.exitCode = 0;
+      return;
+    }
+
+    const repo =
+      repoArg && repoArg.length > 0
+        ? path.resolve(repoArg)
+        : defaultFixtureRepo();
+    const detected = detectAntaresCli();
+    if (!detected.binary) {
+      console.error(detected.sourceHint);
+      process.exitCode = 2;
+      return;
+    }
+
+    const result = runAntaresSweep(repo, {
+      maxCwes: Number(opts.maxCwes) || 5,
+      workers: Number(opts.workers) || 2,
+      cwe: opts.cwe,
+      endpoint: normalizeCompletionsEndpoint(endpoint),
+      model: opts.model || process.env.ANTARES_MODEL,
+      output: opts.output,
+      noTui: true,
+    });
+    if (!result.ok) {
+      console.error(result.stderr || "antares sweep failed");
+      process.exitCode = 2;
+      return;
+    }
+    process.stdout.write(result.stdout);
   });
 
 program.parseAsync(process.argv);

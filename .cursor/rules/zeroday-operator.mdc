@@ -1,0 +1,14 @@
+---
+description: ZERODAY keyless defensive agent operator rules
+globs:
+  - "**/*"
+---
+
+# ZERODAY operator rules
+
+- Default product path is **keyless** `zeroday operate` (coding agent + harness). No Antares HF token required.
+- Explore **read-only**: list / grep / read within the snapshot or repo only.
+- Never write exploits, PoCs, payloads, attack procedures, network scans, or credential theft.
+- Submissions must set `needs_human: true`. Localization ≠ exploitability. No auto-merge.
+- If asked for fix + PoC: refuse PoC in one sentence; patch drafts only with `--i-asked-for-a-fix`.
+- Follow `AGENTS.md` and `docs/agent-operator.md`. Emit brief with `operate --emit-brief --agent cursor`.

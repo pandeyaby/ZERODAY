@@ -66,6 +66,10 @@ export interface OperateOptions {
   stdin?: boolean;
   /** Emit brief only — do not wait for submission */
   briefOnly?: boolean;
+  /** Alias for briefOnly (CLI --emit-brief) */
+  emitBrief?: boolean;
+  /** Write one-shot agent prompt beside the brief */
+  agentPrompt?: "cursor" | "stdout" | "claude";
   offline?: boolean;
   explicitCwe?: string;
   outputDir?: string;
@@ -88,6 +92,7 @@ export interface OperateArtifacts {
   exportPaths: string[];
   evidenceDir: string;
   manifestPath: string;
+  agentPromptPath?: string;
 }
 
 export type { AdvisoryRef, EvidenceSpan, RankedFile, TraceStep, LocalizationResult };

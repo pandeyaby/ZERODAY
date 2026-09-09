@@ -81,6 +81,26 @@ describe("operate (keyless agent operator)", () => {
     });
     assert.equal(bad.ok, false);
   });
+
+  it("emit-brief writes AGENT_PROMPT + durable readonly-snapshot", async () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-brief-"));
+    const artifacts = await operate({
+      repo: defaultFixtureRepo(),
+      advisory: "CWE-89",
+      emitBrief: true,
+      briefOnly: true,
+      agentPrompt: "cursor",
+      offline: true,
+      outputDir: out,
+    });
+    assert.ok(artifacts.agentPromptPath);
+    assert.ok(fs.existsSync(artifacts.agentPromptPath!));
+    assert.ok(fs.existsSync(artifacts.briefPath));
+    assert.ok(fs.existsSync(path.join(out, "readonly-snapshot")));
+    const prompt = fs.readFileSync(artifacts.agentPromptPath!, "utf8");
+    assert.match(prompt, /read-only|list\/grep\/read|needs_human/i);
+    assert.doesNotMatch(prompt, /how to exploit|proof-of-concept payload/i);
+  });
 });
 
 describe("verify", () => {

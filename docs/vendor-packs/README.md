@@ -15,4 +15,13 @@ There is **no** partnership claim, **no** live push, and **no** credentials bund
 Patch drafts remain human-gated (`zeroday draft-fix --i-asked-for-a-fix`) and compose
 [Project CodeGuard](https://project-codeguard.org/) — never auto-merge.
 
-See also [`docs/exporters.md`](../exporters.md).
+Full notes: [`docs/exporters.md`](../exporters.md).
+
+## Honesty rails
+
+- ZERODAY does **not** push to vendor clouds
+- No partnership claims (Cisco / Splunk / Palo Alto / Fortinet / CrowdStrike / AWS)
+- No credentials bundled
+- Detector-lane **candidates** only — human triage for true-positive
+- Compose Foundry Security Spec + Project CodeGuard; do not replace them
+
