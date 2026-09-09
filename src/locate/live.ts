@@ -16,6 +16,14 @@ import fs from "node:fs";
 import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, RankedFile, TraceStep } from "./types";
 import { normalizeCompletionsEndpoint } from "./completions";
+import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "./model";
+import {
+  classifyIncomplete,
+  resolveLiveToolBudget,
+  shouldAttemptLiveRecovery,
+  LIVE_RECOVERY_TOOL_BUDGET,
+  type IncompleteClass,
+} from "./incomplete";
 
 export interface LiveLocateParams {
   advisory: AdvisoryRef;
@@ -25,6 +33,16 @@ export interface LiveLocateParams {
   endpoint?: string;
   model?: string;
   antaresCliSource?: string;
+  /** Antares --tool-budget (1–50). Defaults via resolveLiveToolBudget. */
+  toolBudget?: number;
+}
+
+export interface LiveLocateCliMeta {
+  exitStatus: number | null;
+  timedOut: boolean;
+  cliOutput: string;
+  toolBudget: number;
+  recoveryAttempted?: boolean;
 }
 
 function which(cmd: string): string | null {
@@ -90,7 +108,9 @@ export function runAntaresPlan(
  * Invoke official `antares query` against a read-only snapshot.
  * Requires a configured local /v1/completions endpoint — not used in fixture mode.
  */
-export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult {
+export function runLiveAntaresCli(
+  params: LiveLocateParams,
+): LocalizationResult & { _liveMeta?: LiveLocateCliMeta } {
   const detected = detectAntaresCli();
   if (!detected.binary) {
     throw new Error(
@@ -101,6 +121,10 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
 
   fs.mkdirSync(params.outputDir, { recursive: true });
 
+  // Antares CLI requires an explicit model ID — never omit on live path.
+  const model = resolveLiveModel(params.model);
+  const toolBudget = resolveLiveToolBudget(params.toolBudget);
+
   const args = [
     "query",
     params.snapshotPath,
@@ -108,19 +132,17 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
     params.advisory.cweId,
     "--output",
     params.outputDir,
+    "--model",
+    model,
+    "--tool-budget",
+    String(toolBudget),
   ];
 
   if (params.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(params.endpoint));
   }
-  if (params.model) {
-    args.push("--model", params.model);
-  }
 
-  const env = { ...process.env };
-  if (!params.model) {
-    delete env.ANTARES_MODEL;
-  }
+  const env = { ...process.env, ANTARES_MODEL: model };
 
   const run = spawnSync(detected.binary, args, {
     encoding: "utf8",
@@ -128,25 +150,133 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
     timeout: 30 * 60 * 1000,
   });
 
+  const timedOut = Boolean(
+    run.error &&
+      (run.error as NodeJS.ErrnoException).code === "ETIMEDOUT",
+  );
+  const cliOutput = `${run.stderr || ""}\n${run.stdout || ""}`.slice(0, 4000);
+  const liveMeta: LiveLocateCliMeta = {
+    exitStatus: timedOut ? null : run.status,
+    timedOut,
+    cliOutput,
+    toolBudget,
+  };
+
   const reportJsonPath = path.join(params.outputDir, "report.json");
   if (!fs.existsSync(reportJsonPath)) {
-    const err = (run.stderr || run.stdout || "").slice(0, 2000);
+    const classified = classifyIncomplete({
+      rankedFileCount: 0,
+      submitted: false,
+      parseFailure: true,
+      cliOutput,
+      exitStatus: liveMeta.exitStatus,
+      timedOut,
+    });
     throw new Error(
-      `antares query did not produce report.json (exit ${run.status}). ` +
-        `Live inference needs a local completions endpoint (not chat). ${err}`,
+      `antares query did not produce report.json (exit ${run.status}` +
+        `${timedOut ? ", timed out" : ""}). ` +
+        `class=${classified.class}. ` +
+        `Live inference needs a local completions endpoint (not chat) and model id ` +
+        `\`${model}\` (override with --model / ANTARES_MODEL).\n` +
+        classified.tips.map((t, i) => `${i + 1}. ${t}`).join("\n") +
+        `\n${cliOutput.slice(0, 1500)}`,
     );
   }
 
-  return adaptAntaresReport(
+  const result = adaptAntaresReport(
     JSON.parse(fs.readFileSync(reportJsonPath, "utf8")),
-    params,
+    { ...params, model, toolBudget },
+    liveMeta,
   );
+  return Object.assign(result, { _liveMeta: liveMeta });
+}
+
+/**
+ * Best-effort live recovery: one re-query with a raised tool-budget when the
+ * model stops without an explicit submit. Never invents findings.
+ */
+export function runLiveAntaresCliWithRecovery(
+  params: LiveLocateParams,
+  opts?: { recovery?: boolean },
+): LocalizationResult {
+  const first = runLiveAntaresCli(params);
+  const meta = first._liveMeta;
+  const recovery =
+    opts?.recovery !== false &&
+    Boolean(first.summary.incompleteReason) &&
+    shouldAttemptLiveRecovery(first.summary.incompleteClass as IncompleteClass | null);
+
+  if (!recovery || !meta) {
+    const { _liveMeta: _, ...rest } = first as LocalizationResult & {
+      _liveMeta?: LiveLocateCliMeta;
+    };
+    void _;
+    return rest;
+  }
+
+  const raised = Math.min(
+    50,
+    Math.max(LIVE_RECOVERY_TOOL_BUDGET, meta.toolBudget + 15),
+  );
+  if (raised <= meta.toolBudget) {
+    const { _liveMeta: _, ...rest } = first as LocalizationResult & {
+      _liveMeta?: LiveLocateCliMeta;
+    };
+    void _;
+    return {
+      ...rest,
+      summary: { ...rest.summary, recoveryAttempted: false },
+      warnings: [
+        ...rest.warnings,
+        "Live recovery skipped — tool-budget already at ceiling.",
+      ],
+    };
+  }
+
+  const recoveryDir = path.join(params.outputDir, "recovery-requery");
+  const second = runLiveAntaresCli({
+    ...params,
+    outputDir: recoveryDir,
+    toolBudget: raised,
+  });
+
+  const pick =
+    !second.summary.incompleteReason ||
+    second.rankedFiles.length > first.rankedFiles.length ||
+    (second.summary.incompleteClass === null &&
+      first.summary.incompleteReason)
+      ? second
+      : first;
+
+  const { _liveMeta: _, ...rest } = pick as LocalizationResult & {
+    _liveMeta?: LiveLocateCliMeta;
+  };
+  void _;
+
+  return {
+    ...rest,
+    summary: {
+      ...rest.summary,
+      recoveryAttempted: true,
+    },
+    warnings: [
+      ...rest.warnings,
+      `Best-effort live recovery: re-queried once with --tool-budget ${raised} ` +
+        `(not guaranteed; never invents findings).`,
+      first.summary.incompleteReason && rest.summary.incompleteReason
+        ? "Recovery still incomplete — see incomplete tips."
+        : rest.summary.incompleteReason
+          ? "Recovery did not complete submission."
+          : "Recovery produced an explicit submit (or clean-negative).",
+    ],
+  };
 }
 
 /** Adapt Antares report.json into ZERODAY LocalizationResult. */
 export function adaptAntaresReport(
   report: Record<string, unknown>,
   params: LiveLocateParams,
+  liveMeta?: LiveLocateCliMeta,
 ): LocalizationResult {
   const findings = (report.findings as Array<Record<string, unknown>> | undefined) ?? [];
   const summary = (report.summary as Record<string, unknown> | undefined) ?? {};
@@ -205,12 +335,42 @@ export function adaptAntaresReport(
     });
   }
 
+  const submitted =
+    explorationTrace.some((t) => t.tool === "submit") ||
+    explorationTrace.some((t) =>
+      /submit_(vulnerable_files|no_vulnerability_found)/i.test(t.command),
+    );
+
+  const toolBudget = resolveLiveToolBudget(params.toolBudget);
+  const terminalCallBudget = Number(
+    metadata.terminal_call_budget ?? metadata.tool_budget ?? toolBudget,
+  );
+  const terminalCallsUsed = Number(
+    summary.terminal_calls_used ?? explorationTrace.length,
+  );
+
+  const classified = classifyIncomplete({
+    rankedFileCount: rankedFiles.length,
+    submitted,
+    rawIncompleteReason:
+      (summary.incomplete_reason as string | null | undefined) ?? null,
+    terminalCallsUsed,
+    terminalCallBudget,
+    cliOutput: liveMeta?.cliOutput,
+    exitStatus: liveMeta?.exitStatus,
+    timedOut: liveMeta?.timedOut,
+  });
+
+  const modelId = resolveLiveModel(
+    typeof metadata.model === "string" ? metadata.model : params.model,
+  );
+
   return {
     mode: "live",
     advisory: params.advisory,
     targetRepo: path.resolve(params.repo),
     snapshotPath: params.snapshotPath,
-    model: String(metadata.model ?? params.model ?? "antares-live"),
+    model: modelId,
     generatedAt: new Date().toISOString(),
     rankedFiles,
     explorationTrace,
@@ -218,6 +378,14 @@ export function adaptAntaresReport(
       ...warnings,
       "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
       "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+      `Model id sent to endpoint: ${modelId} (default ${DEFAULT_ANTARES_MODEL} when unset).`,
+      `Tool budget: ${toolBudget} (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).`,
+      ...(classified.incomplete
+        ? [
+            `Incomplete submission [${classified.class}]: ${classified.reason}`,
+            ...classified.tips.map((t) => `Next: ${t}`),
+          ]
+        : []),
     ],
     posture: {
       localizationOnly: true,
@@ -227,12 +395,12 @@ export function adaptAntaresReport(
     },
     summary: {
       findingCount: rankedFiles.length,
-      incompleteReason:
-        (summary.incomplete_reason as string | null | undefined) ?? null,
-      terminalCallBudget: Number(metadata.terminal_call_budget ?? 15),
-      terminalCallsUsed: Number(
-        summary.terminal_calls_used ?? explorationTrace.length,
-      ),
+      incompleteReason: classified.reason,
+      incompleteClass: classified.class,
+      incompleteTips: classified.tips,
+      recoveryAttempted: false,
+      terminalCallBudget,
+      terminalCallsUsed,
     },
   };
 }
@@ -281,9 +449,7 @@ export function runAntaresSweep(
   if (opts?.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(opts.endpoint));
   }
-  if (opts?.model) {
-    args.push("--model", opts.model);
-  }
+  args.push("--model", resolveLiveModel(opts?.model));
   if (opts?.output) {
     args.push("--output", path.resolve(opts.output));
   }

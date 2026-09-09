@@ -6,8 +6,8 @@
 
 ## Best way for a person
 
-- **Morning/PR** — leave the GitHub Action on forever (fixture locate → SARIF → reviewable comment → soft-fail). No GPU in CI.
-- **Known CWE/CVE/GHSA** — default `zeroday operate` (keyless coding-agent path). Optional `zeroday locate --live` when you host Antares locally. Source never leaves the machine.
+- **Morning/PR** — leave the GitHub Action on forever (CI / no-GPU fixture locate → SARIF → **fail-closed** reviewable PR comment). No GPU in CI. Live Antares stays on the workstation (`scripts/quickstart-live.sh`).
+- **Known CWE/CVE/GHSA** — default `zeroday operate` (keyless coding-agent path). Product path: `zeroday locate --repo … --endpoint …` when you host Antares locally. Source never leaves the machine.
 - **CISO** — `zeroday demo` or `classify` → `ciso.md` / `ciso.json`. Localization is not exploitability. Human review required.
 - **Never auto-merge.** Draft-fix only with `--i-asked-for-a-fix`. No PoCs.
 

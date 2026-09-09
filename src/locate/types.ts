@@ -63,6 +63,19 @@ export interface LocalizationResult {
   summary: {
     findingCount: number;
     incompleteReason: string | null;
+    /** Machine class for incomplete live runs (null when complete) */
+    incompleteClass?:
+      | "no_submit"
+      | "budget_exhausted"
+      | "timeout"
+      | "endpoint_error"
+      | "parse_failure"
+      | "unknown"
+      | null;
+    /** Operator tips when incomplete */
+    incompleteTips?: string[];
+    /** Best-effort live re-query was attempted */
+    recoveryAttempted?: boolean;
     terminalCallBudget: number;
     terminalCallsUsed: number;
   };
@@ -72,22 +85,40 @@ export interface LocateOptions {
   repo: string;
   /** Raw advisory string: CWE-89 | CVE-… | GHSA-… */
   advisory: string;
-  /** Force fixture even if live tools are available */
+  /** Force fixture (CI / no-GPU). Incompatible with --live / --endpoint. */
   fixture?: boolean;
-  /** Force live Antares path (also implied when endpoint is set) */
+  /** Force live Antares path (also implied when endpoint is set). Requires healthy --endpoint. */
   live?: boolean;
   /** Skip NVD/GHSA network resolve */
   offline?: boolean;
   /** Explicit CWE when CVE/GHSA cannot be resolved */
   explicitCwe?: string;
   outputDir?: string;
-  /** OpenAI-compatible completions URL — implies live unless --fixture */
+  /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
+  /** Served model id (live). Defaults to fdtn-ai/antares-1b when endpoint/live is set. */
   model?: string;
+  /** Antares --tool-budget (1–50) for live query; default 30 when unset */
+  toolBudget?: number;
+  /**
+   * Exit non-zero when live run is incomplete (no explicit submit).
+   * Default true for live, false for fixture. Override with --fail-on-incomplete /
+   * --no-fail-on-incomplete.
+   */
+  failOnIncomplete?: boolean;
+  /**
+   * Best-effort live recovery: one re-query with raised tool-budget when the model
+   * stops without submit. Default true for live. Never invents findings.
+   */
+  liveRecovery?: boolean;
   /** Path to extracted official Antares CLI source (optional) */
   antaresCliSource?: string;
   failOnFindings?: boolean;
   /** ASFF placeholder account */
   awsAccountId?: string;
   awsRegion?: string;
+  /** Test seam: custom fetch for live endpoint probe (no repo source) */
+  probeFetch?: typeof fetch;
+  /** Test seam: inject probe result (skips network) */
+  probeResult?: import("./completions").CompletionsProbeResult;
 }

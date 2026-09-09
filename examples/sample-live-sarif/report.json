@@ -1,0 +1,104 @@
+{
+  "mode": "fixture",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "targetRepo": "examples/sample-live-sarif/demo-app",
+  "model": "fixture/antares-1b-recorded",
+  "generatedAt": "2026-09-09T02:52:36.369Z",
+  "rankedFiles": [
+    {
+      "filePath": "src/users.js",
+      "rank": 1,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "SQL query built via string concatenation",
+      "likelihoodOfExploit": "High",
+      "evidence": [
+        {
+          "filePath": "src/users.js",
+          "startLine": 8,
+          "endLine": 10,
+          "note": "User-controlled `name` is concatenated into a SQL string before db.query.",
+          "excerpt": "const sql = \"SELECT id, name, email FROM users WHERE name = '\" + name + \"'\";\n  return db.query(sql);"
+        }
+      ]
+    },
+    {
+      "filePath": "src/app.js",
+      "rank": 2,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "Request parameter passed to unsafe finder",
+      "likelihoodOfExploit": "High",
+      "evidence": [
+        {
+          "filePath": "src/app.js",
+          "startLine": 7,
+          "endLine": 9,
+          "note": "HTTP query `name` flows into findUserByName without neutralization.",
+          "excerpt": "const name = req.query.name ?? \"\";\n  return findUserByName(db, name);"
+        }
+      ]
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "find",
+      "command": "find . -type f -name '*.js'",
+      "summary": "Listed JavaScript sources under the read-only snapshot."
+    },
+    {
+      "step": 2,
+      "tool": "grep",
+      "command": "grep -Rni 'SELECT' .",
+      "summary": "Found SQL-like strings in src/users.js."
+    },
+    {
+      "step": 3,
+      "tool": "grep",
+      "command": "grep -Rni 'query' src/",
+      "summary": "Correlated db.query call sites with string concatenation."
+    },
+    {
+      "step": 4,
+      "tool": "cat",
+      "command": "cat src/users.js",
+      "summary": "Read findUserByName; confirmed unparameterized SQL construction."
+    },
+    {
+      "step": 5,
+      "tool": "cat",
+      "command": "cat src/app.js",
+      "summary": "Confirmed request input reaches the unsafe helper."
+    },
+    {
+      "step": 6,
+      "tool": "submit",
+      "command": "submit_vulnerable_files",
+      "summary": "Submitted src/users.js (rank 1) and src/app.js (rank 2)."
+    }
+  ],
+  "warnings": [
+    "Public sample: fixture/recorded Antares-style localization (not live weights)."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 2,
+    "incompleteReason": null,
+    "terminalCallBudget": 15,
+    "terminalCallsUsed": 6
+  },
+  "snapshotPath": "(destroyed after run)"
+}

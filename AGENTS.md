@@ -45,12 +45,15 @@ npm run zeroday -- verify --from <run-dir>
 
 ## Optional live Antares
 
-Only when the operator already hosts `fdtn-ai/antares-1b` locally via completions:
+Only when the operator already hosts `fdtn-ai/antares-1b` locally via completions
+(accept HF terms yourself — never scrape/bypass):
 
 ```bash
+# Product path (<30 min) — see README; helper refuses silent fixture fallback
+bash scripts/quickstart-live.sh /path/to/repo CWE-89
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
 npm run zeroday -- sweep /path --endpoint http://127.0.0.1:8000/v1 --max-cwes 5
 ```
 
 ZERODAY never downloads `model.safetensors`. Antares CLI expects vLLM 0.19.1+ completions.
-See `docs/agent-operator.md`.
+See `docs/agent-operator.md` and root README § 30-minute live path.

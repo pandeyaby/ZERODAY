@@ -1,48 +1,50 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+/build
+/coverage
+/data/*.db
+/data/*.db-*
+!/data/.gitkeep
+/data/zeroday-settings.json
+/data/zeroday-store.json
+# debug
 # dependencies
+.DS_Store
+.env*
+# env files (can opt-in for committing if needed)
+.idea/
+# Localization reports (keep outside scanned repos)
+# Local / machine junk
+*.log
+# misc
+/.next/
+next-env.d.ts
+# next.js
 /node_modules
-/.pnp
+npm-debug.log*
+# Optional extracted official Antares CLI (gated HF download)
+/out/
+*.pem
 .pnp.*
+/.pnp
+.pnpm-debug.log*
+# production
+__pycache__/
+*.py[cod]
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+*.swp
+# testing
+*.tsbuildinfo
+# typescript
+/vendor/antares-cli/
+# vercel
+.vercel
+.vscode/
 .yarn/*
+yarn-debug.log*
+yarn-error.log*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-# testing
-/coverage
-# next.js
-/.next/
-/out/
-# production
-/build
-# misc
-.DS_Store
-*.pem
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-# env files (can opt-in for committing if needed)
-.env*
-# vercel
-.vercel
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-# ZERODAY runtime data
-/data/*.db
-/data/*.db-*
-/data/zeroday-store.json
-/data/zeroday-settings.json
-!/data/.gitkeep
-# Localization reports (keep outside scanned repos)
 /zeroday-reports/
-# Optional extracted official Antares CLI (gated HF download)
-/vendor/antares-cli/
-# Local / machine junk
-*.log
-.idea/
-.vscode/
-*.swp
+# ZERODAY runtime data

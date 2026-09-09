@@ -32,6 +32,11 @@ import {
 } from "../src/locate/draft-fix.ts";
 import type { LocalizationResult } from "../src/locate/types.ts";
 import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
+import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "../src/locate/model.ts";
+import {
+  formatIncompleteCliBlock,
+  DEFAULT_LIVE_TOOL_BUDGET,
+} from "../src/locate/incomplete.ts";
 import {
   runClassify,
   listClassifyScenarios,
@@ -314,15 +319,36 @@ program
     "Local repository path (default: fixture demo-app)",
     "",
   )
-  .option("--fixture", "Force recorded/fixture mode (CI — no GPU / no weights)", false)
-  .option("--live", "Force live official Antares CLI path", false)
+  .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
+  .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local vLLM / OpenAI-compatible endpoint (implies live unless --fixture). Completions only.",
+    "Local vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
   )
-  .option("--model <id>", "Served model id (live)")
+  .option(
+    "--model <id>",
+    `Served model id (live; default ${DEFAULT_ANTARES_MODEL} or ANTARES_MODEL)`,
+  )
+  .option(
+    "--tool-budget <n>",
+    `Antares exploration budget 1–50 (live; default ${DEFAULT_LIVE_TOOL_BUDGET})`,
+  )
+  .option(
+    "--fail-on-incomplete",
+    "Exit 2 when live run is incomplete (default for live)",
+  )
+  .option(
+    "--no-fail-on-incomplete",
+    "Allow incomplete live runs to exit 0 (still writes report)",
+    false,
+  )
+  .option(
+    "--no-live-recovery",
+    "Skip best-effort live re-query when model stops without submit",
+    false,
+  )
   .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
   .option("--json", "Print LocalizationResult JSON to stdout", false)
   .action(async (opts: {
@@ -337,6 +363,10 @@ program
     output?: string;
     endpoint?: string;
     model?: string;
+    toolBudget?: string;
+    failOnIncomplete?: boolean;
+    noFailOnIncomplete: boolean;
+    noLiveRecovery: boolean;
     failOnFindings: boolean;
     json: boolean;
   }) => {
@@ -363,6 +393,23 @@ program
     const endpoint =
       opts.endpoint || process.env.ANTARES_ENDPOINT || undefined;
 
+    const liveRequested = Boolean(opts.live || endpoint);
+    const model = liveRequested
+      ? resolveLiveModel(opts.model)
+      : opts.model || process.env.ANTARES_MODEL;
+
+    const toolBudgetRaw = opts.toolBudget
+      ? Number(opts.toolBudget)
+      : undefined;
+    const toolBudget =
+      toolBudgetRaw != null && Number.isFinite(toolBudgetRaw)
+        ? toolBudgetRaw
+        : undefined;
+
+    let failOnIncomplete: boolean | undefined;
+    if (opts.noFailOnIncomplete) failOnIncomplete = false;
+    else if (opts.failOnIncomplete === true) failOnIncomplete = true;
+
     try {
       const artifacts = await locate({
         repo,
@@ -375,7 +422,10 @@ program
         endpoint: endpoint
           ? normalizeCompletionsEndpoint(endpoint)
           : undefined,
-        model: opts.model || process.env.ANTARES_MODEL,
+        model,
+        toolBudget,
+        failOnIncomplete,
+        liveRecovery: !opts.noLiveRecovery,
         failOnFindings: opts.failOnFindings,
       });
 
@@ -391,6 +441,9 @@ program
         console.log(`Model    : ${r.model}`);
         console.log(`Target   : ${r.targetRepo}`);
         console.log(`Findings : ${r.summary.findingCount}`);
+        if (r.summary.incompleteReason) {
+          console.log(`Incomplete: yes [${r.summary.incompleteClass ?? "unknown"}]`);
+        }
         console.log("");
         if (r.rankedFiles.length) {
           console.log("Ranked files:");
@@ -399,6 +452,20 @@ program
               `  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
             );
           }
+          console.log("");
+        } else if (r.summary.incompleteReason) {
+          console.log(
+            "No submission — incomplete localization (not a clean negative; findings not invented).",
+          );
+          console.log("");
+          console.log(
+            formatIncompleteCliBlock({
+              incomplete: true,
+              class: r.summary.incompleteClass ?? "unknown",
+              reason: r.summary.incompleteReason,
+              tips: r.summary.incompleteTips ?? [],
+            }),
+          );
           console.log("");
         } else {
           console.log("No vulnerable files submitted.");
@@ -426,18 +493,32 @@ program
           const live = detectAntaresCli();
           console.log("");
           console.log(
+            "Note: this was the CI / no-GPU fixture path — not live Antares inference.",
+          );
+          console.log(
             live.binary
-              ? `Tip: Antares CLI at ${live.binary} — rerun with --endpoint http://127.0.0.1:8000/v1`
+              ? `Live path: npm run zeroday -- locate --cwe ${r.advisory.cweId} --repo <path> --endpoint http://127.0.0.1:8000/v1`
               : `Tip: ${live.sourceHint}`,
           );
           console.log(
-            "Keyless default: prefer `zeroday operate --fixture` (coding agent path, no Antares weights).",
+            "Helper: bash scripts/quickstart-live.sh <repo> [CWE]  (refuses silent fixture fallback)",
+          );
+          console.log(
+            "Keyless (no weights): prefer `zeroday operate --fixture` for coding-agent handoff.",
+          );
+        } else if (r.mode === "live") {
+          console.log("");
+          console.log(
+            "Live Antares path complete — report.sarif is from real inference (not fixture).",
           );
         }
       }
 
       if (opts.failOnFindings && artifacts.result.rankedFiles.length > 0) {
         process.exitCode = 1;
+      }
+      if (artifacts.failIncomplete) {
+        process.exitCode = 2;
       }
     } catch (e) {
       console.error(`locate failed: ${(e as Error).message}`);
@@ -733,7 +814,10 @@ program
     "--endpoint <url>",
     "Local vLLM / OpenAI-compatible completions URL (required for live)",
   )
-  .option("--model <id>", "Served model id")
+  .option(
+    "--model <id>",
+    `Served model id (default ${DEFAULT_ANTARES_MODEL} or ANTARES_MODEL)`,
+  )
   .option("--output <dir>", "Antares sweep output directory")
   .option("--fixture", "Explicit offline/no-op mode", false)
   .action((
@@ -787,7 +871,7 @@ program
       workers: Number(opts.workers) || 2,
       cwe: opts.cwe,
       endpoint: normalizeCompletionsEndpoint(endpoint),
-      model: opts.model || process.env.ANTARES_MODEL,
+      model: resolveLiveModel(opts.model),
       output: opts.output,
       noTui: true,
     });

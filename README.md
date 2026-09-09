@@ -1,167 +1,271 @@
 # ZERODAY
 
-```
- ███████╗███████╗██████╗  ██████╗ ██████╗  █████╗ ██╗   ██╗
- ╚══███╔╝██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝
-   ███╔╝ █████╗  ██████╔╝██║   ██║██║  ██║███████║ ╚████╔╝
-  ███╔╝  ██╔══╝  ██╔══██╗██║   ██║██║  ██║██╔══██║  ╚██╔╝
- ███████╗███████╗██║  ██║╚██████╔╝██████╔╝██║  ██║   ██║
- ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
-```
+Local-first defensive vulnerability **localization** harness. Point it at a repo you are authorized to assess; get ranked candidate files + **SARIF** + evidence vault. Localization ≠ exploitability. No PoCs. No auto-merge. Not an official Cisco partnership product.
 
-**Turns your existing AI coding agent into a structured, auditable security operator** for **Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, and AWS Security** desks.
-
-### North star
-
-| Property | Meaning |
-|----------|---------|
-| **Keyless by default** | Default path uses the coding agent already running the tool — no Antares HF token, no vendor API keys, no cloud inference of customer source |
-| **Self-hosted** | Runs on the operator workstation / CI runner |
-| **Offline-capable** | Fixture + agent-protocol paths work with no network (vendored CWE maps, fixtures, local evidence) |
-| **Durable evidence** | Every material claim links to hashed artifacts (JSON + Markdown + SARIF + vendor projections) |
-
-Defensive only. Never exploits, PoCs, payloads, or attack procedures. Localization ≠ exploitability. No auto-merge.
+Sister pieces (compose, don’t duplicate): [Antares](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [Foundry](https://github.com/CiscoDevNet/foundry) · [CodeGuard](https://project-codeguard.org/)
 
 ---
 
-## 60-second demo (no gated weights)
+## Proof
+
+Public artifacts you can open without a GPU — **fixture-shaped** sample (same SARIF schema as live; `mode` differs). No customer paths. No tokens.
+
+**(a) 30-min live one-liner** (product path — needs local completions + HF license accept):
+
+```bash
+npm run zeroday -- locate --repo <authorized-repo> --cwe CWE-89 --endpoint http://127.0.0.1:8000/v1
+# model defaults to fdtn-ai/antares-1b · helper: bash scripts/quickstart-live.sh <repo>
+```
+
+**(b) Sample SARIF snippet** ([full file](./examples/sample-live-sarif/report.sarif) · [excerpt](./examples/sample-live-sarif/report.excerpt.sarif.json)):
+
+```json
+{
+  "version": "2.1.0",
+  "runs": [{
+    "tool": { "driver": { "name": "ZERODAY-Antares" } },
+    "results": [{
+      "ruleId": "CWE-89",
+      "level": "note",
+      "message": {
+        "text": "SQL query built via string concatenation — rank 1. … (Localization only; not exploitability proof.)"
+      },
+      "locations": [{
+        "physicalLocation": {
+          "artifactLocation": { "uri": "src/users.js", "uriBaseId": "%SRCROOT%" },
+          "region": { "startLine": 8, "endLine": 10 }
+        }
+      }],
+      "properties": { "submission_rank": 1, "mode": "fixture" }
+    }]
+  }]
+}
+```
+
+Regenerate the checked-in sample (CI-safe): `bash scripts/demo-proof.sh`
+
+**(c) Screenshots**
+
+![ZERODAY locate CLI — ranked files + SARIF path](./docs/images/zeroday-locate-cli.png)
+
+![SARIF findings list — CWE-89 note severity](./docs/images/zeroday-sarif-findings.png)
+
+![30-min live path one-liner](./docs/images/zeroday-live-path.png)
+
+---
+
+## 30-minute live path: Antares → SARIF
+
+This is the **product path** — real local inference, not a fixture. Budget: install → accept HF terms → serve → one command → `report.sarif`.
+
+### 1) Install (Node + Antares CLI)
+
+```bash
+git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
+npm install
+# Official Antares CLI (PyPI) — do not reimplement
+uv tool install cisco-antares-cli
+export PATH="$(uv tool dir --bin):$PATH"
+antares --version
+```
+
+### 2) Accept Hugging Face license (human step)
+
+Open the model card and accept Cisco’s terms — **never scrape or bypass**:
+
+→ [https://huggingface.co/fdtn-ai/antares-1b](https://huggingface.co/fdtn-ai/antares-1b)
+
+ZERODAY never downloads `model.safetensors` for you (and CI never pulls weights).
+
+### 3) Serve locally (completions only)
+
+Antares CLI expects an OpenAI-compatible **`POST /v1/completions`** endpoint (chat completions are rejected). The Antares CLI documents vLLM 0.19.1+ for this; ZERODAY does **not** claim independent “validated with vLLM \<version\>” proof.
+
+```bash
+# CUDA / Linux GPU (typical)
+vllm serve fdtn-ai/antares-1b
+# → http://127.0.0.1:8000/v1/completions
+
+# Mac Apple Silicon (MPS): float16 *sampling* can produce NaNs — use greedy decoding.
+# Optional helper (completions-only; rejects /v1/chat/completions):
+python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
+```
+
+**Model ID:** Antares requires an explicit served model id. With `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (override with `--model` or `ANTARES_MODEL`). You should not see “Inference requires an explicit model ID” on the happy path.
+
+### 4) One command → SARIF
+
+```bash
+npm run zeroday -- locate \
+  --repo /path/to/your/authorized/repo \
+  --cwe CWE-89 \
+  --endpoint http://127.0.0.1:8000/v1
+# model defaults to fdtn-ai/antares-1b; optional: --model fdtn-ai/antares-1b
+```
+
+Or the helper (health-checks the endpoint, passes `--model`, **refuses** silent fixture/mock fallback, prints SARIF path):
+
+```bash
+bash scripts/quickstart-live.sh /path/to/your/authorized/repo CWE-89
+```
+
+Artifacts land under `zeroday-reports/<run>/` (or the `--output` dir):
+
+| File | What |
+|------|------|
+| `report.sarif` | SARIF 2.1.0 for Code Scanning / Foundry Detector-lane candidates |
+| `report.json` | Ranked files + evidence (`mode: "live"`) |
+| `report.md` | CISO one-pager |
+| `comment.md` | Reviewable PR comment body |
+
+**Invariant:** if `--endpoint` / `--live` is set and the endpoint is down, locate **exits non-zero**. It will not quietly write a fixture recording and call it done.
+
+**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Live defaults: `--tool-budget 30`, best-effort one re-query with raised budget, `--fail-on-incomplete` (exit 2). Tips: check server health; Mac MPS greedy (`scripts/completions_server.py`); `--tool-budget 45`.
+
+### Live incomplete runs (troubleshooting)
+
+When a live Mac/GPU run finishes with `incompleteReason` like *“Model ended without an explicit final submission”* and **0 ranked files**:
+
+| Class | Meaning |
+|-------|---------|
+| `no_submit` | Model stopped without `submit_*` tools |
+| `budget_exhausted` | Tool budget used up before submit |
+| `timeout` | CLI / remote deadline hit |
+| `endpoint_error` | Completions endpoint failed |
+| `parse_failure` | No usable `report.json` |
+
+**Next actions (printed in CLI + report.md):**
+
+1. `GET /v1/models` healthy; smoke `POST /v1/completions` (not chat)
+2. Mac MPS → greedy (`python scripts/completions_server.py`)
+3. Raise budget: `--tool-budget 45` or `ANTARES_TOOL_BUDGET=45`
+4. Optional: `--no-live-recovery` to skip the best-effort re-query; `--no-fail-on-incomplete` to exit 0 while still writing the incomplete report
+
+ZERODAY never invents ranked files to “fill” an incomplete run.
+
+### Sample SARIF excerpt (shape)
+
+Live runs use the same SARIF schema; `properties.zeroday.mode` / report JSON `mode` will be `"live"`. Fixture CI samples use `"fixture"` — label them as such.
+
+```json
+{
+  "version": "2.1.0",
+  "runs": [{
+    "tool": { "driver": { "name": "ZERODAY-Antares" } },
+    "results": [{
+      "ruleId": "CWE-89",
+      "level": "note",
+      "message": { "text": "SQL query built via string concatenation — rank 1. … (Localization only; not exploitability proof.)" },
+      "locations": [{
+        "physicalLocation": {
+          "artifactLocation": { "uri": "src/users.js", "uriBaseId": "%SRCROOT%" },
+          "region": { "startLine": 8, "endLine": 10 }
+        }
+      }],
+      "properties": { "submission_rank": 1 }
+    }]
+  }]
+}
+```
+
+Ranked files (from `report.json`):
+
+```text
+1. src/users.js  [CWE-89]  SQL query built via string concatenation
+2. src/app.js    [CWE-89]  Request parameter passed to unsafe finder
+```
+
+*(Above ranked-file sample is from the recorded CI fixture demo-app — same shape as live; check `mode` in `report.json`.)*
+
+---
+
+## CI / no-GPU smoke (60 seconds) — not the product path
+
+Use this for laptops without a GPU, and for GitHub Actions. **Label clearly: fixture / recorded — not live Antares.**
 
 ```bash
 npm install
-
-# Keyless agent-operator path (default product)
-npm run zeroday -- operate --cwe CWE-89 --fixture --output zeroday-reports/demo-operate
-npm run zeroday -- verify --from zeroday-reports/demo-operate
-
-# Same artifact spine via Antares fixture recording
-npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/demo
-ls zeroday-reports/demo/report.sarif zeroday-reports/demo/splunk-cim-vulnerabilities.json
+npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/ci-smoke
+ls zeroday-reports/ci-smoke/report.sarif
 ```
 
-Mixed pack (classify classes + CISO):
+Keyless agent-operator (also offline-capable, no Antares weights):
 
 ```bash
-npm run zeroday -- demo --output zeroday-reports/mixed-pack
+npm run zeroday -- operate --cwe CWE-89 --fixture --output zeroday-reports/demo-operate
+npm run zeroday -- verify --from zeroday-reports/demo-operate
 ```
 
-**Honesty:** fixture-driven · not a live SOC · `needs_human` always · never auto-merge.
+---
+
+## What works offline / keyless vs what needs Antares weights
+
+| Path | Needs | Writes SARIF? |
+|------|-------|---------------|
+| **`operate`** (coding agent + brief/schema) | Nothing cloud — your agent explores a read-only snapshot | Yes (after submission / `--fixture`) |
+| **`locate --fixture`** | No GPU / no HF token | Yes — **CI / no-GPU only** |
+| **`locate --repo … --endpoint …`** (live) | HF license accept + local serve + `cisco-antares-cli` | Yes — **product path** |
+| **`sweep --endpoint …`** | Same local endpoint | Multi-CWE via official `antares sweep` |
 
 ---
 
-## What it is
+## GitHub Action (PR comment + SARIF)
 
-| You give | You get (local files) |
-|----------|------------------------|
-| **CWE**, **CVE**, or **GHSA** + a local repo | Ranked candidate files, evidence quotes, confidence |
-| | **Operator Spec** + submission schema (`operate`) |
-| | **CISO one-pager** (`report.md`) with evidence citations |
-| | **SARIF 2.1.0** · **ASFF** · **Splunk CIM** · **XSOAR** · **FortiSIEM** · **CrowdStrike HEC** |
-| | **Evidence vault** + `manifest.json` (SHA-256) — `zeroday verify` |
-| | Optional **patch DRAFT** only with `--i-asked-for-a-fix` |
+On every `pull_request`, the composite action:
 
-Sister pieces we **compose**, not replace: [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) · [Project CodeGuard](https://project-codeguard.org/) · [Antares](https://cisco-foundation-ai.github.io/antares/) + [official cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md).
+1. Runs **fixture** locate (CI / no-GPU — never pulls weights)
+2. Uploads `report.sarif` to Code Scanning (best-effort if Code Scanning isn’t enabled)
+3. **Posts a reviewable PR comment** with ranked candidate files + evidence
 
-Not an official Cisco / Splunk / Palo Alto / Fortinet / CrowdStrike / AWS partnership product.
+Comment posting is **fail-closed** on `pull_request`: if the comment cannot be created/updated, the job fails. Localization candidates are for human review — not exploit proof, never auto-merge.
+
+Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
 
 ---
 
-## Keyless vs optional Antares
+## Honesty
 
-| Path | When | Needs |
-|------|------|-------|
-| **`zeroday operate`** (default) | Coding agent (Cursor, Claude Code, …) explores read-only snapshot and submits JSON | Nothing cloud — fixture mode needs no network |
-| **`operate --emit-brief --agent cursor`** | Hand the Operator Spec + one-shot prompt to your coding agent | Local only |
-| **`zeroday locate --fixture`** | CI / recorded Antares-style localization | No GPU |
-| **`zeroday locate --live --endpoint …`** | Operator hosts `fdtn-ai/antares-1b` locally | Completions-only endpoint; HF-gated weights **you** accept; never downloaded by ZERODAY CI |
-| **`zeroday sweep --endpoint …`** | Live multi-CWE via official `antares sweep` | Same local endpoint; offline prints a clear no-op message |
+- **Local-first** — source stays on the operator machine / CI runner
+- **No partnership claims** — not an official Cisco / Splunk / Palo / Fortinet / CrowdStrike / AWS product
+- **Localization ≠ exploitability** — ranked files are candidates; `needs_human` always
+- **No PoCs / exploits / payloads / attack procedures**
+- **No silent fixture fallback** on the live path
 
-Antares CLI expects **vLLM 0.19.1+** completions (`POST /v1/completions` only). ZERODAY does **not** claim independent “Validated with vLLM 0.19.1” proof — that is the Antares CLI expectation.
-
-Agent handoff docs: [`AGENTS.md`](./AGENTS.md) · [`docs/agent-operator.md`](./docs/agent-operator.md).
-
-`zeroday sweep` without `--endpoint` exits 0 with an offline message (CI-safe).
+Acceptable use: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)
 
 ---
 
-## Artifact pack
-
-Under `zeroday-reports/<run-id>/`:
-
-| File | Purpose |
-|------|---------|
-| `OPERATOR_SPEC.md` / `operator-brief.json` | Agent brief (`operate`) |
-| `operator-submission.schema.json` | Submission contract |
-| `submission.json` | Agent (or fixture) submission |
-| `report.json` / `report.md` / `report.sarif` / `comment.md` | Localization + CISO + PR comment |
-| Vendor projections | ASFF · Splunk CIM · XSOAR · FortiSIEM · CrowdStrike HEC |
-| `evidence/` + `evidence/manifest.json` | Hashed vault — `zeroday verify --from <run-dir>` |
-
----
-
-## Vendor packs (customer ingest)
-
-ZERODAY writes **local files only**. Your team wires ingest. No push, no partnership, no credentials.
+## Vendor packs (local files only)
 
 | Desk | File |
 |------|------|
-| Cisco | `report.sarif` (Foundry Detector-lane candidates) |
+| Cisco / Code Scanning | `report.sarif` |
 | Splunk | `splunk-cim-vulnerabilities.json` |
 | Palo Alto | `xsoar-incidents.json` |
 | Fortinet | `fortisiem-custom.json` |
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
-Details: [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/exporters.md`](./docs/exporters.md).
+Details: [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
 ---
 
-## Local playground
+## CLI cheat sheet
 
 ```bash
-npm run play
-# http://localhost:3333/play  — How orgs use this + fixture buttons
-```
+# Live (product)
+npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
+bash scripts/quickstart-live.sh ./app CWE-89
 
-Fixture-only UI. Defensive tabs only (usage, vendor packs, docs, settings).
-
----
-
-## Acceptable use
-
-See [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) — defensive localization + evidence audit only.
-
-| Allowed | Not allowed |
-|---------|-------------|
-| Localize candidate files you are authorized to assess | Exploits, PoCs, payloads, attack procedures |
-| Emit local SARIF / ASFF / CIM / SIEM files | Auto-merge · live vendor pushes · invented CVSS |
-| Draft patches with `--i-asked-for-a-fix` | Treating localization as exploitability proof |
-| Compose Foundry + CodeGuard | Claiming partnerships or Antares-3B |
-
----
-
-## CLI
-
-```bash
-npm run zeroday -- operate --cwe CWE-89 --fixture
-npm run zeroday -- verify --from zeroday-reports/demo-operate
+# CI / no-GPU
 npm run zeroday -- locate --cwe CWE-89 --fixture
-npm run zeroday -- locate --cve CVE-2024-89001 --repo ./app --endpoint http://127.0.0.1:8000/v1
+npm run zeroday -- operate --cwe CWE-89 --fixture && npm run zeroday -- verify --from <run-dir>
+
+# Other
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
-npm run zeroday -- export --format asff --from ./zeroday-reports/.../report.json
-npm run zeroday -- draft-fix --i-asked-for-a-fix --from ./zeroday-reports/.../report.json
-npm run zeroday -- play --action locate
-```
-
----
-
-## Tests / CI
-
-```bash
 npm test
 ```
-
-GitHub Action: fixture-only on `ubuntu-latest` (no GPU, no Docker-in-Docker required for fixture path).
 
 ---
 
@@ -169,6 +273,5 @@ GitHub Action: fixture-only on `ubuntu-latest` (no GPU, no Docker-in-Docker requ
 
 Authorized / defensive use only. No warranty.
 
-- **Antares** — Cisco Foundation AI ([site](https://cisco-foundation-ai.github.io/antares/), [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md))
-- Official CLI — [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
+- **Antares** — [site](https://cisco-foundation-ai.github.io/antares/) · [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [HF `fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) · [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
 - Foundry Security Spec · Project CodeGuard — compose, don’t replace

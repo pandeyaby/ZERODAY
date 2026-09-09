@@ -19,19 +19,44 @@ antares --version
 
 There is **no** `antares locate`. `zeroday locate` wraps `query` (and `plan` via `zeroday plan`).
 
+## 30-minute live → SARIF
+
+1. `npm install` + `uv tool install cisco-antares-cli`
+2. **Human** accepts HF terms: [fdtn-ai/antares-1b](https://huggingface.co/fdtn-ai/antares-1b) (never scrape/bypass)
+3. Serve locally with completions-only `POST /v1/completions` (Antares CLI expects vLLM 0.19.1+; ZERODAY does not claim independent vLLM validation)
+4. One command:
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
+# helper (fails if endpoint down; never silent fixture fallback):
+bash scripts/quickstart-live.sh /path CWE-89
+```
+
 ## Completions only
 
 ```bash
-vllm serve fdtn-ai/antares-1b   # Antares CLI expects vLLM 0.19.1+ completions
-# POST /v1/completions — chat completions are rejected
-# ZERODAY does not claim independent “validated with vLLM” proof
-npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
+# CUDA
+vllm serve fdtn-ai/antares-1b
 
-# Keyless default (no Antares weights):
-npm run zeroday -- operate --cwe CWE-89 --fixture
+# Mac MPS — float16 sampling can NaN; use greedy decoding:
+python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
+# POST /v1/completions — chat completions are rejected
 ```
 
+**Model ID:** with `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (`--model` / `ANTARES_MODEL` override). Antares CLI requires this explicit id.
+
+**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` classifies the reason (`no_submit` / `budget_exhausted` / `timeout` / `endpoint_error` / `parse_failure`) — no invented findings. Live defaults `--tool-budget 30`, best-effort one re-query, `--fail-on-incomplete` (exit 2). Raise `--tool-budget 45` / fix server health / use Mac greedy server. See README § Live incomplete runs.
+
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
+
+## CI / no-GPU (separate path)
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --fixture   # recorded — not live
+npm run zeroday -- operate --cwe CWE-89 --fixture  # keyless agent path
+```
+
+`--fixture` + `--live`/`--endpoint` together is **refused**.
 
 ## Models
 
@@ -47,6 +72,7 @@ Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an 
 
 ## Sister pieces
 
+- [Antares site](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
 - [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — Detector-lane **candidates** only; human triage for true-positive
 - [Project CodeGuard](https://project-codeguard.org/) — patch DRAFT rule map (`--i-asked-for-a-fix`)
 
