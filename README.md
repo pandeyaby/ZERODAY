@@ -34,10 +34,16 @@ ZERODAY never downloads `model.safetensors` for you (and CI never pulls weights)
 Antares CLI expects an OpenAI-compatible **`POST /v1/completions`** endpoint (chat completions are rejected). The Antares CLI documents vLLM 0.19.1+ for this; ZERODAY does **not** claim independent “validated with vLLM \<version\>” proof.
 
 ```bash
-# Example — use whatever serve path matches your workstation GPU/CPU setup
+# CUDA / Linux GPU (typical)
 vllm serve fdtn-ai/antares-1b
 # → http://127.0.0.1:8000/v1/completions
+
+# Mac Apple Silicon (MPS): float16 *sampling* can produce NaNs — use greedy decoding.
+# Optional helper (completions-only; rejects /v1/chat/completions):
+python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 ```
+
+**Model ID:** Antares requires an explicit served model id. With `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (override with `--model` or `ANTARES_MODEL`). You should not see “Inference requires an explicit model ID” on the happy path.
 
 ### 4) One command → SARIF
 
@@ -46,9 +52,10 @@ npm run zeroday -- locate \
   --repo /path/to/your/authorized/repo \
   --cwe CWE-89 \
   --endpoint http://127.0.0.1:8000/v1
+# model defaults to fdtn-ai/antares-1b; optional: --model fdtn-ai/antares-1b
 ```
 
-Or the helper (health-checks the endpoint, **refuses** silent fixture/mock fallback, prints SARIF path):
+Or the helper (health-checks the endpoint, passes `--model`, **refuses** silent fixture/mock fallback, prints SARIF path):
 
 ```bash
 bash scripts/quickstart-live.sh /path/to/your/authorized/repo CWE-89
@@ -64,6 +71,8 @@ Artifacts land under `zeroday-reports/<run>/` (or the `--output` dir):
 | `comment.md` | Reviewable PR comment body |
 
 **Invariant:** if `--endpoint` / `--live` is set and the endpoint is down, locate **exits non-zero**. It will not quietly write a fixture recording and call it done.
+
+**Incomplete runs:** if Antares ends without `submit_vulnerable_files` / `submit_no_vulnerability_found`, `report.md` surfaces that clearly — ZERODAY does **not** invent findings. Tips: check server health; on Mac MPS use greedy (`scripts/completions_server.py`); raise budget with `--tool-budget 30`.
 
 ### Sample SARIF excerpt (shape)
 

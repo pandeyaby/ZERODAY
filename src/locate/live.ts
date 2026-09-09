@@ -16,6 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, RankedFile, TraceStep } from "./types";
 import { normalizeCompletionsEndpoint } from "./completions";
+import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "./model";
 
 export interface LiveLocateParams {
   advisory: AdvisoryRef;
@@ -25,6 +26,8 @@ export interface LiveLocateParams {
   endpoint?: string;
   model?: string;
   antaresCliSource?: string;
+  /** Antares --tool-budget (1–50). Increase when runs end incomplete without submit. */
+  toolBudget?: number;
 }
 
 function which(cmd: string): string | null {
@@ -101,6 +104,9 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
 
   fs.mkdirSync(params.outputDir, { recursive: true });
 
+  // Antares CLI requires an explicit model ID — never omit on live path.
+  const model = resolveLiveModel(params.model);
+
   const args = [
     "query",
     params.snapshotPath,
@@ -108,19 +114,22 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
     params.advisory.cweId,
     "--output",
     params.outputDir,
+    "--model",
+    model,
   ];
 
   if (params.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(params.endpoint));
   }
-  if (params.model) {
-    args.push("--model", params.model);
+  if (
+    typeof params.toolBudget === "number" &&
+    Number.isFinite(params.toolBudget) &&
+    params.toolBudget >= 1
+  ) {
+    args.push("--tool-budget", String(Math.min(50, Math.floor(params.toolBudget))));
   }
 
-  const env = { ...process.env };
-  if (!params.model) {
-    delete env.ANTARES_MODEL;
-  }
+  const env = { ...process.env, ANTARES_MODEL: model };
 
   const run = spawnSync(detected.binary, args, {
     encoding: "utf8",
@@ -133,13 +142,14 @@ export function runLiveAntaresCli(params: LiveLocateParams): LocalizationResult 
     const err = (run.stderr || run.stdout || "").slice(0, 2000);
     throw new Error(
       `antares query did not produce report.json (exit ${run.status}). ` +
-        `Live inference needs a local completions endpoint (not chat). ${err}`,
+        `Live inference needs a local completions endpoint (not chat) and model id ` +
+        `\`${model}\` (override with --model / ANTARES_MODEL). ${err}`,
     );
   }
 
   return adaptAntaresReport(
     JSON.parse(fs.readFileSync(reportJsonPath, "utf8")),
-    params,
+    { ...params, model },
   );
 }
 
@@ -205,12 +215,34 @@ export function adaptAntaresReport(
     });
   }
 
+  const submitted =
+    explorationTrace.some((t) => t.tool === "submit") ||
+    explorationTrace.some((t) =>
+      /submit_(vulnerable_files|no_vulnerability_found)/i.test(t.command),
+    );
+
+  let incompleteReason: string | null =
+    (summary.incomplete_reason as string | null | undefined) ?? null;
+  if (!incompleteReason && rankedFiles.length === 0 && !submitted) {
+    incompleteReason =
+      "Antares ended without submit_vulnerable_files / submit_no_vulnerability_found " +
+      "(incomplete localization — not a clean negative). " +
+      "Tips: check completions server health; on Mac MPS use greedy decoding " +
+      "(see scripts/completions_server.py); increase tool budget " +
+      "(`zeroday locate … --tool-budget 30` or `antares query --tool-budget 30`). " +
+      "Do not invent findings.";
+  }
+
+  const modelId = resolveLiveModel(
+    typeof metadata.model === "string" ? metadata.model : params.model,
+  );
+
   return {
     mode: "live",
     advisory: params.advisory,
     targetRepo: path.resolve(params.repo),
     snapshotPath: params.snapshotPath,
-    model: String(metadata.model ?? params.model ?? "antares-live"),
+    model: modelId,
     generatedAt: new Date().toISOString(),
     rankedFiles,
     explorationTrace,
@@ -218,6 +250,12 @@ export function adaptAntaresReport(
       ...warnings,
       "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
       "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+      `Model id sent to endpoint: ${modelId} (default ${DEFAULT_ANTARES_MODEL} when unset).`,
+      ...(incompleteReason
+        ? [
+            `Incomplete submission: ${incompleteReason}`,
+          ]
+        : []),
     ],
     posture: {
       localizationOnly: true,
@@ -227,9 +265,13 @@ export function adaptAntaresReport(
     },
     summary: {
       findingCount: rankedFiles.length,
-      incompleteReason:
-        (summary.incomplete_reason as string | null | undefined) ?? null,
-      terminalCallBudget: Number(metadata.terminal_call_budget ?? 15),
+      incompleteReason,
+      terminalCallBudget: Number(
+        metadata.terminal_call_budget ??
+          metadata.tool_budget ??
+          params.toolBudget ??
+          15,
+      ),
       terminalCallsUsed: Number(
         summary.terminal_calls_used ?? explorationTrace.length,
       ),
@@ -281,9 +323,7 @@ export function runAntaresSweep(
   if (opts?.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(opts.endpoint));
   }
-  if (opts?.model) {
-    args.push("--model", opts.model);
-  }
+  args.push("--model", resolveLiveModel(opts?.model));
   if (opts?.output) {
     args.push("--output", path.resolve(opts.output));
   }

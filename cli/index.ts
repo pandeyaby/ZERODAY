@@ -32,6 +32,7 @@ import {
 } from "../src/locate/draft-fix.ts";
 import type { LocalizationResult } from "../src/locate/types.ts";
 import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
+import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "../src/locate/model.ts";
 import {
   runClassify,
   listClassifyScenarios,
@@ -322,7 +323,14 @@ program
     "--endpoint <url>",
     "Local vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
   )
-  .option("--model <id>", "Served model id (live)")
+  .option(
+    "--model <id>",
+    `Served model id (live; default ${DEFAULT_ANTARES_MODEL} or ANTARES_MODEL)`,
+  )
+  .option(
+    "--tool-budget <n>",
+    "Antares exploration budget 1–50 (live; raise when runs end incomplete)",
+  )
   .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
   .option("--json", "Print LocalizationResult JSON to stdout", false)
   .action(async (opts: {
@@ -337,6 +345,7 @@ program
     output?: string;
     endpoint?: string;
     model?: string;
+    toolBudget?: string;
     failOnFindings: boolean;
     json: boolean;
   }) => {
@@ -363,6 +372,19 @@ program
     const endpoint =
       opts.endpoint || process.env.ANTARES_ENDPOINT || undefined;
 
+    const liveRequested = Boolean(opts.live || endpoint);
+    const model = liveRequested
+      ? resolveLiveModel(opts.model)
+      : opts.model || process.env.ANTARES_MODEL;
+
+    const toolBudgetRaw = opts.toolBudget
+      ? Number(opts.toolBudget)
+      : undefined;
+    const toolBudget =
+      toolBudgetRaw != null && Number.isFinite(toolBudgetRaw)
+        ? toolBudgetRaw
+        : undefined;
+
     try {
       const artifacts = await locate({
         repo,
@@ -375,7 +397,8 @@ program
         endpoint: endpoint
           ? normalizeCompletionsEndpoint(endpoint)
           : undefined,
-        model: opts.model || process.env.ANTARES_MODEL,
+        model,
+        toolBudget,
         failOnFindings: opts.failOnFindings,
       });
 
@@ -391,6 +414,9 @@ program
         console.log(`Model    : ${r.model}`);
         console.log(`Target   : ${r.targetRepo}`);
         console.log(`Findings : ${r.summary.findingCount}`);
+        if (r.summary.incompleteReason) {
+          console.log(`Incomplete: ${r.summary.incompleteReason}`);
+        }
         console.log("");
         if (r.rankedFiles.length) {
           console.log("Ranked files:");
@@ -399,6 +425,14 @@ program
               `  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
             );
           }
+          console.log("");
+        } else if (r.summary.incompleteReason) {
+          console.log(
+            "No submission — incomplete localization (not a clean negative; findings not invented).",
+          );
+          console.log(
+            "Tips: check completions health; Mac MPS → greedy (scripts/completions_server.py); --tool-budget 30.",
+          );
           console.log("");
         } else {
           console.log("No vulnerable files submitted.");
@@ -744,7 +778,10 @@ program
     "--endpoint <url>",
     "Local vLLM / OpenAI-compatible completions URL (required for live)",
   )
-  .option("--model <id>", "Served model id")
+  .option(
+    "--model <id>",
+    `Served model id (default ${DEFAULT_ANTARES_MODEL} or ANTARES_MODEL)`,
+  )
   .option("--output <dir>", "Antares sweep output directory")
   .option("--fixture", "Explicit offline/no-op mode", false)
   .action((
@@ -798,7 +835,7 @@ program
       workers: Number(opts.workers) || 2,
       cwe: opts.cwe,
       endpoint: normalizeCompletionsEndpoint(endpoint),
-      model: opts.model || process.env.ANTARES_MODEL,
+      model: resolveLiveModel(opts.model),
       output: opts.output,
       noTui: true,
     });

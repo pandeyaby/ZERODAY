@@ -35,9 +35,17 @@ bash scripts/quickstart-live.sh /path CWE-89
 ## Completions only
 
 ```bash
+# CUDA
 vllm serve fdtn-ai/antares-1b
+
+# Mac MPS — float16 sampling can NaN; use greedy decoding:
+python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 # POST /v1/completions — chat completions are rejected
 ```
+
+**Model ID:** with `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (`--model` / `ANTARES_MODEL` override). Antares CLI requires this explicit id.
+
+**Incomplete:** if Antares exits without `submit_vulnerable_files`, `report.md` says so — no invented findings. Raise `--tool-budget 30` / fix server health / use Mac greedy server.
 
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
 

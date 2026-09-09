@@ -14,6 +14,7 @@ import {
   assertLiveEndpointHealthy,
   resolveLocateMode,
 } from "./live-guard";
+import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "./model";
 import { toSarif } from "./sarif";
 import { toHumanReport } from "./report";
 import { toPullRequestComment } from "./comment";
@@ -39,6 +40,8 @@ export {
   resolveAdvisory,
   resolveLocateMode,
   assertLiveEndpointHealthy,
+  resolveLiveModel,
+  DEFAULT_ANTARES_MODEL,
 };
 export type { LocateOptions, LocalizationResult };
 
@@ -145,7 +148,8 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         snapshotPath: snap.snapshotPath,
         outputDir: path.join(outputDir, "antares-raw"),
         endpoint,
-        model: options.model,
+        model: resolveLiveModel(options.model),
+        toolBudget: options.toolBudget,
         antaresCliSource: options.antaresCliSource,
       });
       if (result.mode !== "live") {

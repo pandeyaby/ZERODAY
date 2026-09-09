@@ -31,8 +31,21 @@ export function toPullRequestComment(result: LocalizationResult): string {
   if (result.rankedFiles.length === 0) {
     lines.push(`### Result`);
     lines.push(``);
-    lines.push(`No vulnerable files submitted (\`submit_no_vulnerability_found\`).`);
-    lines.push(``);
+    if (result.summary.incompleteReason) {
+      lines.push(
+        `**Incomplete localization** — Antares did not submit vulnerable files (and did not call \`submit_no_vulnerability_found\`).`,
+      );
+      lines.push(``);
+      lines.push(`> ${result.summary.incompleteReason}`);
+      lines.push(``);
+      lines.push(
+        `_Do not treat this as a clean negative. Tips: check completions health; Mac MPS → greedy decoding (\`scripts/completions_server.py\`); raise \`--tool-budget\`._`,
+      );
+      lines.push(``);
+    } else {
+      lines.push(`No vulnerable files submitted (\`submit_no_vulnerability_found\`).`);
+      lines.push(``);
+    }
   } else {
     lines.push(`### Ranked candidate files`);
     lines.push(``);

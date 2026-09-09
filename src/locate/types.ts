@@ -83,7 +83,10 @@ export interface LocateOptions {
   outputDir?: string;
   /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
+  /** Served model id (live). Defaults to fdtn-ai/antares-1b when endpoint/live is set. */
   model?: string;
+  /** Antares --tool-budget (1–50) for live query; raise when runs end incomplete */
+  toolBudget?: number;
   /** Path to extracted official Antares CLI source (optional) */
   antaresCliSource?: string;
   failOnFindings?: boolean;

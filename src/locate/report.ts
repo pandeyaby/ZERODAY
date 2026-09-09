@@ -47,10 +47,36 @@ export function toHumanReport(
   lines.push(`## What files`);
   lines.push(``);
   if (result.rankedFiles.length === 0) {
-    lines.push(
-      `_No vulnerable files submitted (\`submit_no_vulnerability_found\`)._`,
-    );
-    lines.push(``);
+    if (result.summary.incompleteReason) {
+      lines.push(`### Incomplete localization (no submission)`);
+      lines.push(``);
+      lines.push(
+        `> **Antares did not call \`submit_vulnerable_files\` (or \`submit_no_vulnerability_found\`).** ` +
+          `This is **not** a clean negative and **not** proof that the repo is safe. ` +
+          `ZERODAY will not invent findings.`,
+      );
+      lines.push(``);
+      lines.push(`**Reason:** ${result.summary.incompleteReason}`);
+      lines.push(``);
+      lines.push(`**Operator tips:**`);
+      lines.push(``);
+      lines.push(
+        `1. Confirm the completions server is healthy (\`GET /v1/models\`, greedy \`POST /v1/completions\`).`,
+      );
+      lines.push(
+        `2. On Mac MPS, float16 sampling can produce NaNs — use greedy decoding (see \`scripts/completions_server.py\`).`,
+      );
+      lines.push(
+        `3. Increase exploration budget: \`zeroday locate … --tool-budget 30\` (Antares \`--tool-budget\`, range 1–50).`,
+      );
+      lines.push(`4. Re-run live locate; still incomplete → human review of the exploration trace below.`);
+      lines.push(``);
+    } else {
+      lines.push(
+        `_No vulnerable files submitted (\`submit_no_vulnerability_found\`)._`,
+      );
+      lines.push(``);
+    }
   } else {
     lines.push(`| Rank | File | CWEs | Evidence | Citation |`);
     lines.push(`|------|------|------|----------|----------|`);
@@ -109,20 +135,33 @@ export function toHumanReport(
     `- Terminal budget: ${result.summary.terminalCallsUsed} / ${result.summary.terminalCallBudget} exploration calls.`,
   );
   if (result.summary.incompleteReason) {
-    lines.push(`- Incomplete: ${result.summary.incompleteReason}`);
+    lines.push(`- **Incomplete:** ${result.summary.incompleteReason}`);
   }
   lines.push(``);
 
   lines.push(`## Next human action`);
   lines.push(``);
-  lines.push(`1. Open the ranked files and confirm or dismiss each candidate.`);
-  lines.push(
-    `2. If a fix is warranted, run \`zeroday draft-fix --i-asked-for-a-fix\` (CodeGuard-aligned **DRAFT** only).`,
-  );
-  lines.push(`3. Open a normal reviewable PR — **never** auto-merge from ZERODAY.`);
-  lines.push(
-    `4. Optionally export for your SIEM/SOAR desk: \`zeroday export --format asff|splunk|xsoar|fortisiem|crowdstrike|sarif\`.`,
-  );
+  if (result.summary.incompleteReason && result.rankedFiles.length === 0) {
+    lines.push(
+      `1. Treat this run as **incomplete** — do not close the advisory as clean.`,
+    );
+    lines.push(
+      `2. Fix server health / Mac MPS greedy decoding / raise \`--tool-budget\`, then re-run live locate.`,
+    );
+    lines.push(
+      `3. Only after a complete submission (ranked files **or** explicit \`submit_no_vulnerability_found\`) triage candidates.`,
+    );
+    lines.push(`4. Open a normal reviewable PR — **never** auto-merge from ZERODAY.`);
+  } else {
+    lines.push(`1. Open the ranked files and confirm or dismiss each candidate.`);
+    lines.push(
+      `2. If a fix is warranted, run \`zeroday draft-fix --i-asked-for-a-fix\` (CodeGuard-aligned **DRAFT** only).`,
+    );
+    lines.push(`3. Open a normal reviewable PR — **never** auto-merge from ZERODAY.`);
+    lines.push(
+      `4. Optionally export for your SIEM/SOAR desk: \`zeroday export --format asff|splunk|xsoar|fortisiem|crowdstrike|sarif\`.`,
+    );
+  }
   lines.push(``);
 
   if (result.warnings.length) {

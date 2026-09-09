@@ -48,10 +48,26 @@ describe("README adoption path sanity", () => {
     assert.match(script, /\/v1\/models/);
     assert.match(script, /--live/);
     assert.match(script, /--endpoint/);
+    assert.match(script, /--model/);
+    assert.match(script, /fdtn-ai\/antares-1b/);
     assert.doesNotMatch(
       script.replace(/^#.*/gm, ""),
       /--fixture\b/,
     );
     assert.match(script, /mode.*live|expected 'live'/);
+  });
+
+  it("documents Mac MPS greedy server and model default", () => {
+    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    assert.match(readme, /completions_server\.py/);
+    assert.match(readme, /greedy/i);
+    assert.match(readme, /MPS|Apple Silicon/);
+    assert.match(readme, /fdtn-ai\/antares-1b/);
+    assert.match(readme, /Incomplete runs|submit_vulnerable_files/);
+    assert.match(readme, /--tool-budget/);
+    assert.ok(
+      fs.existsSync(path.join(root, "scripts/completions_server.py")),
+      "completions_server.py missing",
+    );
   });
 });
