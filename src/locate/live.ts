@@ -8,7 +8,7 @@
  *
  * Model weights remain gated on Hugging Face — we never download or bypass that.
  * Live inference requires a local OpenAI-compatible POST /v1/completions endpoint
- * (chat completions are rejected by Antares). Validated with vLLM 0.19.1.
+ * (chat completions are rejected by Antares). Antares CLI expects vLLM 0.19.1+.
  */
 
 import { spawnSync } from "node:child_process";
@@ -246,6 +246,62 @@ function mapTool(s: string): TraceStep["tool"] {
   if (lower.includes("ls") || lower.includes("tree")) return "ls";
   if (lower.includes("submit")) return "submit";
   return "other";
+}
+
+export function runAntaresSweep(
+  repoPath: string,
+  opts?: {
+    maxCwes?: number;
+    workers?: number;
+    cwe?: string;
+    endpoint?: string;
+    model?: string;
+    output?: string;
+    noTui?: boolean;
+  },
+): { ok: boolean; stdout: string; stderr: string; status: number | null } {
+  const detected = detectAntaresCli();
+  if (!detected.binary) {
+    return {
+      ok: false,
+      stdout: "",
+      stderr: detected.sourceHint,
+      status: null,
+    };
+  }
+  const args = ["sweep", path.resolve(repoPath)];
+  if (opts?.cwe) {
+    args.push("--cwe", opts.cwe);
+  } else if (opts?.maxCwes) {
+    args.push("--max-cwes", String(opts.maxCwes));
+  }
+  if (opts?.workers) {
+    args.push("--workers", String(opts.workers));
+  }
+  if (opts?.endpoint) {
+    args.push("--endpoint", normalizeCompletionsEndpoint(opts.endpoint));
+  }
+  if (opts?.model) {
+    args.push("--model", opts.model);
+  }
+  if (opts?.output) {
+    args.push("--output", path.resolve(opts.output));
+  }
+  // Headless by default for ZERODAY wrap
+  if (opts?.noTui !== false) {
+    args.push("--no-tui");
+  }
+
+  const run = spawnSync(detected.binary, args, {
+    encoding: "utf8",
+    timeout: 600_000,
+  });
+  return {
+    ok: run.status === 0,
+    stdout: run.stdout || "",
+    stderr: run.stderr || "",
+    status: run.status,
+  };
 }
 
 /**

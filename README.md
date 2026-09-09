@@ -70,12 +70,16 @@ Not an official Cisco / Splunk / Palo Alto / Fortinet / CrowdStrike / AWS partne
 | Path | When | Needs |
 |------|------|-------|
 | **`zeroday operate`** (default) | Coding agent (Cursor, Claude Code, …) explores read-only snapshot and submits JSON | Nothing cloud — fixture mode needs no network |
+| **`operate --emit-brief --agent cursor`** | Hand the Operator Spec + one-shot prompt to your coding agent | Local only |
 | **`zeroday locate --fixture`** | CI / recorded Antares-style localization | No GPU |
 | **`zeroday locate --live --endpoint …`** | Operator hosts `fdtn-ai/antares-1b` locally | Completions-only endpoint; HF-gated weights **you** accept; never downloaded by ZERODAY CI |
+| **`zeroday sweep --endpoint …`** | Live multi-CWE via official `antares sweep` | Same local endpoint; offline prints a clear no-op message |
 
 Antares CLI expects **vLLM 0.19.1+** completions (`POST /v1/completions` only). ZERODAY does **not** claim independent “Validated with vLLM 0.19.1” proof — that is the Antares CLI expectation.
 
-`zeroday sweep` (wrap `antares sweep`) is **TODO** — ship operate + verify first; see CLI stub.
+Agent handoff docs: [`AGENTS.md`](./AGENTS.md) · [`docs/agent-operator.md`](./docs/agent-operator.md).
+
+`zeroday sweep` without `--endpoint` exits 0 with an offline message (CI-safe).
 
 ---
 

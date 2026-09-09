@@ -29,6 +29,7 @@ import {
 } from "./spec";
 import { validateOperatorSubmission } from "./validate";
 import { loadFixtureSubmission } from "./fixture";
+import { buildAgentOneShotPrompt } from "./agent-prompt";
 import type {
   OperateArtifacts,
   OperateOptions,
@@ -45,6 +46,7 @@ export type {
 export { OPERATOR_SUBMISSION_SCHEMA } from "./schema";
 export { validateOperatorSubmission } from "./validate";
 export { loadFixtureSubmission } from "./fixture";
+export { buildAgentOneShotPrompt } from "./agent-prompt";
 export {
   ALLOWED_OPERATOR_TOOLS,
   FORBIDDEN_OPERATOR_ACTIONS,
@@ -169,9 +171,43 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
 
   const vault = new EvidenceVault(outputDir, runId);
   let snapshotPath: string | undefined;
+  let keepSnapshot = false;
 
   try {
-    const snap = createSnapshot(repo);
+    const preferBrief =
+      Boolean(options.briefOnly) || Boolean(options.emitBrief);
+    keepSnapshot = preferBrief;
+
+    const snap = preferBrief
+      ? (() => {
+          // Persist explore tree under the run dir so coding agents can use it
+          // after the CLI exits (tmp snapshots are destroyed otherwise).
+          const dest = path.join(outputDir, "readonly-snapshot");
+          const created = createSnapshot(repo);
+          if (fs.existsSync(dest)) {
+            fs.rmSync(dest, { recursive: true, force: true });
+          }
+          try {
+            fs.renameSync(created.snapshotPath, dest);
+          } catch {
+            fs.cpSync(created.snapshotPath, dest, { recursive: true });
+            destroySnapshot(created.snapshotPath);
+          }
+          // Best-effort cleanup of empty tmp parent left by rename
+          try {
+            const parent = path.dirname(created.snapshotPath);
+            if (parent.includes("zeroday-snap-") && fs.existsSync(parent)) {
+              fs.rmSync(parent, { recursive: true, force: true });
+            }
+          } catch {
+            /* ignore */
+          }
+          return {
+            ...created,
+            snapshotPath: dest,
+          };
+        })()
+      : createSnapshot(repo);
     snapshotPath = snap.snapshotPath;
 
     vault.putBlob(
@@ -232,9 +268,18 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
     fs.writeFileSync(briefPath, JSON.stringify(brief, null, 2));
     vault.registerArtifact(briefPath, "operator-brief.json");
 
-    if (options.briefOnly) {
+    let agentPromptPath: string | undefined;
+    if (options.agentPrompt || preferBrief) {
+      const flavor = options.agentPrompt || "stdout";
+      const prompt = buildAgentOneShotPrompt({ brief, flavor });
+      agentPromptPath = path.join(outputDir, "AGENT_PROMPT.md");
+      fs.writeFileSync(agentPromptPath, prompt);
+      vault.registerArtifact(agentPromptPath, "AGENT_PROMPT.md");
+    }
+
+    if (preferBrief) {
       const manifestPath = vault.flush();
-      // Minimal empty result pack so verify can still run on brief-only dirs
+      // Placeholder submission so the run dir documents "awaiting agent"
       const emptySubmission: OperatorSubmission = {
         schemaVersion: "zeroday-operator-submission/v1",
         advisory: {
@@ -244,7 +289,7 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
         },
         rankedFiles: [],
         needs_human: true,
-        notes: "brief-only: awaiting agent submission",
+        notes: "emit-brief: awaiting agent submission",
       };
       fs.writeFileSync(submissionHint, JSON.stringify(emptySubmission, null, 2));
       return {
@@ -266,6 +311,7 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
         exportPaths: [],
         evidenceDir: vault.evidenceDir,
         manifestPath,
+        agentPromptPath,
       };
     }
 
@@ -297,8 +343,8 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
       raw = JSON.parse(text);
     } else {
       throw new Error(
-        "Provide --fixture, --from submission.json, or pipe a submission on stdin. " +
-          "Use --brief-only to emit the operator brief without a submission.",
+        "Provide --fixture, --from submission.json, --emit-brief, or pipe a submission on stdin. " +
+          "Use --emit-brief / --brief-only to emit the operator brief without a submission.",
       );
     }
 
@@ -436,9 +482,10 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
       exportPaths: exports.map((e) => e.path),
       evidenceDir: vault.evidenceDir,
       manifestPath,
+      agentPromptPath,
     };
   } finally {
-    if (snapshotPath) {
+    if (snapshotPath && !keepSnapshot) {
       destroySnapshot(snapshotPath);
     }
   }

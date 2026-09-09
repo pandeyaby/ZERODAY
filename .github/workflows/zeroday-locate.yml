@@ -1,12 +1,8 @@
-# ZERODAY Antares localization CI gate (Increment 2)
+# ZERODAY Antares localization CI gate
 #
 # Fixture-only — no model weights, no HF pull, no GPU.
-# Uploads SARIF (note severity) + posts a reviewable PR comment.
+# Jobs: locate (SARIF + PR comment) + operate→verify (keyless evidence vault).
 # Never auto-merges. Localization ≠ exploitability.
-#
-# Drop-in: leave this workflow on forever. Optional soft-fail by default;
-# set repository variable ZERODAY_FAIL_ON_FINDINGS=true to fail after
-# findings are visible (still not an exploitability claim).
 
 name: ZERODAY locate
 
@@ -49,8 +45,6 @@ jobs:
           cwe: CWE-89
           repo: fixtures/locate/demo-app
           output: zeroday-reports/ci
-          # Default soft: findings visible via SARIF + comment; do not block merge
-          # as if localization proved exploitability. Opt in via repo variable.
           fail-on-findings: ${{ vars.ZERODAY_FAIL_ON_FINDINGS || 'false' }}
           upload-sarif: "true"
           post-comment: "true"
@@ -61,4 +55,53 @@ jobs:
         with:
           name: zeroday-locate-reports
           path: zeroday-reports/ci/
+          if-no-files-found: error
+
+  operate:
+    name: Fixture operate → verify (keyless)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fixture operate (no weights / no GPU)
+        run: |
+          set -euo pipefail
+          mkdir -p zeroday-reports/ci-operate
+          npm run zeroday -- operate --cwe CWE-89 --fixture --offline \
+            --output zeroday-reports/ci-operate
+          test -f zeroday-reports/ci-operate/report.json
+          test -f zeroday-reports/ci-operate/report.sarif
+          test -f zeroday-reports/ci-operate/evidence/manifest.json
+
+      - name: Verify evidence vault (fail on hash/schema errors)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- verify --from zeroday-reports/ci-operate
+
+      - name: Summarize operate gate
+        run: |
+          {
+            echo "## ZERODAY operate → verify gate"
+            echo ""
+            echo "- Mode: fixture agent operator (keyless — no Antares HF token / no GPU)"
+            echo "- Output: \`zeroday-reports/ci-operate/\`"
+            echo "- Verify: offline SHA-256 + manifest schema (hard-fail)"
+            echo "- Posture: localization only · not exploit proof · no auto-merge"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload operate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-operate-reports
+          path: zeroday-reports/ci-operate/
           if-no-files-found: error
