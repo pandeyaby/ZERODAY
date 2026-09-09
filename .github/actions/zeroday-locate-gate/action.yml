@@ -2,6 +2,7 @@ name: ZERODAY locate gate
 description: >
   Fixture Antares localization CI gate — SARIF upload + reviewable PR comment.
   No model weights, no HF pull, no GPU. Never auto-merges. Localization ≠ exploitability.
+  On pull_request, posting the findings comment is fail-closed (not optional soft-fail).
 inputs:
   cwe:
     description: CWE id for fixture localization (e.g. CWE-89)
@@ -26,7 +27,9 @@ inputs:
     required: false
     default: "true"
   post-comment:
-    description: Post (or update) a PR comment with ranked files + evidence
+    description: >
+      Post (or update) a PR comment with ranked files + evidence.
+      On pull_request this is fail-closed when true — job fails if comment cannot be posted.
     required: false
     default: "true"
   sarif-category:
@@ -61,7 +64,7 @@ runs:
       shell: bash
       run: npm test
 
-    - name: Fixture locate (no weights)
+    - name: Fixture locate (CI / no-GPU — not the live product path)
       id: locate
       shell: bash
       env:
@@ -71,16 +74,22 @@ runs:
       run: |
         set -euo pipefail
         mkdir -p "$OUT"
+        # Explicit --fixture only. Never --endpoint / --live in CI (no weights).
         npm run zeroday -- locate --cwe "$CWE" --repo "$REPO" --fixture --output "$OUT"
         test -f "$OUT/report.sarif"
         test -f "$OUT/report.json"
         test -f "$OUT/comment.md"
+        # Fail closed before GitHub API: comment must carry ranked findings (or empty result).
+        grep -E 'Ranked candidate files|No vulnerable files submitted' "$OUT/comment.md" >/dev/null
+        grep -F 'Human review required' "$OUT/comment.md" >/dev/null
+        MODE="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(r.mode)")"
+        test "$MODE" = "fixture"
         COUNT="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(String(r.summary.findingCount))")"
         echo "sarif-path=$OUT/report.sarif" >> "$GITHUB_OUTPUT"
         echo "comment-path=$OUT/comment.md" >> "$GITHUB_OUTPUT"
         echo "json-path=$OUT/report.json" >> "$GITHUB_OUTPUT"
         echo "finding-count=$COUNT" >> "$GITHUB_OUTPUT"
-        echo "ZERODAY fixture locate complete — findings=$COUNT (localization only)"
+        echo "ZERODAY CI/no-GPU fixture locate complete — findings=$COUNT (localization only)"
 
     - name: Optional antares plan (no inference)
       continue-on-error: true
@@ -108,30 +117,27 @@ runs:
         category: ${{ inputs.sarif-category }}
 
     - name: Post reviewable PR comment
+      id: pr-comment
       if: inputs.post-comment == 'true' && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       env:
         COMMENT_PATH: ${{ steps.locate.outputs.comment-path }}
       with:
         script: |
-          const fs = require('fs');
-          const marker = '<!-- zeroday-antares-locate-ci -->';
-          const body = marker + '\n' + fs.readFileSync(process.env.COMMENT_PATH, 'utf8');
-          const { owner, repo } = context.repo;
-          const issue_number = context.payload.pull_request.number;
-          const comments = await github.paginate(github.rest.issues.listComments, {
-            owner, repo, issue_number, per_page: 100,
-          });
-          const existing = comments.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
-          if (existing) {
-            await github.rest.issues.updateComment({
-              owner, repo, comment_id: existing.id, body,
-            });
-            core.info(`Updated PR comment ${existing.id}`);
-          } else {
-            await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            core.info('Created PR comment');
-          }
+          const path = require('path');
+          const post = require(path.join(process.env.GITHUB_ACTION_PATH, 'post-pr-comment.js'));
+          await post({ github, context, core });
+
+    - name: Fail closed if PR comment step broke
+      if: >-
+        always() &&
+        inputs.post-comment == 'true' &&
+        github.event_name == 'pull_request' &&
+        steps.pr-comment.outcome == 'failure'
+      shell: bash
+      run: |
+        echo "::error title=ZERODAY PR comment failed::post-comment is required on pull_request. Job fails closed — every PR must get a visible ranked-findings comment (fixture locate is fine; no GPU)."
+        exit 1
 
     - name: Summarize for Actions UI
       shell: bash
@@ -146,14 +152,13 @@ runs:
           echo "- SARIF: \`${SARIF}\`"
           echo "- Also written: asff / splunk / xsoar / fortisiem / crowdstrike local projections"
           echo "- Posture: detector-lane candidate · localization only · not exploitability proof · no auto-merge"
-          echo "- Mode: fixture (no model weights / no HF pull)"
+          echo "- Mode: **CI / no-GPU fixture** (not the live Antares product path)"
+          echo "- PR comment: fail-closed on \`pull_request\` when \`post-comment=true\`"
         } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Reviewable fail-on-findings (optional)
       if: inputs.fail-on-findings == 'true' && steps.locate.outputs.finding-count != '0'
       shell: bash
-      env:
-        COUNT: ${{ steps.locate.outputs.finding-count }}
       run: |
-        echo "::error title=ZERODAY localization review::${COUNT} ranked candidate file(s) for human review. This is NOT proof of exploitability. SARIF + PR comment were published. No auto-merge."
+        echo "::error title=ZERODAY localization review::${{ steps.locate.outputs.finding-count }} ranked candidate file(s) for human review. This is NOT proof of exploitability. SARIF + PR comment were published. No auto-merge."
         exit 1

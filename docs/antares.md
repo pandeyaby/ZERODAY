@@ -19,19 +19,36 @@ antares --version
 
 There is **no** `antares locate`. `zeroday locate` wraps `query` (and `plan` via `zeroday plan`).
 
+## 30-minute live → SARIF
+
+1. `npm install` + `uv tool install cisco-antares-cli`
+2. **Human** accepts HF terms: [fdtn-ai/antares-1b](https://huggingface.co/fdtn-ai/antares-1b) (never scrape/bypass)
+3. Serve locally with completions-only `POST /v1/completions` (Antares CLI expects vLLM 0.19.1+; ZERODAY does not claim independent vLLM validation)
+4. One command:
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
+# helper (fails if endpoint down; never silent fixture fallback):
+bash scripts/quickstart-live.sh /path CWE-89
+```
+
 ## Completions only
 
 ```bash
-vllm serve fdtn-ai/antares-1b   # Antares CLI expects vLLM 0.19.1+ completions
+vllm serve fdtn-ai/antares-1b
 # POST /v1/completions — chat completions are rejected
-# ZERODAY does not claim independent “validated with vLLM” proof
-npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
-
-# Keyless default (no Antares weights):
-npm run zeroday -- operate --cwe CWE-89 --fixture
 ```
 
 Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an operator workstation.
+
+## CI / no-GPU (separate path)
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --fixture   # recorded — not live
+npm run zeroday -- operate --cwe CWE-89 --fixture  # keyless agent path
+```
+
+`--fixture` + `--live`/`--endpoint` together is **refused**.
 
 ## Models
 
@@ -47,6 +64,7 @@ Do **not** download `model.safetensors` onto CI machines. Accept HF terms on an 
 
 ## Sister pieces
 
+- [Antares site](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
 - [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — Detector-lane **candidates** only; human triage for true-positive
 - [Project CodeGuard](https://project-codeguard.org/) — patch DRAFT rule map (`--i-asked-for-a-fix`)
 

@@ -314,13 +314,13 @@ program
     "Local repository path (default: fixture demo-app)",
     "",
   )
-  .option("--fixture", "Force recorded/fixture mode (CI — no GPU / no weights)", false)
-  .option("--live", "Force live official Antares CLI path", false)
+  .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
+  .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local vLLM / OpenAI-compatible endpoint (implies live unless --fixture). Completions only.",
+    "Local vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
   )
   .option("--model <id>", "Served model id (live)")
   .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
@@ -426,12 +426,23 @@ program
           const live = detectAntaresCli();
           console.log("");
           console.log(
+            "Note: this was the CI / no-GPU fixture path — not live Antares inference.",
+          );
+          console.log(
             live.binary
-              ? `Tip: Antares CLI at ${live.binary} — rerun with --endpoint http://127.0.0.1:8000/v1`
+              ? `Live path: npm run zeroday -- locate --cwe ${r.advisory.cweId} --repo <path> --endpoint http://127.0.0.1:8000/v1`
               : `Tip: ${live.sourceHint}`,
           );
           console.log(
-            "Keyless default: prefer `zeroday operate --fixture` (coding agent path, no Antares weights).",
+            "Helper: bash scripts/quickstart-live.sh <repo> [CWE]  (refuses silent fixture fallback)",
+          );
+          console.log(
+            "Keyless (no weights): prefer `zeroday operate --fixture` for coding-agent handoff.",
+          );
+        } else if (r.mode === "live") {
+          console.log("");
+          console.log(
+            "Live Antares path complete — report.sarif is from real inference (not fixture).",
           );
         }
       }

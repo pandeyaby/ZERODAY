@@ -15,8 +15,14 @@ export function toPullRequestComment(result: LocalizationResult): string {
   lines.push(``);
   lines.push(`| | |`);
   lines.push(`|--|--|`);
+  const modeNote =
+    result.mode === "fixture"
+      ? "fixture CI / no-GPU — recorded localization, not live weights"
+      : result.mode === "live"
+        ? "live Antares — local completions endpoint"
+        : "keyless agent operator";
   lines.push(`| Advisory | \`${result.advisory.id}\` → \`${result.advisory.cweId}\` |`);
-  lines.push(`| Mode | \`${result.mode}\` (fixture CI — no model weights) |`);
+  lines.push(`| Mode | \`${result.mode}\` (${modeNote}) |`);
   lines.push(`| Model | \`${result.model}\` |`);
   lines.push(`| Findings | **${result.summary.findingCount}** ranked file(s) |`);
   lines.push(`| Incomplete | ${result.summary.incompleteReason ?? "no"} |`);

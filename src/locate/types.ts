@@ -72,16 +72,16 @@ export interface LocateOptions {
   repo: string;
   /** Raw advisory string: CWE-89 | CVE-… | GHSA-… */
   advisory: string;
-  /** Force fixture even if live tools are available */
+  /** Force fixture (CI / no-GPU). Incompatible with --live / --endpoint. */
   fixture?: boolean;
-  /** Force live Antares path (also implied when endpoint is set) */
+  /** Force live Antares path (also implied when endpoint is set). Requires healthy --endpoint. */
   live?: boolean;
   /** Skip NVD/GHSA network resolve */
   offline?: boolean;
   /** Explicit CWE when CVE/GHSA cannot be resolved */
   explicitCwe?: string;
   outputDir?: string;
-  /** OpenAI-compatible completions URL — implies live unless --fixture */
+  /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
   model?: string;
   /** Path to extracted official Antares CLI source (optional) */
@@ -90,4 +90,8 @@ export interface LocateOptions {
   /** ASFF placeholder account */
   awsAccountId?: string;
   awsRegion?: string;
+  /** Test seam: custom fetch for live endpoint probe (no repo source) */
+  probeFetch?: typeof fetch;
+  /** Test seam: inject probe result (skips network) */
+  probeResult?: import("./completions").CompletionsProbeResult;
 }

@@ -9,11 +9,11 @@ import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
 import { runLiveAntaresCli, detectAntaresCli, runAntaresPlan, runAntaresSweep } from "./live";
+import { normalizeCompletionsEndpoint } from "./completions";
 import {
-  assertNotChatCompletions,
-  normalizeCompletionsEndpoint,
-  probeCompletionsEndpoint,
-} from "./completions";
+  assertLiveEndpointHealthy,
+  resolveLocateMode,
+} from "./live-guard";
 import { toSarif } from "./sarif";
 import { toHumanReport } from "./report";
 import { toPullRequestComment } from "./comment";
@@ -37,6 +37,8 @@ export {
   runAntaresPlan,
   runAntaresSweep,
   resolveAdvisory,
+  resolveLocateMode,
+  assertLiveEndpointHealthy,
 };
 export type { LocateOptions, LocalizationResult };
 
@@ -55,18 +57,18 @@ export interface LocateArtifacts {
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   const endpointRaw =
     options.endpoint || process.env.ANTARES_ENDPOINT || undefined;
-  if (endpointRaw) {
-    assertNotChatCompletions(endpointRaw);
-  }
 
-  // Live by default when --endpoint is set; fixture remains explicit / CI path
-  const preferLive =
-    Boolean(options.live) ||
-    (Boolean(endpointRaw) && !options.fixture);
-  const preferFixture = Boolean(options.fixture) || !preferLive;
+  // Live when --live / --endpoint; fixture when --fixture or default (CI-safe).
+  // Mixed --fixture + --live/--endpoint is refused — never silent mock fallback.
+  const mode = resolveLocateMode({
+    fixture: options.fixture,
+    live: options.live,
+    endpoint: endpointRaw,
+  });
+  const preferLive = mode === "live";
 
   const resolved = await resolveAdvisory(options.advisory, {
-    offline: preferFixture || options.offline === true,
+    offline: !preferLive || options.offline === true,
     explicitCwe: options.explicitCwe,
   });
 
@@ -108,21 +110,21 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
 
   try {
     if (preferLive) {
+      // Fail closed on unhealthy endpoint BEFORE touching Antares CLI / snapshots.
+      // Never degrade to fixture recordings.
+      const endpoint = normalizeCompletionsEndpoint(endpointRaw!);
+      const probe = await assertLiveEndpointHealthy({
+        endpoint,
+        fetchImpl: options.probeFetch,
+        probeResult: options.probeResult,
+      });
+      const probeDetail = `Local completions probe ok: ${probe.detail}`;
+
       if (!antares.binary) {
         throw new Error(
           `Live locate needs the official Antares CLI on PATH. ${antares.sourceHint} ` +
-            `Or use --fixture for offline recorded localizations.`,
+            `Use --fixture only for the separate CI / no-GPU smoke — never as a silent fallback.`,
         );
-      }
-      const endpoint = endpointRaw
-        ? normalizeCompletionsEndpoint(endpointRaw)
-        : undefined;
-      let probeDetail: string | undefined;
-      if (endpoint) {
-        const probe = await probeCompletionsEndpoint(endpoint);
-        probeDetail = probe.ok
-          ? `Local completions probe ok: ${probe.detail}`
-          : `Local completions probe: ${probe.detail} (antares may still use profile endpoint)`;
       }
 
       const snap = createSnapshot(repo);
@@ -146,13 +148,19 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         model: options.model,
         antaresCliSource: options.antaresCliSource,
       });
+      if (result.mode !== "live") {
+        throw new Error(
+          `Live locate invariant broken: expected mode=live, got mode=${result.mode}. ` +
+            `Refusing to treat fixture/mock output as a live Antares run.`,
+        );
+      }
       result.snapshotPath = snap.snapshotPath;
       result.warnings.push(
         `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
       );
       result.warnings.push(...snap.warnings);
       result.warnings.push(sb.detail);
-      if (probeDetail) result.warnings.push(probeDetail);
+      result.warnings.push(probeDetail);
       result.warnings.push(
         `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
       );

@@ -19,6 +19,7 @@
     "locate": "tsx cli/index.ts locate",
     "operate": "tsx cli/index.ts operate",
     "verify": "tsx cli/index.ts verify",
+    "quickstart:live": "bash scripts/quickstart-live.sh",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "export": "tsx cli/index.ts export",

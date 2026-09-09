@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   locate:
-    name: Fixture localize → SARIF + PR comment
+    name: CI/no-GPU fixture localize → SARIF + PR comment
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
         continue-on-error: true
         run: |
           set -euo pipefail
-          echo "## PR changed files (context — fixture locate uses recorded Antares run)" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PR changed files (context — CI/no-GPU fixture locate uses recorded Antares run)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           git fetch origin "${{ github.base_ref }}" --depth=1 2>/dev/null || true
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" | head -100 | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
