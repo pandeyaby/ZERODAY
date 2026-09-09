@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * ZERODAY CLI — wraps cisco-antares-cli for daily-driver localization.
+ * ZERODAY CLI — defensive security operator harness.
  *
- *   zeroday locate --cwe CWE-89 --fixture
- *   zeroday locate --cve CVE-… --repo /path --endpoint http://localhost:8000/v1
- *   zeroday export --format asff --from zeroday-reports/.../report.json
- *   zeroday draft-fix --i-asked-for-a-fix --from …/report.json
+ *   zeroday operate --cwe CWE-89 --fixture          # keyless agent path (default)
+ *   zeroday locate  --cwe CWE-89 --fixture          # Antares fixture / optional --live
+ *   zeroday verify  --from zeroday-reports/<run>
+ *   zeroday export / draft-fix / classify / demo / play
  */
 
 import { Command } from "commander";
@@ -36,6 +36,8 @@ import {
   listClassifyScenarios,
   runMixedPack,
 } from "../src/classify/index.ts";
+import { operate } from "../src/operate/index.ts";
+import { verifyRunDir } from "../src/evidence/vault.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 
@@ -66,9 +68,153 @@ const program = new Command();
 program
   .name("zeroday")
   .description(
-    "ZERODAY — local-first Antares vulnerability localization daily driver",
+    "ZERODAY — keyless agent operator + optional local Antares localization (defensive only)",
   )
-  .version("0.4.0");
+  .version("0.5.0");
+
+program
+  .command("operate")
+  .description(
+    "Keyless agent operator: emit brief/schema, accept submission (or --fixture), write artifact + evidence pack",
+  )
+  .option("--cwe <id>", "CWE id (e.g. CWE-89)")
+  .option("--cve <id>", "CVE id")
+  .option("--ghsa <id>", "GHSA id")
+  .option("--map-cwe <id>", "Explicit CWE override when CVE/GHSA cannot be resolved")
+  .option("--repo <path>", "Local repository path (default: fixture demo-app)", "")
+  .option("--fixture", "Use recorded agent submission (CI — offline/keyless)", false)
+  .option("--from <submission.json>", "Path to agent submission JSON")
+  .option("--stdin", "Read submission JSON from stdin", false)
+  .option("--brief-only", "Emit operator brief + schema only", false)
+  .option("--offline", "Skip NVD/GHSA network resolve", false)
+  .option("--output <dir>", "Report output directory")
+  .option("--json", "Print LocalizationResult JSON to stdout", false)
+  .action(async (opts: {
+    cwe?: string;
+    cve?: string;
+    ghsa?: string;
+    mapCwe?: string;
+    repo: string;
+    fixture: boolean;
+    from?: string;
+    stdin: boolean;
+    briefOnly: boolean;
+    offline: boolean;
+    output?: string;
+    json: boolean;
+  }) => {
+    const advisory = opts.cwe || opts.cve || opts.ghsa;
+    if (!advisory) {
+      console.error(
+        "Provide one of --cwe, --cve, or --ghsa.\n" +
+          "Example: zeroday operate --cwe CWE-89 --fixture",
+      );
+      process.exitCode = 2;
+      return;
+    }
+    if ([opts.cwe, opts.cve, opts.ghsa].filter(Boolean).length > 1) {
+      console.error("Pass only one of --cwe / --cve / --ghsa.");
+      process.exitCode = 2;
+      return;
+    }
+
+    const repo =
+      opts.repo && opts.repo.length > 0
+        ? path.resolve(opts.repo)
+        : defaultFixtureRepo();
+
+    try {
+      const artifacts = await operate({
+        repo,
+        advisory,
+        fixture: opts.fixture,
+        from: opts.from,
+        stdin: opts.stdin,
+        briefOnly: opts.briefOnly,
+        offline: opts.offline,
+        explicitCwe: opts.mapCwe,
+        outputDir: opts.output,
+      });
+
+      if (opts.json) {
+        console.log(JSON.stringify(artifacts.result, null, 2));
+      } else {
+        console.log("");
+        console.log("ZERODAY operate (keyless agent operator)");
+        console.log("───────────────────────────────────────");
+        console.log(`Advisory : ${artifacts.result.advisory.id} → ${artifacts.result.advisory.cweId}`);
+        console.log(`Mode     : ${artifacts.result.mode}`);
+        console.log(`Run      : ${artifacts.runId}`);
+        console.log(`Findings : ${artifacts.result.summary.findingCount}`);
+        console.log("");
+        console.log("Operator pack:");
+        console.log(`  Brief    ${artifacts.briefPath}`);
+        console.log(`  Spec     ${artifacts.instructionsPath}`);
+        console.log(`  Schema   ${artifacts.schemaPath}`);
+        console.log(`  Submit   ${artifacts.submissionPath}`);
+        if (artifacts.jsonPath) {
+          console.log("");
+          console.log("Artifacts:");
+          console.log(`  JSON     ${artifacts.jsonPath}`);
+          console.log(`  SARIF    ${artifacts.sarifPath}`);
+          console.log(`  Report   ${artifacts.reportPath}`);
+          console.log(`  Comment  ${artifacts.commentPath}`);
+          for (const p of artifacts.exportPaths) {
+            if (p !== artifacts.sarifPath) {
+              console.log(`  Export   ${p}`);
+            }
+          }
+          console.log(`  Evidence ${artifacts.evidenceDir}`);
+          console.log(`  Manifest ${artifacts.manifestPath}`);
+        }
+        console.log("");
+        console.log(
+          "Posture: keyless default · localization only · not exploit proof · no PoC · needs_human · no auto-merge",
+        );
+        console.log(
+          `Verify:  npm run zeroday -- verify --from ${artifacts.outputDir}`,
+        );
+      }
+    } catch (e) {
+      console.error(`operate failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("verify")
+  .description(
+    "Offline-verify evidence vault hashes + manifest schema for a run directory",
+  )
+  .requiredOption("--from <run-dir>", "Path to zeroday-reports/<run-id>")
+  .option("--json", "Print VerifyResult JSON", false)
+  .action((opts: { from: string; json: boolean }) => {
+    try {
+      const result = verifyRunDir(opts.from);
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log("");
+        console.log("ZERODAY verify");
+        console.log("─────────────");
+        console.log(`Run dir  : ${result.runDir}`);
+        console.log(`Checked  : ${result.checked}`);
+        console.log(`Status   : ${result.ok ? "PASS" : "FAIL"}`);
+        if (!result.ok) {
+          for (const f of result.failures) {
+            console.log(`  ✗ ${f.path}: ${f.reason}`);
+          }
+          process.exitCode = 1;
+        } else {
+          console.log("Hashes + schema OK (offline).");
+        }
+      }
+      if (!result.ok) process.exitCode = 1;
+    } catch (e) {
+      console.error(`verify failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
 
 program
   .command("plan")
@@ -222,6 +368,10 @@ program
             console.log(`  Export   ${p}`);
           }
         }
+        if (artifacts.manifestPath) {
+          console.log(`  Evidence ${artifacts.evidenceDir}`);
+          console.log(`  Manifest ${artifacts.manifestPath}`);
+        }
         console.log("");
         console.log(
           "Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge",
@@ -233,6 +383,9 @@ program
             live.binary
               ? `Tip: Antares CLI at ${live.binary} — rerun with --endpoint http://127.0.0.1:8000/v1`
               : `Tip: ${live.sourceHint}`,
+          );
+          console.log(
+            "Keyless default: prefer `zeroday operate --fixture` (coding agent path, no Antares weights).",
           );
         }
       }
@@ -393,6 +546,73 @@ program
   });
 
 program
+  .command("play")
+  .description(
+    "Local fixture playground — print how-to URL, or run locate/classify/demo without the UI",
+  )
+  .option(
+    "--action <name>",
+    "Optional headless run: locate | classify | demo (default: print start instructions)",
+  )
+  .option(
+    "--scenario <name>",
+    "Classify scenario when --action classify",
+    "software_defect",
+  )
+  .action(async (opts: { action?: string; scenario: string }) => {
+    if (!opts.action) {
+      console.log("");
+      console.log("ZERODAY local playground");
+      console.log("───────────────────────");
+      console.log("Start the local UI (fixtures only, no gated weights):");
+      console.log("");
+      console.log("  npm run play");
+      console.log("  # alias:  npm run war-room");
+      console.log("");
+      console.log("Then open:");
+      console.log("  http://localhost:3333/play");
+      console.log("  http://localhost:3333/          (How orgs use + playground)");
+      console.log("");
+      console.log("Headless fixture runs (same engines, no UI):");
+      console.log("  npm run zeroday -- play --action locate");
+      console.log("  npm run zeroday -- play --action classify --scenario possible_breach");
+      console.log("  npm run zeroday -- play --action demo");
+      console.log("");
+      console.log(
+        "Honesty: fixtures only · no live network · no weight download · no PoCs · no auto-merge",
+      );
+      return;
+    }
+
+    const {
+      runPlaygroundLocate,
+      runPlaygroundClassify,
+      runPlaygroundDemo,
+    } = await import("../src/playground/index.ts");
+
+    try {
+      if (opts.action === "locate") {
+        const r = await runPlaygroundLocate();
+        console.log(JSON.stringify(r, null, 2));
+      } else if (opts.action === "classify") {
+        const r = await runPlaygroundClassify({ scenario: opts.scenario });
+        console.log(JSON.stringify(r, null, 2));
+      } else if (opts.action === "demo") {
+        const r = await runPlaygroundDemo();
+        console.log(JSON.stringify(r, null, 2));
+      } else {
+        console.error(
+          `Unknown --action '${opts.action}'. Use locate | classify | demo (or omit for start instructions).`,
+        );
+        process.exitCode = 2;
+      }
+    } catch (e) {
+      console.error(`play failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
   .command("draft-fix")
   .description(
     "CodeGuard-aligned patch DRAFT (requires --i-asked-for-a-fix). Never auto-merge.",
@@ -409,7 +629,6 @@ program
     output?: string;
     alsoPoc: boolean;
   }) => {
-    // Commander maps --i-asked-for-a-fix to iAskedForAFix
     if (!opts.iAskedForAFix) {
       console.error(
         `draft-fix requires the explicit human flag ${DRAFT_FIX_FLAG}.`,
@@ -450,85 +669,32 @@ program
 
 program
   .command("health")
-  .description("Check War Room API health")
+  .description("Check local UI API health")
   .action(async () => {
     await api("/api/health");
   });
 
 program
-  .command("missions")
-  .description("List missions")
-  .action(async () => {
-    await api("/api/missions");
-  });
-
-program
-  .command("launch")
-  .argument("<brief>", "Natural language mission brief")
-  .description("Create a mission from a brief")
-  .action(async (brief: string) => {
-    await api("/api/missions", { method: "POST", body: JSON.stringify({ brief }) });
-  });
-
-program
-  .command("authorize")
-  .argument("<missionId>")
-  .option("--by <name>", "Authorizing person", "CLI Operator")
-  .action(async (missionId: string, opts: { by: string }) => {
-    await api("/api/missions", {
-      method: "POST",
-      body: JSON.stringify({ action: "authorize", missionId, authorizedBy: opts.by }),
-    });
-  });
-
-program
-  .command("start")
-  .argument("<missionId>")
-  .action(async (missionId: string) => {
-    await api("/api/missions", {
-      method: "POST",
-      body: JSON.stringify({ action: "start", missionId }),
-    });
-  });
-
-program
-  .command("status")
-  .argument("<missionId>")
-  .action(async (missionId: string) => {
-    await api(`/api/missions/${missionId}`);
-  });
-
-program
-  .command("findings")
-  .argument("[missionId]")
-  .action(async (missionId?: string) => {
-    const q = missionId ? `?missionId=${missionId}` : "";
-    await api(`/api/findings${q}`);
-  });
-
-program
-  .command("stego")
-  .argument("<action>")
-  .option("--id <transformId>", "Transform id", "base64")
-  .option("--text <text>", "Input text", "")
-  .action(async (action: string, opts: { id: string; text: string }) => {
-    await api("/api/stego", {
-      method: "POST",
-      body: JSON.stringify({
-        action,
-        transformId: opts.id,
-        text: opts.text,
-        prompt: opts.text,
-      }),
-    });
-  });
-
-program
-  .command("plinius")
-  .argument("[action]", "status|research|t3mp3st|st3gg", "status")
-  .description("Plinius bridge status / research gates / adapters")
-  .action(async (action: string) => {
-    await api(`/api/plinius?action=${encodeURIComponent(action || "status")}`);
+  .command("sweep")
+  .description(
+    "TODO: wrap official `antares sweep` for live multi-CWE (sandbox + local endpoint). Not shipped yet — use operate/locate first.",
+  )
+  .action(() => {
+    console.log("");
+    console.log("zeroday sweep — not shipped yet");
+    console.log("──────────────────────────────");
+    console.log(
+      "Planned: thin wrap of official `antares sweep` for live multi-CWE on an operator workstation",
+    );
+    console.log(
+      "(Docker network=none sandbox + local /v1/completions). Critical path is operate + verify.",
+    );
+    console.log("");
+    console.log("Today:");
+    console.log("  npm run zeroday -- operate --cwe CWE-89 --fixture");
+    console.log("  npm run zeroday -- locate --cwe CWE-89 --fixture");
+    console.log("  npm run zeroday -- plan ./repo --max-cwes 5");
+    process.exitCode = 0;
   });
 
 program.parseAsync(process.argv);

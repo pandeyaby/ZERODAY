@@ -1,15 +1,25 @@
 /**
  * CISO one-pager — what was asked, what files, confidence limits, next human action.
- * Not a wall of JSON.
+ * Not a wall of JSON. Material claims cite evidence IDs when provided.
  */
 
 import type { LocalizationResult } from "./types";
 import { ANTARES_1B_FILE_F1 } from "./findings";
 import { categoryForCwe } from "./categories";
+import { formatEvidenceCitation } from "../evidence/findings";
 
-export function toHumanReport(result: LocalizationResult): string {
+export interface HumanReportOptions {
+  /** Evidence vault claim ids — every ranked-file row cites these when present */
+  evidenceClaimIds?: string[];
+}
+
+export function toHumanReport(
+  result: LocalizationResult,
+  opts: HumanReportOptions = {},
+): string {
   const category = categoryForCwe(result.advisory.cweId);
   const lines: string[] = [];
+  const claimIds = opts.evidenceClaimIds || [];
 
   lines.push(`# ZERODAY Localization — CISO one-pager`);
   lines.push(``);
@@ -42,28 +52,56 @@ export function toHumanReport(result: LocalizationResult): string {
     );
     lines.push(``);
   } else {
-    lines.push(`| Rank | File | CWEs | Evidence |`);
-    lines.push(`|------|------|------|----------|`);
-    for (const f of result.rankedFiles) {
+    lines.push(`| Rank | File | CWEs | Evidence | Citation |`);
+    lines.push(`|------|------|------|----------|----------|`);
+    for (let i = 0; i < result.rankedFiles.length; i++) {
+      const f = result.rankedFiles[i];
       const cwes = (f.cweIds.length ? f.cweIds : [result.advisory.cweId]).join(
         ", ",
       );
       const note = f.evidence.map((e) => e.note).join("; ").replace(/\|/g, "/");
+      const cite = claimIds[i]
+        ? formatEvidenceCitation([claimIds[i]])
+        : claimIds.length
+          ? formatEvidenceCitation(claimIds)
+          : "_see evidence vault_";
       lines.push(
-        `| ${f.rank} | \`${f.filePath}\` | ${cwes} | ${note.slice(0, 160)} |`,
+        `| ${f.rank} | \`${f.filePath}\` | ${cwes} | ${note.slice(0, 120)} | ${cite} |`,
       );
     }
     lines.push(``);
   }
 
+  if (claimIds.length) {
+    lines.push(`## Evidence citations`);
+    lines.push(``);
+    lines.push(
+      `Material claims above cite vault ids: ${formatEvidenceCitation(claimIds)}. ` +
+        `Verify offline with \`zeroday verify --from <run-dir>\`.`,
+    );
+    lines.push(``);
+  }
+
   lines.push(`## Confidence & limits`);
   lines.push(``);
-  lines.push(
-    `- Public **Antares-1B** File F1 is **${ANTARES_1B_FILE_F1}** (localization quality on the published benchmark — **not** a per-finding confidence score).`,
-  );
-  lines.push(
-    `- Antares-350m File F1 is **0.135** (edge). We never claim Antares-3B.`,
-  );
+  if (result.mode === "agent") {
+    lines.push(
+      `- **Keyless agent operator** — confidence labels come from the coding-agent submission, not a vendor score.`,
+    );
+    lines.push(
+      `- Optional live Antares (when hosted locally) publishes File F1 **${ANTARES_1B_FILE_F1}** on the public benchmark — **not** a per-finding score. Antares CLI expects vLLM **0.19.1+** completions; ZERODAY does not claim independent vLLM validation.`,
+    );
+  } else {
+    lines.push(
+      `- Public **Antares-1B** File F1 is **${ANTARES_1B_FILE_F1}** (localization quality on the published benchmark — **not** a per-finding confidence score).`,
+    );
+    lines.push(
+      `- Antares-350m File F1 is **0.135** (edge). We never claim Antares-3B.`,
+    );
+    lines.push(
+      `- Antares CLI expects vLLM **0.19.1+** completions-only; ZERODAY does not claim independent “validated with vLLM 0.19.1” proof.`,
+    );
+  }
   lines.push(
     `- Findings are **notes** for human review (SARIF severity \`note\` / informational exporters).`,
   );

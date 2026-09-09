@@ -43,7 +43,8 @@ export interface TraceStep {
 }
 
 export interface LocalizationResult {
-  mode: "fixture" | "live";
+  /** fixture = recorded Antares; live = local Antares CLI; agent = keyless coding-agent operator */
+  mode: "fixture" | "live" | "agent";
   advisory: AdvisoryRef;
   targetRepo: string;
   snapshotPath?: string;

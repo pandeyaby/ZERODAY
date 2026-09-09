@@ -28,8 +28,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/data ./data
-# Optional: only our vendor README ships; clone Plinius at deploy time if needed
-COPY --from=builder /app/vendor/plinius/README.md ./vendor/plinius/README.md
 
 RUN chown -R zeroday:nodejs /app /data
 

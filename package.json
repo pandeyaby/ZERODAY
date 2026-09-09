@@ -1,13 +1,15 @@
 {
   "name": "zeroday",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
-  "description": "ZERODAY — local-first daily driver for Cisco Foundation AI Antares vulnerability localization",
+  "description": "ZERODAY — keyless agent operator for defensive vulnerability localization (Cisco/Splunk/Palo/Fortinet/CrowdStrike/AWS)",
   "bin": {
     "zeroday": "./cli/index.ts"
   },
   "scripts": {
     "dev": "next dev --turbopack -p 3333",
+    "war-room": "next dev --turbopack -p 3333",
+    "play": "next dev --turbopack -p 3333",
     "build": "next build",
     "start": "next start -p 3333",
     "lint": "eslint .",
@@ -15,11 +17,10 @@
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "locate": "tsx cli/index.ts locate",
+    "operate": "tsx cli/index.ts operate",
+    "verify": "tsx cli/index.ts verify",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
-    "plinius:init": "mkdir -p vendor/plinius && for r in t3mp3st:T3MP3ST st3gg:ST3GG g0dm0d3:G0DM0D3 cl4r1t4s:CL4R1T4S l1b3rt4s:L1B3RT4S obliteratus:OBLITERATUS; do d=${r%%:*}; u=${r##*:}; if [ ! -d vendor/plinius/$d/.git ]; then git clone --depth 1 https://github.com/elder-plinius/$u.git vendor/plinius/$d; fi; done",
-    "plinius:status": "tsx -e \"import { listPliniusStatus } from './src/plinius/registry.ts'; console.log(JSON.stringify(listPliniusStatus(),null,2))\"",
-    "plinius:st3gg-deps": "python3 -m venv .venv-st3gg && .venv-st3gg/bin/pip install -r vendor/plinius/st3gg/requirements.txt",
     "export": "tsx cli/index.ts export",
     "draft-fix": "tsx cli/index.ts draft-fix",
     "classify": "tsx cli/index.ts classify",

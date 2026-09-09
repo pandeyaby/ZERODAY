@@ -25,6 +25,7 @@ import {
 import type { LocateOptions, LocalizationResult } from "./types";
 import { parseAdvisorySafe } from "./parse";
 import { tryOpenLiveSandbox, type SandboxSession } from "./sandbox";
+import { EvidenceVault } from "../evidence/vault";
 
 export {
   parseAdvisorySafe as parseAdvisory,
@@ -46,6 +47,8 @@ export interface LocateArtifacts {
   reportPath: string;
   commentPath: string;
   exportPaths: string[];
+  evidenceDir?: string;
+  manifestPath?: string;
 }
 
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
@@ -178,9 +181,41 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       }
     }
 
+    const runId = path.basename(outputDir);
+    const vault = new EvidenceVault(outputDir, runId);
+    vault.putBlob(
+      "input",
+      "inputs/advisory.json",
+      JSON.stringify(
+        {
+          advisory,
+          repo,
+          mode: result.mode,
+          at: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+      {
+        title: "Locate inputs",
+        summary: `${advisory.id} → ${advisory.cweId} (${result.mode})`,
+        tags: ["input", "locate"],
+      },
+    );
+
+    const claimIds: string[] = [];
+    for (const f of result.rankedFiles) {
+      const claim = vault.putClaim(
+        `Candidate: ${f.filePath}`,
+        `${f.title} (rank ${f.rank})`,
+        [],
+      );
+      claimIds.push(claim.id);
+    }
+
     assertNoExploitInvariant([
       ...collectResultTexts(result),
-      toHumanReport(result),
+      toHumanReport(result, { evidenceClaimIds: claimIds }),
       toPullRequestComment(result),
     ]);
 
@@ -189,15 +224,38 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     const reportPath = path.join(outputDir, "report.md");
     const commentPath = path.join(outputDir, "comment.md");
 
-    fs.writeFileSync(jsonPath, JSON.stringify(result, null, 2));
+    const resultWithEvidence = {
+      ...result,
+      evidence: {
+        runId,
+        claimIds,
+        vaultRelative: "evidence/",
+      },
+    };
+
+    fs.writeFileSync(jsonPath, JSON.stringify(resultWithEvidence, null, 2));
     fs.writeFileSync(sarifPath, JSON.stringify(toSarif(result), null, 2));
-    fs.writeFileSync(reportPath, toHumanReport(result));
+    fs.writeFileSync(
+      reportPath,
+      toHumanReport(result, { evidenceClaimIds: claimIds }),
+    );
     fs.writeFileSync(commentPath, toPullRequestComment(result));
 
     const exports = writeAllExports(result, outputDir, {
       awsAccountId: options.awsAccountId,
       region: options.awsRegion,
     });
+
+    for (const p of [
+      jsonPath,
+      sarifPath,
+      reportPath,
+      commentPath,
+      ...exports.map((e) => e.path),
+    ]) {
+      vault.registerArtifact(p);
+    }
+    const manifestPath = vault.flush();
 
     return {
       result,
@@ -207,6 +265,8 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       reportPath,
       commentPath,
       exportPaths: exports.map((e) => e.path),
+      evidenceDir: vault.evidenceDir,
+      manifestPath,
     };
   } finally {
     if (sandbox) {
