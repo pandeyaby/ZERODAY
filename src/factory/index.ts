@@ -42,8 +42,10 @@ export {
 
 export {
   resolveInferenceProvider,
+  normalizeInferenceProvider,
   remoteInferenceAcked,
   REMOTE_INFERENCE_REQUIRED,
+  REMOTE_DOCS_HINT,
   NEBIUS_DOCS_HINT,
   INFERENCE_ENV_DOC,
   type ResolvedInference,

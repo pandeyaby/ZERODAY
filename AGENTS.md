@@ -51,16 +51,17 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture
 npm run zeroday -- verify --from <run-dir>
 ```
 
-## Optional live Antares (CUDA / Nebius — not Mac MPS)
+## Optional live Antares (CUDA / RunPod — not Mac MPS)
 
 Only when the operator already hosts `fdtn-ai/antares-1b` via completions
-(accept HF terms yourself — never scrape/bypass). Remote/Nebius requires
+(accept HF terms yourself — never scrape/bypass). Remote endpoints require
 `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`:
 
 ```bash
 bash scripts/quickstart-live.sh /path/to/repo CWE-89
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
-# Nebius scaffold (operator-run; no paid creates from CI): docs/nebius-antares.md
+# Recommended remote CUDA: docs/runpod-antares.md
+# bash scripts/runpod-vllm-antares.sh --print-only   # no paid creates
 ```
 
 ZERODAY never downloads `model.safetensors`. Antares CLI expects vLLM 0.19.1+ completions.

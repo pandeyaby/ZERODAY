@@ -112,37 +112,37 @@ describe("factory inference provider ACK", () => {
     assert.equal(r.localLoopback, true);
   });
 
-  it("nebius / remote requires ACK", () => {
+  it("remote / RunPod-style host requires ACK", () => {
     assert.throws(
       () =>
         resolveInferenceProvider({
-          provider: "nebius",
-          endpoint: "https://gpu.example.nebius.com/v1",
+          provider: "remote",
+          endpoint: "https://gpu.example.runpod.net/v1",
           env: {},
         }),
       (e: Error) => e.message.includes("REMOTE_INFERENCE") || e.message.includes(REMOTE_INFERENCE_REQUIRED.slice(0, 20)),
     );
     const ok = resolveInferenceProvider({
-      provider: "nebius",
-      endpoint: "https://gpu.example.nebius.com/v1",
+      provider: "runpod",
+      endpoint: "https://gpu.example.runpod.net/v1",
       remoteInference: true,
       env: {},
     });
     assert.equal(ok.remote, true);
-    assert.equal(ok.provider, "nebius");
+    assert.equal(ok.provider, "remote");
   });
 
   it("resolveLocateMode refuses remote endpoint without ACK", () => {
     assert.throws(
       () =>
         resolveLocateMode({
-          endpoint: "https://gpu.example.nebius.com/v1",
+          endpoint: "https://gpu.example.runpod.net/v1",
         }),
       /remote-inference|REMOTE_INFERENCE|leave the machine/i,
     );
     assert.equal(
       resolveLocateMode({
-        endpoint: "https://gpu.example.nebius.com/v1",
+        endpoint: "https://gpu.example.runpod.net/v1",
         remoteInference: true,
       }),
       "live",
@@ -151,7 +151,7 @@ describe("factory inference provider ACK", () => {
 });
 
 describe("factory run (fixture-only)", () => {
-  it("walks inventory→locate→own→defend→verify without Nebius", async () => {
+  it("walks inventory→locate→own→defend→verify without remote GPU", async () => {
     const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-factory-"));
     const artifacts = await runFactory({
       repo: defaultFixtureRepo(),

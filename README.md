@@ -87,15 +87,15 @@ ZERODAY never downloads `model.safetensors` for you (and CI never pulls weights)
 Antares CLI expects an OpenAI-compatible **`POST /v1/completions`** endpoint (chat completions are rejected). The Antares CLI documents vLLM 0.19.1+ for this; ZERODAY does **not** claim independent “validated with vLLM \<version\>” proof.
 
 ```bash
-# CUDA / Linux GPU or Nebius (recommended for schema-faithful live Antares)
+# CUDA / Linux GPU or RunPod (recommended for schema-faithful live Antares)
 vllm serve fdtn-ai/antares-1b
 # → http://127.0.0.1:8000/v1/completions
-# Nebius org path (opt-in, requires --remote-inference): docs/nebius-antares.md
+# Recommended remote path (opt-in, requires --remote-inference): docs/runpod-antares.md
 
 # Mac Apple Silicon (MPS) — UNSUPPORTED for schema-faithful live locate.
 #   (a) float16 → NaN logits → `!` forever (bangs). float32 stops bangs.
 #   (b) even float32 often emits malformed tool_call JSON → 0 executed tools.
-# Prefer Nebius/CUDA vLLM. Helper kept for bang-safe local smoke only:
+# Prefer RunPod/CUDA vLLM. Helper kept for bang-safe local smoke only:
 python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 ```
 
@@ -204,19 +204,20 @@ Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · sample desks: [`
 
 ---
 
-## Nebius / remote CUDA (opt-in)
+## Remote CUDA / RunPod (opt-in)
 
-Mac MPS is unsupported for schema-faithful live Antares. Org path: serve `fdtn-ai/antares-1b` on Nebius CUDA via vLLM (`POST /v1/completions`), then:
+Mac MPS is unsupported for schema-faithful live Antares. **Recommended remote path:** serve `fdtn-ai/antares-1b` on a **RunPod** CUDA pod via vLLM (`POST /v1/completions`), then:
 
 ```bash
-export ZERODAY_INFERENCE_PROVIDER=nebius
-export ZERODAY_ANTARES_BASE_URL=https://<your-host>/v1
+export ZERODAY_INFERENCE_PROVIDER=remote
+export ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-host>/v1
 export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may send prompts/repo context
 npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
   --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
 ```
 
-Scaffold only (no paid creates from this repo): [`docs/nebius-antares.md`](./docs/nebius-antares.md) · `bash scripts/nebius-vllm-antares.sh --print-only`
+Scaffold only (no paid pod creates from this repo): [`docs/runpod-antares.md`](./docs/runpod-antares.md) · `bash scripts/runpod-vllm-antares.sh --print-only`  
+Host-agnostic contract: [`docs/remote-antares-vllm.md`](./docs/remote-antares-vllm.md)
 
 ---
 
@@ -267,12 +268,12 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 ## Honesty
 
 - **Local-first / keyless default** — customer source stays on the operator machine unless `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK` is set
-- **No partnership claims** — not an official Cisco / Splunk / Palo / Fortinet / CrowdStrike / AWS / Nebius product
+- **No partnership claims** — not an official Cisco / Splunk / Palo / Fortinet / CrowdStrike / AWS / RunPod product
 - **Localization ≠ exploitability** — ranked files are candidates; `needs_human` always
 - **No PoCs / exploits / payloads / attack procedures** (even localhost/lab)
 - **Never auto-merge** — patch drafts only after `--i-asked-for-a-fix`
 - **No silent fixture fallback** on the live path
-- **CI stays fixture-safe** — GitHub Action never needs Nebius or live Antares
+- **CI stays fixture-safe** — GitHub Action never needs RunPod or live Antares
 
 Acceptable use: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)
 
@@ -299,9 +300,10 @@ Details: [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`doc
 # Factory loop (CI-safe)
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 
-# Live (product) — CUDA/Nebius preferred; Mac MPS unsupported for schema-faithful tools
+# Live (product) — CUDA/RunPod preferred; Mac MPS unsupported for schema-faithful tools
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
 bash scripts/quickstart-live.sh ./app CWE-89
+bash scripts/runpod-vllm-antares.sh --print-only
 
 # CI / no-GPU
 npm run zeroday -- locate --cwe CWE-89 --fixture

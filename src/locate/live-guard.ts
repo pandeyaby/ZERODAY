@@ -5,7 +5,7 @@
  * either run real Antares against a healthy completions endpoint or fail loud.
  * Never degrade to fixture recordings without an explicit --fixture (alone).
  *
- * Non-loopback / Nebius endpoints require explicit remote-inference ACK so
+ * Non-loopback / remote CUDA endpoints require explicit remote-inference ACK so
  * customer source does not leave the machine by default.
  */
 
@@ -18,7 +18,7 @@ import {
 import {
   remoteInferenceAcked,
   REMOTE_INFERENCE_REQUIRED,
-  NEBIUS_DOCS_HINT,
+  REMOTE_DOCS_HINT,
 } from "../factory/provider";
 
 export type LocateRunMode = "fixture" | "live";
@@ -33,10 +33,11 @@ export interface ModeResolveInput {
 }
 
 export const LIVE_ENDPOINT_REQUIRED =
-  "Live locate requires --endpoint pointing at a local completions server " +
-  "(e.g. http://127.0.0.1:8000/v1). Antares CLI expects POST /v1/completions — " +
-  "not chat. Refusing to continue without an endpoint (no silent fixture fallback). " +
-  "For Nebius/CUDA org path see docs/nebius-antares.md (requires --remote-inference).";
+  "Live locate requires --endpoint pointing at a completions server " +
+  "(e.g. http://127.0.0.1:8000/v1 or a RunPod proxy). Antares CLI expects " +
+  "POST /v1/completions — not chat. Refusing to continue without an endpoint " +
+  "(no silent fixture fallback). For remote CUDA see docs/runpod-antares.md " +
+  "(requires --remote-inference).";
 
 export const MIXED_MODE_REFUSED =
   "Refusing mixed mode: --fixture cannot be combined with --live or --endpoint. " +
@@ -47,9 +48,9 @@ export function liveEndpointUnhealthyMessage(detail: string): string {
   return (
     `Live locate refused: completions endpoint unhealthy (${detail}). ` +
     `No fixture/mock fallback. Accept HF terms for fdtn-ai/antares-1b, serve with vLLM ` +
-    `(completions-only /v1/completions) on CUDA/Nebius (Mac MPS is unsupported for ` +
-    `schema-faithful live locate). ` +
-    `Helper: bash scripts/quickstart-live.sh <repo> [CWE] · docs/nebius-antares.md`
+    `(completions-only /v1/completions) on CUDA — recommended remote host: RunPod ` +
+    `(Mac MPS is unsupported for schema-faithful live locate). ` +
+    `Helper: bash scripts/quickstart-live.sh <repo> [CWE] · docs/runpod-antares.md`
   );
 }
 
@@ -88,7 +89,7 @@ export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
     assertNotChatCompletions(endpoint);
     if (hasEndpoint && !isLoopbackEndpoint(endpoint)) {
       if (!remoteInferenceAcked({ remoteInference: input.remoteInference })) {
-        throw new Error(`${REMOTE_INFERENCE_REQUIRED} ${NEBIUS_DOCS_HINT}`);
+        throw new Error(`${REMOTE_INFERENCE_REQUIRED} ${REMOTE_DOCS_HINT}`);
       }
     }
     return "live";

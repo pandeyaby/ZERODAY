@@ -35,9 +35,9 @@ bash scripts/quickstart-live.sh /path CWE-89
 ## Completions only
 
 ```bash
-# CUDA / Nebius (recommended — schema-faithful tool_call JSON)
+# CUDA / RunPod (recommended — schema-faithful tool_call JSON)
 vllm serve fdtn-ai/antares-1b
-# Org Nebius scaffold: docs/nebius-antares.md · scripts/nebius-vllm-antares.sh
+# Recommended remote: docs/runpod-antares.md · scripts/runpod-vllm-antares.sh
 
 # Mac MPS — UNSUPPORTED for schema-faithful live locate:
 #   (a) float16 NaN → `!` bangs; float32 fixes bangs

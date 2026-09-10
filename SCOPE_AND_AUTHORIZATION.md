@@ -1,7 +1,7 @@
 # SCOPE AND AUTHORIZATION — Localization & Evidence Defense Factory
 
 ZERODAY is a **defensive** Localization & Evidence Defense Factory. It turns an
-existing AI coding agent (or optional Antares on local/Nebius CUDA) into a
+existing AI coding agent (or optional Antares on local/remote CUDA) into a
 structured, auditable localization workflow for authorized codebases.
 
 ## What is in scope
@@ -16,8 +16,9 @@ structured, auditable localization workflow for authorized codebases.
    proof of exploitability. No auto-merge.
 5. **Vendor projections (local files)** — SARIF, ASFF, Splunk CIM, XSOAR,
    FortiSIEM, CrowdStrike HEC-shaped NDJSON for **customer-owned** ingest.
-6. **Opt-in Nebius / remote CUDA** — only with `--remote-inference` /
-   `ZERODAY_REMOTE_INFERENCE_ACK` for authorized orgs (see `docs/nebius-antares.md`).
+6. **Opt-in remote CUDA** — recommended host **RunPod** — only with
+   `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK` for authorized orgs
+   (see `docs/runpod-antares.md`).
 
 ## What is out of scope (KEEP forever)
 
@@ -48,10 +49,10 @@ zeroday operate --repo <path> --cwe CWE-89
 ```
 
 The coding agent already running the tool explores a read-only snapshot and
-submits structured JSON. No Antares HF token. No vendor API keys. No Nebius.
+submits structured JSON. No Antares HF token. No vendor API keys. No remote GPU.
 
 Optional live Antares (`zeroday locate --endpoint …`) requires an operator-hosted
-completions-only endpoint for `fdtn-ai/antares-1b` (CUDA/Nebius preferred; Mac MPS
+completions-only endpoint for `fdtn-ai/antares-1b` (CUDA/RunPod preferred; Mac MPS
 unsupported for schema-faithful tools). Non-loopback endpoints require
 `--remote-inference`. ZERODAY never downloads `model.safetensors` and never pulls
 gated weights in CI.

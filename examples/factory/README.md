@@ -1,7 +1,7 @@
 # Factory sample evidence (fixture-shaped)
 
 Checked-in shapes from a CI-safe `zeroday factory run --fixture` on the
-bundled demo-app. **Not** live Antares. **Not** Nebius.
+bundled demo-app. **Not** live Antares. **Not** RunPod.
 
 | File | Role |
 |------|------|

@@ -7,7 +7,8 @@
 import type { LocalizationResult } from "../locate/types";
 import type { CisoObject } from "../classify/types";
 
-export type InferenceProvider = "local" | "nebius";
+/** Host-agnostic: local loopback vs any remote CUDA/vLLM endpoint (RunPod recommended). */
+export type InferenceProvider = "local" | "remote";
 
 export interface InventoryFile {
   path: string;
@@ -154,9 +155,9 @@ export interface FactoryRunOptions {
   iAskedForAFix?: boolean;
   /** Opt-in: allow prompts/repo-derived context to leave the machine for GPU endpoint */
   remoteInference?: boolean;
-  /** local (default) | nebius */
+  /** local (default) | remote (any CUDA/vLLM host; RunPod recommended) */
   inferenceProvider?: InferenceProvider;
-  /** Completions base URL (local or Nebius) */
+  /** Completions base URL (local loopback or remote with --remote-inference) */
   endpoint?: string;
   model?: string;
   live?: boolean;

@@ -23,8 +23,8 @@ zeroday operate --cwe|--cve|--ghsa --repo [--fixture | --from submission.json]
         └─ evidence/manifest.json (SHA-256) → zeroday verify
 
 zeroday locate  …  optional Antares fixture / live wrap (same artifact spine)
-        └─ non-loopback endpoint requires --remote-inference (Nebius/org path)
+        └─ non-loopback endpoint requires --remote-inference (RunPod / remote CUDA)
 ```
 
 Live explore may use Docker `network=none`. Fixture + Action stay container-free.
-Mac MPS unsupported for schema-faithful live locate — prefer CUDA / Nebius vLLM.
+Mac MPS unsupported for schema-faithful live locate — prefer CUDA / RunPod vLLM.

@@ -120,16 +120,16 @@ factory
   .option("--i-asked-for-a-fix", "Human gate: emit CodeGuard patch DRAFT", false)
   .option(
     "--remote-inference",
-    "ACK: prompts/repo-derived context may leave the machine (Nebius/remote)",
+    "ACK: prompts/repo-derived context may leave the machine (remote CUDA/vLLM)",
     false,
   )
   .option(
     "--provider <name>",
-    "Inference provider: local|nebius (default local / ZERODAY_INFERENCE_PROVIDER)",
+    "Inference provider: local|remote (aliases: runpod, nebius → remote)",
   )
   .option(
     "--endpoint <url>",
-    "Completions base URL (local loopback or Nebius with --remote-inference)",
+    "Completions base URL (local loopback or remote with --remote-inference)",
   )
   .option("--model <id>", "Served model id for live locate")
   .option("--live", "Force live Antares path (requires --endpoint)", false)
@@ -526,7 +526,7 @@ program
   )
   .option(
     "--remote-inference",
-    "ACK: non-loopback endpoint may receive prompts/repo-derived context (Nebius/org path)",
+    "ACK: non-loopback endpoint may receive prompts/repo-derived context (RunPod/remote)",
     false,
   )
   .option(

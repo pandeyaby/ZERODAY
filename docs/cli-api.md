@@ -7,13 +7,14 @@
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- factory inventory --repo ./app
 
-# Live product path (requires healthy completions endpoint; CUDA/Nebius preferred)
+# Live product path (requires healthy completions endpoint; CUDA/RunPod preferred)
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
 bash scripts/quickstart-live.sh ./app CWE-89
 
-# Nebius / remote (opt-in ACK)
+# RunPod / remote (opt-in ACK)
 npm run zeroday -- locate --cwe CWE-89 --repo ./app \
-  --endpoint https://<host>/v1 --remote-inference
+  --endpoint https://<runpod-proxy>/v1 --remote-inference
+bash scripts/runpod-vllm-antares.sh --print-only
 
 # CI / no-GPU
 npm run zeroday -- operate --cwe CWE-89 --fixture

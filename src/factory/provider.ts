@@ -1,7 +1,8 @@
 /**
  * Inference provider resolution — local-first by default.
- * Nebius / remote CUDA vLLM is opt-in and requires explicit ACK
- * (--remote-inference or ZERODAY_REMOTE_INFERENCE_ACK).
+ * Remote CUDA vLLM (any host exposing OpenAI-compatible /v1/completions) is
+ * opt-in and requires explicit ACK (--remote-inference or ZERODAY_REMOTE_INFERENCE_ACK).
+ * Recommended remote host in product docs: RunPod (see docs/runpod-antares.md).
  *
  * Customer source must not leave the machine unless the operator opts in.
  */
@@ -9,13 +10,16 @@
 import type { InferenceProvider } from "./types";
 
 export const REMOTE_INFERENCE_REQUIRED =
-  "Remote / Nebius inference requires explicit opt-in: pass --remote-inference " +
+  "Remote Antares inference requires explicit opt-in: pass --remote-inference " +
   "or set ZERODAY_REMOTE_INFERENCE_ACK=1. This may send prompts and repo-derived " +
   "context to the GPU endpoint. Local-first remains the default.";
 
-export const NEBIUS_DOCS_HINT =
-  "See docs/nebius-antares.md and scripts/nebius-vllm-antares.sh " +
-  "(operator-run scaffold — ZERODAY never creates paid Nebius resources).";
+export const REMOTE_DOCS_HINT =
+  "See docs/runpod-antares.md (recommended CUDA path) and docs/remote-antares-vllm.md " +
+  "(host-agnostic). Scaffold only — ZERODAY never creates paid GPU pods.";
+
+/** @deprecated Use REMOTE_DOCS_HINT — kept as alias for older imports/tests */
+export const NEBIUS_DOCS_HINT = REMOTE_DOCS_HINT;
 
 export interface ResolvedInference {
   provider: InferenceProvider;
@@ -51,6 +55,22 @@ export function remoteInferenceAcked(opts?: {
   return v === "1" || v === "true" || v === "yes";
 }
 
+/**
+ * Normalize provider tokens. Host-agnostic: local | remote.
+ * Legacy "nebius" / "runpod" aliases map to "remote".
+ */
+export function normalizeInferenceProvider(
+  raw: string,
+): InferenceProvider {
+  const v = raw.trim().toLowerCase();
+  if (v === "local") return "local";
+  if (v === "remote" || v === "runpod" || v === "nebius") return "remote";
+  throw new Error(
+    `Unknown ZERODAY_INFERENCE_PROVIDER='${raw}'. Use local|remote ` +
+      `(aliases: runpod, nebius → remote).`,
+  );
+}
+
 export function resolveInferenceProvider(
   opts?: {
     provider?: string;
@@ -60,20 +80,9 @@ export function resolveInferenceProvider(
   },
 ): ResolvedInference {
   const env = opts?.env ?? process.env;
-  const rawProvider = (
-    opts?.provider ||
-    env.ZERODAY_INFERENCE_PROVIDER ||
-    "local"
-  )
-    .trim()
-    .toLowerCase();
-
-  if (rawProvider !== "local" && rawProvider !== "nebius") {
-    throw new Error(
-      `Unknown ZERODAY_INFERENCE_PROVIDER='${rawProvider}'. Use local|nebius.`,
-    );
-  }
-  const provider = rawProvider as InferenceProvider;
+  const provider = normalizeInferenceProvider(
+    opts?.provider || env.ZERODAY_INFERENCE_PROVIDER || "local",
+  );
 
   const endpoint =
     opts?.endpoint?.trim() ||
@@ -88,19 +97,17 @@ export function resolveInferenceProvider(
 
   const localLoopback = endpoint ? isLoopbackHost(endpoint) : true;
   const remote =
-    provider === "nebius" || (Boolean(endpoint) && !localLoopback);
+    provider === "remote" || (Boolean(endpoint) && !localLoopback);
 
   if (remote && !remoteInferenceAcked({ remoteInference: opts?.remoteInference, env })) {
-    throw new Error(
-      `${REMOTE_INFERENCE_REQUIRED} ${NEBIUS_DOCS_HINT}`,
-    );
+    throw new Error(`${REMOTE_INFERENCE_REQUIRED} ${REMOTE_DOCS_HINT}`);
   }
 
-  if (provider === "nebius" && !endpoint) {
+  if (provider === "remote" && !endpoint) {
     throw new Error(
-      "Nebius provider selected but no endpoint set. " +
+      "Remote provider selected but no endpoint set. " +
         "Set ZERODAY_ANTARES_BASE_URL (or --endpoint) to your vLLM OpenAI-compatible " +
-        `base URL exposing POST /v1/completions. ${NEBIUS_DOCS_HINT}`,
+        `base URL exposing POST /v1/completions. ${REMOTE_DOCS_HINT}`,
     );
   }
 
@@ -117,9 +124,10 @@ export function resolveInferenceProvider(
 export const INFERENCE_ENV_DOC = `
 # Inference provider (local-first default)
 # ZERODAY_INFERENCE_PROVIDER=local
-# Opt-in Nebius / remote CUDA vLLM (requires ACK — may leave the machine):
-# ZERODAY_INFERENCE_PROVIDER=nebius
-# ZERODAY_ANTARES_BASE_URL=https://<your-nebius-vllm-host>/v1
+# Opt-in remote CUDA vLLM — recommended host: RunPod (docs/runpod-antares.md)
+# Requires ACK — prompts/repo-derived context may leave the machine:
+# ZERODAY_INFERENCE_PROVIDER=remote
+# ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-or-host>/v1
 # ZERODAY_ANTARES_API_KEY=
 # ZERODAY_REMOTE_INFERENCE_ACK=1
 # HF token belongs on the GPU host that loads gated weights (not required for fixture CI)

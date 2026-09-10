@@ -40,22 +40,22 @@ Optional human-gated draft:
 npm run zeroday -- factory run --cwe CWE-89 --fixture --i-asked-for-a-fix
 ```
 
-## Live / Nebius (opt-in)
+## Live / RunPod (opt-in)
 
 Mac MPS is **unsupported** for schema-faithful live Antares. Prefer CUDA vLLM
-locally or the documented Nebius path:
+locally or the documented **RunPod** path:
 
-→ [`nebius-antares.md`](./nebius-antares.md)
+→ [`runpod-antares.md`](./runpod-antares.md)
 
 ```bash
-export ZERODAY_INFERENCE_PROVIDER=nebius
-export ZERODAY_ANTARES_BASE_URL=https://<your-host>/v1
+export ZERODAY_INFERENCE_PROVIDER=remote
+export ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-host>/v1
 export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may leave the machine
 npm run zeroday -- factory run --cwe CWE-89 --no-fixture --live \
   --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
 ```
 
-CI / GitHub Action stays **fixture-only** — no Nebius, no weights.
+CI / GitHub Action stays **fixture-only** — no RunPod, no weights.
 
 ## Evidence spine
 

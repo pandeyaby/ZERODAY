@@ -3,7 +3,8 @@
 | Doc | Purpose |
 |-----|---------|
 | [defense-factory.md](./defense-factory.md) | Localization & Evidence Defense Factory north star |
-| [nebius-antares.md](./nebius-antares.md) | Opt-in Nebius / CUDA vLLM Antares path |
+| [runpod-antares.md](./runpod-antares.md) | Recommended remote CUDA path (RunPod + vLLM) |
+| [remote-antares-vllm.md](./remote-antares-vllm.md) | Host-agnostic remote completions contract |
 | [howto.md](./howto.md) | Person + org usage + playground |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
 | [exporters.md](./exporters.md) | Customer ingest paths |

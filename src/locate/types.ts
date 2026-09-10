@@ -123,7 +123,7 @@ export interface LocateOptions {
   probeResult?: import("./completions").CompletionsProbeResult;
   /**
    * Opt-in: allow prompts / repo-derived context to a non-loopback endpoint
-   * (Nebius / remote vLLM). Also accepted via ZERODAY_REMOTE_INFERENCE_ACK=1.
+   * (RunPod / remote vLLM). Also accepted via ZERODAY_REMOTE_INFERENCE_ACK=1.
    */
   remoteInference?: boolean;
 }
