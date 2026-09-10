@@ -1,0 +1,29 @@
+# Example: CrowdStrike + AWS Security Hub desk (defensive exporters)
+
+name: CrowdStrike + AWS Security localization desk
+brief: >
+  Project ZERODAY locate findings to CrowdStrike HEC-shaped NDJSON and ASFF
+  for customer-owned ingest. Fixture or live Antares — never exploit repro.
+loadouts:
+  - crowdstrike
+  - aws
+targets:
+  - path: ./authorized-app
+    product: Internal app (authorized)
+    vendor: Customer
+    environment: staging
+authorization:
+  required: true
+  rules: >
+    Defensive only. Redact secrets. No production AWS mutation. No RTR.
+stages:
+  - inventory
+  - locate
+  - ownership
+  - export
+  - verify
+posture:
+  localizationOnly: true
+  notExploitProof: true
+  noAutoMerge: true
+  noPoC: true

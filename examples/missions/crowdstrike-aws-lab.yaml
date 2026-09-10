@@ -1,30 +1,6 @@
-# CrowdStrike Falcon + AWS Security Lab
+# Legacy path — use examples/factory/ instead
+#
+# Offensive kill-chain / mission theater was removed from the product surface.
+# Defensive desk examples live under examples/factory/*.yaml
 
-name: CrowdStrike Falcon + AWS Security Lab
-brief: >
-  Run CrowdStrike Falcon and AWS Security Hub / GuardDuty / IAM assessment
-  on staging lab account
-loadouts:
-  - crowdstrike
-  - aws
-targets:
-  - hostname: api.crowdstrike.com
-    product: Falcon
-    vendor: CrowdStrike
-    environment: staging
-    notes: Cloud API metadata only
-  - hostname: "123456789012"
-    product: AWS Account
-    vendor: AWS
-    environment: staging
-authorization:
-  required: true
-  rules_of_engagement: >
-    safe_local. No RTR without receipt. No production AWS accounts.
-    Redact secrets. S3 checks list bucket names only.
-phases:
-  - coordinator
-  - recon
-  - scanner
-  - ghost
-  - analyst
+see: ../factory/crowdstrike-aws-desk.yaml

@@ -1,8 +1,13 @@
 # ZERODAY
 
-Local-first defensive vulnerability **localization** harness. Point it at a repo you are authorized to assess; get ranked candidate files + **SARIF** + evidence vault. Localization ≠ exploitability. No PoCs. No auto-merge. Not an official Cisco partnership product.
+**Localization & Evidence Defense Factory** — local-first defensive vulnerability
+**localization** harness (Cisco Antares / ZERODAY mandate). Point it at a repo you
+are authorized to assess; get ranked candidate files + **SARIF** + hashed evidence.
+Localization ≠ exploitability. No PoCs. No auto-merge. Not an official Cisco partnership product.
 
 Sister pieces (compose, don’t duplicate): [Antares](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [Foundry](https://github.com/CiscoDevNet/foundry) · [CodeGuard](https://project-codeguard.org/)
+
+North star vs OpenAI-style Defense Factory loops: we mirror **inventory → locate → classify → own → (optional draft) → defend → verify** with durable evidence — and we **refuse** exploits, PoCs, attack-path chaining, and auto-merge. Details: [`docs/defense-factory.md`](./docs/defense-factory.md).
 
 ---
 
@@ -82,16 +87,15 @@ ZERODAY never downloads `model.safetensors` for you (and CI never pulls weights)
 Antares CLI expects an OpenAI-compatible **`POST /v1/completions`** endpoint (chat completions are rejected). The Antares CLI documents vLLM 0.19.1+ for this; ZERODAY does **not** claim independent “validated with vLLM \<version\>” proof.
 
 ```bash
-# CUDA / Linux GPU (recommended for schema-faithful live Antares)
+# CUDA / Linux GPU or Nebius (recommended for schema-faithful live Antares)
 vllm serve fdtn-ai/antares-1b
 # → http://127.0.0.1:8000/v1/completions
+# Nebius org path (opt-in, requires --remote-inference): docs/nebius-antares.md
 
-# Mac Apple Silicon (MPS) — two distinct failure modes:
-#   (a) float16 → NaN logits → `!` forever (bangs). Fix: float32 (this helper).
-#   (b) even float32 often emits malformed tool_call JSON (e.g. run/termina vs
-#       name/arguments) → 0 executed tools. ZERODAY does not soft-rewrite tool JSON.
-# vLLM/CUDA is recommended for schema-faithful live Antares. MPS float32 is
-# bang-safe but tool-schema unreliable. Helper defaults to greedy on MPS.
+# Mac Apple Silicon (MPS) — UNSUPPORTED for schema-faithful live locate.
+#   (a) float16 → NaN logits → `!` forever (bangs). float32 stops bangs.
+#   (b) even float32 often emits malformed tool_call JSON → 0 executed tools.
+# Prefer Nebius/CUDA vLLM. Helper kept for bang-safe local smoke only:
 python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 ```
 
@@ -183,6 +187,39 @@ Ranked files (from `report.json`):
 
 ---
 
+## Factory loop (CI-safe)
+
+Continuous Localization & Evidence Defense Factory — fixture path needs no GPU:
+
+```bash
+npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
+  --classify-scenario software_defect \
+  --output zeroday-reports/factory-demo
+npm run zeroday -- verify --from zeroday-reports/factory-demo
+```
+
+Stages: **inventory** → **locate** → **classify** → **own** (CODEOWNERS) → optional **`--i-asked-for-a-fix`** draft → **defend** (existing tests only) → **verify**.
+
+Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · sample desks: [`examples/factory/`](./examples/factory/)
+
+---
+
+## Nebius / remote CUDA (opt-in)
+
+Mac MPS is unsupported for schema-faithful live Antares. Org path: serve `fdtn-ai/antares-1b` on Nebius CUDA via vLLM (`POST /v1/completions`), then:
+
+```bash
+export ZERODAY_INFERENCE_PROVIDER=nebius
+export ZERODAY_ANTARES_BASE_URL=https://<your-host>/v1
+export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may send prompts/repo context
+npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
+  --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
+```
+
+Scaffold only (no paid creates from this repo): [`docs/nebius-antares.md`](./docs/nebius-antares.md) · `bash scripts/nebius-vllm-antares.sh --print-only`
+
+---
+
 ## CI / no-GPU smoke (60 seconds) — not the product path
 
 Use this for laptops without a GPU, and for GitHub Actions. **Label clearly: fixture / recorded — not live Antares.**
@@ -229,11 +266,13 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 
 ## Honesty
 
-- **Local-first** — source stays on the operator machine / CI runner
-- **No partnership claims** — not an official Cisco / Splunk / Palo / Fortinet / CrowdStrike / AWS product
+- **Local-first / keyless default** — customer source stays on the operator machine unless `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK` is set
+- **No partnership claims** — not an official Cisco / Splunk / Palo / Fortinet / CrowdStrike / AWS / Nebius product
 - **Localization ≠ exploitability** — ranked files are candidates; `needs_human` always
-- **No PoCs / exploits / payloads / attack procedures**
+- **No PoCs / exploits / payloads / attack procedures** (even localhost/lab)
+- **Never auto-merge** — patch drafts only after `--i-asked-for-a-fix`
 - **No silent fixture fallback** on the live path
+- **CI stays fixture-safe** — GitHub Action never needs Nebius or live Antares
 
 Acceptable use: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)
 
@@ -257,7 +296,10 @@ Details: [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`doc
 ## CLI cheat sheet
 
 ```bash
-# Live (product)
+# Factory loop (CI-safe)
+npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
+
+# Live (product) — CUDA/Nebius preferred; Mac MPS unsupported for schema-faithful tools
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
 bash scripts/quickstart-live.sh ./app CWE-89
 

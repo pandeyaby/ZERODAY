@@ -1,38 +1,6 @@
-# Cisco DNA Center + Splunk Staging — Full Kill Chain
+# Legacy path — use examples/factory/ instead
 #
-# Example mission definition (also seeded into the War Room on first boot).
+# Offensive kill-chain / mission theater was removed from the product surface.
+# Defensive desk examples live under examples/factory/*.yaml
 
-name: Cisco DNA + Splunk Staging Kill Chain
-brief: >
-  Perform full kill chain assessment on our Cisco DNA Center and Splunk
-  deployment in staging environment
-loadouts:
-  - cisco
-  - splunk
-targets:
-  - hostname: dnac.staging.lab
-    product: Cisco DNA Center
-    vendor: Cisco
-    environment: staging
-  - hostname: ise.staging.lab
-    product: Cisco ISE
-    vendor: Cisco
-    environment: staging
-  - hostname: splunk.staging.lab
-    product: Splunk Enterprise
-    vendor: Splunk
-    environment: staging
-  - cidr: 10.10.20.0/24
-    environment: staging
-authorization:
-  required: true
-  rules_of_engagement: >
-    safe_local default. No production. No config pushes.
-    No credential dumping into evidence. receipt_required for SSH exec.
-phases:
-  - coordinator
-  - recon
-  - scanner
-  - ghost
-  - exfiltrator
-  - analyst
+see: ../factory/cisco-splunk-desk.yaml

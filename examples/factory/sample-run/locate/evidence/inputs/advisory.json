@@ -1,0 +1,11 @@
+{
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "repo": "/workspace/fixtures/locate/demo-app",
+  "mode": "fixture",
+  "at": "2026-09-10T21:46:43.493Z"
+}

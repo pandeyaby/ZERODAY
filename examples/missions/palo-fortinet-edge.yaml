@@ -1,32 +1,6 @@
-# Palo Alto + Fortinet Edge Posture
+# Legacy path — use examples/factory/ instead
+#
+# Offensive kill-chain / mission theater was removed from the product surface.
+# Defensive desk examples live under examples/factory/*.yaml
 
-name: Palo Alto + Fortinet Edge Posture
-brief: >
-  Assess Palo Alto Panorama and Fortinet FortiGate staging edge —
-  security rules, GlobalProtect, SSL-VPN, IPS/threat profiles
-loadouts:
-  - paloalto
-  - fortinet
-targets:
-  - hostname: panorama.staging.lab
-    product: Panorama
-    vendor: Palo Alto
-    environment: staging
-  - hostname: fortimanager.staging.lab
-    product: FortiManager
-    vendor: Fortinet
-    environment: staging
-  - hostname: fg-edge-01.staging.lab
-    product: FortiGate
-    vendor: Fortinet
-    environment: staging
-authorization:
-  required: true
-  rules_of_engagement: >
-    safe_local. No config commits/pushes. No VPN session disruption.
-phases:
-  - coordinator
-  - recon
-  - scanner
-  - ghost
-  - analyst
+see: ../factory/cisco-splunk-desk.yaml

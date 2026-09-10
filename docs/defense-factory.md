@@ -1,0 +1,67 @@
+# Localization & Evidence Defense Factory
+
+ZERODAY’s north star is a **Localization & Evidence + Defense Factory** —
+inspired by the *shape* of continuous defensive loops (inventory → detect →
+route → remediate → verify), but bound to the **Cisco Antares / ZERODAY mandate**.
+
+## What we mirror (from Defense Factory–style loops)
+
+| Stage | ZERODAY |
+|-------|---------|
+| Inventory | `zeroday factory inventory` / `factory run` — files, CODEOWNERS, manifests |
+| Locate | Antares fixture **or** live `/v1/completions` **or** keyless `operate` |
+| Classify | Fixture-driven CISO rollup (`classify`) |
+| Ownership | CODEOWNERS + blame → review markdown + GitHub comment body |
+| Draft fix | CodeGuard-aligned **DRAFT** only after `--i-asked-for-a-fix` |
+| Defend | Existing tests / fail-closed checks — **never** exploit repro |
+| Verify | Offline SHA-256 evidence vault (`zeroday verify`) |
+| Glue | SARIF / ASFF / Splunk / XSOAR / FortiSIEM / CrowdStrike exporters |
+
+## What we refuse (hard limits — forever)
+
+- Exploits, PoCs, payloads, attack procedures, attack-path chaining — even localhost/lab
+- Treating localization as proof of exploitability
+- Auto-merge of fixes (patch drafts only after explicit human ask)
+- Silent remote inference of customer source (requires `--remote-inference` / ACK)
+- Offensive framing: kill-chains, stego, jailbreak packs, red-team mission UIs
+
+## One command (CI-safe)
+
+```bash
+npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
+  --classify-scenario software_defect \
+  --output zeroday-reports/factory-demo
+npm run zeroday -- verify --from zeroday-reports/factory-demo
+```
+
+Optional human-gated draft:
+
+```bash
+npm run zeroday -- factory run --cwe CWE-89 --fixture --i-asked-for-a-fix
+```
+
+## Live / Nebius (opt-in)
+
+Mac MPS is **unsupported** for schema-faithful live Antares. Prefer CUDA vLLM
+locally or the documented Nebius path:
+
+→ [`nebius-antares.md`](./nebius-antares.md)
+
+```bash
+export ZERODAY_INFERENCE_PROVIDER=nebius
+export ZERODAY_ANTARES_BASE_URL=https://<your-host>/v1
+export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may leave the machine
+npm run zeroday -- factory run --cwe CWE-89 --no-fixture --live \
+  --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
+```
+
+CI / GitHub Action stays **fixture-only** — no Nebius, no weights.
+
+## Evidence spine
+
+Each factory run writes under `zeroday-reports/<run>/`:
+
+- `inventory.json` · `ownership.md` · `ownership-comment.md`
+- `report.json` / `report.sarif` / `comment.md` (locate)
+- `classify/` (optional) · `defend.json` (optional) · `drafts/` (human gate)
+- `factory.json` · `factory.md` · `evidence/manifest.json` · `verify.json`

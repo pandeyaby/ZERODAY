@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "zeroday-factory-inventory/v1",
+  "repoRoot": "/workspace/fixtures/locate/demo-app",
+  "generatedAt": "2026-09-10T21:46:43.489Z",
+  "fileCount": 6,
+  "files": [
+    {
+      "path": ".github/CODEOWNERS",
+      "bytes": 110,
+      "kind": "config"
+    },
+    {
+      "path": "docs/NOTES.md",
+      "bytes": 141,
+      "kind": "docs"
+    },
+    {
+      "path": "package.json",
+      "bytes": 248,
+      "kind": "manifest"
+    },
+    {
+      "path": "README.md",
+      "bytes": 216,
+      "kind": "docs"
+    },
+    {
+      "path": "src/app.js",
+      "bytes": 247,
+      "kind": "source"
+    },
+    {
+      "path": "src/users.js",
+      "bytes": 570,
+      "kind": "source"
+    }
+  ],
+  "manifests": [
+    "package.json"
+  ],
+  "codeownersPath": ".github/CODEOWNERS",
+  "codeownersRules": [
+    {
+      "pattern": "*",
+      "owners": [
+        "@demo-app-maintainers"
+      ]
+    },
+    {
+      "pattern": "/src/",
+      "owners": [
+        "@demo-app-backend"
+      ]
+    }
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "localFirstDefault": true
+  }
+}

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * ZERODAY CLI — defensive security operator harness.
+ * ZERODAY CLI — Localization & Evidence Defense Factory.
  *
- *   zeroday operate --cwe CWE-89 --fixture          # keyless agent path (default)
- *   zeroday locate  --cwe CWE-89 --fixture          # Antares fixture / optional --live
+ *   zeroday factory run …              # inventory→locate→classify→own→verify
+ *   zeroday operate --cwe CWE-89 --fixture
+ *   zeroday locate  --cwe CWE-89 --fixture
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / draft-fix / classify / demo / play
  */
@@ -44,6 +45,10 @@ import {
 } from "../src/classify/index.ts";
 import { operate } from "../src/operate/index.ts";
 import { verifyRunDir } from "../src/evidence/vault.ts";
+import {
+  runFactory,
+  resolveInferenceProvider,
+} from "../src/factory/index.ts";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 
@@ -74,9 +79,201 @@ const program = new Command();
 program
   .name("zeroday")
   .description(
-    "ZERODAY — keyless agent operator + optional local Antares localization (defensive only)",
+    "ZERODAY — Localization & Evidence Defense Factory (keyless default; optional Antares)",
   )
-  .version("0.5.0");
+  .version("0.6.0");
+
+const factory = program
+  .command("factory")
+  .description(
+    "Localization & Evidence Defense Factory loop (inventory→locate→classify→own→verify)",
+  );
+
+factory
+  .command("run")
+  .description(
+    "Walk inventory → locate → classify → ownership → optional draft → defend → verify",
+  )
+  .option("--cwe <id>", "CWE id (e.g. CWE-89)")
+  .option("--cve <id>", "CVE id")
+  .option("--ghsa <id>", "GHSA id")
+  .option("--map-cwe <id>", "Explicit CWE override when CVE/GHSA cannot be resolved")
+  .option("--repo <path>", "Local repository path (default: fixture demo-app)", "")
+  .option("--fixture", "CI-safe fixture locate (default when no live endpoint)", true)
+  .option("--no-fixture", "Allow live locate when --endpoint / provider is set")
+  .option("--offline", "Skip NVD/GHSA network resolve", true)
+  .option("--output <dir>", "Factory run output directory")
+  .option(
+    "--classify-scenario <name>",
+    "Optional fixtures/classify scenario (e.g. software_defect)",
+  )
+  .option(
+    "--defend",
+    "Run defend-only harness (existing tests / fail-closed — never exploit repro)",
+    false,
+  )
+  .option(
+    "--run-tests",
+    "With --defend: execute existing package test script (still defend-only)",
+    false,
+  )
+  .option("--i-asked-for-a-fix", "Human gate: emit CodeGuard patch DRAFT", false)
+  .option(
+    "--remote-inference",
+    "ACK: prompts/repo-derived context may leave the machine (Nebius/remote)",
+    false,
+  )
+  .option(
+    "--provider <name>",
+    "Inference provider: local|nebius (default local / ZERODAY_INFERENCE_PROVIDER)",
+  )
+  .option(
+    "--endpoint <url>",
+    "Completions base URL (local loopback or Nebius with --remote-inference)",
+  )
+  .option("--model <id>", "Served model id for live locate")
+  .option("--live", "Force live Antares path (requires --endpoint)", false)
+  .option("--json", "Print FactoryRunSummary JSON", false)
+  .action(async (opts: {
+    cwe?: string;
+    cve?: string;
+    ghsa?: string;
+    mapCwe?: string;
+    repo: string;
+    fixture: boolean;
+    offline: boolean;
+    output?: string;
+    classifyScenario?: string;
+    defend: boolean;
+    runTests: boolean;
+    iAskedForAFix: boolean;
+    remoteInference: boolean;
+    provider?: string;
+    endpoint?: string;
+    model?: string;
+    live: boolean;
+    json: boolean;
+  }) => {
+    const advisory = opts.cwe || opts.cve || opts.ghsa;
+    if (!advisory) {
+      console.error(
+        "Provide one of --cwe, --cve, or --ghsa.\n" +
+          "Example: zeroday factory run --cwe CWE-89 --fixture --defend",
+      );
+      process.exitCode = 2;
+      return;
+    }
+    if ([opts.cwe, opts.cve, opts.ghsa].filter(Boolean).length > 1) {
+      console.error("Pass only one of --cwe / --cve / --ghsa.");
+      process.exitCode = 2;
+      return;
+    }
+
+    const repo =
+      opts.repo && opts.repo.length > 0
+        ? path.resolve(opts.repo)
+        : defaultFixtureRepo();
+
+    try {
+      const provider = opts.provider
+        ? resolveInferenceProvider({
+            provider: opts.provider,
+            endpoint: opts.endpoint,
+            remoteInference: opts.remoteInference,
+          }).provider
+        : undefined;
+
+      const artifacts = await runFactory({
+        repo,
+        advisory,
+        outputDir: opts.output,
+        fixture: opts.fixture,
+        offline: opts.offline,
+        explicitCwe: opts.mapCwe,
+        classifyScenario: opts.classifyScenario,
+        defend: opts.defend,
+        runTests: opts.runTests,
+        iAskedForAFix: opts.iAskedForAFix,
+        remoteInference: opts.remoteInference,
+        inferenceProvider: provider,
+        endpoint: opts.endpoint,
+        model: opts.model,
+        live: opts.live,
+      });
+
+      if (opts.json) {
+        console.log(JSON.stringify(artifacts.summary, null, 2));
+      } else {
+        const s = artifacts.summary;
+        console.log("");
+        console.log("ZERODAY factory run");
+        console.log("──────────────────");
+        console.log(`Run       : ${s.runId}`);
+        console.log(`Advisory  : ${s.advisory}`);
+        console.log(`Findings  : ${s.findingCount}`);
+        console.log(`Locate    : ${s.locateMode ?? "—"}`);
+        console.log(
+          `Classify  : ${s.stages.classify ? s.classification ?? "yes" : "skipped"}`,
+        );
+        console.log(`Verify    : ${s.verifyOk ? "PASS" : "FAIL"}`);
+        console.log(
+          `Defend    : ${s.defendOk == null ? "skipped" : s.defendOk ? "PASS" : "FAIL"}`,
+        );
+        console.log(`Draft     : ${s.stages.draftFix ? "emitted (human gate)" : "skipped"}`);
+        console.log(`Needs human: yes`);
+        console.log("");
+        console.log("Artifacts:");
+        console.log(`  Summary  ${artifacts.paths.summaryMd}`);
+        console.log(`  JSON     ${artifacts.paths.summaryJson}`);
+        console.log(`  Inventory ${artifacts.paths.inventory}`);
+        console.log(`  Ownership ${artifacts.paths.ownershipMd}`);
+        console.log(`  Evidence ${artifacts.evidenceDir}`);
+        console.log(`  Manifest ${artifacts.manifestPath}`);
+        console.log("");
+        console.log(
+          "Posture: factory loop · localization only · not exploit proof · no PoC · no auto-merge · local-first default",
+        );
+        console.log(
+          `Re-verify: npm run zeroday -- verify --from ${artifacts.outputDir}`,
+        );
+      }
+      if (!artifacts.summary.verifyOk) process.exitCode = 1;
+    } catch (e) {
+      console.error(`factory run failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+factory
+  .command("inventory")
+  .description("Write durable inventory artifact (files + CODEOWNERS + manifests)")
+  .option("--repo <path>", "Repository path", "")
+  .option("--output <file>", "Output inventory.json path")
+  .action(async (opts: { repo: string; output?: string }) => {
+    const { writeInventory } = await import("../src/factory/index.ts");
+    const repo =
+      opts.repo && opts.repo.length > 0
+        ? path.resolve(opts.repo)
+        : defaultFixtureRepo();
+    const out =
+      opts.output ||
+      path.join(
+        process.cwd(),
+        "zeroday-reports",
+        `inventory-${Date.now()}`,
+        "inventory.json",
+      );
+    try {
+      const inv = writeInventory(repo, out);
+      console.log(`Wrote inventory (${inv.fileCount} files) → ${out}`);
+      console.log(
+        `CODEOWNERS: ${inv.codeownersPath ?? "none"} · manifests: ${inv.manifests.length}`,
+      );
+    } catch (e) {
+      console.error(`factory inventory failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
 
 program
   .command("operate")
@@ -325,7 +522,12 @@ program
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
+    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
+  )
+  .option(
+    "--remote-inference",
+    "ACK: non-loopback endpoint may receive prompts/repo-derived context (Nebius/org path)",
+    false,
   )
   .option(
     "--model <id>",
@@ -362,6 +564,7 @@ program
     offline: boolean;
     output?: string;
     endpoint?: string;
+    remoteInference: boolean;
     model?: string;
     toolBudget?: string;
     failOnIncomplete?: boolean;
@@ -391,7 +594,10 @@ program
         : defaultFixtureRepo();
 
     const endpoint =
-      opts.endpoint || process.env.ANTARES_ENDPOINT || undefined;
+      opts.endpoint ||
+      process.env.ZERODAY_ANTARES_BASE_URL ||
+      process.env.ANTARES_ENDPOINT ||
+      undefined;
 
     const liveRequested = Boolean(opts.live || endpoint);
     const model = liveRequested
@@ -427,6 +633,7 @@ program
         failOnIncomplete,
         liveRecovery: !opts.noLiveRecovery,
         failOnFindings: opts.failOnFindings,
+        remoteInference: opts.remoteInference,
       });
 
       if (opts.json) {

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "zeroday-factory-run/v1",
+  "runId": "factory-1789076803484",
+  "generatedAt": "2026-09-10T21:46:43.507Z",
+  "repo": "/workspace/fixtures/locate/demo-app",
+  "advisory": "CWE-89",
+  "stages": {
+    "inventory": true,
+    "locate": true,
+    "classify": true,
+    "ownership": true,
+    "draftFix": false,
+    "defend": true,
+    "verify": true
+  },
+  "locateMode": "fixture",
+  "findingCount": 2,
+  "classification": "software_defect",
+  "verifyOk": true,
+  "defendOk": true,
+  "needsHuman": true,
+  "inferenceProvider": "local",
+  "remoteInference": false,
+  "paths": {
+    "inventory": "/workspace/examples/factory/sample-run/inventory.json",
+    "locateReport": "/workspace/examples/factory/sample-run/locate/report.json",
+    "classifyJson": "/workspace/examples/factory/sample-run/classify/ciso.json",
+    "ownership": "/workspace/examples/factory/sample-run/ownership.json",
+    "ownershipMd": "/workspace/examples/factory/sample-run/ownership.md",
+    "ownershipComment": "/workspace/examples/factory/sample-run/ownership-comment.md",
+    "defend": "/workspace/examples/factory/sample-run/defend.json",
+    "verifyJson": "/workspace/examples/factory/sample-run/verify.json",
+    "summaryJson": "/workspace/examples/factory/sample-run/factory.json",
+    "summaryMd": "/workspace/examples/factory/sample-run/factory.md"
+  },
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "keylessDefault": true,
+    "draftOnlyAfterExplicitAsk": true
+  }
+}

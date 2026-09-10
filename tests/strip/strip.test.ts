@@ -59,6 +59,7 @@ describe("strip confirmation — no offensive product surface", () => {
     assert.doesNotMatch(cli, /\.command\("plinius"\)/);
     assert.match(cli, /\.command\("operate"\)/);
     assert.match(cli, /\.command\("verify"\)/);
+    assert.match(cli, /\.command\("factory"\)/);
   });
 
   it("SCOPE is defensive localization — not red-team RoE theater", () => {

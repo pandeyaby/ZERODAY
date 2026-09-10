@@ -4,6 +4,9 @@
  * When an operator asks for live locate (--live / --endpoint), ZERODAY must
  * either run real Antares against a healthy completions endpoint or fail loud.
  * Never degrade to fixture recordings without an explicit --fixture (alone).
+ *
+ * Non-loopback / Nebius endpoints require explicit remote-inference ACK so
+ * customer source does not leave the machine by default.
  */
 
 import {
@@ -12,6 +15,11 @@ import {
   probeCompletionsEndpoint,
   type CompletionsProbeResult,
 } from "./completions";
+import {
+  remoteInferenceAcked,
+  REMOTE_INFERENCE_REQUIRED,
+  NEBIUS_DOCS_HINT,
+} from "../factory/provider";
 
 export type LocateRunMode = "fixture" | "live";
 
@@ -20,12 +28,15 @@ export interface ModeResolveInput {
   live?: boolean;
   /** Raw or normalized endpoint (ANTARES_ENDPOINT / --endpoint) */
   endpoint?: string;
+  /** Opt-in: allow prompts/repo-derived context to a remote GPU endpoint */
+  remoteInference?: boolean;
 }
 
 export const LIVE_ENDPOINT_REQUIRED =
   "Live locate requires --endpoint pointing at a local completions server " +
   "(e.g. http://127.0.0.1:8000/v1). Antares CLI expects POST /v1/completions — " +
-  "not chat. Refusing to continue without an endpoint (no silent fixture fallback).";
+  "not chat. Refusing to continue without an endpoint (no silent fixture fallback). " +
+  "For Nebius/CUDA org path see docs/nebius-antares.md (requires --remote-inference).";
 
 export const MIXED_MODE_REFUSED =
   "Refusing mixed mode: --fixture cannot be combined with --live or --endpoint. " +
@@ -36,14 +47,31 @@ export function liveEndpointUnhealthyMessage(detail: string): string {
   return (
     `Live locate refused: completions endpoint unhealthy (${detail}). ` +
     `No fixture/mock fallback. Accept HF terms for fdtn-ai/antares-1b, serve with vLLM ` +
-    `(completions-only /v1/completions), then retry. ` +
-    `Helper: bash scripts/quickstart-live.sh <repo> [CWE]`
+    `(completions-only /v1/completions) on CUDA/Nebius (Mac MPS is unsupported for ` +
+    `schema-faithful live locate). ` +
+    `Helper: bash scripts/quickstart-live.sh <repo> [CWE] · docs/nebius-antares.md`
   );
+}
+
+function isLoopbackEndpoint(endpoint: string): boolean {
+  try {
+    const normalized = endpoint.includes("://") ? endpoint : `http://${endpoint}`;
+    const host = new URL(normalized).hostname.toLowerCase();
+    return (
+      host === "127.0.0.1" ||
+      host === "localhost" ||
+      host === "::1" ||
+      host === "0.0.0.0"
+    );
+  } catch {
+    return /127\.0\.0\.1|localhost/i.test(endpoint);
+  }
 }
 
 /**
  * Resolve fixture vs live. Throws on ambiguous / unsafe combinations.
  * Default (no flags) → fixture (CI-safe). --endpoint or --live → live (hard).
+ * Remote (non-loopback) endpoints require --remote-inference / ACK env.
  */
 export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
   const endpoint = input.endpoint?.trim() || "";
@@ -58,6 +86,11 @@ export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
   }
   if (wantsLive) {
     assertNotChatCompletions(endpoint);
+    if (hasEndpoint && !isLoopbackEndpoint(endpoint)) {
+      if (!remoteInferenceAcked({ remoteInference: input.remoteInference })) {
+        throw new Error(`${REMOTE_INFERENCE_REQUIRED} ${NEBIUS_DOCS_HINT}`);
+      }
+    }
     return "live";
   }
   return "fixture";
