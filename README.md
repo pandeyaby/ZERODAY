@@ -206,15 +206,25 @@ Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · sample desks: [`
 
 ## Remote CUDA / RunPod (opt-in)
 
-Mac MPS is unsupported for schema-faithful live Antares. **Recommended remote path:** serve `fdtn-ai/antares-1b` on a **RunPod** CUDA pod via vLLM (`POST /v1/completions`), then:
+Mac MPS is unsupported for schema-faithful live Antares. **Recommended remote path:** serve `fdtn-ai/antares-1b` on a **RunPod Secure A40** (~$0.49/hr, **CUDA ≥ 12.8**) via recent vLLM (`POST /v1/completions`). Prefer Secure A40 over **Community RTX 4090** (Community CUDA 13 hit `CUDA unknown error` / EngineCore crash in operator notes).
 
 ```bash
+# On the Secure A40 pod (GraniteMoeHybrid needs recent vLLM — :latest worked; v0.8.5 lacked model type):
+vllm serve fdtn-ai/antares-1b --host 0.0.0.0 --port 8000 --max-model-len 32768
+
+# On the operator laptop — proxy URL shape from RunPod Connect:
 export ZERODAY_INFERENCE_PROVIDER=remote
-export ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-host>/v1
+export ZERODAY_ANTARES_BASE_URL=https://<pod-id>-8000.proxy.runpod.net/v1
 export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may send prompts/repo context
 npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
-  --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
+  --endpoint "$ZERODAY_ANTARES_BASE_URL" \
+  --model fdtn-ai/antares-1b \
+  --remote-inference \
+  --output zeroday-reports/antares-live-proof
+# One-shot: after report.sarif, stop/terminate the pod — don’t leave it RUNNING.
 ```
+
+**Honest proof note:** live locate on Secure A40 returned CWE-89 on fixture `src/users.js`; artifacts under `zeroday-reports/antares-live-proof/`. Localization ≠ exploitability — no PoC / exploit / auto-merge.
 
 Scaffold only (no paid pod creates from this repo): [`docs/runpod-antares.md`](./docs/runpod-antares.md) · `bash scripts/runpod-vllm-antares.sh --print-only`  
 Host-agnostic contract: [`docs/remote-antares-vllm.md`](./docs/remote-antares-vllm.md)

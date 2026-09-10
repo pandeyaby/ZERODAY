@@ -33,23 +33,31 @@ print_checklist() {
 === ZERODAY RunPod / vLLM Antares checklist (operator) ===
 
 1) In the RunPod console, create a CUDA GPU pod YOURSELF (this script will not).
-   Guidance for ${MODEL}: single modern NVIDIA GPU with ≥16 GB VRAM is a
-   reasonable starting point; raise VRAM if long-context tool traces OOM.
-2) Expose port ${PORT} via RunPod TCP / HTTP proxy (your choice).
+   Prefer Secure Cloud A40 (~\$0.49/hr, CUDA ≥ 12.8) for ${MODEL}.
+   Avoid Community RTX 4090 on Community CUDA 13 (operator note: CUDA unknown
+   error / EngineCore crash). Raise VRAM if long-context tool traces OOM.
+2) Expose port ${PORT} via RunPod HTTP proxy. Base URL shape:
+     https://<pod-id>-${PORT}.proxy.runpod.net/v1
 3) On that pod, accept HF terms for ${MODEL}:
      https://huggingface.co/fdtn-ai/antares-1b
    then:  export HUGGING_FACE_HUB_TOKEN=hf_...
           huggingface-cli login --token \"\$HUGGING_FACE_HUB_TOKEN\"
-4) Install vLLM 0.19.1+ on the pod, then serve completions:
-     vllm serve ${MODEL} --host ${HOST} --port ${PORT}
+4) Install recent vLLM (GraniteMoeHybrid: :latest worked; v0.8.5 lacked model
+   type). Serve completions with --max-model-len 32768 on 24–48GB GPUs:
+     vllm serve ${MODEL} --host ${HOST} --port ${PORT} --max-model-len 32768
    Expect:  http://${HOST}:${PORT}/v1/completions
 5) On the operator laptop (authorized repo only):
      export ZERODAY_INFERENCE_PROVIDER=remote
-     export ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-host>/v1
+     export ZERODAY_ANTARES_BASE_URL=https://<pod-id>-${PORT}.proxy.runpod.net/v1
      export ZERODAY_ANTARES_API_KEY=          # if your proxy requires it
      export ZERODAY_REMOTE_INFERENCE_ACK=1
      npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \\
-       --endpoint \"\$ZERODAY_ANTARES_BASE_URL\" --remote-inference
+       --endpoint \"\$ZERODAY_ANTARES_BASE_URL\" --model ${MODEL} --remote-inference \\
+       --output zeroday-reports/antares-live-proof
+6) One-shot: after report.sarif, stop/terminate the pod — do not leave RUNNING.
+   Honest proof note: Secure A40 live locate returned CWE-89 on fixture
+   src/users.js under zeroday-reports/antares-live-proof/. Localization ≠
+   exploitability; no PoC / exploit / auto-merge.
 
 Mac MPS is unsupported for schema-faithful live locate — prefer this CUDA path.
 CI must stay fixture-only (never call this --serve from GitHub Actions).
@@ -84,9 +92,10 @@ do_serve() {
     echo "vllm not on PATH. Install vLLM 0.19.1+ on the GPU pod, then retry."
     exit 2
   fi
-  echo "Starting: vllm serve ${MODEL} --host ${HOST} --port ${PORT}"
+  MAX_LEN="${ZERODAY_VLLM_MAX_MODEL_LEN:-32768}"
+  echo "Starting: vllm serve ${MODEL} --host ${HOST} --port ${PORT} --max-model-len ${MAX_LEN}"
   echo "Completions: http://${HOST}:${PORT}/v1/completions"
-  exec vllm serve "${MODEL}" --host "${HOST}" --port "${PORT}"
+  exec vllm serve "${MODEL}" --host "${HOST}" --port "${PORT}" --max-model-len "${MAX_LEN}"
 }
 
 MODE="print-only"

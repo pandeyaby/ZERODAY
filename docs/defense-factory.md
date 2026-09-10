@@ -43,16 +43,18 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture --i-asked-for-a-fix
 ## Live / RunPod (opt-in)
 
 Mac MPS is **unsupported** for schema-faithful live Antares. Prefer CUDA vLLM
-locally or the documented **RunPod** path:
+locally or the documented **RunPod Secure A40** path (CUDA ≥ 12.8; prefer over
+Community RTX 4090 / CUDA 13):
 
 → [`runpod-antares.md`](./runpod-antares.md)
 
 ```bash
 export ZERODAY_INFERENCE_PROVIDER=remote
-export ZERODAY_ANTARES_BASE_URL=https://<runpod-proxy-host>/v1
+export ZERODAY_ANTARES_BASE_URL=https://<pod-id>-8000.proxy.runpod.net/v1
 export ZERODAY_REMOTE_INFERENCE_ACK=1   # required — may leave the machine
 npm run zeroday -- factory run --cwe CWE-89 --no-fixture --live \
-  --endpoint "$ZERODAY_ANTARES_BASE_URL" --remote-inference
+  --endpoint "$ZERODAY_ANTARES_BASE_URL" --model fdtn-ai/antares-1b --remote-inference
+# After SARIF: stop/terminate the pod — don’t leave RUNNING.
 ```
 
 CI / GitHub Action stays **fixture-only** — no RunPod, no weights.
