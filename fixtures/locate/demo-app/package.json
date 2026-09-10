@@ -1,0 +1,9 @@
+{
+  "name": "zeroday-demo-app",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Fixture demo app for ZERODAY factory inventory (not a real product)",
+  "scripts": {
+    "test": "node -e \"console.log('demo-app fixture test ok')\""
+  }
+}

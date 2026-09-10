@@ -1,0 +1,122 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-b8d0a2f8d14aea0e",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-89",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-89"
+      ],
+      "CreatedAt": "2026-09-10T21:46:43.493Z",
+      "UpdatedAt": "2026-09-10T21:46:43.493Z",
+      "Title": "CWE-89: SQL query built via string concatenation",
+      "Description": "ZERODAY Antares localization candidate: src/users.js for CWE-89 (sql-injection), rank 1. User-controlled `name` is concatenated into a SQL string before db.query. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://src/users.js",
+          "Details": {
+            "Other": {
+              "FilePath": "src/users.js",
+              "CweId": "CWE-89",
+              "Category": "sql-injection",
+              "Rank": "1",
+              "AdvisoryId": "CWE-89",
+              "StartLine": "8",
+              "EndLine": "10"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-89"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "fixture",
+        "zeroday/model": "fixture/antares-1b-recorded",
+        "zeroday/cwe": "CWE-89",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-89",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-8afb3ae6b8baa094",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-89",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-89"
+      ],
+      "CreatedAt": "2026-09-10T21:46:43.493Z",
+      "UpdatedAt": "2026-09-10T21:46:43.493Z",
+      "Title": "CWE-89: Request parameter passed to unsafe finder",
+      "Description": "ZERODAY Antares localization candidate: src/app.js for CWE-89 (sql-injection), rank 2. HTTP query `name` flows into findUserByName without neutralization. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://src/app.js",
+          "Details": {
+            "Other": {
+              "FilePath": "src/app.js",
+              "CweId": "CWE-89",
+              "Category": "sql-injection",
+              "Rank": "2",
+              "AdvisoryId": "CWE-89",
+              "StartLine": "7",
+              "EndLine": "9"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-89"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "fixture",
+        "zeroday/model": "fixture/antares-1b-recorded",
+        "zeroday/cwe": "CWE-89",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-89",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

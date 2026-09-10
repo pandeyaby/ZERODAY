@@ -78,7 +78,10 @@ export interface LocateArtifacts {
 
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   const endpointRaw =
-    options.endpoint || process.env.ANTARES_ENDPOINT || undefined;
+    options.endpoint ||
+    process.env.ZERODAY_ANTARES_BASE_URL ||
+    process.env.ANTARES_ENDPOINT ||
+    undefined;
 
   // Live when --live / --endpoint; fixture when --fixture or default (CI-safe).
   // Mixed --fixture + --live/--endpoint is refused — never silent mock fallback.
@@ -86,6 +89,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     fixture: options.fixture,
     live: options.live,
     endpoint: endpointRaw,
+    remoteInference: options.remoteInference,
   });
   const preferLive = mode === "live";
 

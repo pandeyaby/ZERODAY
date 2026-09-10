@@ -1,0 +1,34 @@
+[
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-89: SQL query built via string concatenation",
+    "occurred": "2026-09-10T21:46:43.493Z",
+    "severity": 0.5,
+    "details": "User-controlled `name` is concatenated into a SQL string before db.query.",
+    "cwe": "CWE-89",
+    "file_path": "src/users.js",
+    "advisory_id": "CWE-89",
+    "rank": 1,
+    "category": "sql-injection",
+    "mode": "fixture",
+    "model": "fixture/antares-1b-recorded",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  },
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-89: Request parameter passed to unsafe finder",
+    "occurred": "2026-09-10T21:46:43.493Z",
+    "severity": 0.5,
+    "details": "HTTP query `name` flows into findUserByName without neutralization.",
+    "cwe": "CWE-89",
+    "file_path": "src/app.js",
+    "advisory_id": "CWE-89",
+    "rank": 2,
+    "category": "sql-injection",
+    "mode": "fixture",
+    "model": "fixture/antares-1b-recorded",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  }
+]

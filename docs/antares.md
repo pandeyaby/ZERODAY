@@ -35,15 +35,17 @@ bash scripts/quickstart-live.sh /path CWE-89
 ## Completions only
 
 ```bash
-# CUDA (recommended — schema-faithful tool_call JSON)
+# CUDA / RunPod (recommended — schema-faithful tool_call JSON)
 vllm serve fdtn-ai/antares-1b
+# Recommended remote: docs/runpod-antares.md · scripts/runpod-vllm-antares.sh
 
-# Mac MPS — two modes:
-#   (a) float16 NaN → `!` bangs; float32 fixes bangs (this helper; greedy by default)
+# Mac MPS — UNSUPPORTED for schema-faithful live locate:
+#   (a) float16 NaN → `!` bangs; float32 fixes bangs
 #   (b) tool_call schema often malformed on MPS → 0 tools; prefer vLLM/CUDA
-# ZERODAY does not soft-rewrite tool JSON. Local helper only — not a partnership claim:
+# ZERODAY does not soft-rewrite tool JSON. Local helper only — bang-safe smoke:
 python scripts/completions_server.py --model fdtn-ai/antares-1b --port 8000
 # POST /v1/completions — chat completions are rejected
+# Non-loopback endpoints require --remote-inference / ZERODAY_REMOTE_INFERENCE_ACK=1
 ```
 
 **Model ID:** with `--endpoint` / `--live`, ZERODAY defaults to `fdtn-ai/antares-1b` (`--model` / `ANTARES_MODEL` override). Antares CLI requires this explicit id.

@@ -1,0 +1,3 @@
+# Demo-app owners for factory ownership routing tests
+*       @demo-app-maintainers
+/src/   @demo-app-backend

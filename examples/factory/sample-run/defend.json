@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "zeroday-factory-defend/v1",
+  "generatedAt": "2026-09-10T21:46:43.506Z",
+  "checks": [
+    {
+      "kind": "package_test_script",
+      "ok": true,
+      "summary": "package.json defines a test/check script",
+      "detail": "Available: test"
+    },
+    {
+      "kind": "pytest_present",
+      "ok": false,
+      "summary": "No pytest config detected (ok if not a Python repo)"
+    },
+    {
+      "kind": "ci_workflow_present",
+      "ok": false,
+      "summary": "No CI workflow detected (informational)"
+    },
+    {
+      "kind": "fail_closed_posture",
+      "ok": true,
+      "summary": "Defend-only posture: no vulnerability reproduction, no exploit confirmation, no PoC",
+      "detail": "ZERODAY defend harness refuses vulnerability reproduction and exploit confirmation. It only runs existing project tests / fail-closed posture checks."
+    }
+  ],
+  "ok": true,
+  "posture": {
+    "defendOnly": true,
+    "notVulnerabilityReproduction": true,
+    "notExploitConfirmation": true,
+    "failClosed": true
+  }
+}

@@ -1,8 +1,9 @@
 # AGENTS.md — ZERODAY keyless agent operator
 
-You are helping an authorized operator run **ZERODAY**, a defensive localization
-harness. Default path is **keyless**: use this coding agent (no Antares HF token,
-no vendor API keys, no cloud inference of customer source).
+You are helping an authorized operator run **ZERODAY**, a Localization & Evidence
+Defense Factory (defensive localization harness). Default path is **keyless**: use
+this coding agent (no Antares HF token, no vendor API keys, no cloud inference of
+customer source unless the operator explicitly opts into remote inference).
 
 ## Mission
 
@@ -13,9 +14,15 @@ Given a CWE / CVE / GHSA and a local repo the human is authorized to assess:
 3. Write `submission.json` matching `zeroday-operator-submission/v1`
 4. Human packages with `zeroday operate --from` and verifies hashes
 
+Or run the factory loop (fixture-safe):
+
+```bash
+npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
+```
+
 Localization is **not** proof of exploitability. Always `needs_human: true`.
 Never write exploits, PoCs, payloads, or attack procedures. No network scans.
-No credential theft. No auto-merge.
+No credential theft. No auto-merge. Patch drafts only after `--i-asked-for-a-fix`.
 
 ## One-shot bootstrap
 
@@ -40,20 +47,22 @@ npm run zeroday -- verify --from zeroday-reports/agent-packaged
 
 ```bash
 npm run zeroday -- operate --cwe CWE-89 --fixture
+npm run zeroday -- factory run --cwe CWE-89 --fixture
 npm run zeroday -- verify --from <run-dir>
 ```
 
-## Optional live Antares
+## Optional live Antares (CUDA / RunPod — not Mac MPS)
 
-Only when the operator already hosts `fdtn-ai/antares-1b` locally via completions
-(accept HF terms yourself — never scrape/bypass):
+Only when the operator already hosts `fdtn-ai/antares-1b` via completions
+(accept HF terms yourself — never scrape/bypass). Remote endpoints require
+`--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`:
 
 ```bash
-# Product path (<30 min) — see README; helper refuses silent fixture fallback
 bash scripts/quickstart-live.sh /path/to/repo CWE-89
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
-npm run zeroday -- sweep /path --endpoint http://127.0.0.1:8000/v1 --max-cwes 5
+# Recommended remote CUDA: docs/runpod-antares.md
+# bash scripts/runpod-vllm-antares.sh --print-only   # no paid creates
 ```
 
 ZERODAY never downloads `model.safetensors`. Antares CLI expects vLLM 0.19.1+ completions.
-See `docs/agent-operator.md` and root README § 30-minute live path.
+See `docs/agent-operator.md`, `docs/defense-factory.md`, and root README.

@@ -1,0 +1,37 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fixture/antares-1b-recorded",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-89",
+      "filePath": "src/users.js",
+      "title": "SQL query built via string concatenation",
+      "description": "User-controlled `name` is concatenated into a SQL string before db.query.",
+      "occurred": "2026-09-10T21:46:43.493Z",
+      "category": "sql-injection",
+      "advisoryId": "CWE-89",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    },
+    {
+      "vendor": "ZERODAY",
+      "model": "fixture/antares-1b-recorded",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-89",
+      "filePath": "src/app.js",
+      "title": "Request parameter passed to unsafe finder",
+      "description": "HTTP query `name` flows into findUserByName without neutralization.",
+      "occurred": "2026-09-10T21:46:43.493Z",
+      "category": "sql-injection",
+      "advisoryId": "CWE-89",
+      "rank": 2,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}

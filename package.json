@@ -1,8 +1,8 @@
 {
   "name": "zeroday",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
-  "description": "ZERODAY — keyless agent operator for defensive vulnerability localization (Cisco/Splunk/Palo/Fortinet/CrowdStrike/AWS)",
+  "description": "ZERODAY — Localization & Evidence Defense Factory (Cisco Antares / keyless operator)",
   "bin": {
     "zeroday": "./cli/index.ts"
   },
@@ -19,6 +19,7 @@
     "locate": "tsx cli/index.ts locate",
     "operate": "tsx cli/index.ts operate",
     "verify": "tsx cli/index.ts verify",
+    "factory": "tsx cli/index.ts factory",
     "quickstart:live": "bash scripts/quickstart-live.sh",
     "demo:proof": "bash scripts/demo-proof.sh",
     "docker:up": "docker compose up --build -d",

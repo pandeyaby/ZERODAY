@@ -1,0 +1,235 @@
+{
+  "ok": true,
+  "runDir": "/workspace/examples/factory/sample-run",
+  "checked": 26,
+  "failures": [],
+  "manifest": {
+    "schemaVersion": "zeroday-evidence-manifest/v1",
+    "runId": "factory-1789076803484",
+    "createdAt": "2026-09-10T21:46:43.506Z",
+    "updatedAt": "2026-09-10T21:46:43.506Z",
+    "entries": [
+      {
+        "id": "ev_input_001",
+        "kind": "input",
+        "title": "Repo inventory",
+        "summary": "6 file(s); CODEOWNERS=.github/CODEOWNERS",
+        "relativePath": "evidence/inputs/inventory.json",
+        "sha256": "6d748a8cf54651abd0a01bc4ef09bdc68d53f3b326b9b41a8de68fdc2373d7ac",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "factory",
+          "inventory"
+        ]
+      },
+      {
+        "id": "ev_artifact_002",
+        "kind": "artifact",
+        "title": "inventory.json",
+        "summary": "Run artifact inventory.json",
+        "relativePath": "inventory.json",
+        "sha256": "6d748a8cf54651abd0a01bc4ef09bdc68d53f3b326b9b41a8de68fdc2373d7ac",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_003",
+        "kind": "artifact",
+        "title": "report.json",
+        "summary": "Run artifact report.json",
+        "relativePath": "report.json",
+        "sha256": "6e5d6f5ab0f53176c6e3b699b2fd0f93c52e4156c27d88253eec4da3e0c0bb18",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_004",
+        "kind": "artifact",
+        "title": "report.md",
+        "summary": "Run artifact report.md",
+        "relativePath": "report.md",
+        "sha256": "b91bc737f457146fa3230ef4bf6b97b9083251f3f3f20b6a4869d28dbaab3207",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_005",
+        "kind": "artifact",
+        "title": "report.sarif",
+        "summary": "Run artifact report.sarif",
+        "relativePath": "report.sarif",
+        "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_006",
+        "kind": "artifact",
+        "title": "comment.md",
+        "summary": "Run artifact comment.md",
+        "relativePath": "comment.md",
+        "sha256": "ee39b67ed4d524b3a2d530d35c1ec8a279924b8b5ca5e350a69135388abefaeb",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_007",
+        "kind": "artifact",
+        "title": "ownership.json",
+        "summary": "Run artifact ownership.json",
+        "relativePath": "ownership.json",
+        "sha256": "b458fd77c7822a773918cb8d89b138c59db318b14250a5d2c89e2207a1764d1c",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_008",
+        "kind": "artifact",
+        "title": "ownership.md",
+        "summary": "Run artifact ownership.md",
+        "relativePath": "ownership.md",
+        "sha256": "459f8314632a43bfe8f93c9f660de349fa136a6566f60c61659ff5a9c048762c",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_009",
+        "kind": "artifact",
+        "title": "ownership-comment.md",
+        "summary": "Run artifact ownership-comment.md",
+        "relativePath": "ownership-comment.md",
+        "sha256": "766348a927758656b5f2c930621ee26522e5c992644fe0855490294e04c142c4",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_010",
+        "kind": "artifact",
+        "title": "classify/ciso.json",
+        "summary": "Run artifact classify/ciso.json",
+        "relativePath": "classify/ciso.json",
+        "sha256": "060677eca14260f83f79b36cccf2ef23d901e75508d1e4c1a96557ea2b03770a",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_011",
+        "kind": "artifact",
+        "title": "classify/ciso.md",
+        "summary": "Run artifact classify/ciso.md",
+        "relativePath": "classify/ciso.md",
+        "sha256": "912f88d467fd7e6cc55dd512a69f7aa9f5a1349456fefb32e53d4bd57ce422b7",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      },
+      {
+        "id": "ev_artifact_012",
+        "kind": "artifact",
+        "title": "defend.json",
+        "summary": "Run artifact defend.json",
+        "relativePath": "defend.json",
+        "sha256": "a04d39e2f066208a0a254239d853535923096078db675871398ab137dd9a00e5",
+        "createdAt": "2026-09-10T21:46:43.506Z",
+        "tags": [
+          "artifact"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "inventory.json",
+        "relativePath": "inventory.json",
+        "sha256": "6d748a8cf54651abd0a01bc4ef09bdc68d53f3b326b9b41a8de68fdc2373d7ac",
+        "bytes": 1151
+      },
+      {
+        "name": "report.json",
+        "relativePath": "report.json",
+        "sha256": "6e5d6f5ab0f53176c6e3b699b2fd0f93c52e4156c27d88253eec4da3e0c0bb18",
+        "bytes": 3678
+      },
+      {
+        "name": "report.md",
+        "relativePath": "report.md",
+        "sha256": "b91bc737f457146fa3230ef4bf6b97b9083251f3f3f20b6a4869d28dbaab3207",
+        "bytes": 3524
+      },
+      {
+        "name": "report.sarif",
+        "relativePath": "report.sarif",
+        "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
+        "bytes": 6690
+      },
+      {
+        "name": "comment.md",
+        "relativePath": "comment.md",
+        "sha256": "ee39b67ed4d524b3a2d530d35c1ec8a279924b8b5ca5e350a69135388abefaeb",
+        "bytes": 1928
+      },
+      {
+        "name": "ownership.json",
+        "relativePath": "ownership.json",
+        "sha256": "b458fd77c7822a773918cb8d89b138c59db318b14250a5d2c89e2207a1764d1c",
+        "bytes": 1751
+      },
+      {
+        "name": "ownership.md",
+        "relativePath": "ownership.md",
+        "sha256": "459f8314632a43bfe8f93c9f660de349fa136a6566f60c61659ff5a9c048762c",
+        "bytes": 656
+      },
+      {
+        "name": "ownership-comment.md",
+        "relativePath": "ownership-comment.md",
+        "sha256": "766348a927758656b5f2c930621ee26522e5c992644fe0855490294e04c142c4",
+        "bytes": 353
+      },
+      {
+        "name": "classify/ciso.json",
+        "relativePath": "classify/ciso.json",
+        "sha256": "060677eca14260f83f79b36cccf2ef23d901e75508d1e4c1a96557ea2b03770a",
+        "bytes": 1508
+      },
+      {
+        "name": "classify/ciso.md",
+        "relativePath": "classify/ciso.md",
+        "sha256": "912f88d467fd7e6cc55dd512a69f7aa9f5a1349456fefb32e53d4bd57ce422b7",
+        "bytes": 1477
+      },
+      {
+        "name": "defend.json",
+        "relativePath": "defend.json",
+        "sha256": "a04d39e2f066208a0a254239d853535923096078db675871398ab137dd9a00e5",
+        "bytes": 1038
+      }
+    ],
+    "posture": {
+      "localizationOnly": true,
+      "notExploitProof": true,
+      "noAutoMerge": true,
+      "noPoC": true,
+      "keylessDefault": true,
+      "offlineVerifiable": true
+    }
+  }
+}

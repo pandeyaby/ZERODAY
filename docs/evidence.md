@@ -14,6 +14,9 @@ zeroday-reports/<run-id>/
   report.json
   report.md                  # cites evidence IDs
   report.sarif
+  inventory.json             # factory
+  ownership.md               # factory
+  factory.json / factory.md  # factory summary
   …
 ```
 
@@ -21,6 +24,7 @@ zeroday-reports/<run-id>/
 
 ```bash
 npm run zeroday -- verify --from zeroday-reports/<run-id>
+npm run zeroday -- factory run --cwe CWE-89 --fixture   # includes verify stage
 ```
 
 Recomputes hashes for every manifest entry and artifact. No network required.
@@ -29,5 +33,6 @@ Recomputes hashes for every manifest entry and artifact. No network required.
 
 - Localization only — not exploit proof
 - No auto-merge · no PoC
-- Keyless default (operate)
+- Keyless / local-first default (operate + factory)
+- Remote inference requires explicit ACK
 - Secrets redacted in UI settings by default

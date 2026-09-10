@@ -1,0 +1,44 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/workspace/fixtures/locate/demo-app",
+      "dvc": "zeroday-local",
+      "signature": "SQL query built via string concatenation",
+      "severity": "informational",
+      "category": "sql-injection",
+      "xref": "CWE-89",
+      "signature_id": "zeroday-b8d0a2f8d14aea0e",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-89",
+      "file": "src/users.js",
+      "evidence": "User-controlled `name` is concatenated into a SQL string before db.query.",
+      "advisory": "CWE-89",
+      "mode": "fixture",
+      "model": "fixture/antares-1b-recorded",
+      "file_f1": 0.209,
+      "time": "2026-09-10T21:46:43.493Z"
+    },
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/workspace/fixtures/locate/demo-app",
+      "dvc": "zeroday-local",
+      "signature": "Request parameter passed to unsafe finder",
+      "severity": "informational",
+      "category": "sql-injection",
+      "xref": "CWE-89",
+      "signature_id": "zeroday-8afb3ae6b8baa094",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-89",
+      "file": "src/app.js",
+      "evidence": "HTTP query `name` flows into findUserByName without neutralization.",
+      "advisory": "CWE-89",
+      "mode": "fixture",
+      "model": "fixture/antares-1b-recorded",
+      "file_f1": 0.209,
+      "time": "2026-09-10T21:46:43.493Z"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# Example: defensive localization factory loop (vendor desk glue)
+
+# Not a kill-chain or red-team mission. Authorized repos only.
+
+name: Cisco + Splunk localization desk
+brief: >
+  Run ZERODAY factory locate + SARIF/Splunk exporters against an authorized
+  staging application repo. Human triage required. No exploit confirmation.
+loadouts:
+  - cisco
+  - splunk
+targets:
+  - path: ./authorized-app
+    product: Internal app (authorized)
+    vendor: Customer
+    environment: staging
+authorization:
+  required: true
+  rules: >
+    Defensive localization only. No PoCs. No auto-merge. No production pushes.
+stages:
+  - inventory
+  - locate
+  - classify
+  - ownership
+  - verify
+posture:
+  localizationOnly: true
+  notExploitProof: true
+  noAutoMerge: true
+  noPoC: true

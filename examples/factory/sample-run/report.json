@@ -1,0 +1,116 @@
+{
+  "mode": "fixture",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "targetRepo": "/workspace/fixtures/locate/demo-app",
+  "model": "fixture/antares-1b-recorded",
+  "generatedAt": "2026-09-10T21:46:43.493Z",
+  "rankedFiles": [
+    {
+      "filePath": "src/users.js",
+      "rank": 1,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "SQL query built via string concatenation",
+      "likelihoodOfExploit": "High",
+      "evidence": [
+        {
+          "filePath": "src/users.js",
+          "startLine": 8,
+          "endLine": 10,
+          "note": "User-controlled `name` is concatenated into a SQL string before db.query.",
+          "excerpt": "const sql = \"SELECT id, name, email FROM users WHERE name = '\" + name + \"'\";\n  return db.query(sql);"
+        }
+      ]
+    },
+    {
+      "filePath": "src/app.js",
+      "rank": 2,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "Request parameter passed to unsafe finder",
+      "likelihoodOfExploit": "High",
+      "evidence": [
+        {
+          "filePath": "src/app.js",
+          "startLine": 7,
+          "endLine": 9,
+          "note": "HTTP query `name` flows into findUserByName without neutralization.",
+          "excerpt": "const name = req.query.name ?? \"\";\n  return findUserByName(db, name);"
+        }
+      ]
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "find",
+      "command": "find . -type f -name '*.js'",
+      "summary": "Listed JavaScript sources under the read-only snapshot."
+    },
+    {
+      "step": 2,
+      "tool": "grep",
+      "command": "grep -Rni 'SELECT' .",
+      "summary": "Found SQL-like strings in src/users.js."
+    },
+    {
+      "step": 3,
+      "tool": "grep",
+      "command": "grep -Rni 'query' src/",
+      "summary": "Correlated db.query call sites with string concatenation."
+    },
+    {
+      "step": 4,
+      "tool": "cat",
+      "command": "cat src/users.js",
+      "summary": "Read findUserByName; confirmed unparameterized SQL construction."
+    },
+    {
+      "step": 5,
+      "tool": "cat",
+      "command": "cat src/app.js",
+      "summary": "Confirmed request input reaches the unsafe helper."
+    },
+    {
+      "step": 6,
+      "tool": "submit",
+      "command": "submit_vulnerable_files",
+      "summary": "Submitted src/users.js (rank 1) and src/app.js (rank 2)."
+    }
+  ],
+  "warnings": [
+    "Fixture mode: results come from a recorded Antares-style localization, not live model inference.",
+    "Read-only snapshot: 5 files (destroyed after run)",
+    "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
+    "Fixture mode is container-free (no Docker) — CI-safe.",
+    "Live Antares CLI not on PATH. Install the official CLI from PyPI: `uv tool install cisco-antares-cli` then ensure `$(uv tool dir --bin)` is on PATH. Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 2,
+    "incompleteReason": null,
+    "terminalCallBudget": 15,
+    "terminalCallsUsed": 6
+  },
+  "snapshotPath": "/tmp/zeroday-snap-TtVO7Z/repo",
+  "evidence": {
+    "runId": "locate",
+    "claimIds": [
+      "ev_claim_002",
+      "ev_claim_003"
+    ],
+    "vaultRelative": "evidence/"
+  }
+}
