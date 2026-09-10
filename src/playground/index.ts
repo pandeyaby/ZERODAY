@@ -1,6 +1,6 @@
 /**
  * Local fixture playground — locate / classify / demo with no live network
- * and no gated weight downloads. Used by /api/playground and War Room UI.
+ * and no gated weight downloads. Used by /api/playground and Operator UI.
  */
 
 import fs from "node:fs";

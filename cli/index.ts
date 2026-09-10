@@ -901,11 +901,11 @@ program
       console.log("Start the local UI (fixtures only, no gated weights):");
       console.log("");
       console.log("  npm run play");
-      console.log("  # alias:  npm run war-room");
+      console.log("  # alias:  npm run operator");
       console.log("");
       console.log("Then open:");
       console.log("  http://localhost:3333/play");
-      console.log("  http://localhost:3333/          (How orgs use + playground)");
+      console.log("  http://localhost:3333/          (Operator desk + playground)");
       console.log("");
       console.log("Headless fixture runs (same engines, no UI):");
       console.log("  npm run zeroday -- play --action locate");

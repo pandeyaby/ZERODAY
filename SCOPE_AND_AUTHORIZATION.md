@@ -1,8 +1,11 @@
-# SCOPE AND AUTHORIZATION — Localization & Evidence Defense Factory
+# SCOPE AND AUTHORIZATION (Acceptable Use) — Localization & Evidence Defense Factory
 
 ZERODAY is a **defensive** Localization & Evidence Defense Factory. It turns an
 existing AI coding agent (or optional Antares on local/remote CUDA) into a
 structured, auditable localization workflow for authorized codebases.
+
+This document is the project’s **Acceptable Use / Scope** policy. It is **not** a
+substitute for the Apache-2.0 license in [`LICENSE`](./LICENSE).
 
 ## What is in scope
 

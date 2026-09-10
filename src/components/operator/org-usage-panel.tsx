@@ -125,7 +125,7 @@ export function OrgUsagePanel({
         if (j.classifyScenarios?.[0]) setScenario(j.classifyScenarios[0]);
       })
       .catch(() => {
-        /* War Room may be offline in unit contexts */
+        /* Operator UI may be offline in unit contexts */
       });
   }, []);
 

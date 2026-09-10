@@ -7,14 +7,22 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 describe("README adoption path sanity", () => {
-  it("leads with live Antares → SARIF and documents HF license + sister links", () => {
+  it("leads with hard limits + fixture default, then opt-in live Antares", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
 
-    // Product path first
-    const liveIdx = readme.indexOf("30-minute live path");
-    const fixtureIdx = readme.indexOf("CI / no-GPU smoke");
-    assert.ok(liveIdx >= 0, "missing 30-minute live path section");
-    assert.ok(fixtureIdx > liveIdx, "CI/no-GPU section must follow live path");
+    assert.match(readme, /Hard limits/i);
+    assert.match(readme, /No PoCs|no PoC/i);
+    assert.match(readme, /never auto-merge|No auto-merge|no auto-merge/i);
+    assert.match(readme, /SCOPE_AND_AUTHORIZATION\.md/);
+    assert.match(readme, /SECURITY\.md/);
+    assert.match(readme, /Apache-2\.0|LICENSE/);
+
+    // Default path first: fixture before opt-in live section
+    const fixtureIdx = readme.indexOf("Default path");
+    const liveIdx = readme.indexOf("Opt-in live path");
+    assert.ok(fixtureIdx >= 0, "missing Default path (fixture) section");
+    assert.ok(liveIdx >= 0, "missing Opt-in live path section");
+    assert.ok(fixtureIdx < liveIdx, "fixture default must precede opt-in live");
 
     assert.match(readme, /huggingface\.co\/fdtn-ai\/antares-1b/);
     assert.match(readme, /cisco-foundation-ai\.github\.io\/antares/);
@@ -30,13 +38,11 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /scripts\/quickstart-live\.sh/);
     assert.match(readme, /No fixture\/mock fallback|refuses.*fixture/i);
     assert.match(readme, /Localization ≠ exploitability|localization ≠ exploitability/i);
-    assert.match(readme, /not an official Cisco partnership|No partnership claims/i);
+    assert.match(readme, /not an official Cisco partnership|No partnership claims|Not a Cisco product/i);
+    assert.doesNotMatch(readme, /ZERODAY mandate|Cisco Antares \/ ZERODAY mandate/i);
     assert.match(readme, /report\.sarif/);
     assert.match(readme, /\/v1\/completions/);
-
-    // Fixture labeled as CI / no-GPU, not product
-    assert.match(readme, /CI \/ no-GPU/);
-    assert.match(readme, /not the product path/i);
+    assert.match(readme, /--fixture/);
   });
 
   it("quickstart-live.sh refuses fixture fallback and probes endpoint", () => {

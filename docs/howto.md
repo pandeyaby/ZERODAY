@@ -2,7 +2,7 @@
 
 > Best way for a person, how orgs should use it, and the local fixture playground.
 
-[Open in app](http://localhost:3333/play) · War Room tab **How orgs use this**
+[Open in app](http://localhost:3333/play) · Operator tab **How orgs use this**
 
 ## Best way for a person
 

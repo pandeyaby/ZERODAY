@@ -11,7 +11,7 @@ const PERSONA_ICON: Record<string, React.ReactNode> = {
   Architecture: <Layers size={16} />,
 };
 
-/** Compact docs index for embedding as a War Room tab. */
+/** Compact docs index for embedding as an Operator tab. */
 export function DocsPanel() {
   const audience = getAudienceDocs();
   const reference = getReferenceDocs();
