@@ -60,7 +60,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
           </Link>
         ) : (
           <Link href="/" className="text-xs text-[var(--accent)] hover:brightness-110 transition sm:text-right">
-            Open War Room →
+            Open Operator →
           </Link>
         )}
       </div>

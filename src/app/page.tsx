@@ -1,5 +1,5 @@
-import { WarRoom } from "@/components/war-room/war-room";
+import { Operator } from "@/components/operator/operator";
 
 export default function HomePage() {
-  return <WarRoom />;
+  return <Operator />;
 }

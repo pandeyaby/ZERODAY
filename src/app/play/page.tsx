@@ -1,4 +1,4 @@
-import { OrgUsagePanel } from "@/components/war-room/org-usage-panel";
+import { OrgUsagePanel } from "@/components/operator/org-usage-panel";
 import Link from "next/link";
 import { Shield } from "lucide-react";
 
@@ -27,7 +27,7 @@ export default function PlayPage() {
             href="/"
             className="text-xs uppercase tracking-wider text-[var(--muted)] hover:text-[var(--accent)]"
           >
-            War Room →
+            Operator →
           </Link>
           <div className="flex items-center gap-2">
             <span className="status-dot bg-[var(--accent)]" />

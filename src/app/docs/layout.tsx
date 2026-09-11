@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield, Crosshair } from "lucide-react";
+import { Shield } from "lucide-react";
 import { DocsNav } from "@/components/docs/docs-nav";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
@@ -23,8 +23,8 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             href="/"
             className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[var(--muted)] hover:text-[var(--accent)] border border-[var(--line)] hover:border-[var(--accent)]/50 rounded-md px-3 py-2 transition"
           >
-            <Crosshair size={14} />
-            Open War Room
+            <Shield size={14} />
+            Open Operator
           </Link>
         </div>
       </header>

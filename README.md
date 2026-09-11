@@ -1,9 +1,17 @@
 # ZERODAY
 
-**Localization & Evidence Defense Factory** — local-first defensive vulnerability
-**localization** harness (Cisco Antares / ZERODAY mandate). Point it at a repo you
-are authorized to assess; get ranked candidate files + **SARIF** + hashed evidence.
-Localization ≠ exploitability. No PoCs. No auto-merge. Not an official Cisco partnership product.
+Local-first defensive vulnerability **localization** daily driver around
+[Antares](https://cisco-foundation-ai.github.io/antares/) — keyless `operate`,
+fixture or optional live `locate` → ranked files + **SARIF** + hashed evidence.
+**Not a Cisco product.** Not an official partnership.
+
+> **Hard limits**
+>
+> - No PoCs, exploits, payloads, or attack procedures — ever (including lab / localhost)
+> - Localization ≠ proof of exploitability · `needs_human` always · never auto-merge
+> - Default &lt;30 min path: **fixture → SARIF** (CI / no-GPU; no HF token)
+> - Live Antares is **opt-in**: human accepts HF gated terms + CUDA/vLLM (or documented RunPod path)
+> - Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · disclosure: [`SECURITY.md`](./SECURITY.md)
 
 Sister pieces (compose, don’t duplicate): [Antares](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [Foundry](https://github.com/CiscoDevNet/foundry) · [CodeGuard](https://project-codeguard.org/)
 
@@ -15,11 +23,12 @@ North star vs OpenAI-style Defense Factory loops: we mirror **inventory → loca
 
 Public artifacts you can open without a GPU — **fixture-shaped** sample (same SARIF schema as live; `mode` differs). No customer paths. No tokens.
 
-**(a) 30-min live one-liner** (product path — needs local completions + HF license accept):
+**(a) Default &lt;30 min — fixture → SARIF** (no GPU / no HF token):
 
 ```bash
-npm run zeroday -- locate --repo <authorized-repo> --cwe CWE-89 --endpoint http://127.0.0.1:8000/v1
-# model defaults to fdtn-ai/antares-1b · helper: bash scripts/quickstart-live.sh <repo>
+npm install
+npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/ci-smoke
+ls zeroday-reports/ci-smoke/report.sarif
 ```
 
 **(b) Sample SARIF snippet** ([full file](./examples/sample-live-sarif/report.sarif) · [excerpt](./examples/sample-live-sarif/report.excerpt.sarif.json)):
@@ -57,11 +66,50 @@ Regenerate the checked-in sample (CI-safe): `bash scripts/demo-proof.sh`
 
 ![30-min live path one-liner](./docs/images/zeroday-live-path.png)
 
+**(d) Opt-in live one-liner** (HF license accept + local/remote CUDA completions — not the default demo):
+
+```bash
+npm run zeroday -- locate --repo <authorized-repo> --cwe CWE-89 --endpoint http://127.0.0.1:8000/v1
+# model defaults to fdtn-ai/antares-1b · helper: bash scripts/quickstart-live.sh <repo>
+```
+
 ---
 
-## 30-minute live path: Antares → SARIF
+## Default path (&lt;30 min): fixture → SARIF
 
-This is the **product path** — real local inference, not a fixture. Budget: install → accept HF terms → serve → one command → `report.sarif`.
+Use this on laptops without a GPU, for GitHub Actions, and as the first demo.
+**Label clearly: fixture / recorded — not live Antares.**
+
+```bash
+npm install
+npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/ci-smoke
+ls zeroday-reports/ci-smoke/report.sarif
+```
+
+Keyless agent-operator (also offline-capable, no Antares weights):
+
+```bash
+npm run zeroday -- operate --cwe CWE-89 --fixture --output zeroday-reports/demo-operate
+npm run zeroday -- verify --from zeroday-reports/demo-operate
+```
+
+Factory loop (CI-safe):
+
+```bash
+npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
+  --output zeroday-reports/factory-demo
+npm run zeroday -- verify --from zeroday-reports/factory-demo
+```
+
+---
+
+## Opt-in live path: Antares → SARIF
+
+Real local (or opt-in remote CUDA) inference — **not** the default demo. Requires a
+human to accept Hugging Face gated terms for `fdtn-ai/antares-1b`, then serve
+completions (vLLM/CUDA recommended; see [`docs/runpod-antares.md`](./docs/runpod-antares.md)
+for Secure A40). ZERODAY never scrapes or bypasses HF terms and never downloads
+`model.safetensors` in CI.
 
 ### 1) Install (Node + Antares CLI)
 
@@ -231,32 +279,13 @@ Host-agnostic contract: [`docs/remote-antares-vllm.md`](./docs/remote-antares-vl
 
 ---
 
-## CI / no-GPU smoke (60 seconds) — not the product path
-
-Use this for laptops without a GPU, and for GitHub Actions. **Label clearly: fixture / recorded — not live Antares.**
-
-```bash
-npm install
-npm run zeroday -- locate --cwe CWE-89 --fixture --output zeroday-reports/ci-smoke
-ls zeroday-reports/ci-smoke/report.sarif
-```
-
-Keyless agent-operator (also offline-capable, no Antares weights):
-
-```bash
-npm run zeroday -- operate --cwe CWE-89 --fixture --output zeroday-reports/demo-operate
-npm run zeroday -- verify --from zeroday-reports/demo-operate
-```
-
----
-
 ## What works offline / keyless vs what needs Antares weights
 
 | Path | Needs | Writes SARIF? |
 |------|-------|---------------|
+| **`locate --fixture`** | No GPU / no HF token | Yes — **default &lt;30 min / CI path** |
 | **`operate`** (coding agent + brief/schema) | Nothing cloud — your agent explores a read-only snapshot | Yes (after submission / `--fixture`) |
-| **`locate --fixture`** | No GPU / no HF token | Yes — **CI / no-GPU only** |
-| **`locate --repo … --endpoint …`** (live) | HF license accept + local serve + `cisco-antares-cli` | Yes — **product path** |
+| **`locate --repo … --endpoint …`** (live) | HF license accept + CUDA/vLLM (or RunPod) + `cisco-antares-cli` | Yes — **opt-in live** |
 | **`sweep --endpoint …`** | Same local endpoint | Multi-CWE via official `antares sweep` |
 
 ---
@@ -285,7 +314,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 - **No silent fixture fallback** on the live path
 - **CI stays fixture-safe** — GitHub Action never needs RunPod or live Antares
 
-Acceptable use: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)
+Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · security: [`SECURITY.md`](./SECURITY.md)
 
 ---
 
@@ -307,21 +336,20 @@ Details: [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`doc
 ## CLI cheat sheet
 
 ```bash
-# Factory loop (CI-safe)
+# Default <30 min — fixture → SARIF (no GPU)
+npm run zeroday -- locate --cwe CWE-89 --fixture
+npm run zeroday -- operate --cwe CWE-89 --fixture && npm run zeroday -- verify --from <run-dir>
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 
-# Live (product) — CUDA/RunPod preferred; Mac MPS unsupported for schema-faithful tools
+# Opt-in live — HF terms + CUDA/RunPod preferred; Mac MPS unsupported for schema-faithful tools
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
 bash scripts/quickstart-live.sh ./app CWE-89
 bash scripts/runpod-vllm-antares.sh --print-only
 
-# CI / no-GPU
-npm run zeroday -- locate --cwe CWE-89 --fixture
-npm run zeroday -- operate --cwe CWE-89 --fixture && npm run zeroday -- verify --from <run-dir>
-
 # Other
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
+npm run operator   # local Operator UI on :3333
 npm test
 ```
 
@@ -329,7 +357,8 @@ npm test
 
 ## License & credits
 
-Authorized / defensive use only. No warranty.
+**Apache-2.0** — see [`LICENSE`](./LICENSE) (`SPDX-License-Identifier: Apache-2.0`).
+Authorized / defensive use only (see Acceptable Use / [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)). No warranty.
 
 - **Antares** — [site](https://cisco-foundation-ai.github.io/antares/) · [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [HF `fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) · [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
 - Foundry Security Spec · Project CodeGuard — compose, don’t replace

@@ -1,5 +1,5 @@
 /**
- * Lightweight local settings store for the War Room UI.
+ * Lightweight local settings store for the Operator UI.
  * File-based evidence vault lives under zeroday-reports/<run>/evidence/.
  */
 

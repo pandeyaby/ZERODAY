@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DocsPanel } from "@/components/docs/docs-panel";
-import { OrgUsagePanel } from "@/components/war-room/org-usage-panel";
+import { OrgUsagePanel } from "@/components/operator/org-usage-panel";
 import { cn } from "@/lib/cn";
 import {
   BookOpen,
@@ -63,7 +63,7 @@ const VENDOR_PACKS = [
   },
 ] as const;
 
-export function WarRoom() {
+export function Operator() {
   const [tab, setTab] = useState<Tab>("howto");
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
   const [health, setHealth] = useState<Record<string, unknown> | null>(null);

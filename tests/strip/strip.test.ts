@@ -44,10 +44,13 @@ describe("strip confirmation — no offensive product surface", () => {
   it("package.json has no plinius scripts", () => {
     const pkg = JSON.parse(
       fs.readFileSync(path.join(root, "package.json"), "utf8"),
-    ) as { scripts: Record<string, string> };
+    ) as { scripts: Record<string, string>; license?: string };
     for (const s of FORBIDDEN_PACKAGE_SCRIPTS) {
       assert.equal(pkg.scripts[s], undefined, `script ${s} must be removed`);
     }
+    assert.equal(pkg.scripts["war-room"], undefined, "war-room script renamed");
+    assert.ok(pkg.scripts.operator, "operator script required");
+    assert.equal(pkg.license, "Apache-2.0");
   });
 
   it("CLI has no missions/launch/authorize/stego/plinius commands", () => {
@@ -62,6 +65,16 @@ describe("strip confirmation — no offensive product surface", () => {
     assert.match(cli, /\.command\("factory"\)/);
   });
 
+  it("mission stubs stay stubbed (no offensive mission theater)", () => {
+    const missionsDir = path.join(root, "examples/missions");
+    for (const name of fs.readdirSync(missionsDir)) {
+      if (!name.endsWith(".yaml") && !name.endsWith(".yml")) continue;
+      const text = fs.readFileSync(path.join(missionsDir, name), "utf8");
+      assert.match(text, /removed from the product surface|use examples\/factory/i);
+      assert.doesNotMatch(text, /kill-chain stages|exploit chain|red team playbook/i);
+    }
+  });
+
   it("SCOPE is defensive localization — not red-team RoE theater", () => {
     const scope = fs.readFileSync(
       path.join(root, "SCOPE_AND_AUTHORIZATION.md"),
@@ -70,6 +83,7 @@ describe("strip confirmation — no offensive product surface", () => {
     assert.doesNotMatch(scope, FORBIDDEN_PRODUCT_PATTERNS);
     assert.match(scope, /defensive/i);
     assert.match(scope, /evidence/i);
+    assert.match(scope, /Acceptable Use/i);
   });
 
   it("Dockerfile / health / README product paths have no forbidden tokens", () => {

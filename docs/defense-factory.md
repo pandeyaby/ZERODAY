@@ -2,7 +2,8 @@
 
 ZERODAY’s north star is a **Localization & Evidence + Defense Factory** —
 inspired by the *shape* of continuous defensive loops (inventory → detect →
-route → remediate → verify), but bound to the **Cisco Antares / ZERODAY mandate**.
+route → remediate → verify), composed around **Antares localization** (optional
+live) and the keyless `operate` path — not a Cisco product mandate.
 
 ## What we mirror (from Defense Factory–style loops)
 
