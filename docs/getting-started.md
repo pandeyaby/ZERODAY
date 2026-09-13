@@ -3,8 +3,10 @@
 ## MVP path (keyless, &lt;10 min)
 
 ```bash
+git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
+# optional: npm run play → http://localhost:3333/play
 ```
 
 Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No spend.

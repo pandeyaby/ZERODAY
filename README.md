@@ -16,11 +16,13 @@ operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
 
 ## MVP path (keyless, &lt;10 min)
 
-One obvious command. Offline. No GPU. No Hugging Face token. No spend.
+**Stranger path:** clone → fixture (or playground) → SARIF. Offline. No GPU. No HF token. No spend.
 
 ```bash
+git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
+# optional same fixtures in UI:  npm run play  →  http://localhost:3333/play
 ```
 
 Expect **PASS**, then open the printed SARIF paths under `zeroday-reports/mvp/`.

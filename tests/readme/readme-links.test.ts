@@ -30,6 +30,8 @@ describe("README adoption path sanity", () => {
     );
 
     assert.match(readme, /npm run mvp/);
+    assert.match(readme, /git clone.*ZERODAY/i);
+    assert.match(readme, /npm run play/);
     assert.match(readme, /costs \$/);
     assert.match(readme, /antares doctor/);
     assert.match(readme, /never auto-provisions|never creates paid RunPod/i);
