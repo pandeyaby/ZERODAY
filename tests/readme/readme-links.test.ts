@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 describe("README adoption path sanity", () => {
-  it("leads with hard limits + fixture default, then opt-in live Antares", () => {
+  it("leads with MVP door + hard limits, then opt-in live Antares (costs $)", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
 
     assert.match(readme, /Hard limits/i);
@@ -17,13 +17,22 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /SECURITY\.md/);
     assert.match(readme, /Apache-2\.0|LICENSE/);
 
-    // Default path first: fixture before opt-in live section
-    const fixtureIdx = readme.indexOf("Default path");
-    const liveIdx = readme.indexOf("Opt-in live path");
-    assert.ok(fixtureIdx >= 0, "missing Default path (fixture) section");
-    assert.ok(liveIdx >= 0, "missing Opt-in live path section");
-    assert.ok(fixtureIdx < liveIdx, "fixture default must precede opt-in live");
+    // Single front door: MVP before live
+    const mvpIdx = readme.indexOf("## MVP path");
+    const liveIdx = readme.indexOf("## Live Antares");
+    const defaultIdx = readme.indexOf("## Default path");
+    assert.ok(mvpIdx >= 0, "missing MVP path section");
+    assert.ok(liveIdx >= 0, "missing Live Antares section");
+    assert.ok(mvpIdx < liveIdx, "MVP path must precede Live Antares");
+    assert.ok(
+      defaultIdx < 0 || liveIdx < defaultIdx,
+      "Live Antares teaser should stay above deep Default path details",
+    );
 
+    assert.match(readme, /npm run mvp/);
+    assert.match(readme, /costs \$/);
+    assert.match(readme, /antares doctor/);
+    assert.match(readme, /never auto-provisions|never creates paid RunPod/i);
     assert.match(readme, /huggingface\.co\/fdtn-ai\/antares-1b/);
     assert.match(readme, /cisco-foundation-ai\.github\.io\/antares/);
     assert.match(
@@ -36,13 +45,14 @@ describe("README adoption path sanity", () => {
       /locate[\s\S]*--endpoint http:\/\/127\.0\.0\.1:8000\/v1/,
     );
     assert.match(readme, /scripts\/quickstart-live\.sh/);
-    assert.match(readme, /No fixture\/mock fallback|refuses.*fixture/i);
+    assert.match(readme, /No silent fixture fallback|no silent fixture fallback/i);
     assert.match(readme, /Localization ≠ exploitability|localization ≠ exploitability/i);
     assert.match(readme, /not an official Cisco partnership|No partnership claims|Not a Cisco product/i);
     assert.doesNotMatch(readme, /ZERODAY mandate|Cisco Antares \/ ZERODAY mandate/i);
     assert.match(readme, /report\.sarif/);
     assert.match(readme, /\/v1\/completions/);
     assert.match(readme, /--fixture/);
+    assert.match(readme, /docs\/runpod-antares\.md/);
   });
 
   it("quickstart-live.sh refuses fixture fallback and probes endpoint", () => {
@@ -73,7 +83,7 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /does not soft-rewrite|does not rewrite/i);
     assert.match(readme, /MPS|Apple Silicon/);
     assert.match(readme, /fdtn-ai\/antares-1b/);
-    assert.match(readme, /Incomplete runs|submit_vulnerable_files/);
+    assert.match(readme, /Incomplete runs|submit_vulnerable_files|no invented findings/i);
     assert.match(readme, /--tool-budget/);
     assert.ok(
       fs.existsSync(path.join(root, "scripts/completions_server.py")),
@@ -92,9 +102,9 @@ describe("README adoption path sanity", () => {
   it("Proof section links sample SARIF + images (no private paths)", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const proofIdx = readme.indexOf("## Proof");
-    const liveIdx = readme.indexOf("30-minute live path");
+    const mvpIdx = readme.indexOf("## MVP path");
     assert.ok(proofIdx >= 0, "missing Proof section");
-    assert.ok(proofIdx < liveIdx || liveIdx < 0, "Proof should lead near top");
+    assert.ok(mvpIdx >= 0 && mvpIdx < proofIdx, "MVP path must lead before Proof");
     assert.match(readme, /examples\/sample-live-sarif\/report\.sarif/);
     assert.match(readme, /docs\/images\/zeroday-locate-cli\.png/);
     assert.match(readme, /docs\/images\/zeroday-sarif-findings\.png/);
@@ -117,5 +127,13 @@ describe("README adoption path sanity", () => {
     ]) {
       assert.ok(fs.existsSync(path.join(root, img)), `missing ${img}`);
     }
+  });
+
+  it("package.json exposes mvp script", () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, "package.json"), "utf8"),
+    ) as { scripts: Record<string, string> };
+    assert.ok(pkg.scripts.mvp, "npm run mvp required");
+    assert.match(pkg.scripts.mvp, /\bmvp\b/);
   });
 });

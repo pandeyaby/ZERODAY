@@ -5,7 +5,8 @@ via an OpenAI-compatible API that exposes **`POST /v1/completions`** (required b
 `cisco-antares-cli` / ZERODAY live locate).
 
 > **ZERODAY never creates or starts paid RunPod pods.** This doc +
-> `scripts/runpod-vllm-antares.sh --print-only` only print commands you run
+> `npm run zeroday -- antares doctor` (wraps
+> `scripts/runpod-vllm-antares.sh --print-only`) only print commands you run
 > yourself on a pod you already provisioned.
 
 ## Why RunPod (not Mac MPS)

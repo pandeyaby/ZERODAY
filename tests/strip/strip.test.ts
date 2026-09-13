@@ -63,6 +63,8 @@ describe("strip confirmation — no offensive product surface", () => {
     assert.match(cli, /\.command\("operate"\)/);
     assert.match(cli, /\.command\("verify"\)/);
     assert.match(cli, /\.command\("factory"\)/);
+    assert.match(cli, /\.command\("mvp"\)/);
+    assert.match(cli, /\.command\("antares"\)/);
   });
 
   it("mission stubs stay stubbed (no offensive mission theater)", () => {
