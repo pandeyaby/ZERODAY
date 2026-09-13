@@ -1,54 +1,39 @@
 {
   "schemaVersion": "zeroday-factory-inventory/v1",
-  "fileCount": 6,
-  "manifests": [
-    "package.json"
-  ],
+  "fileCount": 8,
+  "manifests": ["package.json"],
   "codeownersPath": ".github/CODEOWNERS",
-  "codeownersRules": [
-    {
-      "pattern": "*",
-      "owners": [
-        "@demo-app-maintainers"
-      ]
-    },
-    {
-      "pattern": "/src/",
-      "owners": [
-        "@demo-app-backend"
-      ]
-    }
+  "languages": [
+    { "language": "JavaScript", "fileCount": 2, "bytes": 817 },
+    { "language": "YAML", "fileCount": 1, "bytes": 180 }
   ],
-  "files": [
+  "configHotspots": [
     {
-      "path": ".github/CODEOWNERS",
-      "bytes": 110,
-      "kind": "config"
+      "path": ".github/workflows/ci.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface"
     },
     {
-      "path": "docs/NOTES.md",
-      "bytes": 141,
-      "kind": "docs"
+      "path": "Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface"
     },
     {
       "path": "package.json",
-      "bytes": 248,
-      "kind": "manifest"
-    },
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest"
+    }
+  ],
+  "rankedPaths": [
     {
-      "path": "README.md",
-      "bytes": 216,
-      "kind": "docs"
-    },
-    {
-      "path": "src/app.js",
-      "bytes": 247,
-      "kind": "source"
-    },
-    {
-      "path": "src/users.js",
-      "bytes": 570,
-      "kind": "source"
+      "path": ".github/workflows/ci.yml",
+      "rank": 1,
+      "score": 90,
+      "surface": "github_actions",
+      "reason": "GitHub Actions workflow — CI/CD config surface"
     }
   ],
   "posture": {

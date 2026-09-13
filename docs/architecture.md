@@ -3,7 +3,7 @@
 ```
 zeroday factory run --cwe|--cve|--ghsa --repo [--fixture] [--defend] [--i-asked-for-a-fix]
         │
-        ├─ inventory → files + CODEOWNERS + manifests
+        ├─ inventory → multi-repo paths + config surfaces → locate hints
         ├─ locate (fixture | live Antares | compose with operate)
         ├─ classify (optional fixture scenario)
         ├─ ownership → CODEOWNERS / blame → ownership.md + GitHub comment

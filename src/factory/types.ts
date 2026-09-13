@@ -21,15 +21,60 @@ export interface CodeOwnersRule {
   owners: string[];
 }
 
+/** Defensive config surfaces — inventory only; never exploit payloads. */
+export type ConfigSurfaceKind =
+  | "github_actions"
+  | "docker"
+  | "compose"
+  | "package_manifest"
+  | "agent_config"
+  | "skill_config"
+  | "codeowners"
+  | "ci_config"
+  | "other_config";
+
+export interface LanguageStat {
+  language: string;
+  fileCount: number;
+  bytes: number;
+}
+
+export interface ConfigHotspot {
+  path: string;
+  surface: ConfigSurfaceKind;
+  /** Higher = more useful as a locate starting hint */
+  score: number;
+  reason: string;
+}
+
+export interface RankedInventoryPath {
+  path: string;
+  rank: number;
+  score: number;
+  surface: ConfigSurfaceKind | "source";
+  reason: string;
+}
+
 export interface InventoryArtifact {
   schemaVersion: "zeroday-factory-inventory/v1";
   repoRoot: string;
+  /** Optional stable id when inventoried via multi-repo manifest */
+  repoId?: string;
   generatedAt: string;
   fileCount: number;
   files: InventoryFile[];
   manifests: string[];
   codeownersPath: string | null;
   codeownersRules: CodeOwnersRule[];
+  /** Detected languages from source/config extensions */
+  languages: LanguageStat[];
+  /** Config surfaces (Actions, Docker, manifests, agent/skills, …) */
+  configHotspots: ConfigHotspot[];
+  /**
+   * Ranked paths suitable as locate starting hints (hotspots first, then
+   * high-signal source). Not vulnerability rankings / not exploit proof.
+   */
+  rankedPaths: RankedInventoryPath[];
   posture: {
     localizationOnly: true;
     notExploitProof: true;
@@ -37,6 +82,44 @@ export interface InventoryArtifact {
     noPoC: true;
     localFirstDefault: true;
   };
+}
+
+/** Multi-repo / Desk slice B inventory (feeds locate planning). */
+export interface MultiRepoInventoryArtifact {
+  schemaVersion: "zeroday-config-inventory/v1";
+  generatedAt: string;
+  repoCount: number;
+  repos: InventoryArtifact[];
+  /** Global ranked hotspots across all repos */
+  rankedHotspots: Array<
+    ConfigHotspot & { repoRoot: string; repoId: string; rank: number }
+  >;
+  /** Per-repo path hints for subsequent locate stages */
+  locateHints: Array<{
+    repoId: string;
+    repoRoot: string;
+    paths: string[];
+    reason: string;
+  }>;
+  posture: {
+    localizationOnly: true;
+    notExploitProof: true;
+    noAutoMerge: true;
+    noPoC: true;
+    localFirstDefault: true;
+    inventoryOnly: true;
+  };
+}
+
+/** Manifest entry for `zeroday inventory --from` */
+export interface InventoryManifestRepo {
+  path: string;
+  id?: string;
+}
+
+export interface InventoryManifest {
+  schemaVersion?: string;
+  repos: InventoryManifestRepo[];
 }
 
 export interface OwnershipHit {
@@ -91,6 +174,7 @@ export interface DefendArtifact {
 
 export interface FactoryStagePaths {
   inventory: string;
+  inventoryMd?: string;
   locateReport?: string;
   classifyJson?: string;
   ownership: string;

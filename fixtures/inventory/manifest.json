@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "zeroday-inventory-manifest/v1",
+  "repos": [
+    {
+      "id": "demo-app",
+      "path": "../locate/demo-app"
+    },
+    {
+      "id": "sidecar-app",
+      "path": "./sidecar-app"
+    }
+  ]
+}

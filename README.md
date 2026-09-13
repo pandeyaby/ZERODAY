@@ -117,7 +117,14 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
 npm run zeroday -- verify --from zeroday-reports/factory-demo
 ```
 
-Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · [`examples/factory/`](./examples/factory/)
+Multi-repo / config inventory (Desk slice B — feeds locate; still keyless):
+
+```bash
+npm run zeroday -- inventory --from fixtures/inventory/manifest.json \
+  --output zeroday-reports/inventory-demo
+```
+
+Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · [`examples/factory/`](./examples/factory/) · [`fixtures/inventory/`](./fixtures/inventory/)
 
 ---
 
@@ -238,6 +245,8 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory` · [`fixtures/inventory/`](./fixtures/inventory/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
 ---
@@ -247,6 +256,9 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 ```bash
 # MVP door (keyless)
 npm run mvp
+
+# Inventory desk (multi-repo + config surfaces → locate hints)
+npm run zeroday -- inventory --from fixtures/inventory/manifest.json
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

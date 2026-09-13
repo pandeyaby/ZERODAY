@@ -176,6 +176,12 @@ describe("factory run (fixture-only)", () => {
     assert.equal(artifacts.summary.stages.draftFix, false);
     assert.ok(artifacts.summary.findingCount >= 1);
     assert.ok(fs.existsSync(artifacts.paths.inventory));
+    assert.ok(fs.existsSync(artifacts.paths.inventoryMd ?? ""));
+    const invJson = JSON.parse(
+      fs.readFileSync(artifacts.paths.inventory, "utf8"),
+    ) as { configHotspots?: unknown[]; rankedPaths?: unknown[] };
+    assert.ok(Array.isArray(invJson.configHotspots));
+    assert.ok(Array.isArray(invJson.rankedPaths));
     assert.ok(fs.existsSync(artifacts.paths.ownershipMd));
     assert.ok(fs.existsSync(artifacts.paths.ownershipComment));
     assert.ok(fs.existsSync(artifacts.paths.summaryMd));

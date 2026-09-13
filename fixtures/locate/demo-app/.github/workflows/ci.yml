@@ -1,0 +1,11 @@
+# Fixture-only CI workflow for inventory config-surface detection.
+# Not a real product pipeline.
+name: demo-app fixture ci
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
