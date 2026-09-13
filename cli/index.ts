@@ -2,6 +2,8 @@
 /**
  * ZERODAY CLI — Localization & Evidence Defense Factory.
  *
+ *   zeroday mvp                        # keyless fixture → SARIF PASS/FAIL
+ *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
  *   zeroday locate  --cwe CWE-89 --fixture
@@ -49,8 +51,12 @@ import {
   runFactory,
   resolveInferenceProvider,
 } from "../src/factory/index.ts";
+import { runMvp, formatMvpBanner } from "../src/mvp/index.ts";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function api(pathName: string, init?: RequestInit) {
   const res = await fetch(`${BASE}${pathName}`, {
@@ -82,6 +88,95 @@ program
     "ZERODAY — Localization & Evidence Defense Factory (keyless default; optional Antares)",
   )
   .version("0.6.0");
+
+program
+  .command("mvp")
+  .description(
+    "Keyless MVP smoke: fixture locate + operate→verify → SARIF PASS/FAIL (no GPU / no HF / no spend)",
+  )
+  .option("--cwe <id>", "CWE id", "CWE-89")
+  .option(
+    "--output <dir>",
+    "MVP output directory",
+    "zeroday-reports/mvp",
+  )
+  .option("--json", "Print MvpResult JSON", false)
+  .action(async (opts: { cwe: string; output: string; json: boolean }) => {
+    try {
+      const result = await runMvp({
+        cwe: opts.cwe,
+        outputDir: opts.output,
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        process.stdout.write(formatMvpBanner(result));
+      }
+      if (!result.ok) process.exitCode = 1;
+    } catch (e) {
+      console.error(`mvp failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+const antares = program
+  .command("antares")
+  .description(
+    "Opt-in live Antares helpers (print-only by default — never auto-provisions GPUs)",
+  );
+
+antares
+  .command("doctor")
+  .description(
+    "Print Secure A40 / HF / terminate-after-use checklist (wraps scripts/runpod-vllm-antares.sh --print-only; no spend)",
+  )
+  .option(
+    "--smoke-env",
+    "Also validate ZERODAY_* remote env names locally (still no RunPod API)",
+    false,
+  )
+  .action((opts: { smokeEnv: boolean }) => {
+    const script = path.join(REPO_ROOT, "scripts", "runpod-vllm-antares.sh");
+    if (!fs.existsSync(script)) {
+      console.error(`Missing ${script}`);
+      process.exitCode = 2;
+      return;
+    }
+    console.log("");
+    console.log("ZERODAY antares doctor");
+    console.log("──────────────────────");
+    console.log(
+      "Print-only checklist. Does NOT create RunPod pods, download weights, or spend money.",
+    );
+    console.log(
+      "HF gated terms are human-only. After live locate → SARIF, terminate the pod.",
+    );
+    console.log("Full recipe: docs/runpod-antares.md");
+    console.log("");
+
+    const print = spawnSync("bash", [script, "--print-only"], {
+      encoding: "utf8",
+      cwd: REPO_ROOT,
+    });
+    if (print.stdout) process.stdout.write(print.stdout);
+    if (print.stderr) process.stderr.write(print.stderr);
+    if (print.status !== 0) {
+      process.exitCode = print.status ?? 2;
+      return;
+    }
+
+    if (opts.smokeEnv) {
+      console.log("");
+      const smoke = spawnSync("bash", [script, "--smoke-env"], {
+        encoding: "utf8",
+        cwd: REPO_ROOT,
+        env: process.env,
+      });
+      if (smoke.stdout) process.stdout.write(smoke.stdout);
+      if (smoke.stderr) process.stderr.write(smoke.stderr);
+      if (smoke.status !== 0) process.exitCode = smoke.status ?? 2;
+    }
+  });
 
 const factory = program
   .command("factory")

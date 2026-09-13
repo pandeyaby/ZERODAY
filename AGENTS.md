@@ -27,6 +27,10 @@ No credential theft. No auto-merge. Patch drafts only after `--i-asked-for-a-fix
 ## One-shot bootstrap
 
 ```bash
+# Stranger door (<10 min, keyless):
+npm install && npm run mvp
+
+# Agent brief for an authorized repo:
 npm run zeroday -- operate --cwe CWE-89 --repo /path/to/repo --emit-brief --agent cursor --output zeroday-reports/agent-run
 ```
 
@@ -62,6 +66,7 @@ bash scripts/quickstart-live.sh /path/to/repo CWE-89
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
 # Recommended remote CUDA: docs/runpod-antares.md
 # bash scripts/runpod-vllm-antares.sh --print-only   # no paid creates
+# npm run zeroday -- antares doctor                  # same checklist via CLI
 ```
 
 ZERODAY never downloads `model.safetensors`. Antares CLI expects vLLM 0.19.1+ completions.
