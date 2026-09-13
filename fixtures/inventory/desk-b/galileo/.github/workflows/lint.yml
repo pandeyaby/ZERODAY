@@ -1,0 +1,10 @@
+name: fixture-lint
+on: pull_request
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "fixture"
+        env:
+          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}

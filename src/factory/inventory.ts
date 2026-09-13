@@ -13,10 +13,27 @@ import type {
   InventoryArtifact,
   InventoryFile,
   InventoryManifest,
+  InventorySkipEntry,
   LanguageStat,
   MultiRepoInventoryArtifact,
   RankedInventoryPath,
 } from "./types";
+import { collectInventoryFindings } from "./inventory-evidence";
+import {
+  sanitizeInventoryExport,
+  writeInventoryReports,
+} from "./inventory-reports";
+
+export {
+  toInventorySarif,
+  toInventoryCaseNote,
+  writeInventoryReports,
+  sanitizeInventoryExport,
+} from "./inventory-reports";
+export {
+  collectInventoryFindings,
+  redactInventoryText,
+} from "./inventory-evidence";
 
 const SKIP_DIR_NAMES = new Set([
   ".git",
@@ -226,6 +243,17 @@ export function detectConfigSurface(
     };
   }
   if (
+    /(^|\/)\.env\.example$/i.test(rel) ||
+    /(^|\/)\.env\.sample$/i.test(rel) ||
+    /(^|\/)\.env\.template$/i.test(rel)
+  ) {
+    return {
+      surface: "env_example",
+      score: 68,
+      reason: ".env.example — documented env key surface (values not inventoried)",
+    };
+  }
+  if (
     /^docker-compose/i.test(base) ||
     base === "compose.yaml" ||
     base === "compose.yml"
@@ -404,6 +432,7 @@ export function buildInventory(
   const configHotspots = collectConfigHotspots(files);
   const languages = collectLanguages(files);
   const rankedPaths = rankInventoryPaths(files, configHotspots);
+  const findings = collectInventoryFindings(root, files, configHotspots);
 
   return {
     schemaVersion: "zeroday-factory-inventory/v1",
@@ -418,6 +447,7 @@ export function buildInventory(
     languages,
     configHotspots,
     rankedPaths,
+    findings,
     posture: {
       localizationOnly: true,
       notExploitProof: true,
@@ -443,6 +473,9 @@ export function inventoryMarkdown(inv: InventoryArtifact): string {
   lines.push(`| Files | **${inv.fileCount}** |`);
   lines.push(`| Manifests | ${inv.manifests.length} |`);
   lines.push(`| Config hotspots | ${inv.configHotspots.length} |`);
+  lines.push(
+    `| Findings | ${inv.findings.filter((f) => f.kind !== "config_surface").length} |`,
+  );
   lines.push(`| CODEOWNERS | \`${inv.codeownersPath ?? "none"}\` |`);
   lines.push(`| Generated | ${inv.generatedAt} |`);
   lines.push("");
@@ -456,6 +489,22 @@ export function inventoryMarkdown(inv: InventoryArtifact): string {
     lines.push("|----------|------:|------:|");
     for (const l of inv.languages) {
       lines.push(`| ${l.language} | ${l.fileCount} | ${l.bytes} |`);
+    }
+  }
+  lines.push("");
+
+  lines.push("## Evidence findings");
+  lines.push("");
+  const nonSurface = inv.findings.filter((f) => f.kind !== "config_surface");
+  if (nonSurface.length === 0) {
+    lines.push("_No secret-pattern / env-honesty / harness findings._");
+  } else {
+    lines.push("| Severity | Kind | Path | Pattern |");
+    lines.push("|----------|------|------|---------|");
+    for (const f of nonSurface.slice(0, 40)) {
+      lines.push(
+        `| ${f.severity} | \`${f.kind}\` | \`${f.path}\` | \`${f.pattern ?? "—"}\` |`,
+      );
     }
   }
   lines.push("");
@@ -498,6 +547,7 @@ export function inventoryMarkdown(inv: InventoryArtifact): string {
   lines.push("");
   lines.push("- Inventory / localization / evidence only");
   lines.push("- No exploit, PoC, payload, or attack procedure");
+  lines.push("- Secret values never exported — patterns/names only");
   lines.push("- Localization ≠ exploitability · needs human review");
   lines.push("");
   return lines.join("\n");
@@ -511,13 +561,19 @@ export function multiInventoryMarkdown(
   lines.push("");
   lines.push(
     "> Desk slice B — repos/paths + config surfaces for locate planning. " +
-      "Defensive only. Not exploitability proof.",
+      "Defensive only. Not exploitability proof. Secrets redacted.",
   );
   lines.push("");
   lines.push("| | |");
   lines.push("|--|--|");
   lines.push(`| Repos | **${multi.repoCount}** |`);
   lines.push(`| Ranked hotspots | ${multi.rankedHotspots.length} |`);
+  lines.push(
+    `| Findings | ${multi.findings.filter((f) => f.kind !== "config_surface").length} |`,
+  );
+  lines.push(
+    `| Skipped | ${multi.skipped.map((s) => `\`${s.id}\``).join(", ") || "—"} |`,
+  );
   lines.push(`| Generated | ${multi.generatedAt} |`);
   lines.push("");
 
@@ -534,6 +590,31 @@ export function multiInventoryMarkdown(
     lines.push(
       `| \`${id}\` | \`${r.repoRoot}\` | ${r.fileCount} | ${langs || "—"} | ${r.configHotspots.length} |`,
     );
+  }
+  lines.push("");
+
+  if (multi.skipped.length > 0) {
+    lines.push("## Skipped (parked)");
+    lines.push("");
+    for (const s of multi.skipped) {
+      lines.push(`- \`${s.id}\` — ${s.reason}`);
+    }
+    lines.push("");
+  }
+
+  lines.push("## Findings (excl. raw config surfaces)");
+  lines.push("");
+  const findings = multi.findings.filter((f) => f.kind !== "config_surface");
+  if (findings.length === 0) {
+    lines.push("_None._");
+  } else {
+    lines.push("| Severity | Repo | Kind | Path | Pattern |");
+    lines.push("|----------|------|------|------|---------|");
+    for (const f of findings.slice(0, 50)) {
+      lines.push(
+        `| ${f.severity} | \`${f.repoId}\` | \`${f.kind}\` | \`${f.path}\` | \`${f.pattern ?? "—"}\` |`,
+      );
+    }
   }
   lines.push("");
 
@@ -569,6 +650,7 @@ export function multiInventoryMarkdown(
   lines.push("");
   lines.push("- Inventory only — feeds locate; does not prove exploitability");
   lines.push("- No PoC / exploit / payload / attack procedure");
+  lines.push("- Secret values never exported — patterns/names only");
   lines.push("- No auto-merge · local-first / keyless default");
   lines.push("");
   return lines.join("\n");
@@ -577,15 +659,26 @@ export function multiInventoryMarkdown(
 export function writeInventory(
   repoRoot: string,
   outputPath: string,
-  opts?: { repoId?: string; markdownPath?: string },
+  opts?: {
+    repoId?: string;
+    markdownPath?: string;
+    writeReports?: boolean;
+    sanitizeExport?: boolean;
+  },
 ): InventoryArtifact {
   const artifact = buildInventory(repoRoot, { repoId: opts?.repoId });
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(artifact, null, 2));
+  const exported = opts?.sanitizeExport
+    ? sanitizeInventoryExport(artifact)
+    : artifact;
+  fs.writeFileSync(outputPath, JSON.stringify(exported, null, 2));
   const mdPath =
     opts?.markdownPath ??
     path.join(path.dirname(outputPath), "inventory.md");
   fs.writeFileSync(mdPath, inventoryMarkdown(artifact));
+  if (opts?.writeReports !== false) {
+    writeInventoryReports(exported, path.dirname(outputPath));
+  }
   return artifact;
 }
 
@@ -665,14 +758,18 @@ export function loadInventoryManifest(manifestPath: string): InventoryManifest {
 }
 
 export function buildMultiRepoInventory(
-  entries: Array<{ path: string; id?: string }>,
-  opts?: { baseDir?: string },
+  entries: Array<{ path: string; id?: string; optional?: boolean }>,
+  opts?: {
+    baseDir?: string;
+    skipped?: InventorySkipEntry[];
+  },
 ): MultiRepoInventoryArtifact {
-  if (entries.length === 0) {
+  if (entries.length === 0 && !(opts?.skipped && opts.skipped.length > 0)) {
     throw new Error("At least one repo path is required for inventory");
   }
   const base = opts?.baseDir ? path.resolve(opts.baseDir) : process.cwd();
   const repos: InventoryArtifact[] = [];
+  const skipped: InventorySkipEntry[] = [...(opts?.skipped ?? [])];
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i]!;
@@ -680,10 +777,27 @@ export function buildMultiRepoInventory(
       ? entry.path
       : path.resolve(base, entry.path);
     const id = entry.id || path.basename(repoPath) || `repo-${i + 1}`;
+    if (!fs.existsSync(repoPath) || !fs.statSync(repoPath).isDirectory()) {
+      if (entry.optional) {
+        skipped.push({
+          id,
+          reason: `optional path missing: ${entry.path}`,
+        });
+        continue;
+      }
+      throw new Error(`Inventory repo not found: ${repoPath}`);
+    }
     repos.push(buildInventory(repoPath, { repoId: id }));
   }
 
+  if (repos.length === 0) {
+    throw new Error(
+      "No inventory repos resolved (all missing/optional). Add at least one existing path.",
+    );
+  }
+
   const rankedHotspots: MultiRepoInventoryArtifact["rankedHotspots"] = [];
+  const findings: MultiRepoInventoryArtifact["findings"] = [];
   for (const r of repos) {
     const repoId = r.repoId ?? path.basename(r.repoRoot);
     for (const h of r.configHotspots) {
@@ -693,6 +807,9 @@ export function buildMultiRepoInventory(
         repoId,
         rank: 0,
       });
+    }
+    for (const f of r.findings) {
+      findings.push({ ...f, repoId });
     }
   }
   rankedHotspots.sort(
@@ -722,7 +839,9 @@ export function buildMultiRepoInventory(
     generatedAt: new Date().toISOString(),
     repoCount: repos.length,
     repos,
+    skipped,
     rankedHotspots,
+    findings,
     locateHints,
     posture: {
       localizationOnly: true,
@@ -736,19 +855,29 @@ export function buildMultiRepoInventory(
 }
 
 export function writeMultiRepoInventory(
-  entries: Array<{ path: string; id?: string }>,
+  entries: Array<{ path: string; id?: string; optional?: boolean }>,
   outputDir: string,
-  opts?: { baseDir?: string },
+  opts?: {
+    baseDir?: string;
+    skipped?: InventorySkipEntry[];
+    writeReports?: boolean;
+    sanitizeExport?: boolean;
+  },
 ): {
   multi: MultiRepoInventoryArtifact;
   jsonPath: string;
   mdPath: string;
+  sarifPath?: string;
+  caseNotePath?: string;
 } {
   const multi = buildMultiRepoInventory(entries, opts);
   fs.mkdirSync(outputDir, { recursive: true });
   const jsonPath = path.join(outputDir, "inventory.json");
   const mdPath = path.join(outputDir, "inventory.md");
-  fs.writeFileSync(jsonPath, JSON.stringify(multi, null, 2));
+  const exported = opts?.sanitizeExport
+    ? sanitizeInventoryExport(multi)
+    : multi;
+  fs.writeFileSync(jsonPath, JSON.stringify(exported, null, 2));
   fs.writeFileSync(mdPath, multiInventoryMarkdown(multi));
 
   // Also write per-repo side artifacts for factory/locate composition
@@ -757,9 +886,18 @@ export function writeMultiRepoInventory(
     const safe = id.replace(/[^a-zA-Z0-9._-]+/g, "_");
     const sub = path.join(outputDir, "repos", safe);
     fs.mkdirSync(sub, { recursive: true });
-    fs.writeFileSync(path.join(sub, "inventory.json"), JSON.stringify(r, null, 2));
+    const per = opts?.sanitizeExport ? sanitizeInventoryExport(r) : r;
+    fs.writeFileSync(path.join(sub, "inventory.json"), JSON.stringify(per, null, 2));
     fs.writeFileSync(path.join(sub, "inventory.md"), inventoryMarkdown(r));
   }
 
-  return { multi, jsonPath, mdPath };
+  let sarifPath: string | undefined;
+  let caseNotePath: string | undefined;
+  if (opts?.writeReports !== false) {
+    const reports = writeInventoryReports(exported, outputDir);
+    sarifPath = reports.sarifPath;
+    caseNotePath = reports.caseNotePath;
+  }
+
+  return { multi, jsonPath, mdPath, sarifPath, caseNotePath };
 }

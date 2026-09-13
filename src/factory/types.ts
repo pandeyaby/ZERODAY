@@ -31,7 +31,34 @@ export type ConfigSurfaceKind =
   | "skill_config"
   | "codeowners"
   | "ci_config"
+  | "env_example"
   | "other_config";
+
+/** Inventory evidence finding kinds (localize + evidence only). */
+export type InventoryFindingKind =
+  | "config_surface"
+  | "ci_secret_pattern"
+  | "env_example_honesty"
+  | "dependency_harness"
+  | "agent_harness";
+
+export type InventoryFindingSeverity = "note" | "warning";
+
+export interface InventoryFinding {
+  id: string;
+  kind: InventoryFindingKind;
+  severity: InventoryFindingSeverity;
+  /** Repo-relative path */
+  path: string;
+  title: string;
+  /** Human note — never contains secret values or exploit steps */
+  summary: string;
+  /** Pattern name only (e.g. secrets.NPM_TOKEN) — never the value */
+  pattern?: string;
+  /** Optional 1-based line for SARIF region */
+  startLine?: number;
+  tags?: string[];
+}
 
 export interface LanguageStat {
   language: string;
@@ -75,6 +102,8 @@ export interface InventoryArtifact {
    * high-signal source). Not vulnerability rankings / not exploit proof.
    */
   rankedPaths: RankedInventoryPath[];
+  /** Evidence findings (secret *patterns*, env honesty, harness risks) */
+  findings: InventoryFinding[];
   posture: {
     localizationOnly: true;
     notExploitProof: true;
@@ -84,16 +113,24 @@ export interface InventoryArtifact {
   };
 }
 
+export interface InventorySkipEntry {
+  id: string;
+  reason: string;
+}
+
 /** Multi-repo / Desk slice B inventory (feeds locate planning). */
 export interface MultiRepoInventoryArtifact {
   schemaVersion: "zeroday-config-inventory/v1";
   generatedAt: string;
   repoCount: number;
   repos: InventoryArtifact[];
+  skipped: InventorySkipEntry[];
   /** Global ranked hotspots across all repos */
   rankedHotspots: Array<
     ConfigHotspot & { repoRoot: string; repoId: string; rank: number }
   >;
+  /** Flattened findings across repos (redact-ready) */
+  findings: Array<InventoryFinding & { repoId: string }>;
   /** Per-repo path hints for subsequent locate stages */
   locateHints: Array<{
     repoId: string;
@@ -115,11 +152,15 @@ export interface MultiRepoInventoryArtifact {
 export interface InventoryManifestRepo {
   path: string;
   id?: string;
+  /** When true, missing path is skipped instead of failing */
+  optional?: boolean;
 }
 
 export interface InventoryManifest {
   schemaVersion?: string;
   repos: InventoryManifestRepo[];
+  /** Explicitly parked targets (documented, not scanned) */
+  skip?: InventorySkipEntry[];
 }
 
 export interface OwnershipHit {

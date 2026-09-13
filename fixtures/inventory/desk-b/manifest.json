@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "zeroday-inventory-manifest/v1",
+  "skip": [
+    {
+      "id": "EternalEcho",
+      "reason": "parked \u2014 skip this desk pass"
+    }
+  ],
+  "repos": [
+    {
+      "id": "webuzz",
+      "path": "./webuzz"
+    },
+    {
+      "id": "galileo",
+      "path": "./galileo"
+    },
+    {
+      "id": "aomb",
+      "path": "./aomb"
+    },
+    {
+      "id": "cosmic-fusion",
+      "path": "./cosmic-fusion"
+    },
+    {
+      "id": "zeroday",
+      "path": "../../.."
+    },
+    {
+      "id": "snipercore",
+      "path": "./snipercore",
+      "optional": true
+    },
+    {
+      "id": "snipercore-external",
+      "path": "../../../SniperCore",
+      "optional": true
+    }
+  ]
+}

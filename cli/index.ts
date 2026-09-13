@@ -98,7 +98,8 @@ async function runInventoryCli(opts: {
     loadInventoryManifest,
   } = await import("../src/factory/index.ts");
 
-  const entries: Array<{ path: string; id?: string }> = [];
+  const entries: Array<{ path: string; id?: string; optional?: boolean }> = [];
+  const skipped: Array<{ id: string; reason: string }> = [];
 
   if (opts.from) {
     const manifestAbs = path.resolve(opts.from);
@@ -108,8 +109,10 @@ async function runInventoryCli(opts: {
       entries.push({
         path: path.isAbsolute(r.path) ? r.path : path.resolve(baseDir, r.path),
         id: r.id,
+        optional: r.optional === true,
       });
     }
+    skipped.push(...(manifest.skip ?? []));
   }
 
   for (const r of opts.repo ?? []) {
@@ -127,17 +130,21 @@ async function runInventoryCli(opts: {
   const outDir = outLooksLikeFile ? path.dirname(path.resolve(outRaw)) : path.resolve(outRaw);
   const jsonName = outLooksLikeFile ? path.basename(outRaw) : "inventory.json";
 
-  if (entries.length === 1) {
+  if (entries.length === 1 && skipped.length === 0) {
     const only = entries[0]!;
     fs.mkdirSync(outDir, { recursive: true });
     const jsonPath = path.join(outDir, jsonName);
     const inv = writeInventory(only.path, jsonPath, {
       repoId: only.id,
       markdownPath: path.join(outDir, "inventory.md"),
+      writeReports: true,
     });
     if (opts.json) {
       console.log(JSON.stringify(inv, null, 2));
     } else {
+      const findingCount = inv.findings.filter(
+        (f) => f.kind !== "config_surface",
+      ).length;
       console.log("");
       console.log("ZERODAY inventory");
       console.log("────────────────");
@@ -147,30 +154,42 @@ async function runInventoryCli(opts: {
         `Languages : ${inv.languages.map((l) => l.language).join(", ") || "—"}`,
       );
       console.log(`Hotspots  : ${inv.configHotspots.length}`);
+      console.log(`Findings  : ${findingCount}`);
       console.log(`CODEOWNERS: ${inv.codeownersPath ?? "none"}`);
       console.log("");
       console.log(`JSON      : ${jsonPath}`);
       console.log(`Markdown  : ${path.join(outDir, "inventory.md")}`);
+      console.log(`SARIF     : ${path.join(outDir, "inventory.sarif")}`);
+      console.log(`Case note : ${path.join(outDir, "case-note.md")}`);
       console.log("");
       console.log(
         "Next: npm run zeroday -- locate --cwe CWE-89 --fixture --repo <path>",
       );
       console.log(
-        "Posture: inventory only · feeds locate · no PoC · not exploit proof",
+        "Posture: inventory only · feeds locate · no PoC · secrets redacted",
       );
     }
     return;
   }
 
-  const { multi, jsonPath, mdPath } = writeMultiRepoInventory(entries, outDir);
+  const { multi, jsonPath, mdPath, sarifPath, caseNotePath } =
+    writeMultiRepoInventory(entries, outDir, {
+      skipped,
+      writeReports: true,
+    });
   if (opts.json) {
     console.log(JSON.stringify(multi, null, 2));
   } else {
+    const findingCount = multi.findings.filter(
+      (f) => f.kind !== "config_surface",
+    ).length;
     console.log("");
     console.log("ZERODAY multi-repo inventory");
     console.log("───────────────────────────");
     console.log(`Repos     : ${multi.repoCount}`);
+    console.log(`Skipped   : ${multi.skipped.map((s) => s.id).join(", ") || "—"}`);
     console.log(`Hotspots  : ${multi.rankedHotspots.length}`);
+    console.log(`Findings  : ${findingCount}`);
     console.log("");
     for (const hint of multi.locateHints) {
       const preview = hint.paths.slice(0, 3).join(", ");
@@ -181,12 +200,14 @@ async function runInventoryCli(opts: {
     console.log("");
     console.log(`JSON      : ${jsonPath}`);
     console.log(`Markdown  : ${mdPath}`);
+    if (sarifPath) console.log(`SARIF     : ${sarifPath}`);
+    if (caseNotePath) console.log(`Case note : ${caseNotePath}`);
     console.log("");
     console.log(
       "Compose: inventory → locate (per repo) → factory run --fixture",
     );
     console.log(
-      "Posture: inventory only · feeds locate · no PoC · not exploit proof",
+      "Posture: inventory only · feeds locate · no PoC · secrets redacted",
     );
   }
 }

@@ -1,0 +1,932 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY-Inventory",
+          "version": "0.6.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "ZERODAY-INV-ENV-EXAMPLE",
+              "name": "Env example honesty",
+              "shortDescription": {
+                "text": ".env.example key surface / placeholder honesty"
+              },
+              "fullDescription": {
+                "text": "Inventory reviewed .env.example keys. Values are never exported. Warnings mean a value may not look like a placeholder."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "inventory",
+                  "localization",
+                  "env_example_honesty"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "ZERODAY-INV-CI-SECRET-PATTERN",
+              "name": "CI secret pattern",
+              "shortDescription": {
+                "text": "CI workflow references a secret *name* (value not captured)"
+              },
+              "fullDescription": {
+                "text": "Inventory localized a CI secret pattern reference. This is evidence for human review — not proof of exposure or exploitability."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "inventory",
+                  "localization",
+                  "ci_secret_pattern"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "ZERODAY-INV-DEP-HARNESS",
+              "name": "Dependency harness",
+              "shortDescription": {
+                "text": "package.json install/remote-shell harness pattern"
+              },
+              "fullDescription": {
+                "text": "Inventory localized a dependency/script harness pattern for human review. Not exploit confirmation. No command body is reproduced."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "inventory",
+                  "localization",
+                  "dependency_harness"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "ZERODAY-INV-AGENT-HARNESS",
+              "name": "Agent/skill harness",
+              "shortDescription": {
+                "text": "Agent or skill config mentions an execution/fetch hint"
+              },
+              "fullDescription": {
+                "text": "Inventory localized an agent/skill harness hint. Confirm operator allowlists before live agent use. No PoC."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "inventory",
+                  "localization",
+                  "agent_harness"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "ZERODAY-INV-ENV-EXAMPLE",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": ".env.example surface (4 key(s)) — `.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/.env.example",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "env_example_honesty",
+            "pattern": null,
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `GITHUB_TOKEN` — Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "GITHUB_TOKEN",
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `NPM_TOKEN` — Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "NPM_TOKEN",
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.GITHUB_TOKEN` — Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.GITHUB_TOKEN",
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.NPM_TOKEN` — Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.NPM_TOKEN",
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-DEP-HARNESS",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Dependency/script harness `postinstall` — package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation. (repo=webuzz; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "webuzz/package.json",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "dependency_harness",
+            "pattern": "scripts.postinstall",
+            "repoId": "webuzz",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-ENV-EXAMPLE",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": ".env.example surface (2 key(s)) — `.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported. (repo=galileo; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "galileo/.env.example",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "env_example_honesty",
+            "pattern": null,
+            "repoId": "galileo",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `HF_TOKEN` — Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=galileo; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "HF_TOKEN",
+            "repoId": "galileo",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `HUGGING_FACE_HUB_TOKEN` — Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=galileo; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "HUGGING_FACE_HUB_TOKEN",
+            "repoId": "galileo",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.HF_TOKEN` — Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=galileo; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.HF_TOKEN",
+            "repoId": "galileo",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`remote-fetch-hint`) — Agent/skill config at `AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=aomb; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "aomb/AGENTS.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "remote-fetch-hint",
+            "repoId": "aomb",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`code-exec-hint`) — Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=aomb; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "aomb/skills/ops-skill/SKILL.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "code-exec-hint",
+            "repoId": "aomb",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`code-exec-hint`) — Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=aomb; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "aomb/skills/ops-skill/SKILL.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "code-exec-hint",
+            "repoId": "aomb",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-ENV-EXAMPLE",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": ".env.example surface (1 key(s)) — `.env.example` documents keys: `ZERODAY_DATA_DIR`. Values not exported. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/.env.example",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "env_example_honesty",
+            "pattern": null,
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `ANTHROPIC_API_KEY` — Workflow references secret pattern `ANTHROPIC_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/docker-compose.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "ANTHROPIC_API_KEY",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `OPENAI_API_KEY` — Workflow references secret pattern `OPENAI_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/docker-compose.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "OPENAI_API_KEY",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`remote-fetch-hint`) — Agent/skill config at `fixtures/inventory/desk-b/aomb/AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/aomb/AGENTS.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "remote-fetch-hint",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`code-exec-hint`) — Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "code-exec-hint",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-AGENT-HARNESS",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Agent/skill harness hint (`code-exec-hint`) — Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "agent_harness",
+            "pattern": "code-exec-hint",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-ENV-EXAMPLE",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": ".env.example surface (2 key(s)) — `fixtures/inventory/desk-b/galileo/.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/galileo/.env.example",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "env_example_honesty",
+            "pattern": null,
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `HF_TOKEN` — Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "HF_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `HUGGING_FACE_HUB_TOKEN` — Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "HUGGING_FACE_HUB_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.HF_TOKEN` — Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.HF_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-ENV-EXAMPLE",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": ".env.example surface (4 key(s)) — `fixtures/inventory/desk-b/webuzz/.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/.env.example",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "env_example_honesty",
+            "pattern": null,
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `GITHUB_TOKEN` — Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "GITHUB_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `NPM_TOKEN` — Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "NPM_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.GITHUB_TOKEN` — Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.GITHUB_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-CI-SECRET-PATTERN",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "CI secret pattern `secrets.NPM_TOKEN` — Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "ci_secret_pattern",
+            "pattern": "secrets.NPM_TOKEN",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        },
+        {
+          "ruleId": "ZERODAY-INV-DEP-HARNESS",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Dependency/script harness `postinstall` — package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation. (repo=zeroday; localization only; not exploit proof)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zeroday/fixtures/inventory/desk-b/webuzz/package.json",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "dependency_harness",
+            "pattern": "scripts.postinstall",
+            "repoId": "zeroday",
+            "inventory_only": true,
+            "not_exploit_proof": true,
+            "no_poc": true
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///inventory/"
+        }
+      },
+      "properties": {
+        "schemaVersion": "zeroday-config-inventory/v1",
+        "repoCount": 6,
+        "findingCount": 29,
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noPoC": true,
+          "inventoryOnly": true,
+          "secretsRedacted": true
+        }
+      }
+    }
+  ]
+}

@@ -8,10 +8,14 @@ export type {
   InventoryFile,
   CodeOwnersRule,
   ConfigSurfaceKind,
+  InventoryFindingKind,
+  InventoryFindingSeverity,
+  InventoryFinding,
   LanguageStat,
   ConfigHotspot,
   RankedInventoryPath,
   InventoryArtifact,
+  InventorySkipEntry,
   MultiRepoInventoryArtifact,
   InventoryManifest,
   InventoryManifestRepo,
@@ -40,6 +44,12 @@ export {
   loadInventoryManifest,
   buildMultiRepoInventory,
   writeMultiRepoInventory,
+  toInventorySarif,
+  toInventoryCaseNote,
+  writeInventoryReports,
+  sanitizeInventoryExport,
+  collectInventoryFindings,
+  redactInventoryText,
 } from "./inventory";
 
 export {

@@ -10,6 +10,8 @@
 # dependencies
 .DS_Store
 .env*
+!.env.example
+!**/.env.example
 # env files (can opt-in for committing if needed)
 .idea/
 # Localization reports (keep outside scanned repos)

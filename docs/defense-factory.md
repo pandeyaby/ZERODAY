@@ -26,30 +26,30 @@ live) and the keyless `operate` path — not a Cisco product mandate.
 - Silent remote inference of customer source (requires `--remote-inference` / ACK)
 - Offensive framing: kill-chains, stego, jailbreak packs, red-team mission UIs
 
-## Inventory (Desk slice B — multi-repo + config surfaces)
+## Inventory (Desk B — multi-repo + config surfaces)
 
-Keyless, fixture-friendly stage that lists authorized local repos/paths and
-**config hotspots** (GitHub Actions, Docker/compose, package manifests,
-agent/skill configs), then emits ranked JSON + markdown **locate hints**.
-Inventory is not exploit scanning and not proof of exploitability.
+Keyless, **fixture/static** stage that lists authorized local repos/paths (or
+bundled desk-b stand-ins) and **config hotspots** (GitHub Actions, Docker/compose,
+package manifests, agent/skill configs), plus:
+
+- CI secret **patterns** (names only — never values)
+- `.env.example` honesty (placeholder check)
+- Dependency / agent harness risk localization
+
+Emits ranked JSON + markdown + redacted SARIF + case note. Not exploit scanning.
 
 ```bash
-# One command (fixture demo-app)
-npm run zeroday -- inventory
+# Desk B fixture manifest (webuzz / galileo / aomb / cosmic-fusion / zeroday; EternalEcho skipped)
+npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
+  --output zeroday-reports/desk-b-inventory
 
-# Multi-repo via manifest
-npm run zeroday -- inventory --from fixtures/inventory/manifest.json \
-  --output zeroday-reports/inventory-demo
-
-# Explicit paths (repeat --repo)
-npm run zeroday -- inventory \
-  --repo fixtures/locate/demo-app \
-  --repo fixtures/inventory/sidecar-app \
-  --output zeroday-reports/inventory-demo
+# Checked-in redacted sample reports
+# docs/reports/desk-b-case-note.md
+# docs/reports/desk-b-inventory.sarif
 ```
 
-Artifacts: `inventory.json` + `inventory.md` (and `repos/<id>/` for multi-repo).
-Compose with the factory loop: **inventory → locate → classify → own → verify**.
+Artifacts: `inventory.json` · `inventory.md` · `inventory.sarif` · `case-note.md`
+(and `repos/<id>/` for multi-repo). Compose: **inventory → locate → classify → own → verify**.
 
 Stranger door stays **`npm run mvp`** (fixture → SARIF). Live Antares remains opt-in.
 

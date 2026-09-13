@@ -118,6 +118,7 @@ export async function runFactory(
   const inventoryMdPath = path.join(outputDir, "inventory.md");
   const inventory = writeInventory(repo, inventoryPath, {
     markdownPath: inventoryMdPath,
+    writeReports: true,
   });
 
   // 2) Locate — fixture by default; live only when explicitly requested
