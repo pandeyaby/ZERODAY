@@ -36,7 +36,7 @@ Checked-in sample: [`desk-a-packet/`](./desk-a-packet/) (`summary.md`, `findings
 | `dependency` | `dependency_harness` |
 | `unknown` | No evidence-backed mapping (no guessing) |
 
-**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC · no Desk D.
+**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC.
 
 ## Desk C — agent/package harden
 
@@ -59,7 +59,7 @@ Checked-in sample: [`desk-c-harden/`](./desk-c-harden/) (`harden.md`, `harden.js
 | `secrets-hygiene` | `ci_secret_pattern` / `env_example_honesty` |
 | `config-surface` | `config_surface` (already localized) |
 
-**Posture:** recommendations only · optional `--draft` notes human-gated · secrets redacted · no PoC · no Desk D · `mvp` / `inventory` / `packet` unchanged.
+**Posture:** recommendations only · optional `--draft` notes human-gated · secrets redacted · no PoC · `mvp` / `inventory` / `packet` unchanged.
 
 ## Desk E — crash classify + evidence
 
@@ -81,4 +81,24 @@ Checked-in sample: [`desk-e-classify/`](./desk-e-classify/) (`classify.md`, `cla
 | `agent_misfire` | Agent-session misfire telemetry only (fixture output) |
 | `needs_human` | Ambiguous / competing / weak signals (**always preferred over invented breach**) |
 
-**Posture:** classification ≠ exploitability · secrets redacted · no PoC · no auto-remediate · no Desk D · `mvp` / `inventory` / `packet` / `harden` unchanged.
+**Posture:** classification ≠ exploitability · secrets redacted · no PoC · no auto-remediate · `mvp` / `inventory` / `packet` / `harden` unchanged.
+
+## Desk D — defensive plugins/skills craft (LAST)
+
+Generate-only Cursor/Grok-style `SKILL.md` + plugin stub from Desk B→A→C→E patterns (**no auto-install / marketplace publish**):
+
+```bash
+npm run zeroday -- craft --from docs/reports
+# aliases:
+npm run zeroday -- skill --fixture
+npm run zeroday -- plugin --fixture
+```
+
+Checked-in sample: [`desk-d-craft/`](./desk-d-craft/) (`craft.md`, `craft.json`, `skills/*/SKILL.md`, `plugins/*/plugin.json`).
+
+| Scaffold | Role |
+|----------|------|
+| `SKILL.md` | Encodes inventory → locate → packet → harden → classify habits |
+| `plugin.json` | Stub manifest — human copies manually if desired |
+
+**Posture:** generate-only · refuses exploits, PoCs, and offensive skill patterns · secrets redacted · `mvp` / `inventory` / `packet` / `harden` / `classify` unchanged.

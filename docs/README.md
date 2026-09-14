@@ -11,10 +11,11 @@
 | [vendor-packs/README.md](./vendor-packs/README.md) | Desk-by-desk operator packs |
 | [evidence.md](./evidence.md) | Evidence vault |
 | [classify.md](./classify.md) | Fixture classifier + Desk E evidence |
+| [craft.md](./craft.md) | Desk D defensive skill/plugin craft |
 | [antares.md](./antares.md) | Optional local Antares |
 | [sandbox.md](./sandbox.md) | Live Docker network=none |
 | [cli-api.md](./cli-api.md) | CLI reference |
-| [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden · Desk E classify samples |
+| [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden · Desk E classify · Desk D craft samples |
 | [getting-started.md](./getting-started.md) | Quick start |
 | [SCOPE_AND_AUTHORIZATION.md](../SCOPE_AND_AUTHORIZATION.md) | Defensive scope |
 

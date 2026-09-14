@@ -9,6 +9,7 @@
 - **Morning/PR** — leave the GitHub Action on forever (CI / no-GPU fixture locate → SARIF → **fail-closed** reviewable PR comment). No GPU in CI. Live Antares stays on the workstation (`scripts/quickstart-live.sh`).
 - **Known CWE/CVE/GHSA** — default `zeroday operate` (keyless coding-agent path). Product path: `zeroday locate --repo … --endpoint …` when you host Antares locally. Source never leaves the machine.
 - **CISO / Desk E** — `zeroday classify --from fixtures/classify/software_defect` → `classify.md` / `classify.json` (+ `ciso.*`). **Classification ≠ exploitability.** Human review required.
+- **Desk D craft** — `zeroday craft --from docs/reports` → defensive `SKILL.md` + plugin stub (generate-only; no auto-install).
 - **Never auto-merge.** Draft-fix only with `--i-asked-for-a-fix`. No PoCs.
 
 ## How orgs should use it
