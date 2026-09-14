@@ -162,3 +162,66 @@ jobs:
           name: zeroday-inventory-reports
           path: zeroday-reports/ci-inventory/
           if-no-files-found: error
+
+  packet:
+    name: Fixture security packet (Desk slice A)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security packet from Desk B reports (generate only)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- packet --from docs/reports \
+            --output zeroday-reports/ci-packet
+          test -f zeroday-reports/ci-packet/packet.json
+          test -f zeroday-reports/ci-packet/summary.md
+          test -f zeroday-reports/ci-packet/findings.json
+          test -f zeroday-reports/ci-packet/findings.md
+          test -f zeroday-reports/ci-packet/README.md
+          test -f zeroday-reports/ci-packet/desk-b-inventory.sarif
+          node -e '
+            const j = require("./zeroday-reports/ci-packet/packet.json");
+            if (j.schemaVersion !== "zeroday-security-packet/v1") process.exit(2);
+            if (j.desk !== "A") process.exit(3);
+            if (!j.posture?.noAutoSend) process.exit(4);
+            if (!j.posture?.noPoC) process.exit(5);
+            if (!Array.isArray(j.findings) || j.findings.length < 1) process.exit(6);
+            const labels = new Set(["agent-misfire","config","dependency","unknown"]);
+            for (const f of j.findings) {
+              if (!labels.has(f.classification)) process.exit(7);
+              if (!f.classificationBasis) process.exit(8);
+            }
+            const blob = JSON.stringify(j);
+            if (/sk_[A-Za-z0-9]{10,}/.test(blob)) process.exit(9);
+            if (/auto-?post|slack webhook|mailto:/i.test(blob) && /sendNow|dispatch/i.test(blob)) process.exit(10);
+            console.log("packet fixture OK", j.findings.length, "findings", j.classificationCounts);
+          '
+
+      - name: Summarize packet gate
+        run: |
+          {
+            echo "## ZERODAY security packet gate (Desk slice A)"
+            echo ""
+            echo "- Mode: package Desk B inventory reports → offline share folder"
+            echo "- Output: \`zeroday-reports/ci-packet/\`"
+            echo "- Generate only — no Slack / GH / email auto-send"
+            echo "- Posture: localize + evidence + harden · no PoC · secrets redacted"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload packet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-security-packet
+          path: zeroday-reports/ci-packet/
+          if-no-files-found: error

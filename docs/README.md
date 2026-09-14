@@ -14,6 +14,7 @@
 | [antares.md](./antares.md) | Optional local Antares |
 | [sandbox.md](./sandbox.md) | Live Docker network=none |
 | [cli-api.md](./cli-api.md) | CLI reference |
+| [reports/README.md](./reports/README.md) | Desk B inventory + Desk A security packet samples |
 | [getting-started.md](./getting-started.md) | Quick start |
 | [SCOPE_AND_AUTHORIZATION.md](../SCOPE_AND_AUTHORIZATION.md) | Defensive scope |
 

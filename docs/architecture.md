@@ -24,6 +24,9 @@ zeroday operate --cwe|--cve|--ghsa --repo [--fixture | --from submission.json]
 
 zeroday locate  …  optional Antares fixture / live wrap (same artifact spine)
         └─ non-loopback endpoint requires --remote-inference (RunPod / remote CUDA)
+
+zeroday packet --from <inventory-reports-dir>
+        └─ Desk A offline security packet (summary + findings + SARIF; no auto-send)
 ```
 
 Live explore may use Docker `network=none`. Fixture + Action stay container-free.

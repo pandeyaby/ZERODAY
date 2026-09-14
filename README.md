@@ -134,6 +134,17 @@ Stranger summary (fixture desk):
 
 Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · [`docs/reports/`](./docs/reports/) · [`fixtures/inventory/desk-b/`](./fixtures/inventory/desk-b/)
 
+Security packet (Desk A — offline share for a security team; generate only, **no auto-post**):
+
+```bash
+npm run zeroday -- packet --from docs/reports
+```
+
+- Consumes Desk B inventory JSON + SARIF (does not re-inventory)
+- Emits `summary.md`, classified findings, SARIF copy, module/PR/ticket placeholders
+- Labels: `agent-misfire` / `config` / `dependency` / `unknown` — evidence-backed only (no guessing)
+- Sample: [`docs/reports/desk-a-packet/`](./docs/reports/desk-a-packet/)
+
 ---
 
 ## Opt-in live path details
@@ -253,7 +264,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
-Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
 
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
@@ -267,6 +278,9 @@ npm run mvp
 
 # Inventory desk (fixture Desk B — multi-repo + config surfaces → locate hints)
 npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
+
+# Security packet (Desk A — offline share; no auto-post)
+npm run zeroday -- packet --from docs/reports
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

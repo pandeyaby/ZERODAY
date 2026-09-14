@@ -1,0 +1,517 @@
+{
+  "schemaVersion": "zeroday-security-packet-findings/v1",
+  "generatedAt": "2026-09-14T00:55:44.984Z",
+  "classificationCounts": {
+    "agent-misfire": 6,
+    "config": 21,
+    "dependency": 2,
+    "unknown": 0
+  },
+  "findings": [
+    {
+      "id": "agent-harness:AGENTS.md:remote-fetch-hint:4",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "aomb",
+      "path": "AGENTS.md",
+      "pattern": "remote-fetch-hint",
+      "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+      "summary": "Agent/skill config at `AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 4,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "aomb",
+      "path": "skills/ops-skill/SKILL.md",
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 3,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "aomb",
+      "path": "skills/ops-skill/SKILL.md",
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 4,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/AGENTS.md:remote-fetch-hint:4",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "pattern": "remote-fetch-hint",
+      "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 4,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 3,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "classification": "agent-misfire",
+      "classificationBasis": "Inventory kind `agent_harness` — agent/skill config execution or remote-fetch hint",
+      "severity": "note",
+      "kind": "agent_harness",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "startLine": 4,
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ]
+    },
+    {
+      "id": "env-surface:.env.example",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `env_example_honesty` — .env.example key surface / placeholder honesty",
+      "severity": "note",
+      "kind": "env_example_honesty",
+      "repoId": "galileo",
+      "path": ".env.example",
+      "title": ".env.example surface (2 key(s))",
+      "summary": "`.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:HF_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "galileo",
+      "path": ".github/workflows/lint.yml",
+      "pattern": "HF_TOKEN",
+      "title": "CI secret pattern `HF_TOKEN`",
+      "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "galileo",
+      "path": ".github/workflows/lint.yml",
+      "pattern": "HUGGING_FACE_HUB_TOKEN",
+      "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+      "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "galileo",
+      "path": ".github/workflows/lint.yml",
+      "pattern": "secrets.HF_TOKEN",
+      "title": "CI secret pattern `secrets.HF_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "env-surface:.env.example",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `env_example_honesty` — .env.example key surface / placeholder honesty",
+      "severity": "note",
+      "kind": "env_example_honesty",
+      "repoId": "webuzz",
+      "path": ".env.example",
+      "title": ".env.example surface (4 key(s))",
+      "summary": "`.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "webuzz",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "GITHUB_TOKEN",
+      "title": "CI secret pattern `GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 8,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:NPM_TOKEN:7",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "webuzz",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "NPM_TOKEN",
+      "title": "CI secret pattern `NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 7,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "webuzz",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "secrets.GITHUB_TOKEN",
+      "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 8,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "webuzz",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "secrets.NPM_TOKEN",
+      "title": "CI secret pattern `secrets.NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 7,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "env-surface:.env.example",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `env_example_honesty` — .env.example key surface / placeholder honesty",
+      "severity": "note",
+      "kind": "env_example_honesty",
+      "repoId": "zeroday",
+      "path": ".env.example",
+      "title": ".env.example surface (1 key(s))",
+      "summary": "`.env.example` documents keys: `ZERODAY_DATA_DIR`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ]
+    },
+    {
+      "id": "ci-secret:docker-compose.yml:ANTHROPIC_API_KEY:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "docker-compose.yml",
+      "pattern": "ANTHROPIC_API_KEY",
+      "title": "CI secret pattern `ANTHROPIC_API_KEY`",
+      "summary": "Workflow references secret pattern `ANTHROPIC_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:docker-compose.yml:OPENAI_API_KEY:11",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "docker-compose.yml",
+      "pattern": "OPENAI_API_KEY",
+      "title": "CI secret pattern `OPENAI_API_KEY`",
+      "summary": "Workflow references secret pattern `OPENAI_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 11,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "env-surface:fixtures/inventory/desk-b/galileo/.env.example",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `env_example_honesty` — .env.example key surface / placeholder honesty",
+      "severity": "note",
+      "kind": "env_example_honesty",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/galileo/.env.example",
+      "title": ".env.example surface (2 key(s))",
+      "summary": "`fixtures/inventory/desk-b/galileo/.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HF_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "pattern": "HF_TOKEN",
+      "title": "CI secret pattern `HF_TOKEN`",
+      "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "pattern": "HUGGING_FACE_HUB_TOKEN",
+      "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+      "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "pattern": "secrets.HF_TOKEN",
+      "title": "CI secret pattern `secrets.HF_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 10,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "env-surface:fixtures/inventory/desk-b/webuzz/.env.example",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `env_example_honesty` — .env.example key surface / placeholder honesty",
+      "severity": "note",
+      "kind": "env_example_honesty",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+      "title": ".env.example surface (4 key(s))",
+      "summary": "`fixtures/inventory/desk-b/webuzz/.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "pattern": "GITHUB_TOKEN",
+      "title": "CI secret pattern `GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 8,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:NPM_TOKEN:7",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "pattern": "NPM_TOKEN",
+      "title": "CI secret pattern `NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 7,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "pattern": "secrets.GITHUB_TOKEN",
+      "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 8,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "classification": "config",
+      "classificationBasis": "Inventory kind `ci_secret_pattern` — CI/workflow secret *name* reference (value not captured)",
+      "severity": "note",
+      "kind": "ci_secret_pattern",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "pattern": "secrets.NPM_TOKEN",
+      "title": "CI secret pattern `secrets.NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "startLine": 7,
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ]
+    },
+    {
+      "id": "dep-harness:package.json:postinstall",
+      "classification": "dependency",
+      "classificationBasis": "Inventory kind `dependency_harness` — package install/remote-shell harness pattern",
+      "severity": "warning",
+      "kind": "dependency_harness",
+      "repoId": "webuzz",
+      "path": "package.json",
+      "pattern": "scripts.postinstall",
+      "title": "Dependency/script harness `postinstall`",
+      "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+      "tags": [
+        "inventory",
+        "dependency",
+        "harness"
+      ]
+    },
+    {
+      "id": "dep-harness:fixtures/inventory/desk-b/webuzz/package.json:postinstall",
+      "classification": "dependency",
+      "classificationBasis": "Inventory kind `dependency_harness` — package install/remote-shell harness pattern",
+      "severity": "warning",
+      "kind": "dependency_harness",
+      "repoId": "zeroday",
+      "path": "fixtures/inventory/desk-b/webuzz/package.json",
+      "pattern": "scripts.postinstall",
+      "title": "Dependency/script harness `postinstall`",
+      "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+      "tags": [
+        "inventory",
+        "dependency",
+        "harness"
+      ]
+    }
+  ]
+}
