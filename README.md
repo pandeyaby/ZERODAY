@@ -127,6 +127,9 @@ you already run, and Antares-1B when you host the recommended brain.
 Hard limits stay: localization ≠ exploitability · **Not a Cisco product** · not
 a partnership claim.
 
+[FAQ](./docs/faq.md) — Keyless Strength honesty (fixture vs rules vs ingest vs
+recording vs live; Desk without locate; local brain ≠ Antares F1).
+
 ---
 
 ## MVP path (keyless, &lt;10 min)
@@ -525,6 +528,8 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 - **No silent fixture fallback** on the live path
 - **No silent spend** — print-only `doctor` / `antares doctor` / RunPod scaffold; you provision and terminate
 - **Local brain honesty** — arbitrary Ollama/vLLM/LM Studio models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available
+
+Full Q&A: [`docs/faq.md`](./docs/faq.md) · also in the play UI (`npm run play` → FAQ).
 
 [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · [`SECURITY.md`](./SECURITY.md)
 

@@ -2,9 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FaqPanel } from "@/components/operator/faq-panel";
 import { cn } from "@/lib/cn";
 import {
   Building2,
+  CircleHelp,
   Crosshair,
   FlaskConical,
   GitBranch,
@@ -15,7 +17,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-type View = "person" | "org" | "playground";
+type View = "person" | "org" | "playground" | "faq";
 
 type Catalog = {
   classifyScenarios: string[];
@@ -189,6 +191,7 @@ export function OrgUsagePanel({
                   "Fixture playground",
                   <FlaskConical size={14} key="f" />,
                 ],
+                ["faq", "FAQ", <CircleHelp size={14} key="q" />],
               ] as const
             ).map(([id, label, icon]) => (
               <Button
@@ -268,7 +271,9 @@ npm run zeroday -- draft-fix --i-asked-for-a-fix --from …/report.json`}
         </div>
       )}
 
-      {(view === "playground" || result || busy) && (
+      {view === "faq" && <FaqPanel />}
+
+      {(view === "playground" || result || busy) && view !== "faq" && (
         <div
           className={cn(
             "space-y-4",
