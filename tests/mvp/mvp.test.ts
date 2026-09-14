@@ -29,6 +29,7 @@ describe("mvp (keyless fixture door)", () => {
     assert.match(banner, /Locate SARIF/);
     assert.match(banner, /Operate SARIF/);
     assert.match(banner, /antares doctor/);
+    assert.match(banner, /doctor|local-brain/i);
     assert.doesNotMatch(banner, /RunPod API|creating pod|\$[0-9]/i);
   });
 

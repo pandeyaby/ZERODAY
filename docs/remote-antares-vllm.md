@@ -49,6 +49,7 @@ Nebius resources and does not treat Nebius as the default remote host.
 
 ## Related
 
+- [`local-brain.md`](./local-brain.md) — any local completions host (Ollama/vLLM/LM Studio; Keyless K4)
 - [`runpod-antares.md`](./runpod-antares.md) — recommended remote path
 - [`defense-factory.md`](./defense-factory.md)
 - Root README § Remote CUDA / RunPod

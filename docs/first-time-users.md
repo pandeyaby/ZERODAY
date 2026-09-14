@@ -4,6 +4,7 @@
 2. `npm install`
 3. `npm run mvp` → expect **PASS** and SARIF under `zeroday-reports/mvp/`
 4. Optional playground UI (same fixtures): `npm run play` → http://localhost:3333/play
-5. Live Antares (opt-in, costs $): `npm run zeroday -- antares doctor` (print-only — no spend)
+5. Local completions brain (Keyless K4, $0 checklist): `npm run zeroday -- doctor`
+6. Live Antares (opt-in, costs $): `npm run zeroday -- antares doctor` (print-only — no spend)
 
 You do not need a GPU or Hugging Face token for the MVP / fixture / playground path.

@@ -157,6 +157,9 @@ export function formatMvpBanner(result: MvpResult): string {
   lines.push(
     "Live Antares (opt-in, costs $): npm run zeroday -- antares doctor",
   );
+  lines.push(
+    "Local completions brain (Keyless K4, print-only checklist): npm run zeroday -- doctor · docs/local-brain.md",
+  );
   lines.push("");
   return lines.join("\n");
 }
