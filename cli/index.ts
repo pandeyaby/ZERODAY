@@ -5,6 +5,7 @@
  *   zeroday mvp                        # keyless fixture → SARIF PASS/FAIL
  *   zeroday inventory …                # multi-repo + config surfaces → locate hints
  *   zeroday packet --from <reports>    # Desk A security packet (offline share)
+ *   zeroday harden --from <reports>    # Desk C agent/package harden (recommend-only)
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -282,6 +283,94 @@ program
         await runInventoryCli(opts);
       } catch (e) {
         console.error(`inventory failed: ${(e as Error).message}`);
+        process.exitCode = 2;
+      }
+    },
+  );
+
+program
+  .command("harden")
+  .description(
+    "Desk C: agent/package harden recommendations from Desk B/A reports (recommend-only; optional --draft notes)",
+  )
+  .option(
+    "--from <dir>",
+    "Reports directory with inventory.json / packet.json / findings.json (desk-b / desk-a / fixture)",
+  )
+  .option(
+    "--output <dir>",
+    "Harden output directory",
+    "zeroday-reports/harden",
+  )
+  .option(
+    "--draft",
+    "Emit CodeGuard-aligned draft notes (human-gated; no auto-apply / auto-PR / auto-merge)",
+    false,
+  )
+  .option("--json", "Print harden.json to stdout", false)
+  .option(
+    "--fixture",
+    "Use checked-in docs/reports Desk B artifacts as --from",
+    false,
+  )
+  .action(
+    async (opts: {
+      from?: string;
+      output: string;
+      draft: boolean;
+      json: boolean;
+      fixture: boolean;
+    }) => {
+      try {
+        const {
+          writeHardenReport,
+          defaultHardenReportsDir,
+        } = await import("../src/harden/index.ts");
+
+        const fromDir = opts.fixture
+          ? defaultHardenReportsDir(REPO_ROOT)
+          : opts.from
+            ? path.resolve(opts.from)
+            : defaultHardenReportsDir(REPO_ROOT);
+
+        const result = writeHardenReport(fromDir, opts.output, {
+          draft: opts.draft,
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify(result.report, null, 2));
+        } else {
+          const c = result.report.categoryCounts;
+          console.log("");
+          console.log("ZERODAY harden (Desk C)");
+          console.log("──────────────────────");
+          console.log(`From      : ${fromDir}`);
+          console.log(
+            `Recs      : ${result.report.recommendations.length}`,
+          );
+          console.log(
+            `Categories: agent-harness ${c["agent-harness"]} · package-scripts ${c["package-scripts"]} · secrets-hygiene ${c["secrets-hygiene"]} · config-surface ${c["config-surface"]}`,
+          );
+          console.log(
+            `Draft     : ${opts.draft ? `${result.draftPaths.length} note(s) (human-gated)` : "off (recommendations only)"}`,
+          );
+          console.log("");
+          console.log(`JSON      : ${result.hardenJsonPath}`);
+          console.log(`Markdown  : ${result.hardenMdPath}`);
+          if (result.draftDir) {
+            console.log(`Drafts    : ${result.draftDir}`);
+          }
+          console.log(`README    : ${result.readmePath}`);
+          console.log("");
+          console.log(
+            "Recommend-only — no auto-apply · no auto-PR · no auto-merge.",
+          );
+          console.log(
+            "Posture: localize + evidence + harden · no PoC · secrets redacted · needs human",
+          );
+        }
+      } catch (e) {
+        console.error(`harden failed: ${(e as Error).message}`);
         process.exitCode = 2;
       }
     },

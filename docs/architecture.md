@@ -27,6 +27,9 @@ zeroday locate  …  optional Antares fixture / live wrap (same artifact spine)
 
 zeroday packet --from <inventory-reports-dir>
         └─ Desk A offline security packet (summary + findings + SARIF; no auto-send)
+
+zeroday harden --from <reports-dir> [--draft]
+        └─ Desk C agent/package harden recommendations (recommend-only; optional draft notes; no auto-apply)
 ```
 
 Live explore may use Docker `network=none`. Fixture + Action stay container-free.

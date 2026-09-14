@@ -15,6 +15,7 @@ bash scripts/runpod-vllm-antares.sh --print-only
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
 npm run zeroday -- packet --from docs/reports
+npm run zeroday -- harden --from docs/reports
 npm run zeroday -- factory inventory --repo ./app
 
 # Live product path (requires healthy completions endpoint; CUDA/RunPod preferred; costs $)

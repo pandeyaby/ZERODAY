@@ -225,3 +225,90 @@ jobs:
           name: zeroday-security-packet
           path: zeroday-reports/ci-packet/
           if-no-files-found: error
+
+  harden:
+    name: Fixture harden recommendations (Desk slice C)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Harden from Desk B reports (recommend-only)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- harden --from docs/reports \
+            --output zeroday-reports/ci-harden
+          test -f zeroday-reports/ci-harden/harden.json
+          test -f zeroday-reports/ci-harden/harden.md
+          test -f zeroday-reports/ci-harden/README.md
+          test ! -d zeroday-reports/ci-harden/drafts
+          node -e '
+            const j = require("./zeroday-reports/ci-harden/harden.json");
+            if (j.schemaVersion !== "zeroday-harden-recommendations/v1") process.exit(2);
+            if (j.desk !== "C") process.exit(3);
+            if (!j.posture?.recommendationsOnly) process.exit(4);
+            if (!j.posture?.noAutoApply) process.exit(5);
+            if (!j.posture?.noAutoPr) process.exit(6);
+            if (!j.posture?.noAutoMerge) process.exit(7);
+            if (!j.posture?.noPoC) process.exit(8);
+            if (!Array.isArray(j.recommendations) || j.recommendations.length < 1) process.exit(9);
+            if (j.draftNotes?.length) process.exit(10);
+            const cats = new Set(["agent-harness","package-scripts","secrets-hygiene","config-surface"]);
+            for (const r of j.recommendations) {
+              if (!cats.has(r.category)) process.exit(11);
+              if (!r.evidence?.findingId) process.exit(12);
+            }
+            const blob = JSON.stringify(j);
+            if (/sk_[A-Za-z0-9]{10,}/.test(blob)) process.exit(13);
+            console.log("harden fixture OK", j.recommendations.length, "recs", j.categoryCounts);
+          '
+
+      - name: Harden --draft notes (human-gated, still no auto-apply)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- harden --from docs/reports/desk-a-packet \
+            --draft --output zeroday-reports/ci-harden-draft
+          test -f zeroday-reports/ci-harden-draft/harden.json
+          test -d zeroday-reports/ci-harden-draft/drafts
+          test "$(find zeroday-reports/ci-harden-draft/drafts -name '*.md' | wc -l)" -ge 1
+          node -e '
+            const j = require("./zeroday-reports/ci-harden-draft/harden.json");
+            if (!j.posture?.noAutoApply || !j.posture?.noAutoPr || !j.posture?.noAutoMerge) process.exit(2);
+            if (!j.draftNotes?.length) process.exit(3);
+            const draft = require("fs").readdirSync("zeroday-reports/ci-harden-draft/drafts")[0];
+            const md = require("fs").readFileSync("zeroday-reports/ci-harden-draft/drafts/" + draft, "utf8");
+            if (!/DRAFT ONLY/i.test(md)) process.exit(4);
+            if (/CodeGuard-approved/i.test(md)) process.exit(5);
+            if (/\b(write|craft)\s+an?\s+exploit\b/i.test(md)) process.exit(6);
+            console.log("harden draft OK", j.draftNotes.length, "notes");
+          '
+
+      - name: Summarize harden gate
+        run: |
+          {
+            echo "## ZERODAY harden gate (Desk slice C)"
+            echo ""
+            echo "- Mode: recommend-only from Desk B/A reports (optional --draft notes)"
+            echo "- Output: \`zeroday-reports/ci-harden/\`"
+            echo "- No auto-apply · no auto-PR · no auto-merge"
+            echo "- Posture: localize + evidence + harden · no PoC · secrets redacted"
+            echo "- mvp / inventory / packet unchanged"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload harden artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-harden-reports
+          path: |
+            zeroday-reports/ci-harden/
+            zeroday-reports/ci-harden-draft/
+          if-no-files-found: error

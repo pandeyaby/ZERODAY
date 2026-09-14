@@ -145,6 +145,20 @@ npm run zeroday -- packet --from docs/reports
 - Labels: `agent-misfire` / `config` / `dependency` / `unknown` — evidence-backed only (no guessing)
 - Sample: [`docs/reports/desk-a-packet/`](./docs/reports/desk-a-packet/)
 
+Agent/package harden (Desk C — recommend-only; **no auto-apply / auto-PR / auto-merge**):
+
+```bash
+npm run zeroday -- harden --from docs/reports
+# optional CodeGuard-aligned draft notes (human-gated):
+npm run zeroday -- harden --from docs/reports --draft
+```
+
+- Consumes Desk B inventory + Desk A packet outputs (does not re-scan private clones)
+- Emits `harden.md` + `harden.json`; `--draft` adds human-gated notes under `drafts/`
+- Evidence-backed: agent harness · package scripts/deps · secrets hygiene · config surfaces
+- Sample: [`docs/reports/desk-c-harden/`](./docs/reports/desk-c-harden/)
+- **`npm run mvp` / `inventory` / `packet` unchanged**
+
 ---
 
 ## Opt-in live path details
@@ -264,7 +278,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
-Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · harden (Desk C, recommend-only): `npm run zeroday -- harden --from docs/reports` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
 
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
@@ -281,6 +295,9 @@ npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
 
 # Security packet (Desk A — offline share; no auto-post)
 npm run zeroday -- packet --from docs/reports
+
+# Harden (Desk C — recommend-only; optional --draft notes, human-gated)
+npm run zeroday -- harden --from docs/reports
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

@@ -1,0 +1,1267 @@
+{
+  "schemaVersion": "zeroday-harden-recommendations/v1",
+  "desk": "C",
+  "generatedAt": "2026-09-14T03:22:27.030Z",
+  "source": {
+    "reportsDir": "docs/reports",
+    "inventoryJson": "desk-b-inventory.json",
+    "packetJson": null,
+    "findingsJson": null,
+    "caseNote": "desk-b-case-note.md",
+    "sarifPaths": [
+      "desk-b-inventory.sarif"
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "harden:agent-harness:AGENTS.md:remote-fetch-hint:4",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`remote-fetch-hint`) at `AGENTS.md`",
+      "recommendation": "Confirm operator allowlist before any live agent run that can fetch remote content. Prefer read-only list/grep/read tools; require an explicit ACK for network/fetch. Do not auto-apply agent config changes.",
+      "evidence": {
+        "findingId": "agent-harness:AGENTS.md:remote-fetch-hint:4",
+        "kind": "agent_harness",
+        "path": "AGENTS.md",
+        "repoId": "aomb",
+        "pattern": "remote-fetch-hint",
+        "severity": "note",
+        "startLine": 4
+      }
+    },
+    {
+      "id": "harden:agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`code-exec-hint`) at `skills/ops-skill/SKILL.md`",
+      "recommendation": "Gate or remove code-exec patterns from agent/skill configs unless the operator explicitly authorizes them. Prefer sandboxed, allow-listed commands; keep needs_human / no auto-merge posture.",
+      "evidence": {
+        "findingId": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:3",
+        "kind": "agent_harness",
+        "path": "skills/ops-skill/SKILL.md",
+        "repoId": "aomb",
+        "pattern": "code-exec-hint",
+        "severity": "note",
+        "startLine": 3
+      }
+    },
+    {
+      "id": "harden:agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`code-exec-hint`) at `skills/ops-skill/SKILL.md`",
+      "recommendation": "Gate or remove code-exec patterns from agent/skill configs unless the operator explicitly authorizes them. Prefer sandboxed, allow-listed commands; keep needs_human / no auto-merge posture.",
+      "evidence": {
+        "findingId": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:4",
+        "kind": "agent_harness",
+        "path": "skills/ops-skill/SKILL.md",
+        "repoId": "aomb",
+        "pattern": "code-exec-hint",
+        "severity": "note",
+        "startLine": 4
+      }
+    },
+    {
+      "id": "harden:agent-harness:fixtures/inventory/desk-b/aomb/AGENTS.md:remote-fetch-hint:4",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`remote-fetch-hint`) at `fixtures/inventory/desk-b/aomb/AGENTS.md`",
+      "recommendation": "Confirm operator allowlist before any live agent run that can fetch remote content. Prefer read-only list/grep/read tools; require an explicit ACK for network/fetch. Do not auto-apply agent config changes.",
+      "evidence": {
+        "findingId": "agent-harness:fixtures/inventory/desk-b/aomb/AGENTS.md:remote-fetch-hint:4",
+        "kind": "agent_harness",
+        "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+        "repoId": "zeroday",
+        "pattern": "remote-fetch-hint",
+        "severity": "note",
+        "startLine": 4
+      }
+    },
+    {
+      "id": "harden:agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`code-exec-hint`) at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md`",
+      "recommendation": "Gate or remove code-exec patterns from agent/skill configs unless the operator explicitly authorizes them. Prefer sandboxed, allow-listed commands; keep needs_human / no auto-merge posture.",
+      "evidence": {
+        "findingId": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:3",
+        "kind": "agent_harness",
+        "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+        "repoId": "zeroday",
+        "pattern": "code-exec-hint",
+        "severity": "note",
+        "startLine": 3
+      }
+    },
+    {
+      "id": "harden:agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "category": "agent-harness",
+      "priority": "high",
+      "title": "Harden agent/skill harness (`code-exec-hint`) at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md`",
+      "recommendation": "Gate or remove code-exec patterns from agent/skill configs unless the operator explicitly authorizes them. Prefer sandboxed, allow-listed commands; keep needs_human / no auto-merge posture.",
+      "evidence": {
+        "findingId": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:4",
+        "kind": "agent_harness",
+        "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+        "repoId": "zeroday",
+        "pattern": "code-exec-hint",
+        "severity": "note",
+        "startLine": 4
+      }
+    },
+    {
+      "id": "harden:dep-harness:package.json:postinstall",
+      "category": "package-scripts",
+      "priority": "high",
+      "title": "Review package script harness `scripts.postinstall` in `package.json`",
+      "recommendation": "Human-review install/lifecycle script `scripts.postinstall` in `package.json`. Prefer removing curl|bash / remote-shell patterns; pin dependencies; never auto-enable or auto-merge script changes. Localization only — not exploit confirmation.",
+      "evidence": {
+        "findingId": "dep-harness:package.json:postinstall",
+        "kind": "dependency_harness",
+        "path": "package.json",
+        "repoId": "webuzz",
+        "pattern": "scripts.postinstall",
+        "severity": "warning"
+      }
+    },
+    {
+      "id": "harden:dep-harness:fixtures/inventory/desk-b/webuzz/package.json:postinstall",
+      "category": "package-scripts",
+      "priority": "high",
+      "title": "Review package script harness `scripts.postinstall` in `fixtures/inventory/desk-b/webuzz/package.json`",
+      "recommendation": "Human-review install/lifecycle script `scripts.postinstall` in `fixtures/inventory/desk-b/webuzz/package.json`. Prefer removing curl|bash / remote-shell patterns; pin dependencies; never auto-enable or auto-merge script changes. Localization only — not exploit confirmation.",
+      "evidence": {
+        "findingId": "dep-harness:fixtures/inventory/desk-b/webuzz/package.json:postinstall",
+        "kind": "dependency_harness",
+        "path": "fixtures/inventory/desk-b/webuzz/package.json",
+        "repoId": "zeroday",
+        "pattern": "scripts.postinstall",
+        "severity": "warning"
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/lint.yml:HF_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `HF_TOKEN` in `.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `HF_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/lint.yml:HF_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/lint.yml",
+        "repoId": "galileo",
+        "pattern": "HF_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `HUGGING_FACE_HUB_TOKEN` in `.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/lint.yml",
+        "repoId": "galileo",
+        "pattern": "HUGGING_FACE_HUB_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.HF_TOKEN` in `.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.HF_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/lint.yml",
+        "repoId": "galileo",
+        "pattern": "secrets.HF_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `GITHUB_TOKEN` in `.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `GITHUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/ci.yml:GITHUB_TOKEN:8",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "webuzz",
+        "pattern": "GITHUB_TOKEN",
+        "severity": "note",
+        "startLine": 8
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/ci.yml:NPM_TOKEN:7",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `NPM_TOKEN` in `.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `NPM_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/ci.yml:NPM_TOKEN:7",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "webuzz",
+        "pattern": "NPM_TOKEN",
+        "severity": "note",
+        "startLine": 7
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.GITHUB_TOKEN` in `.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.GITHUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "webuzz",
+        "pattern": "secrets.GITHUB_TOKEN",
+        "severity": "note",
+        "startLine": 8
+      }
+    },
+    {
+      "id": "harden:ci-secret:.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.NPM_TOKEN` in `.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.NPM_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+        "kind": "ci_secret_pattern",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "webuzz",
+        "pattern": "secrets.NPM_TOKEN",
+        "severity": "note",
+        "startLine": 7
+      }
+    },
+    {
+      "id": "harden:ci-secret:docker-compose.yml:ANTHROPIC_API_KEY:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `ANTHROPIC_API_KEY` in `docker-compose.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `ANTHROPIC_API_KEY` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:docker-compose.yml:ANTHROPIC_API_KEY:10",
+        "kind": "ci_secret_pattern",
+        "path": "docker-compose.yml",
+        "repoId": "zeroday",
+        "pattern": "ANTHROPIC_API_KEY",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:docker-compose.yml:OPENAI_API_KEY:11",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `OPENAI_API_KEY` in `docker-compose.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `OPENAI_API_KEY` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:docker-compose.yml:OPENAI_API_KEY:11",
+        "kind": "ci_secret_pattern",
+        "path": "docker-compose.yml",
+        "repoId": "zeroday",
+        "pattern": "OPENAI_API_KEY",
+        "severity": "note",
+        "startLine": 11
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HF_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `HF_TOKEN` in `fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `HF_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HF_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+        "repoId": "zeroday",
+        "pattern": "HF_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `HUGGING_FACE_HUB_TOKEN` in `fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+        "repoId": "zeroday",
+        "pattern": "HUGGING_FACE_HUB_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.HF_TOKEN` in `fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.HF_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+        "repoId": "zeroday",
+        "pattern": "secrets.HF_TOKEN",
+        "severity": "note",
+        "startLine": 10
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `GITHUB_TOKEN` in `fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `GITHUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:GITHUB_TOKEN:8",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+        "repoId": "zeroday",
+        "pattern": "GITHUB_TOKEN",
+        "severity": "note",
+        "startLine": 8
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:NPM_TOKEN:7",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `NPM_TOKEN` in `fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `NPM_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:NPM_TOKEN:7",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+        "repoId": "zeroday",
+        "pattern": "NPM_TOKEN",
+        "severity": "note",
+        "startLine": 7
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.GITHUB_TOKEN` in `fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.GITHUB_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+        "repoId": "zeroday",
+        "pattern": "secrets.GITHUB_TOKEN",
+        "severity": "note",
+        "startLine": 8
+      }
+    },
+    {
+      "id": "harden:ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "category": "secrets-hygiene",
+      "priority": "medium",
+      "title": "Secrets hygiene for CI pattern `secrets.NPM_TOKEN` in `fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml`",
+      "recommendation": "Confirm least-privilege for secret pattern `secrets.NPM_TOKEN` (name only; value never captured). Prefer OIDC / short-lived tokens; ensure workflows do not echo secret values into logs. No auto-apply of workflow edits.",
+      "evidence": {
+        "findingId": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+        "kind": "ci_secret_pattern",
+        "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+        "repoId": "zeroday",
+        "pattern": "secrets.NPM_TOKEN",
+        "severity": "note",
+        "startLine": 7
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:.cursor/rules/ops.mdc",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `.cursor/rules/ops.mdc`",
+      "recommendation": "Config surface `agent_config` at `.cursor/rules/ops.mdc` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:.cursor/rules/ops.mdc",
+        "kind": "config_surface",
+        "path": ".cursor/rules/ops.mdc",
+        "repoId": "aomb",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:AGENTS.md",
+        "kind": "config_surface",
+        "path": "AGENTS.md",
+        "repoId": "aomb",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package.json`",
+      "recommendation": "Config surface `package_manifest` at `package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package.json",
+        "kind": "config_surface",
+        "path": "package.json",
+        "repoId": "aomb",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:skill_config:skills/ops-skill/SKILL.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `skill_config` at `skills/ops-skill/SKILL.md`",
+      "recommendation": "Config surface `skill_config` at `skills/ops-skill/SKILL.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:skill_config:skills/ops-skill/SKILL.md",
+        "kind": "config_surface",
+        "path": "skills/ops-skill/SKILL.md",
+        "repoId": "aomb",
+        "pattern": "skill_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:AGENTS.md",
+        "kind": "config_surface",
+        "path": "AGENTS.md",
+        "repoId": "cosmic-fusion",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:compose.yaml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `compose.yaml`",
+      "recommendation": "Config surface `compose` at `compose.yaml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:compose.yaml",
+        "kind": "config_surface",
+        "path": "compose.yaml",
+        "repoId": "cosmic-fusion",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package.json`",
+      "recommendation": "Config surface `package_manifest` at `package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package.json",
+        "kind": "config_surface",
+        "path": "package.json",
+        "repoId": "cosmic-fusion",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:skill_config:skills/merge-skill/SKILL.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `skill_config` at `skills/merge-skill/SKILL.md`",
+      "recommendation": "Config surface `skill_config` at `skills/merge-skill/SKILL.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:skill_config:skills/merge-skill/SKILL.md",
+        "kind": "config_surface",
+        "path": "skills/merge-skill/SKILL.md",
+        "repoId": "cosmic-fusion",
+        "pattern": "skill_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:env_example:.env.example",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `env_example` at `.env.example`",
+      "recommendation": "Config surface `env_example` at `.env.example` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:env_example:.env.example",
+        "kind": "config_surface",
+        "path": ".env.example",
+        "repoId": "galileo",
+        "pattern": "env_example",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:github_actions:.github/workflows/lint.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `github_actions` at `.github/workflows/lint.yml`",
+      "recommendation": "Config surface `github_actions` at `.github/workflows/lint.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:github_actions:.github/workflows/lint.yml",
+        "kind": "config_surface",
+        "path": ".github/workflows/lint.yml",
+        "repoId": "galileo",
+        "pattern": "github_actions",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:docker-compose.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `docker-compose.yml`",
+      "recommendation": "Config surface `compose` at `docker-compose.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:docker-compose.yml",
+        "kind": "config_surface",
+        "path": "docker-compose.yml",
+        "repoId": "galileo",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `Dockerfile`",
+      "recommendation": "Config surface `docker` at `Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:Dockerfile",
+        "kind": "config_surface",
+        "path": "Dockerfile",
+        "repoId": "galileo",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:pyproject.toml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `pyproject.toml`",
+      "recommendation": "Config surface `package_manifest` at `pyproject.toml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:pyproject.toml",
+        "kind": "config_surface",
+        "path": "pyproject.toml",
+        "repoId": "galileo",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:requirements.txt",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `requirements.txt`",
+      "recommendation": "Config surface `package_manifest` at `requirements.txt` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:requirements.txt",
+        "kind": "config_surface",
+        "path": "requirements.txt",
+        "repoId": "galileo",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:github_actions:.github/workflows/ci.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `github_actions` at `.github/workflows/ci.yml`",
+      "recommendation": "Config surface `github_actions` at `.github/workflows/ci.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:github_actions:.github/workflows/ci.yml",
+        "kind": "config_surface",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "snipercore",
+        "pattern": "github_actions",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package.json`",
+      "recommendation": "Config surface `package_manifest` at `package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package.json",
+        "kind": "config_surface",
+        "path": "package.json",
+        "repoId": "snipercore",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:env_example:.env.example",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `env_example` at `.env.example`",
+      "recommendation": "Config surface `env_example` at `.env.example` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:env_example:.env.example",
+        "kind": "config_surface",
+        "path": ".env.example",
+        "repoId": "webuzz",
+        "pattern": "env_example",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:github_actions:.github/workflows/ci.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `github_actions` at `.github/workflows/ci.yml`",
+      "recommendation": "Config surface `github_actions` at `.github/workflows/ci.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:github_actions:.github/workflows/ci.yml",
+        "kind": "config_surface",
+        "path": ".github/workflows/ci.yml",
+        "repoId": "webuzz",
+        "pattern": "github_actions",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `Dockerfile`",
+      "recommendation": "Config surface `docker` at `Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:Dockerfile",
+        "kind": "config_surface",
+        "path": "Dockerfile",
+        "repoId": "webuzz",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package.json`",
+      "recommendation": "Config surface `package_manifest` at `package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package.json",
+        "kind": "config_surface",
+        "path": "package.json",
+        "repoId": "webuzz",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:.cursor/rules/zeroday-operator.mdc",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `.cursor/rules/zeroday-operator.mdc`",
+      "recommendation": "Config surface `agent_config` at `.cursor/rules/zeroday-operator.mdc` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:.cursor/rules/zeroday-operator.mdc",
+        "kind": "config_surface",
+        "path": ".cursor/rules/zeroday-operator.mdc",
+        "repoId": "zeroday",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:env_example:.env.example",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `env_example` at `.env.example`",
+      "recommendation": "Config surface `env_example` at `.env.example` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:env_example:.env.example",
+        "kind": "config_surface",
+        "path": ".env.example",
+        "repoId": "zeroday",
+        "pattern": "env_example",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:github_actions:.github/actions/zeroday-locate-gate/action.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `github_actions` at `.github/actions/zeroday-locate-gate/action.yml`",
+      "recommendation": "Config surface `github_actions` at `.github/actions/zeroday-locate-gate/action.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:github_actions:.github/actions/zeroday-locate-gate/action.yml",
+        "kind": "config_surface",
+        "path": ".github/actions/zeroday-locate-gate/action.yml",
+        "repoId": "zeroday",
+        "pattern": "github_actions",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:github_actions:.github/workflows/zeroday-locate.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `github_actions` at `.github/workflows/zeroday-locate.yml`",
+      "recommendation": "Config surface `github_actions` at `.github/workflows/zeroday-locate.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:github_actions:.github/workflows/zeroday-locate.yml",
+        "kind": "config_surface",
+        "path": ".github/workflows/zeroday-locate.yml",
+        "repoId": "zeroday",
+        "pattern": "github_actions",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:AGENTS.md",
+        "kind": "config_surface",
+        "path": "AGENTS.md",
+        "repoId": "zeroday",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:docker-compose.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `docker-compose.yml`",
+      "recommendation": "Config surface `compose` at `docker-compose.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:docker-compose.yml",
+        "kind": "config_surface",
+        "path": "docker-compose.yml",
+        "repoId": "zeroday",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `Dockerfile`",
+      "recommendation": "Config surface `docker` at `Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:Dockerfile",
+        "kind": "config_surface",
+        "path": "Dockerfile",
+        "repoId": "zeroday",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `fixtures/inventory/desk-b/aomb/AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `fixtures/inventory/desk-b/aomb/AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:fixtures/inventory/desk-b/aomb/AGENTS.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+        "repoId": "zeroday",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/aomb/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/aomb/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/aomb/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/aomb/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/aomb/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:skill_config:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `skill_config` at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md`",
+      "recommendation": "Config surface `skill_config` at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:skill_config:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+        "repoId": "zeroday",
+        "pattern": "skill_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+        "repoId": "zeroday",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `fixtures/inventory/desk-b/cosmic-fusion/compose.yaml`",
+      "recommendation": "Config surface `compose` at `fixtures/inventory/desk-b/cosmic-fusion/compose.yaml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+        "repoId": "zeroday",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/cosmic-fusion/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/cosmic-fusion/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/cosmic-fusion/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/cosmic-fusion/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/cosmic-fusion/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:skill_config:fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `skill_config` at `fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md`",
+      "recommendation": "Config surface `skill_config` at `fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:skill_config:fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+        "repoId": "zeroday",
+        "pattern": "skill_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:env_example:fixtures/inventory/desk-b/galileo/.env.example",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `env_example` at `fixtures/inventory/desk-b/galileo/.env.example`",
+      "recommendation": "Config surface `env_example` at `fixtures/inventory/desk-b/galileo/.env.example` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:env_example:fixtures/inventory/desk-b/galileo/.env.example",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/galileo/.env.example",
+        "repoId": "zeroday",
+        "pattern": "env_example",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:fixtures/inventory/desk-b/galileo/docker-compose.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `fixtures/inventory/desk-b/galileo/docker-compose.yml`",
+      "recommendation": "Config surface `compose` at `fixtures/inventory/desk-b/galileo/docker-compose.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:fixtures/inventory/desk-b/galileo/docker-compose.yml",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+        "repoId": "zeroday",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:fixtures/inventory/desk-b/galileo/Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `fixtures/inventory/desk-b/galileo/Dockerfile`",
+      "recommendation": "Config surface `docker` at `fixtures/inventory/desk-b/galileo/Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:fixtures/inventory/desk-b/galileo/Dockerfile",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/galileo/Dockerfile",
+        "repoId": "zeroday",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/galileo/pyproject.toml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/galileo/pyproject.toml`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/galileo/pyproject.toml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/galileo/pyproject.toml",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/galileo/pyproject.toml",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/galileo/requirements.txt",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/galileo/requirements.txt`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/galileo/requirements.txt` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/galileo/requirements.txt",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/galileo/requirements.txt",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/snipercore/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/snipercore/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/snipercore/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/snipercore/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/snipercore/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:env_example:fixtures/inventory/desk-b/webuzz/.env.example",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `env_example` at `fixtures/inventory/desk-b/webuzz/.env.example`",
+      "recommendation": "Config surface `env_example` at `fixtures/inventory/desk-b/webuzz/.env.example` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:env_example:fixtures/inventory/desk-b/webuzz/.env.example",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+        "repoId": "zeroday",
+        "pattern": "env_example",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:fixtures/inventory/desk-b/webuzz/Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `fixtures/inventory/desk-b/webuzz/Dockerfile`",
+      "recommendation": "Config surface `docker` at `fixtures/inventory/desk-b/webuzz/Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:fixtures/inventory/desk-b/webuzz/Dockerfile",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/webuzz/Dockerfile",
+        "repoId": "zeroday",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/desk-b/webuzz/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/desk-b/webuzz/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/desk-b/webuzz/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/desk-b/webuzz/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/desk-b/webuzz/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:agent_config:fixtures/inventory/sidecar-app/AGENTS.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `agent_config` at `fixtures/inventory/sidecar-app/AGENTS.md`",
+      "recommendation": "Config surface `agent_config` at `fixtures/inventory/sidecar-app/AGENTS.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:agent_config:fixtures/inventory/sidecar-app/AGENTS.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/sidecar-app/AGENTS.md",
+        "repoId": "zeroday",
+        "pattern": "agent_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:compose:fixtures/inventory/sidecar-app/docker-compose.yml",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `compose` at `fixtures/inventory/sidecar-app/docker-compose.yml`",
+      "recommendation": "Config surface `compose` at `fixtures/inventory/sidecar-app/docker-compose.yml` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:compose:fixtures/inventory/sidecar-app/docker-compose.yml",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/sidecar-app/docker-compose.yml",
+        "repoId": "zeroday",
+        "pattern": "compose",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/inventory/sidecar-app/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/inventory/sidecar-app/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/inventory/sidecar-app/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/inventory/sidecar-app/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/sidecar-app/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:skill_config:fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `skill_config` at `fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md`",
+      "recommendation": "Config surface `skill_config` at `fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:skill_config:fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+        "kind": "config_surface",
+        "path": "fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+        "repoId": "zeroday",
+        "pattern": "skill_config",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:codeowners:fixtures/locate/demo-app/.github/CODEOWNERS",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `codeowners` at `fixtures/locate/demo-app/.github/CODEOWNERS`",
+      "recommendation": "Config surface `codeowners` at `fixtures/locate/demo-app/.github/CODEOWNERS` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:codeowners:fixtures/locate/demo-app/.github/CODEOWNERS",
+        "kind": "config_surface",
+        "path": "fixtures/locate/demo-app/.github/CODEOWNERS",
+        "repoId": "zeroday",
+        "pattern": "codeowners",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:docker:fixtures/locate/demo-app/Dockerfile",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `docker` at `fixtures/locate/demo-app/Dockerfile`",
+      "recommendation": "Config surface `docker` at `fixtures/locate/demo-app/Dockerfile` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:docker:fixtures/locate/demo-app/Dockerfile",
+        "kind": "config_surface",
+        "path": "fixtures/locate/demo-app/Dockerfile",
+        "repoId": "zeroday",
+        "pattern": "docker",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:fixtures/locate/demo-app/package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `fixtures/locate/demo-app/package.json`",
+      "recommendation": "Config surface `package_manifest` at `fixtures/locate/demo-app/package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:fixtures/locate/demo-app/package.json",
+        "kind": "config_surface",
+        "path": "fixtures/locate/demo-app/package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package-lock.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package-lock.json`",
+      "recommendation": "Config surface `package_manifest` at `package-lock.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package-lock.json",
+        "kind": "config_surface",
+        "path": "package-lock.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:surface:package_manifest:package.json",
+      "category": "config-surface",
+      "priority": "low",
+      "title": "Track config surface `package_manifest` at `package.json`",
+      "recommendation": "Config surface `package_manifest` at `package.json` is already localized. Add CODEOWNERS / review checklist coverage; harden only after human review. No auto-PR or auto-merge.",
+      "evidence": {
+        "findingId": "surface:package_manifest:package.json",
+        "kind": "config_surface",
+        "path": "package.json",
+        "repoId": "zeroday",
+        "pattern": "package_manifest",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:env-surface:.env.example",
+      "category": "secrets-hygiene",
+      "priority": "low",
+      "title": "Keep `.env.example` examples as placeholders only",
+      "recommendation": "Documented env keys in `.env.example` are localization surfaces only. Keep values empty or placeholder-shaped; never export secret values in reports.",
+      "evidence": {
+        "findingId": "env-surface:.env.example",
+        "kind": "env_example_honesty",
+        "path": ".env.example",
+        "repoId": "galileo",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:env-surface:.env.example",
+      "category": "secrets-hygiene",
+      "priority": "low",
+      "title": "Keep `.env.example` examples as placeholders only",
+      "recommendation": "Documented env keys in `.env.example` are localization surfaces only. Keep values empty or placeholder-shaped; never export secret values in reports.",
+      "evidence": {
+        "findingId": "env-surface:.env.example",
+        "kind": "env_example_honesty",
+        "path": ".env.example",
+        "repoId": "webuzz",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:env-surface:.env.example",
+      "category": "secrets-hygiene",
+      "priority": "low",
+      "title": "Keep `.env.example` examples as placeholders only",
+      "recommendation": "Documented env keys in `.env.example` are localization surfaces only. Keep values empty or placeholder-shaped; never export secret values in reports.",
+      "evidence": {
+        "findingId": "env-surface:.env.example",
+        "kind": "env_example_honesty",
+        "path": ".env.example",
+        "repoId": "zeroday",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:env-surface:fixtures/inventory/desk-b/galileo/.env.example",
+      "category": "secrets-hygiene",
+      "priority": "low",
+      "title": "Keep `fixtures/inventory/desk-b/galileo/.env.example` examples as placeholders only",
+      "recommendation": "Documented env keys in `fixtures/inventory/desk-b/galileo/.env.example` are localization surfaces only. Keep values empty or placeholder-shaped; never export secret values in reports.",
+      "evidence": {
+        "findingId": "env-surface:fixtures/inventory/desk-b/galileo/.env.example",
+        "kind": "env_example_honesty",
+        "path": "fixtures/inventory/desk-b/galileo/.env.example",
+        "repoId": "zeroday",
+        "severity": "note"
+      }
+    },
+    {
+      "id": "harden:env-surface:fixtures/inventory/desk-b/webuzz/.env.example",
+      "category": "secrets-hygiene",
+      "priority": "low",
+      "title": "Keep `fixtures/inventory/desk-b/webuzz/.env.example` examples as placeholders only",
+      "recommendation": "Documented env keys in `fixtures/inventory/desk-b/webuzz/.env.example` are localization surfaces only. Keep values empty or placeholder-shaped; never export secret values in reports.",
+      "evidence": {
+        "findingId": "env-surface:fixtures/inventory/desk-b/webuzz/.env.example",
+        "kind": "env_example_honesty",
+        "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+        "repoId": "zeroday",
+        "severity": "note"
+      }
+    }
+  ],
+  "categoryCounts": {
+    "agent-harness": 6,
+    "package-scripts": 2,
+    "secrets-hygiene": 21,
+    "config-surface": 52
+  },
+  "draftNotes": [],
+  "posture": {
+    "recommendationsOnly": true,
+    "noAutoApply": true,
+    "noAutoPr": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "secretsRedacted": true,
+    "needsHuman": true,
+    "draftNotesHumanGated": true,
+    "localizationOnly": true
+  }
+}
