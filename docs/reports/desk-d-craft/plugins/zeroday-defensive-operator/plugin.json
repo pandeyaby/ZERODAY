@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "zeroday-craft-plugin-stub/v1",
+  "name": "zeroday-defensive-operator",
+  "displayName": "zeroday-defensive-operator",
+  "description": "Defensive ZERODAY operator plugin stub. Encodes inventory→locate→packet→harden→classify. Generate-only — do not auto-install or marketplace-publish.",
+  "desk": "D",
+  "skills": [
+    "skills/zeroday-defensive-operator/SKILL.md"
+  ],
+  "habits": "inventory → locate → packet → harden → classify",
+  "patternCount": 20,
+  "source": "docs/reports",
+  "generatedAt": "2026-09-14T05:42:06.372Z",
+  "posture": {
+    "generateOnly": true,
+    "noAutoInstall": true,
+    "noMarketplacePublish": true,
+    "noPoC": true,
+    "refusesOffensive": true,
+    "needsHuman": true,
+    "localizationOnly": true
+  },
+  "installHint": "Human copies this folder manually into an agent plugin directory if desired. Craft never auto-installs."
+}

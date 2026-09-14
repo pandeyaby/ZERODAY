@@ -113,6 +113,24 @@ Labels: `possible_breach` | `infra_failure` | `software_defect` | `agent_misfire
 
 Sample: [`docs/reports/desk-e-classify/`](./reports/desk-e-classify/).
 
+## Defensive plugins/skills craft (Desk D — LAST)
+
+Consumes Desk B→A→C→E reports as pattern input. Emits Cursor/Grok-style
+`SKILL.md` + plugin stub encoding **inventory → locate → packet → harden → classify**.
+**Generate-only** — no auto-install into Cursor/Grok Bot, no marketplace publish.
+**Refuses** exploits, PoCs, and offensive skill patterns.
+
+```bash
+npm run zeroday -- craft --from docs/reports
+npm run zeroday -- skill --fixture
+npm run zeroday -- plugin --fixture
+```
+
+Emits `craft.md` · `craft.json` · `skills/*/SKILL.md` · `plugins/*/plugin.json`.
+`mvp` / `inventory` / `packet` / `harden` / `classify` unchanged.
+
+Sample: [`docs/reports/desk-d-craft/`](./reports/desk-d-craft/).
+
 ## One command (CI-safe factory)
 
 ```bash

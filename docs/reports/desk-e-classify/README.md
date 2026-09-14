@@ -33,4 +33,4 @@ Ambiguous → **`needs_human`**. Never invent breach from weak signals.
 - Human review required — **no** auto-remediate / auto-merge
 - No PoC / exploit / attack simulation
 - Secrets redacted in snippets
-- `npm run mvp` / `inventory` / `packet` / `harden` unchanged
+- `npm run mvp` / `inventory` / `packet` / `harden` / `classify` unchanged

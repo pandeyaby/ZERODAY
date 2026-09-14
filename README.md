@@ -174,6 +174,21 @@ npm run zeroday -- classify --fixture
 - Sample: [`docs/reports/desk-e-classify/`](./docs/reports/desk-e-classify/)
 - **`npm run mvp` / `inventory` / `packet` / `harden` unchanged**
 
+Defensive plugins/skills craft (Desk D — LAST; generate-only; **no auto-install / marketplace**):
+
+```bash
+npm run zeroday -- craft --from docs/reports
+# aliases:
+npm run zeroday -- skill --fixture
+npm run zeroday -- plugin --fixture
+```
+
+- Consumes Desk B→A→C→E reports as pattern input (does not re-scan)
+- Emits Cursor/Grok-style `SKILL.md` + plugin stub encoding inventory→locate→packet→harden→classify
+- **Refuses** exploits, PoCs, and offensive skill patterns
+- Sample: [`docs/reports/desk-d-craft/`](./docs/reports/desk-d-craft/)
+- **`npm run mvp` / `inventory` / `packet` / `harden` / `classify` unchanged**
+
 ---
 
 ## Opt-in live path details
@@ -293,7 +308,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
-Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · harden (Desk C, recommend-only): `npm run zeroday -- harden --from docs/reports` · classify (Desk E, classification ≠ exploitability): `npm run zeroday -- classify --from fixtures/classify/software_defect` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · harden (Desk C, recommend-only): `npm run zeroday -- harden --from docs/reports` · classify (Desk E, classification ≠ exploitability): `npm run zeroday -- classify --from fixtures/classify/software_defect` · craft (Desk D, generate-only skills/plugins): `npm run zeroday -- craft --from docs/reports` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
 
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
@@ -317,6 +332,9 @@ npm run zeroday -- harden --from docs/reports
 # Crash classify (Desk E — classification ≠ exploitability; human review)
 npm run zeroday -- classify --from fixtures/classify/software_defect
 npm run zeroday -- classify --fixture
+
+# Defensive craft (Desk D — generate-only SKILL.md + plugin stub; no auto-install)
+npm run zeroday -- craft --from docs/reports
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

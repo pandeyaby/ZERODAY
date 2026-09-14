@@ -17,6 +17,7 @@ npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
 npm run zeroday -- packet --from docs/reports
 npm run zeroday -- harden --from docs/reports
 npm run zeroday -- classify --from fixtures/classify/software_defect
+npm run zeroday -- craft --from docs/reports
 npm run zeroday -- factory inventory --repo ./app
 
 # Live product path (requires healthy completions endpoint; CUDA/RunPod preferred; costs $)

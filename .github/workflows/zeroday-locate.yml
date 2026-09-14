@@ -394,3 +394,104 @@ jobs:
             zeroday-reports/ci-classify-ambiguous/
             zeroday-reports/ci-classify-fixture/
           if-no-files-found: error
+
+  craft:
+    name: Fixture defensive craft (Desk slice D)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Craft from Desk B→A→C→E reports (generate-only)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- craft --from docs/reports \
+            --output zeroday-reports/ci-craft
+          test -f zeroday-reports/ci-craft/craft.json
+          test -f zeroday-reports/ci-craft/craft.md
+          test -f zeroday-reports/ci-craft/README.md
+          test -f zeroday-reports/ci-craft/SOURCE.md
+          test -d zeroday-reports/ci-craft/skills
+          test -d zeroday-reports/ci-craft/plugins
+          test "$(find zeroday-reports/ci-craft/skills -name 'SKILL.md' | wc -l)" -ge 1
+          test "$(find zeroday-reports/ci-craft/plugins -name 'plugin.json' | wc -l)" -ge 1
+          node -e '
+            const fs = require("fs");
+            const j = require("./zeroday-reports/ci-craft/craft.json");
+            if (j.schemaVersion !== "zeroday-craft-scaffold/v1") process.exit(2);
+            if (j.desk !== "D") process.exit(3);
+            if (!j.posture?.generateOnly) process.exit(4);
+            if (!j.posture?.noAutoInstall) process.exit(5);
+            if (!j.posture?.noMarketplacePublish) process.exit(6);
+            if (!j.posture?.noPoC) process.exit(7);
+            if (!j.posture?.refusesOffensive) process.exit(8);
+            if (!Array.isArray(j.patterns) || j.patterns.length < 5) process.exit(9);
+            if (!Array.isArray(j.scaffolds) || j.scaffolds.length < 2) process.exit(10);
+            const stages = new Set(j.patterns.map((p) => p.stage));
+            for (const s of ["inventory","locate","packet","harden","classify"]) {
+              if (!stages.has(s)) process.exit(11);
+            }
+            const skill = fs.readFileSync(
+              "zeroday-reports/ci-craft/skills/zeroday-defensive-operator/SKILL.md",
+              "utf8",
+            );
+            if (!/inventory/i.test(skill) || !/classify/i.test(skill)) process.exit(12);
+            if (!/auto-install/i.test(skill)) process.exit(13);
+            const blob = JSON.stringify(j) + skill;
+            if (/sk_[A-Za-z0-9]{10,}/.test(blob)) process.exit(14);
+            if (/\b(write|craft)\s+an?\s+exploit\b/i.test(blob)) process.exit(15);
+            console.log("craft fixture OK", j.patterns.length, "patterns", j.scaffolds.length, "scaffolds");
+          '
+
+      - name: Craft refuses offensive skill name
+        run: |
+          set -euo pipefail
+          set +e
+          npm run zeroday -- craft --fixture --name exploit-kit-skill \
+            --output zeroday-reports/ci-craft-refuse
+          code=$?
+          set -e
+          test "$code" -eq 3
+          test ! -f zeroday-reports/ci-craft-refuse/craft.json
+
+      - name: Skill + plugin aliases
+        run: |
+          set -euo pipefail
+          npm run zeroday -- skill --fixture --output zeroday-reports/ci-craft-skill
+          test -d zeroday-reports/ci-craft-skill/skills
+          test ! -d zeroday-reports/ci-craft-skill/plugins
+          npm run zeroday -- plugin --fixture --output zeroday-reports/ci-craft-plugin
+          test -d zeroday-reports/ci-craft-plugin/plugins
+          test ! -d zeroday-reports/ci-craft-plugin/skills
+
+      - name: Summarize craft gate
+        run: |
+          {
+            echo "## ZERODAY craft gate (Desk slice D)"
+            echo ""
+            echo "- Mode: generate-only skill + plugin scaffolds from Desk B→A→C→E reports"
+            echo "- Output: \`zeroday-reports/ci-craft/\`"
+            echo "- No auto-install · no marketplace publish"
+            echo "- Refuses exploits, PoCs, and offensive skill patterns"
+            echo "- Posture: defensive habits · localization only · needs human"
+            echo "- mvp / inventory / packet / harden / classify unchanged"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload craft artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-craft-reports
+          path: |
+            zeroday-reports/ci-craft/
+            zeroday-reports/ci-craft-skill/
+            zeroday-reports/ci-craft-plugin/
+          if-no-files-found: error

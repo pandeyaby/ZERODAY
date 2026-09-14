@@ -6,6 +6,7 @@
  *   zeroday inventory …                # multi-repo + config surfaces → locate hints
  *   zeroday packet --from <reports>    # Desk A security packet (offline share)
  *   zeroday harden --from <reports>    # Desk C agent/package harden (recommend-only)
+ *   zeroday craft --from <reports>     # Desk D defensive skill/plugin scaffolds
  *   zeroday classify --from <dir>      # Desk E crash classify + evidence
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
@@ -377,6 +378,157 @@ program
       }
     },
   );
+
+async function runCraftCli(opts: {
+  from?: string;
+  output: string;
+  name: string;
+  kind: string;
+  intent?: string;
+  json: boolean;
+  fixture: boolean;
+  defaultKind: "skill" | "plugin" | "both";
+}): Promise<void> {
+  const {
+    writeCraftReport,
+    defaultCraftReportsDir,
+  } = await import("../src/craft/index.ts");
+
+  const kindRaw = (opts.kind || opts.defaultKind || "both").toLowerCase();
+  const kind =
+    kindRaw === "skill" || kindRaw === "plugin" || kindRaw === "both"
+      ? kindRaw
+      : opts.defaultKind;
+
+  const fromDir = opts.fixture
+    ? defaultCraftReportsDir(REPO_ROOT)
+    : opts.from
+      ? path.resolve(opts.from)
+      : defaultCraftReportsDir(REPO_ROOT);
+
+  try {
+    const result = writeCraftReport(fromDir, opts.output, {
+      name: opts.name,
+      kind,
+      intent: opts.intent,
+    });
+
+    if (opts.json) {
+      console.log(JSON.stringify(result.report, null, 2));
+    } else {
+      console.log("");
+      console.log("ZERODAY craft (Desk D)");
+      console.log("─────────────────────");
+      console.log(`From      : ${fromDir}`);
+      console.log(`Name      : ${result.report.name}`);
+      console.log(`Kind      : ${result.report.kind}`);
+      console.log(`Patterns  : ${result.report.patterns.length}`);
+      console.log(`Scaffolds : ${result.report.scaffolds.length}`);
+      console.log("");
+      console.log(`JSON      : ${result.craftJsonPath}`);
+      console.log(`Markdown  : ${result.craftMdPath}`);
+      for (const p of result.skillPaths) {
+        console.log(`Skill     : ${p}`);
+      }
+      for (const p of result.pluginPaths) {
+        console.log(`Plugin    : ${p}`);
+      }
+      console.log(`README    : ${result.readmePath}`);
+      console.log("");
+      console.log(
+        "Generate-only — no auto-install · no marketplace publish.",
+      );
+      console.log(
+        "Posture: defensive habits · refuses exploits, PoCs · needs human",
+      );
+    }
+  } catch (e) {
+    const refuse =
+      e &&
+      typeof e === "object" &&
+      "refuse" in e &&
+      (e as { refuse?: { message?: string } }).refuse;
+    if (refuse?.message) {
+      console.error(refuse.message);
+      process.exitCode = 3;
+      return;
+    }
+    throw e;
+  }
+}
+
+function registerCraftCommand(
+  name: string,
+  description: string,
+  defaultKind: "skill" | "plugin" | "both",
+  defaultOutput: string,
+): void {
+  program
+    .command(name)
+    .description(description)
+    .option(
+      "--from <dir>",
+      "Reports directory with Desk B/A/C/E artifacts (docs/reports or nested desk-*)",
+    )
+    .option("--output <dir>", "Craft output directory", defaultOutput)
+    .option(
+      "--name <slug>",
+      "Scaffold name (defensive only — offensive names are refused)",
+      "zeroday-defensive-operator",
+    )
+    .option(
+      "--kind <skill|plugin|both>",
+      `Emit skill, plugin stub, or both (default: ${defaultKind})`,
+      defaultKind,
+    )
+    .option(
+      "--intent <text>",
+      "Optional free-text intent (scanned; offensive/PoC/attack patterns refused)",
+    )
+    .option("--json", "Print craft.json to stdout", false)
+    .option(
+      "--fixture",
+      "Use checked-in docs/reports Desk B→A→C→E artifacts as --from",
+      false,
+    )
+    .action(
+      async (opts: {
+        from?: string;
+        output: string;
+        name: string;
+        kind: string;
+        intent?: string;
+        json: boolean;
+        fixture: boolean;
+      }) => {
+        try {
+          await runCraftCli({ ...opts, defaultKind });
+        } catch (e) {
+          console.error(`${name} failed: ${(e as Error).message}`);
+          process.exitCode = 2;
+        }
+      },
+    );
+}
+
+registerCraftCommand(
+  "craft",
+  "Desk D: generate defensive Cursor/Grok SKILL.md + plugin stub from Desk B→A→C→E patterns (generate-only)",
+  "both",
+  "zeroday-reports/craft",
+);
+registerCraftCommand(
+  "skill",
+  "Desk D alias: generate defensive SKILL.md scaffold (same as craft --kind skill)",
+  "skill",
+  "zeroday-reports/craft-skill",
+);
+registerCraftCommand(
+  "plugin",
+  "Desk D alias: generate defensive plugin stub (same as craft --kind plugin)",
+  "plugin",
+  "zeroday-reports/craft-plugin",
+);
 
 program
   .command("packet")

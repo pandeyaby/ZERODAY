@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "zeroday-craft-scaffold/v1",
+  "desk": "D",
+  "generatedAt": "2026-09-14T05:42:06.372Z",
+  "name": "zeroday-defensive-operator",
+  "kind": "both",
+  "source": {
+    "reportsDir": "docs/reports",
+    "inventoryJson": "desk-b-inventory.json",
+    "packetJson": "packet.json",
+    "hardenJson": "harden.json",
+    "classifyJson": "classify.json",
+    "findingsJson": "findings.json",
+    "caseNote": "desk-b-case-note.md",
+    "sarifPaths": [
+      "desk-b-inventory.sarif",
+      "desk-b-inventory.sarif"
+    ]
+  },
+  "patterns": [
+    {
+      "id": "baseline:inventory",
+      "stage": "inventory",
+      "habit": "Inventory authorized local repos/config surfaces first (Actions, Docker, manifests, agent/skills). Names/patterns only — never secret values.",
+      "sourceArtifact": "baseline"
+    },
+    {
+      "id": "inventory:agent_harness",
+      "stage": "inventory",
+      "habit": "When inventory flags agent/skill harness hints, keep exploration read-only and require human review before any harness change.",
+      "evidenceKind": "agent_harness",
+      "evidencePath": "AGENTS.md",
+      "sourceArtifact": "desk-b-inventory.json"
+    },
+    {
+      "id": "inventory:ci_secret_pattern",
+      "stage": "inventory",
+      "habit": "Treat secret *names* and env-example honesty as hygiene surfaces; never export values.",
+      "evidenceKind": "ci_secret_pattern",
+      "evidencePath": ".github/workflows/ci.yml",
+      "sourceArtifact": "desk-b-inventory.json"
+    },
+    {
+      "id": "inventory:config_surface",
+      "stage": "inventory",
+      "habit": "Track localized config surfaces with CODEOWNERS / review checklists; no auto-PR.",
+      "evidenceKind": "config_surface",
+      "evidencePath": ".env.example",
+      "sourceArtifact": "desk-b-inventory.json"
+    },
+    {
+      "id": "inventory:dependency_harness",
+      "stage": "inventory",
+      "habit": "When inventory flags install/lifecycle scripts, recommend pin/review — never auto-enable remote shell patterns.",
+      "evidenceKind": "dependency_harness",
+      "evidencePath": "package.json",
+      "sourceArtifact": "desk-b-inventory.json"
+    },
+    {
+      "id": "inventory:env_example_honesty",
+      "stage": "inventory",
+      "habit": "Treat secret *names* and env-example honesty as hygiene surfaces; never export values.",
+      "evidenceKind": "env_example_honesty",
+      "evidencePath": ".env.example",
+      "sourceArtifact": "desk-b-inventory.json"
+    },
+    {
+      "id": "baseline:locate",
+      "stage": "locate",
+      "habit": "Locate with fixture or keyless operate; localization ≠ exploitability. Read-only list/grep/read inside the snapshot.",
+      "sourceArtifact": "baseline"
+    },
+    {
+      "id": "locate:sarif-present",
+      "stage": "locate",
+      "habit": "SARIF evidence present — treat as localization candidates for human triage, not exploit proof.",
+      "sourceArtifact": "desk-b-inventory.sarif"
+    },
+    {
+      "id": "baseline:packet",
+      "stage": "packet",
+      "habit": "Package evidence into an offline security packet for human handoff — generate only, no Slack/GH/email auto-post.",
+      "sourceArtifact": "baseline"
+    },
+    {
+      "id": "packet:agent-misfire",
+      "stage": "packet",
+      "habit": "Packet label `agent-misfire` is evidence-backed only — share offline; never auto-post.",
+      "evidenceKind": "agent-misfire",
+      "sourceArtifact": "findings.json"
+    },
+    {
+      "id": "packet:config",
+      "stage": "packet",
+      "habit": "Packet label `config` is evidence-backed only — share offline; never auto-post.",
+      "evidenceKind": "config",
+      "sourceArtifact": "findings.json"
+    },
+    {
+      "id": "packet:dependency",
+      "stage": "packet",
+      "habit": "Packet label `dependency` is evidence-backed only — share offline; never auto-post.",
+      "evidenceKind": "dependency",
+      "sourceArtifact": "findings.json"
+    },
+    {
+      "id": "packet:unknown",
+      "stage": "packet",
+      "habit": "Packet label `unknown` is evidence-backed only — share offline; never auto-post.",
+      "evidenceKind": "unknown",
+      "sourceArtifact": "findings.json"
+    },
+    {
+      "id": "baseline:harden",
+      "stage": "harden",
+      "habit": "Emit agent/package harden recommendations only — no auto-apply, no auto-PR, no auto-merge.",
+      "sourceArtifact": "baseline"
+    },
+    {
+      "id": "harden:agent-harness",
+      "stage": "harden",
+      "habit": "Harden category `agent-harness` → recommend-only notes; human applies changes.",
+      "evidenceKind": "agent-harness",
+      "sourceArtifact": "harden.json"
+    },
+    {
+      "id": "harden:config-surface",
+      "stage": "harden",
+      "habit": "Harden category `config-surface` → recommend-only notes; human applies changes.",
+      "evidenceKind": "config-surface",
+      "sourceArtifact": "harden.json"
+    },
+    {
+      "id": "harden:package-scripts",
+      "stage": "harden",
+      "habit": "Harden category `package-scripts` → recommend-only notes; human applies changes.",
+      "evidenceKind": "package-scripts",
+      "sourceArtifact": "harden.json"
+    },
+    {
+      "id": "harden:secrets-hygiene",
+      "stage": "harden",
+      "habit": "Harden category `secrets-hygiene` → recommend-only notes; human applies changes.",
+      "evidenceKind": "secrets-hygiene",
+      "sourceArtifact": "harden.json"
+    },
+    {
+      "id": "baseline:classify",
+      "stage": "classify",
+      "habit": "Classify crashes/incidents with evidence; ambiguous → needs_human. Classification ≠ exploitability; no auto-remediate.",
+      "sourceArtifact": "baseline"
+    },
+    {
+      "id": "classify:software_defect",
+      "stage": "classify",
+      "habit": "Prefer `needs_human` when signals are ambiguous — never invent breach.",
+      "evidenceKind": "software_defect",
+      "sourceArtifact": "classify.json"
+    }
+  ],
+  "scaffolds": [
+    {
+      "kind": "skill",
+      "name": "zeroday-defensive-operator",
+      "relativePath": "skills/zeroday-defensive-operator/SKILL.md",
+      "title": "zeroday-defensive-operator (SKILL.md)"
+    },
+    {
+      "kind": "plugin",
+      "name": "zeroday-defensive-operator",
+      "relativePath": "plugins/zeroday-defensive-operator/plugin.json",
+      "title": "zeroday-defensive-operator (plugin stub)"
+    },
+    {
+      "kind": "plugin",
+      "name": "zeroday-defensive-operator",
+      "relativePath": "plugins/zeroday-defensive-operator/README.md",
+      "title": "zeroday-defensive-operator (plugin README)"
+    }
+  ],
+  "refused": false,
+  "posture": {
+    "generateOnly": true,
+    "noAutoInstall": true,
+    "noMarketplacePublish": true,
+    "noPoC": true,
+    "refusesOffensive": true,
+    "secretsRedacted": true,
+    "needsHuman": true,
+    "localizationOnly": true,
+    "habitsEncoded": true
+  }
+}
