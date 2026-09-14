@@ -64,18 +64,18 @@ makes Antares usable every day.
 evidence → SARIF / `report.md`. Keyless does **not** invent a second product —
 only the localization brain swaps.
 
-**Four doors:**
+**Four doors** for discovery, plus an org **recording replay** door (Keyless K3):
 
 1. **Fixture smoke** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp` /
    `locate --fixture`): deterministic recorded brain for CI and strangers — no
    GPU, no HF token, no spend. Proves the workstation + SARIF habit. Output
    `mode: "fixture"`. Honest: this is not live Antares F1; it validates the
-   factory shape. **mvp stays fixture smoke** — it does not switch to rules or
-   ingest.
+   factory shape. **mvp stays fixture smoke** — it does not switch to rules,
+   ingest, or org recordings.
 
 2. **Rules on a real repo** (`locate --rules`, $0): thin in-repo CWE heuristics
    (CWE-89 required; CWE-79 / CWE-22 optional) on your authorized `--repo`.
-   Explicit flag only — refuses `--fixture`, `--from-sarif`, and
+   Explicit flag only — refuses `--fixture`, `--from-sarif`, `--recording`, and
    `--live`/`--endpoint`. Output `mode: "rules"`. Honest: **rules ≠ Antares
    File F1** and ≠ exploitability. No Semgrep binary, no Docker, no HF.
 
@@ -93,14 +93,21 @@ only the localization brain swaps.
    pods; never scrapes HF; never silent fallback to fixture/rules/ingest if the
    endpoint is down.
 
-| | Fixture smoke | Rules (keyless) | SARIF ingest | Live Antares |
-|--|---------------|-----------------|--------------|--------------|
-| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B (your completions host) |
-| What you need | `npm install` | `npm install` + authorized `--repo` | `npm install` + local `.sarif` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
-| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --from-sarif path/to/report.sarif` | `locate --endpoint … --remote-inference` |
-| SARIF `mode` | `"fixture"` | `"rules"` | `"ingest"` | `"live"` |
-| Cost | $0 | $0 | $0 | GPU / pod spend (you control) |
-| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Reuse third-party scanner output in ZERODAY evidence | Live localization on an authorized repo |
+**Org cassette replay** (`record --redact` → `locate --recording`, Keyless K3):
+after a real locate (rules / ingest / live / fixture), save a **redacted** org
+recording for CI regression — the team's cassette, **not** mvp product fixtures
+under `fixtures/locate/recordings/`. `--redact` is default ON and fail-closed.
+Replay sets honest `mode: "recording"`. Never auto-commit / auto-PR / upload
+cassettes; **a human reviews redaction before commit**.
+
+| | Fixture smoke | Rules (keyless) | SARIF ingest | Live Antares | Org recording |
+|--|---------------|-----------------|--------------|--------------|---------------|
+| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B (your completions host) | Redacted cassette replay |
+| What you need | `npm install` | `npm install` + authorized `--repo` | `npm install` + local `.sarif` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) | Prior locate report + human-reviewed cassette |
+| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --from-sarif path/to/report.sarif` | `locate --endpoint … --remote-inference` | `record --from <dir> --out c.json` → `locate --recording c.json` |
+| SARIF `mode` | `"fixture"` | `"rules"` | `"ingest"` | `"live"` | `"recording"` |
+| Cost | $0 | $0 | $0 | GPU / pod spend (you control) | $0 |
+| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Reuse third-party scanner output in ZERODAY evidence | Live localization on an authorized repo | CI regression of a redacted org localize |
 
 Then the Desk loop (`inventory` → `packet` → `harden` → `classify` → `craft`)
 runs **keyless on your tree** (cwd / `--repo` / `--from`) without Antares —
@@ -146,7 +153,7 @@ npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rul
 ```
 
 Refuses mixed doors: `--rules` + `--fixture` or `--live`/`--endpoint` or
-`--from-sarif` → fail closed.
+`--from-sarif` or `--recording` → fail closed.
 
 ---
 
@@ -165,8 +172,37 @@ npm run zeroday -- locate --from-sarif path/to/semgrep.sarif --cwe CWE-89
 npm run zeroday -- locate --from-sarif fixtures/locate/ingest-sample/sample.sarif --cwe CWE-89
 ```
 
-Refuses mixed doors: `--from-sarif` + `--fixture` / `--rules` / `--live` /
-`--endpoint` → fail closed. Does not change `npm run mvp` (fixture smoke stays).
+Refuses mixed doors: `--from-sarif` + `--fixture` / `--rules` / `--recording` /
+`--live` / `--endpoint` → fail closed. Does not change `npm run mvp` (fixture
+smoke stays).
+
+---
+
+## Org CI cassettes (`record --redact`, Keyless K3)
+
+After a real locate (rules / ingest / live / fixture), save a **redacted** org
+recording for CI regression. These are the **team's cassettes** — not mvp
+product fixtures in `fixtures/locate/recordings/`.
+
+```bash
+# 1. Locate (example: rules on sample tree)
+npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rules \
+  --output zeroday-reports/org-locate
+
+# 2. Record — --redact default ON (fail-closed; refuses incomplete / empty rankedFiles)
+npm run zeroday -- record --from zeroday-reports/org-locate \
+  --out fixtures/locate/org-recordings/rules-cwe-89.cassette.json
+
+# 3. Human reviews the cassette (paths relative? secrets stripped?) before commit
+
+# 4. Replay offline
+npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json
+```
+
+Hard locks: absolute paths → repo-relative; secret-shaped strings stripped;
+refuse write if redaction fail-closed; **no auto-commit / auto-PR / network
+exfil**; localization ≠ exploitability. See
+[`fixtures/locate/org-recordings/README.md`](./fixtures/locate/org-recordings/README.md).
 
 ---
 
@@ -425,6 +461,7 @@ Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) · [coo
 | **`npm run mvp`** / **`locate --fixture`** | No GPU / no HF | Yes — **default smoke** |
 | **`locate --rules`** | No GPU / no HF + authorized `--repo` | Yes — keyless real-repo heuristics |
 | **`locate --from-sarif`** | No GPU / no HF + local `.sarif` | Yes — third-party ingest (mode=ingest) |
+| **`record` → `locate --recording`** | Prior locate report (offline) | Yes — redacted org cassette replay (mode=recording) |
 | **`operate`** (keyless) | Coding agent + snapshot | Yes (after submission / `--fixture`) |
 | **`locate --endpoint …`** (live) | HF accept + CUDA/vLLM or RunPod + ACK | Yes — **opt-in, costs $** |
 | **`antares doctor`** | Nothing | No — print-only checklist |
@@ -481,6 +518,10 @@ npm run zeroday -- locate --cwe CWE-89 --repo /path/to/repo --rules
 
 # SARIF ingest (local file only — mode=ingest)
 npm run zeroday -- locate --from-sarif path/to/report.sarif --cwe CWE-89
+
+# Org CI cassette (Keyless K3 — redacted; human reviews before commit)
+npm run zeroday -- record --from zeroday-reports/org-locate --out cassette.json
+npm run zeroday -- locate --recording cassette.json
 
 # Desk on your tree (keyless, no Antares — not vuln discovery)
 npm run zeroday -- inventory

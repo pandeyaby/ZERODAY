@@ -21,15 +21,22 @@ import {
   REMOTE_DOCS_HINT,
 } from "../factory/provider";
 
-export type LocateRunMode = "fixture" | "live" | "rules" | "ingest";
+export type LocateRunMode =
+  | "fixture"
+  | "live"
+  | "rules"
+  | "ingest"
+  | "recording";
 
 export interface ModeResolveInput {
   fixture?: boolean;
   live?: boolean;
-  /** Explicit keyless real-repo heuristics (Keyless K1). Incompatible with fixture/live/ingest. */
+  /** Explicit keyless real-repo heuristics (Keyless K1). Incompatible with fixture/live/ingest/recording. */
   rules?: boolean;
-  /** Local SARIF path (Keyless K2). Incompatible with fixture/rules/live. */
+  /** Local SARIF path (Keyless K2). Incompatible with fixture/rules/live/recording. */
   fromSarif?: string;
+  /** Redacted org cassette path (Keyless K3). Replay door — incompatible with other doors. */
+  recording?: string;
   /** Raw or normalized endpoint (ANTARES_ENDPOINT / --endpoint) */
   endpoint?: string;
   /** Opt-in: allow prompts/repo-derived context to a remote GPU endpoint */
@@ -44,9 +51,10 @@ export const LIVE_ENDPOINT_REQUIRED =
   "(requires --remote-inference).";
 
 export const MIXED_MODE_REFUSED =
-  "Refusing mixed mode: --fixture, --rules, --from-sarif, and --live/--endpoint are mutually exclusive. " +
+  "Refusing mixed mode: --fixture, --rules, --from-sarif, --recording, and --live/--endpoint are mutually exclusive. " +
   "--fixture is CI / no-GPU recorded smoke only; --rules is keyless real-repo heuristics; " +
   "--from-sarif ingests a local SARIF file (no network); " +
+  "--recording replays a redacted org CI cassette (Keyless K3); " +
   "live Antares needs a healthy --endpoint (see scripts/quickstart-live.sh). " +
   "Do not combine these doors.";
 
@@ -76,9 +84,11 @@ function isLoopbackEndpoint(endpoint: string): boolean {
 }
 
 /**
- * Resolve fixture vs rules vs ingest vs live. Throws on ambiguous / unsafe combinations.
+ * Resolve fixture vs rules vs ingest vs recording vs live.
+ * Throws on ambiguous / unsafe combinations.
  * Default (no flags) → fixture (CI-safe). --rules → rules. --from-sarif → ingest.
- * --endpoint or --live → live (hard). Remote endpoints need --remote-inference.
+ * --recording → org cassette replay. --endpoint or --live → live (hard).
+ * Remote endpoints need --remote-inference.
  */
 export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
   const endpoint = input.endpoint?.trim() || "";
@@ -86,12 +96,17 @@ export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
   const wantsLive = Boolean(input.live) || hasEndpoint;
   const wantsRules = Boolean(input.rules);
   const wantsIngest = Boolean(input.fromSarif?.trim());
+  const wantsRecording = Boolean(input.recording?.trim());
   const wantsFixture = Boolean(input.fixture);
 
-  // Mutual exclusion: fixture / rules / ingest / live
-  const doors = [wantsFixture, wantsRules, wantsIngest, wantsLive].filter(
-    Boolean,
-  ).length;
+  // Mutual exclusion: fixture / rules / ingest / recording / live
+  const doors = [
+    wantsFixture,
+    wantsRules,
+    wantsIngest,
+    wantsRecording,
+    wantsLive,
+  ].filter(Boolean).length;
   if (doors > 1) {
     throw new Error(MIXED_MODE_REFUSED);
   }
@@ -107,6 +122,9 @@ export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
       }
     }
     return "live";
+  }
+  if (wantsRecording) {
+    return "recording";
   }
   if (wantsIngest) {
     return "ingest";

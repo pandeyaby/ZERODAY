@@ -14,6 +14,10 @@ npm run zeroday -- locate --cwe CWE-89 --repo ./app --rules
 npm run zeroday -- locate --from-sarif path/to/report.sarif
 npm run zeroday -- locate --from-sarif path/to/report.sarif --cwe CWE-89
 
+# Org CI cassette (Keyless K3 — redacted; not mvp fixtures)
+npm run zeroday -- record --from zeroday-reports/org-locate --out cassette.json
+npm run zeroday -- locate --recording cassette.json
+
 # Desk on your tree (keyless — not vuln discovery; no Antares required)
 npm run zeroday -- inventory
 npm run zeroday -- packet
@@ -57,10 +61,11 @@ npm run zeroday -- play --action locate
 npm run zeroday -- sweep --endpoint http://127.0.0.1:8000/v1
 ```
 
-`--fixture`, `--rules`, `--from-sarif`, and `--live`/`--endpoint` are mutually exclusive (no silent mock fallback).
+`--fixture`, `--rules`, `--from-sarif`, `--recording`, and `--live`/`--endpoint` are mutually exclusive (no silent mock fallback).
 Non-loopback endpoints require `--remote-inference` or `ZERODAY_REMOTE_INFERENCE_ACK=1`.
 Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** exploitability.
 Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discovery; no alerts API fetch.
+`record --redact` (default ON, fail-closed) writes org CI cassettes; `locate --recording` replays them as `mode: "recording"`. Human reviews redaction before commit — never auto-commit / network-exfil. Org cassettes ≠ mvp fixtures.
 
 ## Local UI API (npm run play)
 
