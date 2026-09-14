@@ -53,6 +53,27 @@ Artifacts: `inventory.json` · `inventory.md` · `inventory.sarif` · `case-note
 
 Stranger door stays **`npm run mvp`** (fixture → SARIF). Live Antares remains opt-in.
 
+## Security packet (Desk A — offline share)
+
+Packages existing Desk B inventory reports + SARIF into a stranger-readable
+folder for **manual** handoff to a security team. Does **not** re-run inventory.
+Does **not** auto-post to Slack / GitHub / email.
+
+```bash
+# One command — consume checked-in Desk B reports
+npm run zeroday -- packet --from docs/reports
+
+# Or after a live inventory run:
+npm run zeroday -- packet --from zeroday-reports/desk-b-inventory \
+  --output zeroday-reports/security-packet
+```
+
+Emits `summary.md` · `findings.json` / `findings.md` · `packet.json` · SARIF copy ·
+module/PR/ticket placeholders. Labels (`agent-misfire` / `config` / `dependency` /
+`unknown`) only when inventory kind evidence maps — **no guessing**.
+
+Sample: [`docs/reports/desk-a-packet/`](./reports/desk-a-packet/).
+
 ## One command (CI-safe factory)
 
 ```bash

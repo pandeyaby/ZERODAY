@@ -4,6 +4,7 @@
  *
  *   zeroday mvp                        # keyless fixture → SARIF PASS/FAIL
  *   zeroday inventory …                # multi-repo + config surfaces → locate hints
+ *   zeroday packet --from <reports>    # Desk A security packet (offline share)
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -281,6 +282,92 @@ program
         await runInventoryCli(opts);
       } catch (e) {
         console.error(`inventory failed: ${(e as Error).message}`);
+        process.exitCode = 2;
+      }
+    },
+  );
+
+program
+  .command("packet")
+  .description(
+    "Desk A: offline security packet from inventory reports (summary + findings + SARIF; no auto-send)",
+  )
+  .option(
+    "--from <dir>",
+    "Reports directory with inventory.json / desk-b-inventory.json + SARIF",
+  )
+  .option(
+    "--output <dir>",
+    "Packet output directory",
+    "zeroday-reports/security-packet",
+  )
+  .option("--module-link <url>", "Optional module/product link placeholder")
+  .option("--pr-link <url>", "Optional PR link placeholder")
+  .option("--ticket-link <url>", "Optional ticket link placeholder")
+  .option("--json", "Print packet.json to stdout", false)
+  .option(
+    "--fixture",
+    "Use checked-in docs/reports Desk B artifacts as --from",
+    false,
+  )
+  .action(
+    async (opts: {
+      from?: string;
+      output: string;
+      moduleLink?: string;
+      prLink?: string;
+      ticketLink?: string;
+      json: boolean;
+      fixture: boolean;
+    }) => {
+      try {
+        const {
+          writeSecurityPacket,
+          defaultPacketReportsDir,
+        } = await import("../src/packet/index.ts");
+
+        const fromDir = opts.fixture
+          ? defaultPacketReportsDir(REPO_ROOT)
+          : opts.from
+            ? path.resolve(opts.from)
+            : defaultPacketReportsDir(REPO_ROOT);
+
+        const result = writeSecurityPacket(fromDir, opts.output, {
+          moduleLink: opts.moduleLink,
+          prLink: opts.prLink,
+          ticketLink: opts.ticketLink,
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify(result.packet, null, 2));
+        } else {
+          const c = result.packet.classificationCounts;
+          console.log("");
+          console.log("ZERODAY security packet (Desk A)");
+          console.log("────────────────────────────────");
+          console.log(`From      : ${fromDir}`);
+          console.log(`Findings  : ${result.packet.findings.length}`);
+          console.log(
+            `Labels    : agent-misfire ${c["agent-misfire"]} · config ${c.config} · dependency ${c.dependency} · unknown ${c.unknown}`,
+          );
+          console.log("");
+          console.log(`Packet    : ${result.packetJsonPath}`);
+          console.log(`Summary   : ${result.summaryPath}`);
+          console.log(`Findings  : ${result.findingsJsonPath}`);
+          for (const s of result.sarifPaths) {
+            console.log(`SARIF     : ${s}`);
+          }
+          console.log(`README    : ${result.readmePath}`);
+          console.log("");
+          console.log(
+            "Share manually with security — ZERODAY does not auto-post.",
+          );
+          console.log(
+            "Posture: localize + evidence + harden · no PoC · secrets redacted · no auto-send",
+          );
+        }
+      } catch (e) {
+        console.error(`packet failed: ${(e as Error).message}`);
         process.exitCode = 2;
       }
     },

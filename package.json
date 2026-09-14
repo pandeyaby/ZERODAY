@@ -18,6 +18,7 @@
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "inventory": "tsx cli/index.ts inventory",
+    "packet": "tsx cli/index.ts packet",
     "mvp": "tsx cli/index.ts mvp",
     "locate": "tsx cli/index.ts locate",
     "operate": "tsx cli/index.ts operate",
