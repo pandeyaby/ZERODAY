@@ -1,5 +1,7 @@
 # ZERODAY
 
+![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
+
 Local-first defensive vulnerability **localization** around
 [Antares](https://cisco-foundation-ai.github.io/antares/) — keyless fixture /
 operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
