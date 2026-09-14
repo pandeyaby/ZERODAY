@@ -23,7 +23,7 @@ export interface InternalFinding {
   /** Only when present in source report — never invented */
   startLine?: number;
   endLine?: number;
-  mode: "fixture" | "live" | "agent" | "rules";
+  mode: "fixture" | "live" | "agent" | "rules" | "ingest";
   model: string;
   generatedAt: string;
   targetRepo: string;

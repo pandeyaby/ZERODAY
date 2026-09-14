@@ -10,6 +10,10 @@ npm run zeroday -- mvp
 # Rules locate on a real authorized repo ($0 — mode=rules; not Antares F1)
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --rules
 
+# SARIF ingest from a local file ($0 — mode=ingest; third-party findings)
+npm run zeroday -- locate --from-sarif path/to/report.sarif
+npm run zeroday -- locate --from-sarif path/to/report.sarif --cwe CWE-89
+
 # Desk on your tree (keyless — not vuln discovery; no Antares required)
 npm run zeroday -- inventory
 npm run zeroday -- packet
@@ -53,9 +57,10 @@ npm run zeroday -- play --action locate
 npm run zeroday -- sweep --endpoint http://127.0.0.1:8000/v1
 ```
 
-`--fixture`, `--rules`, and `--live`/`--endpoint` are mutually exclusive (no silent mock fallback).
+`--fixture`, `--rules`, `--from-sarif`, and `--live`/`--endpoint` are mutually exclusive (no silent mock fallback).
 Non-loopback endpoints require `--remote-inference` or `ZERODAY_REMOTE_INFERENCE_ACK=1`.
 Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** exploitability.
+Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discovery; no alerts API fetch.
 
 ## Local UI API (npm run play)
 

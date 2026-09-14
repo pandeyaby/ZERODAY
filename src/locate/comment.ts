@@ -22,7 +22,9 @@ export function toPullRequestComment(result: LocalizationResult): string {
         ? "live Antares — local completions endpoint"
         : result.mode === "rules"
           ? "rules — thin in-repo heuristics (not Antares F1)"
-          : "keyless agent operator";
+          : result.mode === "ingest"
+            ? "ingest — third-party SARIF file (not Antares/rules discovery)"
+            : "keyless agent operator";
   lines.push(
     `| Advisory | \`${result.advisory.id}\` → \`${result.advisory.cweId}\` |`,
   );

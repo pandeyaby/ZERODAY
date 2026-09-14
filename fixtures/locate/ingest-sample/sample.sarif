@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CodeQL",
+          "informationUri": "https://codeql.github.com",
+          "rules": [
+            {
+              "id": "js/sql-injection",
+              "name": "js/sql-injection",
+              "shortDescription": {
+                "text": "SQL query built from user-controlled sources"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-089"
+                ]
+              }
+            },
+            {
+              "id": "js/xss",
+              "name": "js/xss",
+              "shortDescription": {
+                "text": "DOM text rewritten with a user-controlled value"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-079"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "js/sql-injection",
+          "ruleIndex": 0,
+          "level": "warning",
+          "message": {
+            "text": "This query depends on a user-provided value."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/search.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 12,
+                  "endLine": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "js/xss",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "Cross-site scripting candidate (fixture only)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/render.js"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "Semgrep",
+          "rules": [
+            {
+              "id": "javascript.lang.security.audit.sqli.node-mysql-sqli",
+              "name": "node-mysql-sqli",
+              "properties": {
+                "cwe": ["CWE-89"],
+                "tags": ["security"]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "javascript.lang.security.audit.sqli.node-mysql-sqli",
+          "message": {
+            "text": "Detected SQL statement constructed with string concatenation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/users.js"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "cwe": ["CWE-89"]
+          }
+        }
+      ]
+    }
+  ]
+}
