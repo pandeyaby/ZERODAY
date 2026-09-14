@@ -28,6 +28,8 @@ npm run play
 
 Buttons run existing fixture paths: locate CWE-89, classify each scenario, mixed `zeroday demo`. The UI shows a SARIF summary, Splunk-shaped JSON snippet, and CISO markdown. No live telemetry, no simulated attacks, no exploits, no gated weights. Defensive tabs only.
 
+**FAQ tab** — same Keyless Strength Q&As as [`docs/faq.md`](./faq.md) (`src/faq/content.ts`).
+
 Headless:
 
 ```bash

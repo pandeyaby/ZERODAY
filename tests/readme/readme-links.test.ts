@@ -54,6 +54,7 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /No silent fixture fallback|no silent fixture fallback/i);
     assert.match(readme, /Localization ≠ exploitability|localization ≠ exploitability/i);
     assert.match(readme, /not an official Cisco partnership|No partnership claims|Not a Cisco product/i);
+    assert.match(readme, /docs\/faq\.md/);
     assert.doesNotMatch(readme, /ZERODAY mandate|Cisco Antares \/ ZERODAY mandate/i);
     assert.match(readme, /report\.sarif/);
     assert.match(readme, /\/v1\/completions/);

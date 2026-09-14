@@ -2,14 +2,7 @@
  * In-app documentation — defensive agent operator (no kill-chain / Plinius).
  */
 
-export interface DocSection {
-  slug: string;
-  title: string;
-  summary: string;
-  group: "audience" | "reference";
-  persona?: string;
-  body: DocBlock[];
-}
+import { FAQ_INTRO, FAQ_ITEMS, type FaqBlock } from "@/faq/content";
 
 export type DocBlock =
   | { type: "p"; text: string }
@@ -19,6 +12,23 @@ export type DocBlock =
   | { type: "code"; lang?: string; text: string }
   | { type: "callout"; tone: "info" | "warn" | "ok"; title: string; text: string }
   | { type: "table"; headers: string[]; rows: string[][] };
+
+function faqBlocksToDocBlocks(blocks: FaqBlock[]): DocBlock[] {
+  return blocks.map((b) => {
+    if (b.type === "p") return { type: "p" as const, text: b.text };
+    if (b.type === "ul") return { type: "ul" as const, items: b.items };
+    return { type: "table" as const, headers: b.headers, rows: b.rows };
+  });
+}
+
+export interface DocSection {
+  slug: string;
+  title: string;
+  summary: string;
+  group: "audience" | "reference";
+  persona?: string;
+  body: DocBlock[];
+}
 
 export const AUDIENCE_DOC_SLUGS = [
   "for-everyone",
@@ -207,18 +217,15 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     slug: "faq",
     title: "FAQ",
-    summary: "Keyless vs live, no partnerships, no PoCs.",
+    summary: "Keyless Strength honesty — doors, Desk, Antares, no PoCs.",
     group: "reference",
     body: [
-      {
-        type: "ul",
-        items: [
-          "Default is keyless operate — no HF token",
-          "Not an official Cisco/Splunk/… partnership product",
-          "Localization ≠ exploitability",
-          "Never auto-merge",
-        ],
-      },
+      { type: "p", text: FAQ_INTRO },
+      { type: "callout", tone: "warn", title: "Play UI", text: "Same Q&As live under npm run play → FAQ tab (src/faq/content.ts)." },
+      ...FAQ_ITEMS.flatMap((item) => [
+        { type: "h3" as const, text: item.question },
+        ...faqBlocksToDocBlocks(item.answer),
+      ]),
     ],
   },
   {
