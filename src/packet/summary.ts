@@ -175,9 +175,10 @@ Offline packet for sharing inventory localization findings with a security team.
 ## One command
 
 \`\`\`bash
-npm run zeroday -- packet --from docs/reports
-# or after inventory:
-npm run zeroday -- packet --from zeroday-reports/desk-b-inventory
+npm run zeroday -- packet
+npm run zeroday -- packet --from zeroday-reports/inventory
+# fixture smoke:
+npm run zeroday -- packet --fixture
 \`\`\`
 
 ## Contents

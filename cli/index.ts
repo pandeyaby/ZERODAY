@@ -2,12 +2,12 @@
 /**
  * ZERODAY CLI — Localization & Evidence Defense Factory.
  *
- *   zeroday mvp                        # keyless fixture → SARIF PASS/FAIL
- *   zeroday inventory …                # multi-repo + config surfaces → locate hints
- *   zeroday packet --from <reports>    # Desk A security packet (offline share)
- *   zeroday harden --from <reports>    # Desk C agent/package harden (recommend-only)
- *   zeroday craft --from <reports>     # Desk D defensive skill/plugin scaffolds
- *   zeroday classify --from <dir>      # Desk E crash classify + evidence
+ *   zeroday mvp                        # keyless fixture smoke → SARIF PASS/FAIL
+ *   zeroday inventory                  # Desk B on cwd / --repo (real tree; --fixture for smoke)
+ *   zeroday packet                     # Desk A from zeroday-reports/ or --from (--fixture smoke)
+ *   zeroday harden                     # Desk C from real reports dir (--fixture smoke)
+ *   zeroday craft                      # Desk D from real reports dir (--fixture smoke)
+ *   zeroday classify                   # Desk E from real reports / --from (--fixture smoke)
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -49,7 +49,6 @@ import {
   runClassify,
   listClassifyScenarios,
   runMixedPack,
-  defaultClassifyFixtureDir,
 } from "../src/classify/index.ts";
 import { operate } from "../src/operate/index.ts";
 import { verifyRunDir } from "../src/evidence/vault.ts";
@@ -58,6 +57,11 @@ import {
   resolveInferenceProvider,
 } from "../src/factory/index.ts";
 import { runMvp, formatMvpBanner } from "../src/mvp/index.ts";
+import {
+  resolveClassifyFromPath,
+  resolveDeskReportsFrom,
+  resolveInventoryTarget,
+} from "../src/desk/index.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -96,6 +100,7 @@ async function runInventoryCli(opts: {
   from?: string;
   output?: string;
   json: boolean;
+  fixture: boolean;
 }): Promise<void> {
   const {
     writeInventory,
@@ -103,11 +108,19 @@ async function runInventoryCli(opts: {
     loadInventoryManifest,
   } = await import("../src/factory/index.ts");
 
+  const target = resolveInventoryTarget({
+    fixture: opts.fixture,
+    from: opts.from,
+    repo: opts.repo,
+    cwd: process.cwd(),
+    repoRoot: REPO_ROOT,
+  });
+
   const entries: Array<{ path: string; id?: string; optional?: boolean }> = [];
   const skipped: Array<{ id: string; reason: string }> = [];
 
-  if (opts.from) {
-    const manifestAbs = path.resolve(opts.from);
+  if (target.from) {
+    const manifestAbs = path.resolve(target.from);
     const manifest = loadInventoryManifest(manifestAbs);
     const baseDir = path.dirname(manifestAbs);
     for (const r of manifest.repos) {
@@ -120,12 +133,14 @@ async function runInventoryCli(opts: {
     skipped.push(...(manifest.skip ?? []));
   }
 
-  for (const r of opts.repo ?? []) {
+  for (const r of target.repos) {
     if (r && r.length > 0) entries.push({ path: path.resolve(r) });
   }
 
   if (entries.length === 0) {
-    entries.push({ path: defaultFixtureRepo(), id: "demo-app" });
+    throw new Error(
+      "inventory: no target — pass --repo, --from <manifest>, or --fixture (smoke).",
+    );
   }
 
   const outRaw =
@@ -153,6 +168,7 @@ async function runInventoryCli(opts: {
       console.log("");
       console.log("ZERODAY inventory");
       console.log("────────────────");
+      console.log(`Source    : ${target.source}`);
       console.log(`Repo      : ${inv.repoRoot}`);
       console.log(`Files     : ${inv.fileCount}`);
       console.log(
@@ -168,10 +184,10 @@ async function runInventoryCli(opts: {
       console.log(`Case note : ${path.join(outDir, "case-note.md")}`);
       console.log("");
       console.log(
-        "Next: npm run zeroday -- locate --cwe CWE-89 --fixture --repo <path>",
+        "Next: npm run zeroday -- packet   # or packet --from <inventory-out>",
       );
       console.log(
-        "Posture: inventory only · feeds locate · no PoC · secrets redacted",
+        "Posture: inventory only · feeds locate · not vuln discovery · no PoC · secrets redacted",
       );
     }
     return;
@@ -191,6 +207,7 @@ async function runInventoryCli(opts: {
     console.log("");
     console.log("ZERODAY multi-repo inventory");
     console.log("───────────────────────────");
+    console.log(`Source    : ${target.source}`);
     console.log(`Repos     : ${multi.repoCount}`);
     console.log(`Skipped   : ${multi.skipped.map((s) => s.id).join(", ") || "—"}`);
     console.log(`Hotspots  : ${multi.rankedHotspots.length}`);
@@ -209,10 +226,10 @@ async function runInventoryCli(opts: {
     if (caseNotePath) console.log(`Case note : ${caseNotePath}`);
     console.log("");
     console.log(
-      "Compose: inventory → locate (per repo) → factory run --fixture",
+      "Compose: inventory → packet → harden → classify → craft (Desk; locate/Antares separate)",
     );
     console.log(
-      "Posture: inventory only · feeds locate · no PoC · secrets redacted",
+      "Posture: inventory only · feeds locate · not vuln discovery · no PoC · secrets redacted",
     );
   }
 }
@@ -258,11 +275,11 @@ program
 program
   .command("inventory")
   .description(
-    "Defensive multi-repo + config inventory (Actions/Docker/manifests/agent) → ranked locate hints",
+    "Desk B: multi-repo + config inventory on cwd / --repo (real tree). Fixtures via --fixture only.",
   )
   .option(
     "--repo <path>",
-    "Local repo path (repeatable)",
+    "Local repo path (repeatable); default when omitted: current working directory",
     collectRepoOption,
     [] as string[],
   )
@@ -274,6 +291,11 @@ program
     "--output <dir>",
     "Output directory for inventory.json + inventory.md",
   )
+  .option(
+    "--fixture",
+    "Use fixtures/inventory/desk-b manifest (CI / mvp smoke — not the real-tree default)",
+    false,
+  )
   .option("--json", "Print inventory JSON to stdout", false)
   .action(
     async (opts: {
@@ -281,6 +303,7 @@ program
       from?: string;
       output?: string;
       json: boolean;
+      fixture: boolean;
     }) => {
       try {
         await runInventoryCli(opts);
@@ -294,11 +317,11 @@ program
 program
   .command("harden")
   .description(
-    "Desk C: agent/package harden recommendations from Desk B/A reports (recommend-only; optional --draft notes)",
+    "Desk C: agent/package harden from real reports dir / --from (recommend-only; --fixture for smoke)",
   )
   .option(
     "--from <dir>",
-    "Reports directory with inventory.json / packet.json / findings.json (desk-b / desk-a / fixture)",
+    "Reports directory with inventory.json / packet.json / findings.json (default: zeroday-reports/ then docs/reports)",
   )
   .option(
     "--output <dir>",
@@ -313,7 +336,7 @@ program
   .option("--json", "Print harden.json to stdout", false)
   .option(
     "--fixture",
-    "Use checked-in docs/reports Desk B artifacts as --from",
+    "Use checked-in docs/reports Desk artifacts as --from (CI smoke)",
     false,
   )
   .action(
@@ -325,16 +348,16 @@ program
       fixture: boolean;
     }) => {
       try {
-        const {
-          writeHardenReport,
-          defaultHardenReportsDir,
-        } = await import("../src/harden/index.ts");
+        const { writeHardenReport } = await import("../src/harden/index.ts");
 
-        const fromDir = opts.fixture
-          ? defaultHardenReportsDir(REPO_ROOT)
-          : opts.from
-            ? path.resolve(opts.from)
-            : defaultHardenReportsDir(REPO_ROOT);
+        const resolved = resolveDeskReportsFrom({
+          fixture: opts.fixture,
+          from: opts.from,
+          cwd: process.cwd(),
+          repoRoot: REPO_ROOT,
+          command: "harden",
+        });
+        const fromDir = resolved.path;
 
         const result = writeHardenReport(fromDir, opts.output, {
           draft: opts.draft,
@@ -348,6 +371,7 @@ program
           console.log("ZERODAY harden (Desk C)");
           console.log("──────────────────────");
           console.log(`From      : ${fromDir}`);
+          console.log(`Source    : ${resolved.source}`);
           console.log(
             `Recs      : ${result.report.recommendations.length}`,
           );
@@ -369,7 +393,7 @@ program
             "Recommend-only — no auto-apply · no auto-PR · no auto-merge.",
           );
           console.log(
-            "Posture: localize + evidence + harden · no PoC · secrets redacted · needs human",
+            "Posture: Desk harden · not vuln discovery · no PoC · secrets redacted · needs human",
           );
         }
       } catch (e) {
@@ -389,10 +413,7 @@ async function runCraftCli(opts: {
   fixture: boolean;
   defaultKind: "skill" | "plugin" | "both";
 }): Promise<void> {
-  const {
-    writeCraftReport,
-    defaultCraftReportsDir,
-  } = await import("../src/craft/index.ts");
+  const { writeCraftReport } = await import("../src/craft/index.ts");
 
   const kindRaw = (opts.kind || opts.defaultKind || "both").toLowerCase();
   const kind =
@@ -400,11 +421,14 @@ async function runCraftCli(opts: {
       ? kindRaw
       : opts.defaultKind;
 
-  const fromDir = opts.fixture
-    ? defaultCraftReportsDir(REPO_ROOT)
-    : opts.from
-      ? path.resolve(opts.from)
-      : defaultCraftReportsDir(REPO_ROOT);
+  const resolved = resolveDeskReportsFrom({
+    fixture: opts.fixture,
+    from: opts.from,
+    cwd: process.cwd(),
+    repoRoot: REPO_ROOT,
+    command: "craft",
+  });
+  const fromDir = resolved.path;
 
   try {
     const result = writeCraftReport(fromDir, opts.output, {
@@ -420,6 +444,7 @@ async function runCraftCli(opts: {
       console.log("ZERODAY craft (Desk D)");
       console.log("─────────────────────");
       console.log(`From      : ${fromDir}`);
+      console.log(`Source    : ${resolved.source}`);
       console.log(`Name      : ${result.report.name}`);
       console.log(`Kind      : ${result.report.kind}`);
       console.log(`Patterns  : ${result.report.patterns.length}`);
@@ -468,7 +493,7 @@ function registerCraftCommand(
     .description(description)
     .option(
       "--from <dir>",
-      "Reports directory with Desk B/A/C/E artifacts (docs/reports or nested desk-*)",
+      "Reports directory with Desk B/A/C/E artifacts (default: zeroday-reports/ then docs/reports)",
     )
     .option("--output <dir>", "Craft output directory", defaultOutput)
     .option(
@@ -488,7 +513,7 @@ function registerCraftCommand(
     .option("--json", "Print craft.json to stdout", false)
     .option(
       "--fixture",
-      "Use checked-in docs/reports Desk B→A→C→E artifacts as --from",
+      "Use checked-in docs/reports Desk artifacts as --from (CI smoke)",
       false,
     )
     .action(
@@ -533,11 +558,11 @@ registerCraftCommand(
 program
   .command("packet")
   .description(
-    "Desk A: offline security packet from inventory reports (summary + findings + SARIF; no auto-send)",
+    "Desk A: offline security packet from real inventory reports / --from (no auto-send; --fixture for smoke)",
   )
   .option(
     "--from <dir>",
-    "Reports directory with inventory.json / desk-b-inventory.json + SARIF",
+    "Reports directory with inventory.json / desk-b-inventory.json + SARIF (default: zeroday-reports/ then docs/reports)",
   )
   .option(
     "--output <dir>",
@@ -550,7 +575,7 @@ program
   .option("--json", "Print packet.json to stdout", false)
   .option(
     "--fixture",
-    "Use checked-in docs/reports Desk B artifacts as --from",
+    "Use checked-in docs/reports Desk artifacts as --from (CI smoke)",
     false,
   )
   .action(
@@ -564,16 +589,16 @@ program
       fixture: boolean;
     }) => {
       try {
-        const {
-          writeSecurityPacket,
-          defaultPacketReportsDir,
-        } = await import("../src/packet/index.ts");
+        const { writeSecurityPacket } = await import("../src/packet/index.ts");
 
-        const fromDir = opts.fixture
-          ? defaultPacketReportsDir(REPO_ROOT)
-          : opts.from
-            ? path.resolve(opts.from)
-            : defaultPacketReportsDir(REPO_ROOT);
+        const resolved = resolveDeskReportsFrom({
+          fixture: opts.fixture,
+          from: opts.from,
+          cwd: process.cwd(),
+          repoRoot: REPO_ROOT,
+          command: "packet",
+        });
+        const fromDir = resolved.path;
 
         const result = writeSecurityPacket(fromDir, opts.output, {
           moduleLink: opts.moduleLink,
@@ -589,6 +614,7 @@ program
           console.log("ZERODAY security packet (Desk A)");
           console.log("────────────────────────────────");
           console.log(`From      : ${fromDir}`);
+          console.log(`Source    : ${resolved.source}`);
           console.log(`Findings  : ${result.packet.findings.length}`);
           console.log(
             `Labels    : agent-misfire ${c["agent-misfire"]} · config ${c.config} · dependency ${c.dependency} · unknown ${c.unknown}`,
@@ -606,7 +632,7 @@ program
             "Share manually with security — ZERODAY does not auto-post.",
           );
           console.log(
-            "Posture: localize + evidence + harden · no PoC · secrets redacted · no auto-send",
+            "Posture: Desk packet · not vuln discovery · no PoC · secrets redacted · no auto-send",
           );
         }
       } catch (e) {
@@ -1386,11 +1412,11 @@ program
 program
   .command("classify")
   .description(
-    "Desk E: crash classify + evidence pack (locate + optional telemetry). Human review required. Classification ≠ exploitability.",
+    "Desk E: crash classify + evidence from real reports / --from (human review; --fixture for smoke). Classification ≠ exploitability.",
   )
   .option(
     "--from <path>",
-    "Locate report.json OR fixture/reports directory with report.json and/or telemetry.json",
+    "Locate report.json OR reports directory (default: zeroday-reports/ then docs/reports)",
   )
   .option(
     "--scenario <name>",
@@ -1407,7 +1433,7 @@ program
   )
   .option(
     "--fixture",
-    "Use fixtures/classify/software_defect as --from (offline / CI)",
+    "Use fixtures/classify/software_defect as --from (offline / CI smoke)",
     false,
   )
   .option("--json", "Print classify.json evidence pack to stdout", false)
@@ -1420,9 +1446,28 @@ program
     json: boolean;
   }) => {
     try {
-      const from = opts.fixture
-        ? defaultClassifyFixtureDir(REPO_ROOT)
-        : opts.from;
+      let from = opts.from;
+      let fromSource: string | undefined;
+
+      if (opts.fixture || (!opts.from && !opts.scenario && !opts.telemetry)) {
+        try {
+          const resolved = resolveClassifyFromPath({
+            fixture: opts.fixture,
+            from: opts.from,
+            cwd: process.cwd(),
+            repoRoot: REPO_ROOT,
+            command: "classify",
+          });
+          from = resolved.path;
+          fromSource = resolved.source;
+        } catch (e) {
+          if (opts.fixture) throw e;
+          // No real reports and no flags — keep prior helpful error
+          console.error((e as Error).message);
+          process.exitCode = 2;
+          return;
+        }
+      }
 
       if (!from && !opts.scenario && !opts.telemetry) {
         console.error(
@@ -1445,6 +1490,7 @@ program
         console.log("ZERODAY classify (Desk E)");
         console.log("────────────────────────");
         console.log(`From           : ${from ?? opts.scenario ?? "adhoc"}`);
+        if (fromSource) console.log(`Source         : ${fromSource}`);
         console.log(`Classification : ${artifacts.pack.classification}`);
         console.log(`Confidence     : ${artifacts.pack.confidence}`);
         console.log(`Needs human    : yes (always)`);
@@ -1457,7 +1503,7 @@ program
         console.log(`CISO report    : ${artifacts.cisoMdPath}`);
         console.log("");
         console.log(
-          "Honesty: Desk E crash classify · fixture-driven · not production SOC · not live agent-misfire detection · classification ≠ exploitability · no auto-remediate · no auto-merge",
+          "Honesty: Desk E crash classify · not vuln discovery · not production SOC · classification ≠ exploitability · no auto-remediate · no auto-merge",
         );
       }
     } catch (e) {

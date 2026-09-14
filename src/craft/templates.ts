@@ -83,12 +83,12 @@ export function renderSkillMarkdown(input: CraftTemplateInput): string {
   };
   const stageCmds: Record<string, string> = {
     inventory:
-      "`npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json`",
+      "`npm run zeroday -- inventory` (cwd / `--repo`; `--fixture` for smoke)",
     locate:
-      "`npm run zeroday -- operate --cwe CWE-89 --fixture` or `locate --fixture`",
-    packet: "`npm run zeroday -- packet --from docs/reports`",
-    harden: "`npm run zeroday -- harden --from docs/reports`",
-    classify: "`npm run zeroday -- classify --fixture`",
+      "`npm run zeroday -- operate --cwe CWE-89 --fixture` or `locate --fixture` (localize — not Desk)",
+    packet: "`npm run zeroday -- packet` (or `--from` / `--fixture`)",
+    harden: "`npm run zeroday -- harden` (or `--from` / `--fixture`)",
+    classify: "`npm run zeroday -- classify --from <dir>` or `--fixture`",
   };
 
   for (const stage of CRAFT_HABIT_STAGES) {

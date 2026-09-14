@@ -7,17 +7,26 @@
 npm run mvp
 npm run zeroday -- mvp
 
+# Desk on your tree (keyless — not vuln discovery; no Antares required)
+npm run zeroday -- inventory
+npm run zeroday -- packet
+npm run zeroday -- harden
+npm run zeroday -- classify --from <reports-or-locate-dir>
+npm run zeroday -- craft
+
+# Desk fixture smoke (CI)
+npm run zeroday -- inventory --fixture
+npm run zeroday -- packet --fixture
+npm run zeroday -- harden --fixture
+npm run zeroday -- classify --fixture
+npm run zeroday -- craft --fixture
+
 # Print-only live Antares checklist (never creates paid pods)
 npm run zeroday -- antares doctor
 bash scripts/runpod-vllm-antares.sh --print-only
 
 # Factory loop (CI-safe)
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
-npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
-npm run zeroday -- packet --from docs/reports
-npm run zeroday -- harden --from docs/reports
-npm run zeroday -- classify --from fixtures/classify/software_defect
-npm run zeroday -- craft --from docs/reports
 npm run zeroday -- factory inventory --repo ./app
 
 # Live product path (requires healthy completions endpoint; CUDA/RunPod preferred; costs $)
@@ -33,8 +42,6 @@ npm run zeroday -- operate --cwe CWE-89 --fixture
 npm run zeroday -- verify --from zeroday-reports/<run>
 npm run zeroday -- locate --cwe CWE-89 --fixture
 
-npm run zeroday -- classify --from fixtures/classify/software_defect
-npm run zeroday -- classify --fixture
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
 npm run zeroday -- export --format asff --from path/to/report.json

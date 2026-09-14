@@ -12,11 +12,11 @@ Ambiguous / competing signals → **`needs_human`**. Every CISO / Desk E pack se
 ## One command (Desk E)
 
 ```bash
-npm run zeroday -- classify --from fixtures/classify/software_defect
+npm run zeroday -- classify --from <reports-or-locate-dir>
 npm run zeroday -- classify --fixture
 ```
 
-Emits `classify.md` + `classify.json` evidence pack (plus backward-compatible `ciso.md` / `ciso.json`). Secrets redacted. Human review required — no auto-remediate.
+Emits `classify.md` + `classify.json` evidence pack (plus backward-compatible `ciso.md` / `ciso.json`). Secrets redacted. Human review required — no auto-remediate. Desk ≠ vuln discovery.
 
 Sample: [`docs/reports/desk-e-classify/`](./reports/desk-e-classify/).
 

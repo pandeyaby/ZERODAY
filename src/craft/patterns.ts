@@ -108,7 +108,7 @@ export function loadCraftSources(reportsDir: string): LoadedCraftSources {
     throw new Error(
       `No Desk B/A/C/E reports under ${abs}. ` +
         `Expected inventory / packet / harden / classify artifacts ` +
-        `(e.g. docs/reports).`,
+        `(pass --from <dir> or --fixture for smoke).`,
     );
   }
 
