@@ -129,8 +129,10 @@ export function toCraftReadme(): string {
     "## One command",
     "",
     "```bash",
-    "npm run zeroday -- craft --from docs/reports",
-    "# aliases:",
+    "npm run zeroday -- craft",
+    "npm run zeroday -- craft --from zeroday-reports",
+    "# fixture smoke / aliases:",
+    "npm run zeroday -- craft --fixture",
     "npm run zeroday -- skill --fixture",
     "npm run zeroday -- plugin --fixture",
     "```",
@@ -149,8 +151,8 @@ export function toCraftReadme(): string {
     "",
     "- Generate-only — **no** auto-install / marketplace publish",
     "- Refuses exploits, PoCs, and offensive skill patterns",
-    "- No PoC / exploit / payload (localization only)",
-    "- `npm run mvp` / `inventory` / `packet` / `harden` / `classify` unchanged",
+    "- No PoC / exploit / payload (Desk ≠ vuln discovery)",
+    "- Fixtures via `--fixture` / `npm run mvp` only",
     "",
   ].join("\n");
 }

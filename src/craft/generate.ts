@@ -259,7 +259,7 @@ export function writeCraftReport(
   };
 }
 
-/** Default fixture reports path (checked-in Desk B/A/C/E artifacts). */
+/** Default fixture reports path (checked-in Desk B/A/C/E artifacts) — use with --fixture. */
 export function defaultCraftReportsDir(repoRoot?: string): string {
   return path.join(repoRoot ?? REPO_ROOT_FROM_SRC, "docs", "reports");
 }

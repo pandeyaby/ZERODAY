@@ -1,0 +1,6 @@
+{
+  "name": "zeroday-real-shaped-sample",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Tiny real-shaped tree for Desk-on-cwd CI (Keyless K5) — not vuln discovery"
+}

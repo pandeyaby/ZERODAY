@@ -137,7 +137,7 @@ export function loadPacketSources(reportsDir: string): LoadedReports {
   if (!inventoryJsonPath && sarifPaths.length === 0) {
     throw new Error(
       `No inventory.json / desk-b-inventory.json or *.sarif under ${abs}. ` +
-        `Run inventory first, or pass docs/reports.`,
+        `Run inventory first, pass --from <dir>, or use --fixture for smoke.`,
     );
   }
 
@@ -377,7 +377,7 @@ export function writeSecurityPacket(
   };
 }
 
-/** Default fixture reports path (checked-in Desk B artifacts). */
+/** Default fixture reports path (checked-in Desk B artifacts) — use with --fixture. */
 export function defaultPacketReportsDir(repoRoot?: string): string {
   return path.join(repoRoot ?? REPO_ROOT_FROM_SRC, "docs", "reports");
 }

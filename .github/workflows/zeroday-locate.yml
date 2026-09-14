@@ -132,6 +132,10 @@ jobs:
           test -f zeroday-reports/ci-inventory/inventory.sarif
           test -f zeroday-reports/ci-inventory/case-note.md
           test -f zeroday-reports/ci-inventory/repos/webuzz/inventory.json
+          # Explicit --fixture door (same desk-b manifest)
+          npm run zeroday -- inventory --fixture \
+            --output zeroday-reports/ci-inventory-fixture-flag
+          test -f zeroday-reports/ci-inventory-fixture-flag/inventory.json
           node -e '
             const j = require("./zeroday-reports/ci-inventory/inventory.json");
             if (j.schemaVersion !== "zeroday-config-inventory/v1") process.exit(2);
@@ -161,6 +165,66 @@ jobs:
         with:
           name: zeroday-inventory-reports
           path: zeroday-reports/ci-inventory/
+          if-no-files-found: error
+
+  desk-real:
+    name: Desk on real-shaped path (Keyless K5)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Inventory → packet → harden on real-shaped tree (no Antares)
+        run: |
+          set -euo pipefail
+          # Mirrors: cd my-app && npm run zeroday -- inventory
+          npm run zeroday -- inventory --repo fixtures/inventory/real-shaped \
+            --output zeroday-reports/ci-desk-real-inv
+          test -f zeroday-reports/ci-desk-real-inv/inventory.json
+          test -f zeroday-reports/ci-desk-real-inv/inventory.sarif
+          # Default --from resolution prefers zeroday-reports/
+          npm run zeroday -- packet --output zeroday-reports/ci-desk-real-packet
+          test -f zeroday-reports/ci-desk-real-packet/packet.json
+          npm run zeroday -- harden --from zeroday-reports/ci-desk-real-packet \
+            --output zeroday-reports/ci-desk-real-harden
+          test -f zeroday-reports/ci-desk-real-harden/harden.json
+          node -e '
+            const inv = require("./zeroday-reports/ci-desk-real-inv/inventory.json");
+            if (!inv.configHotspots?.length) process.exit(2);
+            const pkt = require("./zeroday-reports/ci-desk-real-packet/packet.json");
+            if (pkt.schemaVersion !== "zeroday-security-packet/v1") process.exit(3);
+            const h = require("./zeroday-reports/ci-desk-real-harden/harden.json");
+            if (h.schemaVersion !== "zeroday-harden-recommendations/v1") process.exit(4);
+            console.log("desk-real OK", inv.configHotspots.length, "hotspots", pkt.findings.length, "findings");
+          '
+
+      - name: Summarize desk-real gate
+        run: |
+          {
+            echo "## ZERODAY Desk on real path (Keyless K5)"
+            echo ""
+            echo "- Mode: inventory/packet/harden against \`fixtures/inventory/real-shaped\` (mirrors cwd usage)"
+            echo "- No Antares · no PoC · Desk ≠ vuln discovery"
+            echo "- Fixture smoke unchanged: \`inventory --fixture\` / \`npm run mvp\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload desk-real artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-desk-real-reports
+          path: |
+            zeroday-reports/ci-desk-real-inv/
+            zeroday-reports/ci-desk-real-packet/
+            zeroday-reports/ci-desk-real-harden/
           if-no-files-found: error
 
   packet:

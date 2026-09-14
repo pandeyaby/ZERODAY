@@ -28,19 +28,25 @@ live) and the keyless `operate` path — not a Cisco product mandate.
 
 ## Inventory (Desk B — multi-repo + config surfaces)
 
-Keyless, **fixture/static** stage that lists authorized local repos/paths (or
-bundled desk-b stand-ins) and **config hotspots** (GitHub Actions, Docker/compose,
+Keyless stage that inventories **your** authorized local tree (cwd / `--repo` /
+`--from` manifest) for **config hotspots** (GitHub Actions, Docker/compose,
 package manifests, agent/skill configs), plus:
 
 - CI secret **patterns** (names only — never values)
 - `.env.example` honesty (placeholder check)
 - Dependency / agent harness risk localization
 
-Emits ranked JSON + markdown + redacted SARIF + case note. Not exploit scanning.
+Emits ranked JSON + markdown + redacted SARIF + case note. **Not** exploit
+scanning and **not** vuln discovery / localization (that is `locate` / `operate`).
 
 ```bash
-# Desk B fixture manifest (webuzz / galileo / aomb / cosmic-fusion / zeroday; EternalEcho skipped)
-npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
+# Real path (default) — inventory cwd or an authorized repo
+npm run zeroday -- inventory
+npm run zeroday -- inventory --repo /path/to/authorized-repo \
+  --output zeroday-reports/inventory
+
+# Fixture smoke only (CI / mvp stranger path)
+npm run zeroday -- inventory --fixture \
   --output zeroday-reports/desk-b-inventory
 
 # Checked-in redacted sample reports
@@ -49,9 +55,11 @@ npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
 ```
 
 Artifacts: `inventory.json` · `inventory.md` · `inventory.sarif` · `case-note.md`
-(and `repos/<id>/` for multi-repo). Compose: **inventory → locate → classify → own → verify**.
+(and `repos/<id>/` for multi-repo). Desk compose:
+**inventory → packet → harden → classify → craft**. Localize separately via
+`locate` / `operate` (fixture smoke or live Antares).
 
-Stranger door stays **`npm run mvp`** (fixture → SARIF). Live Antares remains opt-in.
+Stranger door for localize smoke stays **`npm run mvp`**. Live Antares remains opt-in.
 
 ## Security packet (Desk A — offline share)
 
@@ -60,12 +68,12 @@ folder for **manual** handoff to a security team. Does **not** re-run inventory.
 Does **not** auto-post to Slack / GitHub / email.
 
 ```bash
-# One command — consume checked-in Desk B reports
-npm run zeroday -- packet --from docs/reports
+# After inventory — prefers zeroday-reports/, else docs/reports if present
+npm run zeroday -- packet
+npm run zeroday -- packet --from zeroday-reports/inventory
 
-# Or after a live inventory run:
-npm run zeroday -- packet --from zeroday-reports/desk-b-inventory \
-  --output zeroday-reports/security-packet
+# Fixture smoke
+npm run zeroday -- packet --fixture
 ```
 
 Emits `summary.md` · `findings.json` / `findings.md` · `packet.json` · SARIF copy ·
@@ -81,15 +89,12 @@ only by default; optional `--draft` writes CodeGuard-aligned **notes** that
 remain human-gated. **Never** auto-apply, auto-PR, or auto-merge.
 
 ```bash
-# One command — consume checked-in Desk B reports
-npm run zeroday -- harden --from docs/reports
+# Prefers zeroday-reports/ then docs/reports when present
+npm run zeroday -- harden
+npm run zeroday -- harden --from zeroday-reports/security-packet --draft
 
-# Or Desk A packet folder:
-npm run zeroday -- harden --from docs/reports/desk-a-packet \
-  --output zeroday-reports/harden
-
-# Optional draft notes (still no auto-apply):
-npm run zeroday -- harden --from docs/reports --draft
+# Fixture smoke
+npm run zeroday -- harden --fixture
 ```
 
 Emits `harden.md` · `harden.json` · optional `drafts/*.md`. Categories:
@@ -104,30 +109,32 @@ Reuses fixture-driven classify APIs. One offline command emits `classify.md` +
 `needs_human`. Human review required — no auto-remediate.
 
 ```bash
-npm run zeroday -- classify --from fixtures/classify/software_defect
+npm run zeroday -- classify --from zeroday-reports/<locate-or-classify-dir>
 npm run zeroday -- classify --fixture
 ```
 
 Labels: `possible_breach` | `infra_failure` | `software_defect` | `agent_misfire` |
-`needs_human`. Secrets redacted. `mvp` / `inventory` / `packet` / `harden` unchanged.
+`needs_human`. Secrets redacted. Desk ≠ vuln discovery.
 
 Sample: [`docs/reports/desk-e-classify/`](./reports/desk-e-classify/).
 
 ## Defensive plugins/skills craft (Desk D — LAST)
 
 Consumes Desk B→A→C→E reports as pattern input. Emits Cursor/Grok-style
-`SKILL.md` + plugin stub encoding **inventory → locate → packet → harden → classify**.
+`SKILL.md` + plugin stub encoding **inventory → packet → harden → classify**
+(localize via `locate` / `operate` separately).
 **Generate-only** — no auto-install into Cursor/Grok Bot, no marketplace publish.
 **Refuses** exploits, PoCs, and offensive skill patterns.
 
 ```bash
-npm run zeroday -- craft --from docs/reports
+npm run zeroday -- craft
+npm run zeroday -- craft --from zeroday-reports
+npm run zeroday -- craft --fixture
 npm run zeroday -- skill --fixture
 npm run zeroday -- plugin --fixture
 ```
 
 Emits `craft.md` · `craft.json` · `skills/*/SKILL.md` · `plugins/*/plugin.json`.
-`mvp` / `inventory` / `packet` / `harden` / `classify` unchanged.
 
 Sample: [`docs/reports/desk-d-craft/`](./reports/desk-d-craft/).
 

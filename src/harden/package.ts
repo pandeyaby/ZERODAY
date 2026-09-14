@@ -137,7 +137,7 @@ export function loadHardenSources(reportsDir: string): LoadedHardenSources {
   ) {
     throw new Error(
       `No inventory.json / desk-b-inventory.json / packet.json / findings.json under ${abs}. ` +
-        `Run inventory or packet first, or pass docs/reports / docs/reports/desk-a-packet.`,
+        `Run inventory or packet first, pass --from <dir>, or use --fixture for smoke.`,
     );
   }
 
@@ -354,7 +354,7 @@ export function writeHardenReport(
   };
 }
 
-/** Default fixture reports path (checked-in Desk B artifacts). */
+/** Default fixture reports path (checked-in Desk B artifacts) — use with --fixture. */
 export function defaultHardenReportsDir(repoRoot?: string): string {
   return path.join(repoRoot ?? REPO_ROOT_FROM_SRC, "docs", "reports");
 }
