@@ -34,6 +34,11 @@ bash scripts/quickstart-live.sh /path CWE-89
 
 ## Completions only
 
+Any OpenAI-compatible **`POST /v1/completions`** host can back live locate
+(Keyless K4 — see [`local-brain.md`](./local-brain.md)). **Antares-1B** remains
+the recommended brain when HF gated terms + CUDA/vLLM are available; arbitrary
+local models are **not** Antares File F1.
+
 ```bash
 # CUDA / RunPod (recommended — schema-faithful tool_call JSON)
 vllm serve fdtn-ai/antares-1b

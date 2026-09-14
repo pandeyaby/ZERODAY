@@ -8,7 +8,8 @@
  *   zeroday harden                     # Desk C from real reports dir (--fixture smoke)
  *   zeroday craft                      # Desk D from real reports dir (--fixture smoke)
  *   zeroday classify                   # Desk E from real reports / --from (--fixture smoke)
- *   zeroday antares doctor             # print-only live checklist (no spend)
+ *   zeroday doctor                     # print-only local-brain checklist (Keyless K4, $0)
+ *   zeroday antares doctor             # print-only Antares/RunPod checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
  *   zeroday locate  --cwe CWE-89 --fixture
@@ -45,6 +46,11 @@ import {
 import type { LocalizationResult } from "../src/locate/types.ts";
 import { normalizeCompletionsEndpoint } from "../src/locate/completions.ts";
 import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "../src/locate/model.ts";
+import {
+  formatLocalBrainDoctorChecklist,
+  checkLocalBrainEndpointShape,
+  LOCAL_BRAIN_DOCS,
+} from "../src/doctor/index.ts";
 import {
   formatIncompleteCliBlock,
   DEFAULT_LIVE_TOOL_BUDGET,
@@ -646,6 +652,44 @@ program
     },
   );
 
+program
+  .command("doctor")
+  .description(
+    "Print-only local OpenAI-compatible brain checklist (Keyless K4) — Ollama/vLLM/LM Studio completions; $0; no model download / auto-start. See docs/local-brain.md. Antares path: antares doctor.",
+  )
+  .option(
+    "--endpoint <url>",
+    "Optional shape-only check (no network): refuse chat-only URLs; note loopback vs --remote-inference",
+  )
+  .option(
+    "--print-only",
+    "Explicit print-only (default; kept for CI clarity — never probes network)",
+    true,
+  )
+  .action((opts: { endpoint?: string; printOnly: boolean }) => {
+    // Print-only / $0 — never probes network, never starts servers, never downloads.
+    void opts.printOnly;
+    process.stdout.write(formatLocalBrainDoctorChecklist());
+
+    if (opts.endpoint?.trim()) {
+      console.log("Endpoint shape check (no network)");
+      console.log("─────────────────────────────────");
+      const check = checkLocalBrainEndpointShape(opts.endpoint);
+      console.log(check.detail);
+      if (!check.ok) {
+        process.exitCode = 2;
+        return;
+      }
+      if (check.remoteAckRequired) {
+        console.log(
+          "Reminder: non-loopback needs --remote-inference or ZERODAY_REMOTE_INFERENCE_ACK=1.",
+        );
+      }
+      console.log(`Docs: ${LOCAL_BRAIN_DOCS}`);
+      console.log("");
+    }
+  });
+
 const antares = program
   .command("antares")
   .description(
@@ -655,7 +699,7 @@ const antares = program
 antares
   .command("doctor")
   .description(
-    "Print Secure A40 / HF / terminate-after-use checklist (wraps scripts/runpod-vllm-antares.sh --print-only; no spend)",
+    "Print Secure A40 / HF / terminate-after-use checklist (wraps scripts/runpod-vllm-antares.sh --print-only; no spend). For any local completions host without Antares weights: zeroday doctor · docs/local-brain.md",
   )
   .option(
     "--smoke-env",
@@ -679,6 +723,12 @@ antares
       "HF gated terms are human-only. After live locate → SARIF, terminate the pod.",
     );
     console.log("Full recipe: docs/runpod-antares.md");
+    console.log(
+      "Local OpenAI-compatible brain (no Antares weights): npm run zeroday -- doctor · docs/local-brain.md",
+    );
+    console.log(
+      "Honesty: arbitrary local models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available.",
+    );
     console.log("");
 
     const print = spawnSync("bash", [script, "--print-only"], {
@@ -1162,7 +1212,7 @@ program
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules/--from-sarif/--recording). Completions only.",
+    "Local or opt-in remote OpenAI-compatible completions URL (implies live; refuses --fixture/--rules/--from-sarif/--recording). Completions only — not chat. Any local host (Ollama/vLLM/LM Studio) ok; Antares-1B recommended. See: zeroday doctor · docs/local-brain.md",
   )
   .option(
     "--remote-inference",

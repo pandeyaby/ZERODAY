@@ -11,6 +11,18 @@ npm run mvp
 
 Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No spend.
 
+## Local OpenAI-compatible brain (Keyless K4, print-only)
+
+```bash
+npm run zeroday -- doctor   # $0 checklist — no download / auto-start
+# After YOU start a completions host on loopback:
+npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
+  --endpoint http://127.0.0.1:8000/v1 --model <your-model-id>
+```
+
+Completions-only (`POST /v1/completions`). Chat-only hosts refused. Arbitrary local
+models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
+
 ## Live Antares (opt-in, costs $)
 
 ```bash
@@ -35,4 +47,4 @@ npm run play
 ```
 
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.
-Full details: root [`README.md`](../README.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).
+Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).

@@ -66,8 +66,9 @@ bash scripts/quickstart-live.sh /path/to/repo CWE-89
 npm run zeroday -- locate --cwe CWE-89 --repo /path --endpoint http://127.0.0.1:8000/v1
 # Recommended remote CUDA: docs/runpod-antares.md
 # bash scripts/runpod-vllm-antares.sh --print-only   # no paid creates
-# npm run zeroday -- antares doctor                  # same checklist via CLI
+# npm run zeroday -- antares doctor                  # Antares/RunPod checklist
+# npm run zeroday -- doctor                          # local Ollama/vLLM/LM Studio checklist (Keyless K4)
 ```
 
 ZERODAY never downloads `model.safetensors`. Antares CLI expects vLLM 0.19.1+ completions.
-See `docs/agent-operator.md`, `docs/defense-factory.md`, and root README.
+See `docs/agent-operator.md`, `docs/defense-factory.md`, `docs/local-brain.md`, and root README.

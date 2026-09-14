@@ -32,6 +32,12 @@ npm run zeroday -- harden --fixture
 npm run zeroday -- classify --fixture
 npm run zeroday -- craft --fixture
 
+# Print-only local OpenAI-compatible brain checklist (Keyless K4 — $0)
+npm run zeroday -- doctor
+bash scripts/local-brain-doctor.sh --print-only
+# Shape-only (no network); chat URLs fail closed:
+npm run zeroday -- doctor --endpoint http://127.0.0.1:8000/v1
+
 # Print-only live Antares checklist (never creates paid pods)
 npm run zeroday -- antares doctor
 bash scripts/runpod-vllm-antares.sh --print-only
@@ -40,7 +46,7 @@ bash scripts/runpod-vllm-antares.sh --print-only
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- factory inventory --repo ./app
 
-# Live product path (requires healthy completions endpoint; CUDA/RunPod preferred; costs $)
+# Live product path (requires healthy completions endpoint; Antares-1B recommended; any local completions host ok; costs $ when GPU/pod)
 npm run zeroday -- locate --cwe CWE-89 --repo ./app --endpoint http://127.0.0.1:8000/v1
 bash scripts/quickstart-live.sh ./app CWE-89
 
@@ -66,6 +72,7 @@ Non-loopback endpoints require `--remote-inference` or `ZERODAY_REMOTE_INFERENCE
 Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** exploitability.
 Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discovery; no alerts API fetch.
 `record --redact` (default ON, fail-closed) writes org CI cassettes; `locate --recording` replays them as `mode: "recording"`. Human reviews redaction before commit — never auto-commit / network-exfil. Org cassettes ≠ mvp fixtures.
+`zeroday doctor` is print-only local-brain (Keyless K4): completions-only, no model download / auto-start. Arbitrary local models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
 
 ## Local UI API (npm run play)
 

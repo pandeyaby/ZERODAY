@@ -64,7 +64,9 @@ makes Antares usable every day.
 evidence → SARIF / `report.md`. Keyless does **not** invent a second product —
 only the localization brain swaps.
 
-**Four doors** for discovery, plus an org **recording replay** door (Keyless K3):
+**Four doors** for discovery, plus an org **recording replay** door (Keyless K3)
+and an optional **local OpenAI-compatible brain** path for live `--endpoint`
+without gated Antares weights (Keyless K4):
 
 1. **Fixture smoke** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp` /
    `locate --fixture`): deterministic recorded brain for CI and strangers — no
@@ -86,12 +88,16 @@ only the localization brain swaps.
    not Antares/rules discovery**; localization ≠ exploitability. **File path
    only** — no GitHub alerts API / network fetch. No Semgrep binary dependency.
 
-4. **Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live
-   path details](#opt-in-live-path-details), opt-in, costs $): same pipeline with
-   Antares-1B via `--endpoint` + human HF gated accept + CUDA/vLLM (or
-   documented RunPod Secure A40). Output `mode: "live"`. Never auto-provisions
-   pods; never scrapes HF; never silent fallback to fixture/rules/ingest if the
-   endpoint is down.
+4. **Live completions** ([Live Antares](#live-antares-opt-in-costs-) ·
+   [Local brain](#local-openai-compatible-brain-keyless-k4) ·
+   [Opt-in live path details](#opt-in-live-path-details), opt-in): same pipeline
+   via `--endpoint` at any OpenAI-compatible **`POST /v1/completions`** host.
+   **Recommended** brain: Antares-1B (HF gated accept + CUDA/vLLM / RunPod
+   Secure A40). **Also allowed:** local Ollama / vLLM / LM Studio without Antares
+   weights — still `mode: "live"`, but **arbitrary local models ≠ Antares File
+   F1**. Never auto-provisions pods; never scrapes HF; never silent fallback to
+   fixture/rules/ingest if the endpoint is down. Completions-only (chat refused).
+   Non-loopback still needs `--remote-inference`.
 
 **Org cassette replay** (`record --redact` → `locate --recording`, Keyless K3):
 after a real locate (rules / ingest / live / fixture), save a **redacted** org
@@ -100,14 +106,14 @@ under `fixtures/locate/recordings/`. `--redact` is default ON and fail-closed.
 Replay sets honest `mode: "recording"`. Never auto-commit / auto-PR / upload
 cassettes; **a human reviews redaction before commit**.
 
-| | Fixture smoke | Rules (keyless) | SARIF ingest | Live Antares | Org recording |
-|--|---------------|-----------------|--------------|--------------|---------------|
-| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B (your completions host) | Redacted cassette replay |
-| What you need | `npm install` | `npm install` + authorized `--repo` | `npm install` + local `.sarif` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) | Prior locate report + human-reviewed cassette |
-| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --from-sarif path/to/report.sarif` | `locate --endpoint … --remote-inference` | `record --from <dir> --out c.json` → `locate --recording c.json` |
+| | Fixture smoke | Rules (keyless) | SARIF ingest | Live completions | Org recording |
+|--|---------------|-----------------|--------------|------------------|---------------|
+| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B **recommended**; or any local completions host (Ollama/vLLM/LM Studio) | Redacted cassette replay |
+| What you need | `npm install` | `npm install` + authorized `--repo` | `npm install` + local `.sarif` | Completions `/v1` you already serve (+ HF/CUDA for Antares) | Prior locate report + human-reviewed cassette |
+| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --from-sarif path/to/report.sarif` | `doctor` → `locate --endpoint …` (+ `--remote-inference` if non-loopback) | `record --from <dir> --out c.json` → `locate --recording c.json` |
 | SARIF `mode` | `"fixture"` | `"rules"` | `"ingest"` | `"live"` | `"recording"` |
-| Cost | $0 | $0 | $0 | GPU / pod spend (you control) | $0 |
-| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Reuse third-party scanner output in ZERODAY evidence | Live localization on an authorized repo | CI regression of a redacted org localize |
+| Cost | $0 | $0 | $0 | Your GPU / local server (you control); Antares path may cost $ | $0 |
+| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Reuse third-party scanner output in ZERODAY evidence | Live localization on an authorized repo (quality depends on brain) | CI regression of a redacted org localize |
 
 Then the Desk loop (`inventory` → `packet` → `harden` → `classify` → `craft`)
 runs **keyless on your tree** (cwd / `--repo` / `--from`) without Antares —
@@ -115,7 +121,8 @@ config inventory, offline packets, harden notes, crash classify, defensive
 craft. Fixtures stay available via `--fixture` / `npm run mvp` smoke. Desk is
 **not** localization / vuln discovery; use `locate --fixture` / mvp for smoke,
 `locate --rules` for keyless real-repo localize, `locate --from-sarif` for
-scanner ingest, and live Antares when you host completions.
+scanner ingest, `zeroday doctor` + local `--endpoint` for a completions host
+you already run, and Antares-1B when you host the recommended brain.
 
 Hard limits stay: localization ≠ exploitability · **Not a Cisco product** · not
 a partnership claim.
@@ -206,12 +213,43 @@ exfil**; localization ≠ exploitability. See
 
 ---
 
+## Local OpenAI-compatible brain (Keyless K4)
+
+LAST Keyless Strength slice. Point `locate --endpoint` at **any** local
+OpenAI-compatible **`POST /v1/completions`** host you already run (Ollama,
+local vLLM, LM Studio, …) — **no gated Antares weights required**. Still
+`mode: "live"`. **No new locate modes.**
+
+```bash
+# Print-only checklist ($0 — no download, no auto-start, no RunPod)
+npm run zeroday -- doctor
+# same: bash scripts/local-brain-doctor.sh --print-only
+
+# Shape-only check (no network) — chat URLs fail closed:
+npm run zeroday -- doctor --endpoint http://127.0.0.1:8000/v1
+
+# After YOU start a completions server on loopback:
+npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
+  --endpoint http://127.0.0.1:8000/v1 --model <your-model-id>
+```
+
+Hard locks: completions-only (chat refused) · non-loopback still needs
+`--remote-inference` · **arbitrary local models ≠ Antares File F1** · Antares-1B
+remains the **recommended** live brain when HF+CUDA available · print-only
+doctor never downloads models or starts servers.
+
+One-pager: [`docs/local-brain.md`](./docs/local-brain.md) · recommended Antares
+path: `npm run zeroday -- antares doctor` · [`docs/runpod-antares.md`](./docs/runpod-antares.md)
+
+---
+
 ## Live Antares (opt-in, costs $)
 
 Not the default. Requires a human to accept HF gated terms for
 `fdtn-ai/antares-1b`, serve completions (CUDA / vLLM), and **terminate the pod
 after use**. ZERODAY never scrapes HF terms, never downloads `model.safetensors`
-in CI, and **never creates paid RunPod pods**.
+in CI, and **never creates paid RunPod pods**. For a local completions host
+**without** Antares weights, use [`doctor` / local-brain](#local-openai-compatible-brain-keyless-k4) first.
 
 ```bash
 # Print-only checklist (no spend) — Secure A40 recipe + HF gate + terminate-after-use
@@ -226,7 +264,7 @@ npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
 # Then stop/terminate the pod — do not leave it RUNNING.
 ```
 
-Full one-pager: [`docs/runpod-antares.md`](./docs/runpod-antares.md) · host-agnostic: [`docs/remote-antares-vllm.md`](./docs/remote-antares-vllm.md)
+Full one-pager: [`docs/runpod-antares.md`](./docs/runpod-antares.md) · host-agnostic: [`docs/remote-antares-vllm.md`](./docs/remote-antares-vllm.md) · local any-completions: [`docs/local-brain.md`](./docs/local-brain.md)
 
 ---
 
@@ -463,8 +501,9 @@ Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) · [coo
 | **`locate --from-sarif`** | No GPU / no HF + local `.sarif` | Yes — third-party ingest (mode=ingest) |
 | **`record` → `locate --recording`** | Prior locate report (offline) | Yes — redacted org cassette replay (mode=recording) |
 | **`operate`** (keyless) | Coding agent + snapshot | Yes (after submission / `--fixture`) |
-| **`locate --endpoint …`** (live) | HF accept + CUDA/vLLM or RunPod + ACK | Yes — **opt-in, costs $** |
-| **`antares doctor`** | Nothing | No — print-only checklist |
+| **`locate --endpoint …`** (live) | Completions `/v1` you serve (Antares-1B recommended; any local host ok) | Yes — **opt-in**; quality ≠ Antares F1 unless Antares |
+| **`doctor`** (local-brain) | Nothing | No — print-only checklist ($0) |
+| **`antares doctor`** | Nothing | No — print-only Antares/RunPod checklist |
 
 ---
 
@@ -484,7 +523,8 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 - **No PoCs / exploits / payloads / attack procedures**
 - **Never auto-merge** — drafts only after `--i-asked-for-a-fix`
 - **No silent fixture fallback** on the live path
-- **No silent spend** — print-only doctor / RunPod scaffold; you provision and terminate
+- **No silent spend** — print-only `doctor` / `antares doctor` / RunPod scaffold; you provision and terminate
+- **Local brain honesty** — arbitrary Ollama/vLLM/LM Studio models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available
 
 [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · [`SECURITY.md`](./SECURITY.md)
 
@@ -537,7 +577,12 @@ npm run zeroday -- harden --fixture
 npm run zeroday -- classify --fixture
 npm run zeroday -- craft --fixture
 
-# Opt-in live localize (costs $) — print-only first
+# Opt-in local completions brain (Keyless K4 — print-only first; $0)
+npm run zeroday -- doctor
+# bash scripts/local-brain-doctor.sh --print-only
+# npm run zeroday -- locate --endpoint http://127.0.0.1:8000/v1 --model <id> …
+
+# Opt-in live Antares localize (costs $) — print-only first
 npm run zeroday -- antares doctor
 bash scripts/quickstart-live.sh ./app CWE-89
 

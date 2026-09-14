@@ -34,6 +34,10 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /npm run play/);
     assert.match(readme, /costs \$/);
     assert.match(readme, /antares doctor/);
+    assert.match(readme, /npm run zeroday -- doctor|zeroday -- doctor/);
+    assert.match(readme, /docs\/local-brain\.md/);
+    assert.match(readme, /Local OpenAI-compatible brain|Keyless K4/i);
+    assert.match(readme, /arbitrary local models|≠ Antares File F1|NOT Antares File F1/i);
     assert.match(readme, /never auto-provisions|never creates paid RunPod/i);
     assert.match(readme, /huggingface\.co\/fdtn-ai\/antares-1b/);
     assert.match(readme, /cisco-foundation-ai\.github\.io\/antares/);
