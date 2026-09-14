@@ -132,6 +132,13 @@ export function toHumanReport(
     lines.push(
       `- Candidates for human review — localization ≠ exploitability. No Semgrep binary dependency.`,
     );
+  } else if (result.mode === "ingest") {
+    lines.push(
+      `- **Ingest mode** — third-party SARIF findings (CodeQL / Semgrep / generic SARIF 2.1). **Not** Antares inference, **not** rules discovery, and **not** Antares File F1 (**${ANTARES_1B_FILE_F1}**).`,
+    );
+    lines.push(
+      `- Candidates for human review — localization ≠ exploitability. Local file path only (no alerts API fetch).`,
+    );
   } else {
     lines.push(
       `- Public **Antares-1B** File F1 is **${ANTARES_1B_FILE_F1}** (localization quality on the published benchmark — **not** a per-finding confidence score).`,

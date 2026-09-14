@@ -9,6 +9,7 @@ import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
 import { runRulesLocalization } from "./rules/index";
+import { runIngestLocalization, parseSarifFile, mapRuleToCwe } from "./ingest/index";
 import {
   detectAntaresCli,
   runAntaresPlan,
@@ -61,6 +62,9 @@ export {
   DEFAULT_LIVE_TOOL_BUDGET,
   classifyIncomplete,
   runRulesLocalization,
+  runIngestLocalization,
+  parseSarifFile,
+  mapRuleToCwe,
 };
 export type { LocateOptions, LocalizationResult };
 
@@ -85,41 +89,72 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     process.env.ANTARES_ENDPOINT ||
     undefined;
 
-  // Live when --live / --endpoint; rules when --rules; fixture when --fixture or default.
-  // Mixed doors refuse closed — never silent mock fallback.
+  // Live when --live / --endpoint; rules when --rules; ingest when --from-sarif;
+  // fixture when --fixture or default. Mixed doors refuse closed.
   const mode = resolveLocateMode({
     fixture: options.fixture,
     live: options.live,
     rules: options.rules,
+    fromSarif: options.fromSarif,
     endpoint: endpointRaw,
     remoteInference: options.remoteInference,
   });
   const preferLive = mode === "live";
   const preferRules = mode === "rules";
+  const preferIngest = mode === "ingest";
 
-  const resolved = await resolveAdvisory(options.advisory, {
-    offline: !preferLive || options.offline === true,
-    explicitCwe: options.explicitCwe,
-  });
-
-  // Keep AdvisoryRef shape used across reporters
-  const advisory = {
-    kind: resolved.kind,
-    id: resolved.id,
-    cweId: resolved.cweId,
-    title: resolved.title,
+  let advisory: {
+    kind: "cwe" | "cve" | "ghsa";
+    id: string;
+    cweId: string;
+    title?: string;
   };
+  let resolvedSource = "cwe-direct";
+  let resolvedCategory = "unknown";
+
+  if (preferIngest && (!options.advisory || options.advisory.trim() === "")) {
+    // Unfiltered ingest: synthesize a neutral advisory; CWE filter optional later.
+    advisory = {
+      kind: "cwe",
+      id: "INGEST",
+      cweId: "CWE-000",
+      title: "SARIF ingest (unfiltered)",
+    };
+    resolvedSource = "ingest";
+    resolvedCategory = "ingest";
+  } else {
+    const resolved = await resolveAdvisory(options.advisory, {
+      offline: !preferLive || options.offline === true,
+      explicitCwe: options.explicitCwe,
+    });
+    advisory = {
+      kind: resolved.kind,
+      id: resolved.id,
+      cweId: resolved.cweId,
+      title: resolved.title,
+    };
+    resolvedSource = resolved.source;
+    resolvedCategory = resolved.category;
+  }
 
   let repo = options.repo;
-  if (!repo || repo === "." || repo === "fixture") {
-    if (options.fixture || repo === "fixture" || !options.repo) {
-      repo = defaultFixtureRepo();
+  if (preferIngest) {
+    // Ingest labels targetRepo; default to cwd when --repo omitted.
+    if (!repo || repo === "." || repo === "fixture") {
+      repo = process.cwd();
     }
-  }
-  repo = path.resolve(repo);
+    repo = path.resolve(repo);
+  } else {
+    if (!repo || repo === "." || repo === "fixture") {
+      if (options.fixture || repo === "fixture" || !options.repo) {
+        repo = defaultFixtureRepo();
+      }
+    }
+    repo = path.resolve(repo);
 
-  if (!fs.existsSync(repo)) {
-    throw new Error(`Repo not found: ${repo}`);
+    if (!fs.existsSync(repo)) {
+      throw new Error(`Repo not found: ${repo}`);
+    }
   }
 
   const outputDir = path.resolve(
@@ -139,7 +174,55 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   let sandbox: SandboxSession | null = null;
 
   try {
-    if (preferLive) {
+    if (preferIngest) {
+      const sarifPath = options.fromSarif!.trim();
+      result = runIngestLocalization({
+        sarifPath,
+        cweFilter:
+          advisory.cweId && advisory.cweId !== "CWE-000"
+            ? advisory.cweId
+            : options.explicitCwe ?? null,
+        targetRepo: repo,
+        advisory,
+      });
+      if (result.mode !== "ingest") {
+        throw new Error(
+          `Ingest locate invariant broken: expected mode=ingest, got mode=${result.mode}.`,
+        );
+      }
+      // If unfiltered ingest found a dominant CWE, prefer it on the advisory label.
+      if (advisory.cweId === "CWE-000" && result.rankedFiles.length > 0) {
+        const counts = new Map<string, number>();
+        for (const f of result.rankedFiles) {
+          for (const c of f.cweIds) {
+            counts.set(c, (counts.get(c) ?? 0) + 1);
+          }
+        }
+        let best: string | null = null;
+        let bestN = 0;
+        for (const [c, n] of counts) {
+          if (n > bestN) {
+            best = c;
+            bestN = n;
+          }
+        }
+        if (best) {
+          result.advisory = {
+            ...result.advisory,
+            id: best,
+            cweId: best,
+            title: `SARIF ingest (primary ${best})`,
+          };
+          advisory = result.advisory;
+        }
+      }
+      result.warnings.push(
+        `Resolved advisory label ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
+      );
+      result.warnings.push(
+        "Ingest mode is container-free (no Docker / no Antares / no Semgrep binary) — local SARIF file only.",
+      );
+    } else if (preferLive) {
       // Fail closed on unhealthy endpoint BEFORE touching Antares CLI / snapshots.
       // Never degrade to fixture recordings.
       const endpoint = normalizeCompletionsEndpoint(endpointRaw!);
@@ -196,7 +279,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       result.warnings.push(sb.detail);
       result.warnings.push(probeDetail);
       result.warnings.push(
-        `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+        `Resolved ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
       );
       result.warnings.push(
         "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights).",
@@ -219,7 +302,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       );
       result.warnings.push(...snap.warnings);
       result.warnings.push(
-        `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+        `Resolved ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
       );
       result.warnings.push(
         "Rules mode is container-free (no Docker / no Semgrep) — CI-safe keyless localize.",
@@ -235,7 +318,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       );
       result.warnings.push(...snap.warnings);
       result.warnings.push(
-        `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+        `Resolved ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
       );
       result.warnings.push(
         "Fixture mode is container-free (no Docker) — CI-safe.",

@@ -236,7 +236,7 @@ export function resolveLiveToolBudget(explicit?: number | null): number {
  * Default: true for live, false for fixture/agent.
  */
 export function shouldFailOnIncomplete(opts: {
-  mode: "live" | "fixture" | "agent" | "rules";
+  mode: "live" | "fixture" | "agent" | "rules" | "ingest";
   failOnIncomplete?: boolean;
   incomplete: boolean;
 }): boolean {

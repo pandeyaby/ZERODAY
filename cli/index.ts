@@ -1142,15 +1142,19 @@ program
   .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
   .option(
     "--rules",
-    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --live / --endpoint. Not Antares F1.",
+    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --from-sarif / --live / --endpoint. Not Antares F1.",
     false,
+  )
+  .option(
+    "--from-sarif <path>",
+    "Ingest local SARIF 2.1 (CodeQL/Semgrep/generic) → mode=ingest. File path only — no alerts API. Incompatible with --fixture / --rules / --live / --endpoint.",
   )
   .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules). Completions only.",
+    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules/--from-sarif). Completions only.",
   )
   .option(
     "--remote-inference",
@@ -1189,6 +1193,7 @@ program
     repo: string;
     fixture: boolean;
     rules: boolean;
+    fromSarif?: string;
     live: boolean;
     offline: boolean;
     output?: string;
@@ -1202,12 +1207,17 @@ program
     failOnFindings: boolean;
     json: boolean;
   }) => {
+    const fromSarif =
+      opts.fromSarif && opts.fromSarif.trim().length > 0
+        ? path.resolve(opts.fromSarif.trim())
+        : undefined;
     const advisory = opts.cwe || opts.cve || opts.ghsa;
-    if (!advisory) {
+    if (!advisory && !fromSarif) {
       console.error(
-        "Provide one of --cwe, --cve, or --ghsa.\n" +
+        "Provide one of --cwe, --cve, or --ghsa (or --from-sarif for ingest).\n" +
           "Example: zeroday locate --cwe CWE-89 --fixture\n" +
-          "Keyless real-repo: zeroday locate --cwe CWE-89 --repo <path> --rules",
+          "Keyless real-repo: zeroday locate --cwe CWE-89 --repo <path> --rules\n" +
+          "SARIF ingest: zeroday locate --from-sarif path/to/report.sarif",
       );
       process.exitCode = 2;
       return;
@@ -1221,7 +1231,9 @@ program
     const repo =
       opts.repo && opts.repo.length > 0
         ? path.resolve(opts.repo)
-        : defaultFixtureRepo();
+        : fromSarif
+          ? process.cwd()
+          : defaultFixtureRepo();
 
     const endpoint =
       opts.endpoint ||
@@ -1249,9 +1261,10 @@ program
     try {
       const artifacts = await locate({
         repo,
-        advisory,
+        advisory: advisory || "",
         fixture: opts.fixture,
         rules: opts.rules,
+        fromSarif,
         live: opts.live,
         offline: opts.offline,
         explicitCwe: opts.mapCwe || (opts.cwe && opts.cve ? opts.cwe : undefined),
@@ -1344,13 +1357,24 @@ program
           console.log(
             "Keyless real-repo (no weights): npm run zeroday -- locate --cwe CWE-89 --repo <path> --rules",
           );
+          console.log(
+            "SARIF ingest (local file): npm run zeroday -- locate --from-sarif path/to/report.sarif",
+          );
         } else if (r.mode === "rules") {
           console.log("");
           console.log(
             "Rules path complete — thin in-repo heuristics (not Antares F1; not exploitability).",
           );
           console.log(
-            "Live Antares (opt-in): locate --endpoint … · Fixture smoke: locate --fixture / npm run mvp",
+            "Live Antares (opt-in): locate --endpoint … · Fixture smoke: locate --fixture / npm run mvp · Ingest: locate --from-sarif …",
+          );
+        } else if (r.mode === "ingest") {
+          console.log("");
+          console.log(
+            "Ingest path complete — third-party SARIF (not Antares/rules discovery; not exploitability).",
+          );
+          console.log(
+            "Fixture smoke: locate --fixture / npm run mvp · Rules: locate --rules · Live: locate --endpoint …",
           );
         } else if (r.mode === "live") {
           console.log("");

@@ -64,43 +64,51 @@ makes Antares usable every day.
 evidence → SARIF / `report.md`. Keyless does **not** invent a second product —
 only the localization brain swaps.
 
-**Three doors:**
+**Four doors:**
 
 1. **Fixture smoke** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp` /
    `locate --fixture`): deterministic recorded brain for CI and strangers — no
    GPU, no HF token, no spend. Proves the workstation + SARIF habit. Output
    `mode: "fixture"`. Honest: this is not live Antares F1; it validates the
-   factory shape. **mvp stays fixture smoke** — it does not switch to rules.
+   factory shape. **mvp stays fixture smoke** — it does not switch to rules or
+   ingest.
 
 2. **Rules on a real repo** (`locate --rules`, $0): thin in-repo CWE heuristics
    (CWE-89 required; CWE-79 / CWE-22 optional) on your authorized `--repo`.
-   Explicit flag only — refuses `--fixture` and `--live`/`--endpoint`. Output
-   `mode: "rules"`. Honest: **rules ≠ Antares File F1** and ≠ exploitability.
-   No Semgrep binary, no Docker, no HF.
+   Explicit flag only — refuses `--fixture`, `--from-sarif`, and
+   `--live`/`--endpoint`. Output `mode: "rules"`. Honest: **rules ≠ Antares
+   File F1** and ≠ exploitability. No Semgrep binary, no Docker, no HF.
 
-3. **Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live
+3. **SARIF ingest** (`locate --from-sarif <path.sarif>`, $0): bring an existing
+   CodeQL / Semgrep / generic SARIF 2.1 file from disk into the same
+   LocalizationResult → evidence → SARIF writers. Optional `--cwe` filters
+   mapped findings. Output `mode: "ingest"`. Honest: **third-party findings —
+   not Antares/rules discovery**; localization ≠ exploitability. **File path
+   only** — no GitHub alerts API / network fetch. No Semgrep binary dependency.
+
+4. **Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live
    path details](#opt-in-live-path-details), opt-in, costs $): same pipeline with
    Antares-1B via `--endpoint` + human HF gated accept + CUDA/vLLM (or
    documented RunPod Secure A40). Output `mode: "live"`. Never auto-provisions
-   pods; never scrapes HF; never silent fallback to fixture/rules if the
+   pods; never scrapes HF; never silent fallback to fixture/rules/ingest if the
    endpoint is down.
 
-| | Fixture smoke | Rules (keyless real-repo) | Live Antares |
-|--|---------------|---------------------------|--------------|
-| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Antares-1B (your completions host) |
-| What you need | `npm install` | `npm install` + authorized `--repo` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
-| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --endpoint … --remote-inference` |
-| SARIF `mode` | `"fixture"` | `"rules"` | `"live"` |
-| Cost | $0 | $0 | GPU / pod spend (you control) |
-| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Live localization on an authorized repo |
+| | Fixture smoke | Rules (keyless) | SARIF ingest | Live Antares |
+|--|---------------|-----------------|--------------|--------------|
+| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B (your completions host) |
+| What you need | `npm install` | `npm install` + authorized `--repo` | `npm install` + local `.sarif` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
+| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --from-sarif path/to/report.sarif` | `locate --endpoint … --remote-inference` |
+| SARIF `mode` | `"fixture"` | `"rules"` | `"ingest"` | `"live"` |
+| Cost | $0 | $0 | $0 | GPU / pod spend (you control) |
+| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Reuse third-party scanner output in ZERODAY evidence | Live localization on an authorized repo |
 
 Then the Desk loop (`inventory` → `packet` → `harden` → `classify` → `craft`)
 runs **keyless on your tree** (cwd / `--repo` / `--from`) without Antares —
 config inventory, offline packets, harden notes, crash classify, defensive
 craft. Fixtures stay available via `--fixture` / `npm run mvp` smoke. Desk is
 **not** localization / vuln discovery; use `locate --fixture` / mvp for smoke,
-`locate --rules` for keyless real-repo localize, and live Antares when you host
-completions.
+`locate --rules` for keyless real-repo localize, `locate --from-sarif` for
+scanner ingest, and live Antares when you host completions.
 
 Hard limits stay: localization ≠ exploitability · **Not a Cisco product** · not
 a partnership claim.
@@ -137,7 +145,28 @@ npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo --rules
 npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rules
 ```
 
-Refuses mixed doors: `--rules` + `--fixture` or `--live`/`--endpoint` → fail closed.
+Refuses mixed doors: `--rules` + `--fixture` or `--live`/`--endpoint` or
+`--from-sarif` → fail closed.
+
+---
+
+## SARIF ingest (keyless, $0)
+
+Point ZERODAY at an existing local SARIF 2.1 file (CodeQL / Semgrep / generic).
+Same report / evidence / SARIF writers as other doors. **Not** Antares or rules
+discovery; **not** exploitability. File path only — no GitHub Code Scanning /
+Dependabot / alerts API fetch. Optional `--cwe` keeps only findings mapped to
+that CWE.
+
+```bash
+npm run zeroday -- locate --from-sarif path/to/codeql.sarif
+npm run zeroday -- locate --from-sarif path/to/semgrep.sarif --cwe CWE-89
+# Sample in this repo:
+npm run zeroday -- locate --from-sarif fixtures/locate/ingest-sample/sample.sarif --cwe CWE-89
+```
+
+Refuses mixed doors: `--from-sarif` + `--fixture` / `--rules` / `--live` /
+`--endpoint` → fail closed. Does not change `npm run mvp` (fixture smoke stays).
 
 ---
 
@@ -312,7 +341,8 @@ npm run zeroday -- plugin --fixture
 
 **Honesty:** Desk keyless on *your* tree does **not** replace localization. Fixture
 `locate` / `npm run mvp` still smoke the factory; `locate --rules` is keyless
-real-repo localize; live Antares is the opt-in GPU brain.
+real-repo localize; `locate --from-sarif` reuses scanner SARIF; live Antares is
+the opt-in GPU brain.
 ---
 
 ## Opt-in live path details
@@ -394,6 +424,7 @@ Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) · [coo
 |------|-------|---------------|
 | **`npm run mvp`** / **`locate --fixture`** | No GPU / no HF | Yes — **default smoke** |
 | **`locate --rules`** | No GPU / no HF + authorized `--repo` | Yes — keyless real-repo heuristics |
+| **`locate --from-sarif`** | No GPU / no HF + local `.sarif` | Yes — third-party ingest (mode=ingest) |
 | **`operate`** (keyless) | Coding agent + snapshot | Yes (after submission / `--fixture`) |
 | **`locate --endpoint …`** (live) | HF accept + CUDA/vLLM or RunPod + ACK | Yes — **opt-in, costs $** |
 | **`antares doctor`** | Nothing | No — print-only checklist |
@@ -447,6 +478,9 @@ npm run mvp
 
 # Rules locate on a real authorized repo ($0 — not Antares F1)
 npm run zeroday -- locate --cwe CWE-89 --repo /path/to/repo --rules
+
+# SARIF ingest (local file only — mode=ingest)
+npm run zeroday -- locate --from-sarif path/to/report.sarif --cwe CWE-89
 
 # Desk on your tree (keyless, no Antares — not vuln discovery)
 npm run zeroday -- inventory
