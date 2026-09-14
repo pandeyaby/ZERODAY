@@ -16,6 +16,47 @@ operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
 
 ---
 
+## Why ZERODAY (vs Antares alone)
+
+[Antares](https://blogs.cisco.com/ai/introducing-antares-the-most-efficient-open-weight-ai-models-for-vulnerability-localization)
+is a compact localization **brain** — it helps answer “which files?” for a CWE /
+advisory. ZERODAY is the daily-driver **workstation + CI habit** around that
+brain: keyless stranger path, hashed evidence, Desk commands after locate, and
+hard limits as product defaults.
+
+**Not a Cisco product** · not an official Cisco partnership · localization ≠
+exploitability. Live Antares weights stay **opt-in** when you already host them.
+
+| Need | Antares | ZERODAY |
+|------|---------|---------|
+| Morning / stranger path | Model + your own completions host | `npm run mvp` — fixture → SARIF; no GPU / HF token / spend |
+| Live Antares when wanted | Direct CLI against your endpoint | Opt-in `locate --endpoint` + doctor/checklist; never auto-provisions pods |
+| CI/CD early review | You wire inference into CI yourself | Fixture locate + SARIF in Actions without gated weights |
+| Privacy / compliance default | Your hosting choice | Local-first keyless default; remote only with explicit ack |
+| After localization | Ranked files | Desk loop: `inventory` → `packet` → `harden` → `classify` → `craft` |
+| Hand-off to security | Manual packaging | Offline packet / SARIF exporters — generate only, no auto-post |
+| Agent / package risk | Out of model scope | `harden` recommend-only (no auto-apply / auto-PR / auto-merge) |
+| Crash / noise triage | Out of model scope | `classify` evidence pack; ambiguous → `needs_human` |
+| Hard limits productized | Model policy / your process | No PoC · `needs_human` · never auto-merge — baked into CLI, docs, CI |
+
+### Blog workflows → ZERODAY
+
+Cisco’s Antares intro outlines five defensive workflows. Rough map into this
+repo (inspired by the open model — **not** a partnership claim):
+
+| Workflow (blog shape) | In ZERODAY |
+|-----------------------|------------|
+| CWE → files | `locate` / `operate` (fixture default; live Antares opt-in) |
+| Advisory triage | CWE / CVE / GHSA → ranked files + hashed evidence |
+| Augment SAST | SARIF out for existing review tools |
+| CI/CD | `npm run mvp` + fixture factory in Actions |
+| Strict privacy | Keyless local-first path; remote only with `--remote-inference` ack |
+
+**Pitch:** Antares = which files. ZERODAY = career-long workstation + CI that
+makes Antares usable every day.
+
+---
+
 ## MVP path (keyless, &lt;10 min)
 
 **Stranger path:** clone → fixture (or playground) → SARIF. Offline. No GPU. No HF token. No spend.
