@@ -12,6 +12,8 @@
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
  *   zeroday locate  --cwe CWE-89 --fixture
+ *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
+ *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / draft-fix / classify / demo / play
  */
@@ -25,7 +27,9 @@ import {
   detectAntaresCli,
   runAntaresPlan,
   runAntaresSweep,
+  recordCassette,
 } from "../src/locate/index.ts";
+import { RecordRefuseError } from "../src/locate/record/index.ts";
 import {
   EXPORT_FORMATS,
   writeExport,
@@ -1142,19 +1146,23 @@ program
   .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
   .option(
     "--rules",
-    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --from-sarif / --live / --endpoint. Not Antares F1.",
+    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --from-sarif / --recording / --live / --endpoint. Not Antares F1.",
     false,
   )
   .option(
     "--from-sarif <path>",
-    "Ingest local SARIF 2.1 (CodeQL/Semgrep/generic) → mode=ingest. File path only — no alerts API. Incompatible with --fixture / --rules / --live / --endpoint.",
+    "Ingest local SARIF 2.1 (CodeQL/Semgrep/generic) → mode=ingest. File path only — no alerts API. Incompatible with --fixture / --rules / --recording / --live / --endpoint.",
+  )
+  .option(
+    "--recording <cassette.json>",
+    "Replay redacted org CI cassette (Keyless K3) → mode=recording. Offline. Incompatible with --fixture / --rules / --from-sarif / --live / --endpoint.",
   )
   .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules/--from-sarif). Completions only.",
+    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules/--from-sarif/--recording). Completions only.",
   )
   .option(
     "--remote-inference",
@@ -1194,6 +1202,7 @@ program
     fixture: boolean;
     rules: boolean;
     fromSarif?: string;
+    recording?: string;
     live: boolean;
     offline: boolean;
     output?: string;
@@ -1211,13 +1220,18 @@ program
       opts.fromSarif && opts.fromSarif.trim().length > 0
         ? path.resolve(opts.fromSarif.trim())
         : undefined;
+    const recording =
+      opts.recording && opts.recording.trim().length > 0
+        ? path.resolve(opts.recording.trim())
+        : undefined;
     const advisory = opts.cwe || opts.cve || opts.ghsa;
-    if (!advisory && !fromSarif) {
+    if (!advisory && !fromSarif && !recording) {
       console.error(
-        "Provide one of --cwe, --cve, or --ghsa (or --from-sarif for ingest).\n" +
+        "Provide one of --cwe, --cve, or --ghsa (or --from-sarif / --recording).\n" +
           "Example: zeroday locate --cwe CWE-89 --fixture\n" +
           "Keyless real-repo: zeroday locate --cwe CWE-89 --repo <path> --rules\n" +
-          "SARIF ingest: zeroday locate --from-sarif path/to/report.sarif",
+          "SARIF ingest: zeroday locate --from-sarif path/to/report.sarif\n" +
+          "Org cassette replay: zeroday locate --recording path/to/cassette.json",
       );
       process.exitCode = 2;
       return;
@@ -1231,7 +1245,7 @@ program
     const repo =
       opts.repo && opts.repo.length > 0
         ? path.resolve(opts.repo)
-        : fromSarif
+        : fromSarif || recording
           ? process.cwd()
           : defaultFixtureRepo();
 
@@ -1265,6 +1279,7 @@ program
         fixture: opts.fixture,
         rules: opts.rules,
         fromSarif,
+        recording,
         live: opts.live,
         offline: opts.offline,
         explicitCwe: opts.mapCwe || (opts.cwe && opts.cve ? opts.cwe : undefined),
@@ -1376,6 +1391,14 @@ program
           console.log(
             "Fixture smoke: locate --fixture / npm run mvp · Rules: locate --rules · Live: locate --endpoint …",
           );
+        } else if (r.mode === "recording") {
+          console.log("");
+          console.log(
+            "Recording replay complete — redacted org CI cassette (Keyless K3; not mvp fixtures; not live discovery).",
+          );
+          console.log(
+            "Record new cassettes: locate --rules … && record --from <dir> --out cassette.json (human reviews redaction before commit).",
+          );
         } else if (r.mode === "live") {
           console.log("");
           console.log(
@@ -1392,6 +1415,65 @@ program
       }
     } catch (e) {
       console.error(`locate failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("record")
+  .description(
+    "Save a redacted org CI cassette from locate report.json (Keyless K3). --redact default ON; fail-closed.",
+  )
+  .requiredOption(
+    "--from <locate-reports-dir>",
+    "Locate output directory containing report.json (or path to report.json)",
+  )
+  .requiredOption(
+    "--out <cassette.json>",
+    "Destination path for the redacted org cassette",
+  )
+  .option(
+    "--redact",
+    "Redact absolute paths + secret-shaped strings before write (default ON)",
+    true,
+  )
+  .option(
+    "--no-redact",
+    "Refused: org cassettes require redaction (Keyless K3 / GRAX)",
+  )
+  .action((opts: { from: string; out: string; redact: boolean; noRedact?: boolean }) => {
+    try {
+      const redact = opts.noRedact === true ? false : opts.redact !== false;
+      const artifacts = recordCassette({
+        from: opts.from,
+        out: opts.out,
+        redact,
+      });
+      console.log("");
+      console.log("ZERODAY record (org CI cassette)");
+      console.log("────────────────────────────────");
+      console.log(`From     : ${artifacts.reportPath}`);
+      console.log(`Out      : ${artifacts.outPath}`);
+      console.log(`Schema   : zeroday-org-cassette/v1`);
+      console.log(`Source   : ${artifacts.cassette.sourceMode}`);
+      console.log(`Findings : ${artifacts.findingCount}`);
+      console.log(`Redacted : yes (fail-closed)`);
+      console.log("");
+      console.log("Human review required before commit — never auto-commit / auto-PR / network-exfil.");
+      console.log(
+        `Replay: npm run zeroday -- locate --recording ${artifacts.outPath}`,
+      );
+      console.log("");
+      console.log(
+        "Posture: localization only · org cassette ≠ mvp fixtures · no PoC · no secrets · needs human",
+      );
+    } catch (e) {
+      const msg = (e as Error).message;
+      console.error(
+        e instanceof RecordRefuseError || msg.startsWith("record refused")
+          ? msg
+          : `record failed: ${msg}`,
+      );
       process.exitCode = 2;
     }
   });

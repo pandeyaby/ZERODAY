@@ -1,7 +1,9 @@
 # ZERODAY Antares localization CI gate
 #
-# Fixture-only smoke + keyless rules + SARIF ingest — no model weights, no HF pull, no GPU.
-# Jobs: locate (SARIF + PR comment) + operate→verify + locate-rules (K1) + locate-ingest (K2).
+# Fixture-only smoke + keyless rules + SARIF ingest + org cassette record/replay —
+# no model weights, no HF pull, no GPU.
+# Jobs: locate (SARIF + PR comment) + operate→verify + locate-rules (K1) +
+# locate-ingest (K2) + locate-record (K3).
 # Never auto-merges. Localization ≠ exploitability.
 
 name: ZERODAY locate
@@ -361,6 +363,126 @@ jobs:
         with:
           name: zeroday-locate-ingest-reports
           path: zeroday-reports/ci-locate-ingest/
+          if-no-files-found: error
+
+  locate-record:
+    name: record --redact org cassette (Keyless K3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: rules locate → record --redact → locate --recording
+        run: |
+          set -euo pipefail
+          npm run zeroday -- locate --cwe CWE-89 \
+            --repo fixtures/locate/rules-sample --rules --offline \
+            --output zeroday-reports/ci-locate-record-src
+          test -f zeroday-reports/ci-locate-record-src/report.json
+          FINDINGS=$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-record-src/report.json","utf8"));if(j.mode!=="rules")process.exit(2);if(!j.rankedFiles?.length)process.exit(3);process.stdout.write(String(j.rankedFiles.length));')
+          echo "source findings=$FINDINGS"
+          npm run zeroday -- record --from zeroday-reports/ci-locate-record-src \
+            --out zeroday-reports/ci-locate-record/rules-cwe-89.cassette.json
+          test -f zeroday-reports/ci-locate-record/rules-cwe-89.cassette.json
+          node -e '
+            const fs = require("fs");
+            const c = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-record/rules-cwe-89.cassette.json", "utf8"));
+            if (c.schemaVersion !== "zeroday-org-cassette/v1") process.exit(2);
+            if (c.redacted !== true) process.exit(3);
+            if (c.sourceMode !== "rules") process.exit(4);
+            if (!c.rankedFiles?.length) process.exit(5);
+            if (!c.humanReviewNote) process.exit(6);
+            const blob = JSON.stringify(c);
+            if (/\/workspace\//.test(blob)) process.exit(7);
+            if (/\b(sk|ghp|hf)_[A-Za-z0-9_]{8,}\b/.test(blob)) process.exit(8);
+            console.log("record OK", c.rankedFiles.length, "findings", c.schemaVersion);
+          '
+          npm run zeroday -- locate \
+            --recording zeroday-reports/ci-locate-record/rules-cwe-89.cassette.json \
+            --output zeroday-reports/ci-locate-record-replay
+          test -f zeroday-reports/ci-locate-record-replay/report.json
+          node -e '
+            const fs = require("fs");
+            const expected = Number(process.argv[1]);
+            const j = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-record-replay/report.json", "utf8"));
+            if (j.mode !== "recording") process.exit(2);
+            if (j.rankedFiles?.length !== expected) process.exit(3);
+            if (!j.posture?.localizationOnly || !j.posture?.noPoC) process.exit(4);
+            const warn = (j.warnings || []).join(" ");
+            if (!/recording|cassette/i.test(warn)) process.exit(5);
+            if (!/sourceMode=rules/.test(warn)) process.exit(6);
+            const sarif = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-record-replay/report.sarif", "utf8"));
+            if (sarif.runs?.[0]?.properties?.mode !== "recording") process.exit(7);
+            console.log("locate-recording OK", j.rankedFiles.length, "findings", j.mode);
+          ' "$FINDINGS"
+
+      - name: Mixed flags fail closed (--recording + --rules)
+        run: |
+          set -euo pipefail
+          set +e
+          npm run zeroday -- locate \
+            --recording zeroday-reports/ci-locate-record/rules-cwe-89.cassette.json \
+            --rules --output zeroday-reports/ci-locate-record-mix
+          code=$?
+          set -e
+          test "$code" -ne 0
+          test ! -f zeroday-reports/ci-locate-record-mix/report.json
+
+      - name: record refuses incomplete / empty
+        run: |
+          set -euo pipefail
+          mkdir -p zeroday-reports/ci-locate-record-bad
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("zeroday-reports/ci-locate-record-bad/report.json", JSON.stringify({
+              mode: "rules",
+              advisory: { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
+              targetRepo: "/tmp/x",
+              model: "rules/cwe-89",
+              generatedAt: new Date().toISOString(),
+              rankedFiles: [],
+              explorationTrace: [],
+              warnings: [],
+              posture: { localizationOnly: true, notExploitProof: true, noAutoMerge: true, noPoC: true },
+              summary: { findingCount: 0, incompleteReason: null, terminalCallBudget: 0, terminalCallsUsed: 0 }
+            }, null, 2));
+          '
+          set +e
+          npm run zeroday -- record --from zeroday-reports/ci-locate-record-bad \
+            --out zeroday-reports/ci-locate-record-bad/out.cassette.json
+          code=$?
+          set -e
+          test "$code" -ne 0
+          test ! -f zeroday-reports/ci-locate-record-bad/out.cassette.json
+
+      - name: Summarize locate-record gate
+        run: |
+          {
+            echo "## ZERODAY record --redact gate (Keyless K3)"
+            echo ""
+            echo "- Flow: \`locate --rules\` → \`record --redact\` → \`locate --recording\`"
+            echo "- Cassette: \`zeroday-org-cassette/v1\` (redacted; human review before commit)"
+            echo "- Replay \`mode: \"recording\"\` · not mvp fixtures · no auto-commit / no exfil"
+            echo "- Localization ≠ exploitability · no PoC"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload locate-record artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-locate-record-reports
+          path: |
+            zeroday-reports/ci-locate-record-src/
+            zeroday-reports/ci-locate-record/
+            zeroday-reports/ci-locate-record-replay/
           if-no-files-found: error
 
   packet:

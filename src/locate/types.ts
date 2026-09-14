@@ -47,10 +47,11 @@ export interface LocalizationResult {
    * fixture = recorded Antares smoke;
    * rules = thin in-repo heuristics (keyless real-repo);
    * ingest = third-party SARIF file ingest (keyless);
+   * recording = redacted org CI cassette replay (Keyless K3);
    * live = local Antares CLI;
    * agent = keyless coding-agent operator
    */
-  mode: "fixture" | "live" | "agent" | "rules" | "ingest";
+  mode: "fixture" | "live" | "agent" | "rules" | "ingest" | "recording";
   advisory: AdvisoryRef;
   targetRepo: string;
   snapshotPath?: string;
@@ -89,22 +90,27 @@ export interface LocalizationResult {
 
 export interface LocateOptions {
   repo: string;
-  /** Raw advisory string: CWE-89 | CVE-… | GHSA-… (optional when fromSarif set) */
+  /** Raw advisory string: CWE-89 | CVE-… | GHSA-… (optional when fromSarif / recording set) */
   advisory: string;
-  /** Force fixture (CI / no-GPU). Incompatible with --rules / --from-sarif / --live / --endpoint. */
+  /** Force fixture (CI / no-GPU). Incompatible with --rules / --from-sarif / --recording / --live / --endpoint. */
   fixture?: boolean;
   /** Force live Antares path (also implied when endpoint is set). Requires healthy --endpoint. */
   live?: boolean;
   /**
    * Keyless real-repo heuristics (Keyless K1). Explicit --rules only.
-   * Incompatible with --fixture, --from-sarif, and --live/--endpoint. Not mvp default.
+   * Incompatible with --fixture, --from-sarif, --recording, and --live/--endpoint. Not mvp default.
    */
   rules?: boolean;
   /**
    * Local SARIF 2.1 file path (Keyless K2). Explicit --from-sarif only.
-   * Incompatible with --fixture / --rules / --live / --endpoint. File path only — no network fetch.
+   * Incompatible with --fixture / --rules / --recording / --live / --endpoint. File path only — no network fetch.
    */
   fromSarif?: string;
+  /**
+   * Redacted org CI cassette path (Keyless K3). Explicit --recording only.
+   * Replay door — not a fifth discovery brain. Incompatible with other locate doors.
+   */
+  recording?: string;
   /** Skip NVD/GHSA network resolve */
   offline?: boolean;
   /** Explicit CWE when CVE/GHSA cannot be resolved */

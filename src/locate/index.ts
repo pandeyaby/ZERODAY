@@ -11,6 +11,11 @@ import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
 import { runRulesLocalization } from "./rules/index";
 import { runIngestLocalization, parseSarifFile, mapRuleToCwe } from "./ingest/index";
 import {
+  loadOrgCassette,
+  runRecordingLocalization,
+  recordCassette,
+} from "./record/index";
+import {
   detectAntaresCli,
   runAntaresPlan,
   runAntaresSweep,
@@ -65,8 +70,13 @@ export {
   runIngestLocalization,
   parseSarifFile,
   mapRuleToCwe,
+  loadOrgCassette,
+  runRecordingLocalization,
+  recordCassette,
 };
 export type { LocateOptions, LocalizationResult };
+export type { OrgCassette, RecordOptions } from "./record/index";
+export { ORG_CASSETTE_SCHEMA, HUMAN_REVIEW_NOTE } from "./record/index";
 
 export interface LocateArtifacts {
   result: LocalizationResult;
@@ -90,18 +100,20 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     undefined;
 
   // Live when --live / --endpoint; rules when --rules; ingest when --from-sarif;
-  // fixture when --fixture or default. Mixed doors refuse closed.
+  // recording when --recording; fixture when --fixture or default. Mixed doors refuse closed.
   const mode = resolveLocateMode({
     fixture: options.fixture,
     live: options.live,
     rules: options.rules,
     fromSarif: options.fromSarif,
+    recording: options.recording,
     endpoint: endpointRaw,
     remoteInference: options.remoteInference,
   });
   const preferLive = mode === "live";
   const preferRules = mode === "rules";
   const preferIngest = mode === "ingest";
+  const preferRecording = mode === "recording";
 
   let advisory: {
     kind: "cwe" | "cve" | "ghsa";
@@ -111,8 +123,15 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   };
   let resolvedSource = "cwe-direct";
   let resolvedCategory = "unknown";
+  let loadedCassette: ReturnType<typeof loadOrgCassette> | null = null;
 
-  if (preferIngest && (!options.advisory || options.advisory.trim() === "")) {
+  if (preferRecording) {
+    // Recording replay: advisory + findings come from the cassette.
+    loadedCassette = loadOrgCassette(options.recording!.trim());
+    advisory = loadedCassette.advisory;
+    resolvedSource = "recording";
+    resolvedCategory = loadedCassette.sourceMode;
+  } else if (preferIngest && (!options.advisory || options.advisory.trim() === "")) {
     // Unfiltered ingest: synthesize a neutral advisory; CWE filter optional later.
     advisory = {
       kind: "cwe",
@@ -138,7 +157,13 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   }
 
   let repo = options.repo;
-  if (preferIngest) {
+  if (preferRecording) {
+    // Replay labels targetRepo; default to cwd / cassette label when --repo omitted.
+    if (!repo || repo === "." || repo === "fixture") {
+      repo = process.cwd();
+    }
+    repo = path.resolve(repo);
+  } else if (preferIngest) {
     // Ingest labels targetRepo; default to cwd when --repo omitted.
     if (!repo || repo === "." || repo === "fixture") {
       repo = process.cwd();
@@ -174,7 +199,21 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   let sandbox: SandboxSession | null = null;
 
   try {
-    if (preferIngest) {
+    if (preferRecording) {
+      const cassette = loadedCassette!;
+      result = runRecordingLocalization(cassette, repo);
+      if (result.mode !== "recording") {
+        throw new Error(
+          `Recording locate invariant broken: expected mode=recording, got mode=${result.mode}.`,
+        );
+      }
+      result.warnings.push(
+        `Resolved advisory label ${advisory.id} → ${advisory.cweId} (sourceMode=${cassette.sourceMode}) via recording cassette`,
+      );
+      result.warnings.push(
+        "Recording mode is offline (no Docker / no Antares / no network) — redacted org CI cassette replay.",
+      );
+    } else if (preferIngest) {
       const sarifPath = options.fromSarif!.trim();
       result = runIngestLocalization({
         sarifPath,

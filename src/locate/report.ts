@@ -139,6 +139,13 @@ export function toHumanReport(
     lines.push(
       `- Candidates for human review — localization ≠ exploitability. Local file path only (no alerts API fetch).`,
     );
+  } else if (result.mode === "recording") {
+    lines.push(
+      `- **Recording replay (Keyless K3)** — redacted org CI cassette. **Not** live discovery, **not** mvp product fixtures, and **not** Antares File F1 (**${ANTARES_1B_FILE_F1}**).`,
+    );
+    lines.push(
+      `- Offline regression door — localization ≠ exploitability. Human reviewed redaction before cassette commit.`,
+    );
   } else {
     lines.push(
       `- Public **Antares-1B** File F1 is **${ANTARES_1B_FILE_F1}** (localization quality on the published benchmark — **not** a per-finding confidence score).`,

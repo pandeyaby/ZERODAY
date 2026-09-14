@@ -24,7 +24,9 @@ export function toPullRequestComment(result: LocalizationResult): string {
           ? "rules — thin in-repo heuristics (not Antares F1)"
           : result.mode === "ingest"
             ? "ingest — third-party SARIF file (not Antares/rules discovery)"
-            : "keyless agent operator";
+            : result.mode === "recording"
+              ? "recording — redacted org CI cassette replay (Keyless K3)"
+              : "keyless agent operator";
   lines.push(
     `| Advisory | \`${result.advisory.id}\` → \`${result.advisory.cweId}\` |`,
   );
