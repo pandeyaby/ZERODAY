@@ -47,6 +47,21 @@ describe("live path refuses silent fixture fallback", () => {
     );
   });
 
+  it("refuses --rules combined with --fixture or --endpoint", () => {
+    assert.throws(
+      () => resolveLocateMode({ rules: true, fixture: true }),
+      /mixed mode|Refusing/,
+    );
+    assert.throws(
+      () =>
+        resolveLocateMode({
+          rules: true,
+          endpoint: "http://127.0.0.1:8000/v1",
+        }),
+      /mixed mode|Refusing/,
+    );
+  });
+
   it("refuses --live without --endpoint (no silent fixture)", () => {
     assert.throws(
       () => resolveLocateMode({ live: true }),

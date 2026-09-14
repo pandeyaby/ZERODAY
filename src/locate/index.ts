@@ -8,6 +8,7 @@ import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
+import { runRulesLocalization } from "./rules/index";
 import {
   detectAntaresCli,
   runAntaresPlan,
@@ -59,6 +60,7 @@ export {
   resolveLiveToolBudget,
   DEFAULT_LIVE_TOOL_BUDGET,
   classifyIncomplete,
+  runRulesLocalization,
 };
 export type { LocateOptions, LocalizationResult };
 
@@ -83,15 +85,17 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     process.env.ANTARES_ENDPOINT ||
     undefined;
 
-  // Live when --live / --endpoint; fixture when --fixture or default (CI-safe).
-  // Mixed --fixture + --live/--endpoint is refused — never silent mock fallback.
+  // Live when --live / --endpoint; rules when --rules; fixture when --fixture or default.
+  // Mixed doors refuse closed — never silent mock fallback.
   const mode = resolveLocateMode({
     fixture: options.fixture,
     live: options.live,
+    rules: options.rules,
     endpoint: endpointRaw,
     remoteInference: options.remoteInference,
   });
   const preferLive = mode === "live";
+  const preferRules = mode === "rules";
 
   const resolved = await resolveAdvisory(options.advisory, {
     offline: !preferLive || options.offline === true,
@@ -196,6 +200,29 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       );
       result.warnings.push(
         "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights).",
+      );
+    } else if (preferRules) {
+      // Rules path: thin in-repo heuristics on real --repo (Keyless K1).
+      // Container-free; no Semgrep; no Antares weights.
+      const snap = createSnapshot(repo);
+      snapshotPath = snap.snapshotPath;
+      result = runRulesLocalization(advisory, snap.snapshotPath);
+      result.targetRepo = repo;
+      result.snapshotPath = snap.snapshotPath;
+      if (result.mode !== "rules") {
+        throw new Error(
+          `Rules locate invariant broken: expected mode=rules, got mode=${result.mode}.`,
+        );
+      }
+      result.warnings.push(
+        `Read-only snapshot: ${snap.fileCount} files (destroyed after run)`,
+      );
+      result.warnings.push(...snap.warnings);
+      result.warnings.push(
+        `Resolved ${resolved.id} → ${resolved.cweId} (${resolved.category}) via ${resolved.source}`,
+      );
+      result.warnings.push(
+        "Rules mode is container-free (no Docker / no Semgrep) — CI-safe keyless localize.",
       );
     } else {
       // Fixture path: container-free by design (GitHub Action / ubuntu-latest).

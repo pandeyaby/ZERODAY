@@ -1,7 +1,7 @@
 # ZERODAY Antares localization CI gate
 #
-# Fixture-only — no model weights, no HF pull, no GPU.
-# Jobs: locate (SARIF + PR comment) + operate→verify (keyless evidence vault).
+# Fixture-only smoke + keyless rules locate — no model weights, no HF pull, no GPU.
+# Jobs: locate (SARIF + PR comment) + operate→verify + locate-rules (Keyless K1).
 # Never auto-merges. Localization ≠ exploitability.
 
 name: ZERODAY locate
@@ -225,6 +225,72 @@ jobs:
             zeroday-reports/ci-desk-real-inv/
             zeroday-reports/ci-desk-real-packet/
             zeroday-reports/ci-desk-real-harden/
+          if-no-files-found: error
+
+  locate-rules:
+    name: Rules locate on sample tree (Keyless K1)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: locate --rules CWE-89 (no GPU / no HF / no Semgrep)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- locate --cwe CWE-89 \
+            --repo fixtures/locate/rules-sample --rules --offline \
+            --output zeroday-reports/ci-locate-rules
+          test -f zeroday-reports/ci-locate-rules/report.json
+          test -f zeroday-reports/ci-locate-rules/report.sarif
+          test -f zeroday-reports/ci-locate-rules/evidence/manifest.json
+          node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-rules/report.json", "utf8"));
+            if (j.mode !== "rules") process.exit(2);
+            if (!j.rankedFiles?.length) process.exit(3);
+            if (!j.posture?.localizationOnly || !j.posture?.noPoC) process.exit(4);
+            const warn = (j.warnings || []).join(" ");
+            if (!/not Antares/i.test(warn)) process.exit(5);
+            const sarif = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-rules/report.sarif", "utf8"));
+            if (sarif.runs?.[0]?.properties?.mode !== "rules") process.exit(6);
+            console.log("locate-rules OK", j.rankedFiles.length, "findings", j.mode);
+          '
+
+      - name: Mixed flags fail closed
+        run: |
+          set -euo pipefail
+          set +e
+          npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample \
+            --rules --fixture --output zeroday-reports/ci-locate-rules-mix
+          code=$?
+          set -e
+          test "$code" -ne 0
+          test ! -f zeroday-reports/ci-locate-rules-mix/report.json
+
+      - name: Summarize locate-rules gate
+        run: |
+          {
+            echo "## ZERODAY locate --rules gate (Keyless K1)"
+            echo ""
+            echo "- Mode: thin in-repo CWE-89 heuristics on \`fixtures/locate/rules-sample\`"
+            echo "- Output: \`zeroday-reports/ci-locate-rules/\` (\`mode: \"rules\"\`)"
+            echo "- Not Antares F1 · not exploitability · no Semgrep · mvp/fixture unchanged"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload locate-rules artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-locate-rules-reports
+          path: zeroday-reports/ci-locate-rules/
           if-no-files-found: error
 
   packet:

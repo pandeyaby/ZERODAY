@@ -1140,12 +1140,17 @@ program
     "",
   )
   .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
+  .option(
+    "--rules",
+    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --live / --endpoint. Not Antares F1.",
+    false,
+  )
   .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
     "--endpoint <url>",
-    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture). Completions only.",
+    "Local or opt-in remote vLLM completions endpoint (implies live; refuses --fixture/--rules). Completions only.",
   )
   .option(
     "--remote-inference",
@@ -1183,6 +1188,7 @@ program
     mapCwe?: string;
     repo: string;
     fixture: boolean;
+    rules: boolean;
     live: boolean;
     offline: boolean;
     output?: string;
@@ -1200,7 +1206,8 @@ program
     if (!advisory) {
       console.error(
         "Provide one of --cwe, --cve, or --ghsa.\n" +
-          "Example: zeroday locate --cwe CWE-89 --fixture",
+          "Example: zeroday locate --cwe CWE-89 --fixture\n" +
+          "Keyless real-repo: zeroday locate --cwe CWE-89 --repo <path> --rules",
       );
       process.exitCode = 2;
       return;
@@ -1244,6 +1251,7 @@ program
         repo,
         advisory,
         fixture: opts.fixture,
+        rules: opts.rules,
         live: opts.live,
         offline: opts.offline,
         explicitCwe: opts.mapCwe || (opts.cwe && opts.cve ? opts.cwe : undefined),
@@ -1334,7 +1342,15 @@ program
             "Helper: bash scripts/quickstart-live.sh <repo> [CWE]  (refuses silent fixture fallback)",
           );
           console.log(
-            "Keyless (no weights): prefer `zeroday operate --fixture` for coding-agent handoff.",
+            "Keyless real-repo (no weights): npm run zeroday -- locate --cwe CWE-89 --repo <path> --rules",
+          );
+        } else if (r.mode === "rules") {
+          console.log("");
+          console.log(
+            "Rules path complete — thin in-repo heuristics (not Antares F1; not exploitability).",
+          );
+          console.log(
+            "Live Antares (opt-in): locate --endpoint … · Fixture smoke: locate --fixture / npm run mvp",
           );
         } else if (r.mode === "live") {
           console.log("");

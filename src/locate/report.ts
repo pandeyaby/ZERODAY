@@ -125,6 +125,13 @@ export function toHumanReport(
     lines.push(
       `- Optional live Antares (when hosted locally) publishes File F1 **${ANTARES_1B_FILE_F1}** on the public benchmark — **not** a per-finding score. Antares CLI expects vLLM **0.19.1+** completions; ZERODAY does not claim independent vLLM validation.`,
     );
+  } else if (result.mode === "rules") {
+    lines.push(
+      `- **Rules mode** — thin in-repo CWE heuristics only. **Not** Antares inference and **not** Antares File F1 (**${ANTARES_1B_FILE_F1}**).`,
+    );
+    lines.push(
+      `- Candidates for human review — localization ≠ exploitability. No Semgrep binary dependency.`,
+    );
   } else {
     lines.push(
       `- Public **Antares-1B** File F1 is **${ANTARES_1B_FILE_F1}** (localization quality on the published benchmark — **not** a per-finding confidence score).`,
