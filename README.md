@@ -57,6 +57,43 @@ makes Antares usable every day.
 
 ---
 
+## How it works
+
+**Same pipeline, different brain.** Both paths share one shape: CWE / CVE / GHSA
+(or fixture) → sandbox explore (grep / find / cat) → ranked files + hashed
+evidence → SARIF / `report.md`. Keyless does **not** invent a second product —
+only the localization brain swaps.
+
+**Keyless / fixture** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp`):
+deterministic fixture brain for CI and strangers — no GPU, no HF token, no
+spend. Proves the workstation + SARIF habit. Output `mode: "fixture"`. Honest:
+this is not live Antares F1; it validates the factory shape.
+
+**Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live path
+details](#opt-in-live-path-details), opt-in, costs $): same pipeline with
+Antares-1B as the localization brain via `--endpoint` + human HF gated accept +
+CUDA/vLLM (or documented RunPod Secure A40). Output `mode: "live"`. Never
+auto-provisions pods; never scrapes HF; never silent fallback to fixture if the
+endpoint is down.
+
+| | Keyless / fixture | Live Antares |
+|--|-------------------|--------------|
+| Brain | Deterministic fixture | Antares-1B (your completions host) |
+| What you need | `npm install` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
+| Command door | `npm run mvp` | `locate --endpoint … --remote-inference` |
+| SARIF `mode` | `"fixture"` | `"live"` |
+| Cost | $0 | GPU / pod spend (you control) |
+| What it proves | Factory shape + SARIF habit | Live localization on an authorized repo |
+
+Then the Desk loop (`inventory` → `packet` → `harden` → `classify` → `craft`) is
+the same either way — localization first; human gate; no PoC / exploit /
+auto-merge.
+
+Hard limits stay: localization ≠ exploitability · **Not a Cisco product** · not
+a partnership claim.
+
+---
+
 ## MVP path (keyless, &lt;10 min)
 
 **Stranger path:** clone → fixture (or playground) → SARIF. Offline. No GPU. No HF token. No spend.
