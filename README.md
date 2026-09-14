@@ -159,6 +159,21 @@ npm run zeroday -- harden --from docs/reports --draft
 - Sample: [`docs/reports/desk-c-harden/`](./docs/reports/desk-c-harden/)
 - **`npm run mvp` / `inventory` / `packet` unchanged**
 
+Crash classify + evidence (Desk E — fixture/offline; **human review · no auto-remediate**):
+
+```bash
+npm run zeroday -- classify --from fixtures/classify/software_defect
+# or:
+npm run zeroday -- classify --fixture
+```
+
+- Reuses fixture classify APIs (labels: `possible_breach` | `infra_failure` | `software_defect` | `agent_misfire` | `needs_human`)
+- Ambiguous → **`needs_human`**; never invent breach from weak signals
+- Emits `classify.md` + `classify.json` evidence pack (plus `ciso.*`); secrets redacted
+- **Classification ≠ exploitability**
+- Sample: [`docs/reports/desk-e-classify/`](./docs/reports/desk-e-classify/)
+- **`npm run mvp` / `inventory` / `packet` / `harden` unchanged**
+
 ---
 
 ## Opt-in live path details
@@ -278,7 +293,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
-Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · harden (Desk C, recommend-only): `npm run zeroday -- harden --from docs/reports` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · security packet (Desk A, no auto-post): `npm run zeroday -- packet --from docs/reports` · harden (Desk C, recommend-only): `npm run zeroday -- harden --from docs/reports` · classify (Desk E, classification ≠ exploitability): `npm run zeroday -- classify --from fixtures/classify/software_defect` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
 
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
@@ -298,6 +313,10 @@ npm run zeroday -- packet --from docs/reports
 
 # Harden (Desk C — recommend-only; optional --draft notes, human-gated)
 npm run zeroday -- harden --from docs/reports
+
+# Crash classify (Desk E — classification ≠ exploitability; human review)
+npm run zeroday -- classify --from fixtures/classify/software_defect
+npm run zeroday -- classify --fixture
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

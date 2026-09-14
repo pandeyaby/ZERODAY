@@ -80,6 +80,10 @@ describe("classify (fixture-driven)", () => {
     assert.match(md, /Human review required/);
     assert.match(md, /not.*production SOC/i);
     assert.equal(checkNoExploitInvariant([md, toCisoMarkdown(a.ciso)]).length, 0);
+    assert.ok(fs.existsSync(a.classifyMdPath));
+    assert.ok(fs.existsSync(a.classifyJsonPath));
+    const packMd = fs.readFileSync(a.classifyMdPath, "utf8");
+    assert.match(packMd, /Classification ≠ exploitability/i);
   });
 
   it("software + lateral together → needs_human (ambiguous)", () => {

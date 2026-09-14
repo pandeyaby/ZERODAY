@@ -246,6 +246,16 @@ export async function runFactory(
       path.join(path.dirname(classifyJson), "ciso.md"),
       "classify/ciso.md",
     );
+    registerIfExists(
+      vault,
+      path.join(path.dirname(classifyJson), "classify.json"),
+      "classify/classify.json",
+    );
+    registerIfExists(
+      vault,
+      path.join(path.dirname(classifyJson), "classify.md"),
+      "classify/classify.md",
+    );
   }
   if (draftPath) registerIfExists(vault, draftPath, "drafts/patch-draft.md");
   if (defendPath) registerIfExists(vault, defendPath, "defend.json");

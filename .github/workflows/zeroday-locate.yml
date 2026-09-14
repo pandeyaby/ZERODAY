@@ -312,3 +312,85 @@ jobs:
             zeroday-reports/ci-harden/
             zeroday-reports/ci-harden-draft/
           if-no-files-found: error
+
+  classify:
+    name: Fixture crash classify + evidence (Desk slice E)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Classify from fixture dir (one command)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- classify --from fixtures/classify/software_defect \
+            --output zeroday-reports/ci-classify
+          test -f zeroday-reports/ci-classify/classify.json
+          test -f zeroday-reports/ci-classify/classify.md
+          test -f zeroday-reports/ci-classify/ciso.json
+          test -f zeroday-reports/ci-classify/ciso.md
+          test -f zeroday-reports/ci-classify/README.md
+          node -e '
+            const j = require("./zeroday-reports/ci-classify/classify.json");
+            if (j.schemaVersion !== "zeroday-classify-evidence/v1") process.exit(2);
+            if (j.desk !== "E") process.exit(3);
+            if (j.classification !== "software_defect") process.exit(4);
+            if (j.needs_human !== true) process.exit(5);
+            if (j.classification_not_exploitability !== true) process.exit(6);
+            if (!j.posture?.noAutoRemediate) process.exit(7);
+            if (!j.posture?.noPoC) process.exit(8);
+            if (!j.posture?.secretsRedacted) process.exit(9);
+            if (!j.posture?.classificationNotExploitability) process.exit(10);
+            const md = require("fs").readFileSync("zeroday-reports/ci-classify/classify.md", "utf8");
+            if (!/Classification ≠ exploitability/i.test(md)) process.exit(11);
+            if (!/Human review required/i.test(md)) process.exit(12);
+            const blob = JSON.stringify(j);
+            if (/sk_[A-Za-z0-9]{10,}/.test(blob)) process.exit(13);
+            console.log("classify fixture OK", j.classification, j.evidence?.length, "evidence");
+          '
+
+      - name: Classify ambiguous → needs_human + --fixture path
+        run: |
+          set -euo pipefail
+          npm run zeroday -- classify --from fixtures/classify/needs_human \
+            --output zeroday-reports/ci-classify-ambiguous
+          node -e '
+            const j = require("./zeroday-reports/ci-classify-ambiguous/classify.json");
+            if (j.classification !== "needs_human") process.exit(2);
+            if (!/Ambiguous/i.test((j.rationale || []).join(" "))) process.exit(3);
+            console.log("ambiguous → needs_human OK");
+          '
+          npm run zeroday -- classify --fixture --output zeroday-reports/ci-classify-fixture
+          test -f zeroday-reports/ci-classify-fixture/classify.json
+
+      - name: Summarize classify gate
+        run: |
+          {
+            echo "## ZERODAY classify gate (Desk slice E)"
+            echo ""
+            echo "- Mode: crash classify + evidence from fixture dir (offline)"
+            echo "- Output: \`zeroday-reports/ci-classify/\`"
+            echo "- Labels: possible_breach | infra_failure | software_defect | agent_misfire | needs_human"
+            echo "- Ambiguous → needs_human · classification ≠ exploitability"
+            echo "- No auto-remediate · no PoC · secrets redacted · human review required"
+            echo "- mvp / inventory / packet / harden unchanged"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload classify artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-classify-reports
+          path: |
+            zeroday-reports/ci-classify/
+            zeroday-reports/ci-classify-ambiguous/
+            zeroday-reports/ci-classify-fixture/
+          if-no-files-found: error
