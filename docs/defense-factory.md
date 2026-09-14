@@ -97,6 +97,22 @@ Emits `harden.md` · `harden.json` · optional `drafts/*.md`. Categories:
 
 Sample: [`docs/reports/desk-c-harden/`](./reports/desk-c-harden/).
 
+## Crash classify + evidence (Desk E)
+
+Reuses fixture-driven classify APIs. One offline command emits `classify.md` +
+`classify.json` evidence pack. **Classification ≠ exploitability.** Ambiguous →
+`needs_human`. Human review required — no auto-remediate.
+
+```bash
+npm run zeroday -- classify --from fixtures/classify/software_defect
+npm run zeroday -- classify --fixture
+```
+
+Labels: `possible_breach` | `infra_failure` | `software_defect` | `agent_misfire` |
+`needs_human`. Secrets redacted. `mvp` / `inventory` / `packet` / `harden` unchanged.
+
+Sample: [`docs/reports/desk-e-classify/`](./reports/desk-e-classify/).
+
 ## One command (CI-safe factory)
 
 ```bash

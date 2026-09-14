@@ -10,11 +10,11 @@
 | [exporters.md](./exporters.md) | Customer ingest paths |
 | [vendor-packs/README.md](./vendor-packs/README.md) | Desk-by-desk operator packs |
 | [evidence.md](./evidence.md) | Evidence vault |
-| [classify.md](./classify.md) | Fixture classifier |
+| [classify.md](./classify.md) | Fixture classifier + Desk E evidence |
 | [antares.md](./antares.md) | Optional local Antares |
 | [sandbox.md](./sandbox.md) | Live Docker network=none |
 | [cli-api.md](./cli-api.md) | CLI reference |
-| [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden samples |
+| [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden · Desk E classify samples |
 | [getting-started.md](./getting-started.md) | Quick start |
 | [SCOPE_AND_AUTHORIZATION.md](../SCOPE_AND_AUTHORIZATION.md) | Defensive scope |
 

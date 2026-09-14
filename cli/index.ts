@@ -6,6 +6,7 @@
  *   zeroday inventory …                # multi-repo + config surfaces → locate hints
  *   zeroday packet --from <reports>    # Desk A security packet (offline share)
  *   zeroday harden --from <reports>    # Desk C agent/package harden (recommend-only)
+ *   zeroday classify --from <dir>      # Desk E crash classify + evidence
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -47,6 +48,7 @@ import {
   runClassify,
   listClassifyScenarios,
   runMixedPack,
+  defaultClassifyFixtureDir,
 } from "../src/classify/index.ts";
 import { operate } from "../src/operate/index.ts";
 import { verifyRunDir } from "../src/evidence/vault.ts";
@@ -1232,47 +1234,78 @@ program
 program
   .command("classify")
   .description(
-    "Fixture-driven CISO rollup (locate + optional local telemetry). Human review required. Not a live SOC.",
+    "Desk E: crash classify + evidence pack (locate + optional telemetry). Human review required. Classification ≠ exploitability.",
+  )
+  .option(
+    "--from <path>",
+    "Locate report.json OR fixture/reports directory with report.json and/or telemetry.json",
   )
   .option(
     "--scenario <name>",
     `Bundled fixtures/classify/<name> (${listClassifyScenarios().join("|") || "see fixtures/classify"})`,
   )
-  .option("--from <report.json>", "Locate LocalizationResult report.json")
   .option(
     "--telemetry <file.json>",
     "Local zeroday-telemetry-v1 fixture (no live Cisco/Splunk feeds)",
   )
-  .option("--output <dir>", "Output directory for ciso.json + ciso.md")
-  .option("--json", "Print CISO object JSON to stdout", false)
+  .option(
+    "--output <dir>",
+    "Output directory for classify.md + classify.json (+ ciso.*)",
+    "zeroday-reports/classify",
+  )
+  .option(
+    "--fixture",
+    "Use fixtures/classify/software_defect as --from (offline / CI)",
+    false,
+  )
+  .option("--json", "Print classify.json evidence pack to stdout", false)
   .action((opts: {
-    scenario?: string;
     from?: string;
+    scenario?: string;
     telemetry?: string;
-    output?: string;
+    output: string;
+    fixture: boolean;
     json: boolean;
   }) => {
     try {
+      const from = opts.fixture
+        ? defaultClassifyFixtureDir(REPO_ROOT)
+        : opts.from;
+
+      if (!from && !opts.scenario && !opts.telemetry) {
+        console.error(
+          "Provide --from <dir|report.json>, --fixture, --scenario <name>, and/or --telemetry <file.json>",
+        );
+        process.exitCode = 2;
+        return;
+      }
+
       const artifacts = runClassify({
+        from,
         scenario: opts.scenario,
-        fromLocate: opts.from,
         telemetry: opts.telemetry,
         outputDir: opts.output,
       });
       if (opts.json) {
-        console.log(JSON.stringify(artifacts.ciso, null, 2));
+        console.log(JSON.stringify(artifacts.pack, null, 2));
       } else {
         console.log("");
-        console.log("ZERODAY classify");
-        console.log("───────────────");
-        console.log(`Classification : ${artifacts.ciso.classification}`);
-        console.log(`Confidence     : ${artifacts.ciso.confidence}`);
+        console.log("ZERODAY classify (Desk E)");
+        console.log("────────────────────────");
+        console.log(`From           : ${from ?? opts.scenario ?? "adhoc"}`);
+        console.log(`Classification : ${artifacts.pack.classification}`);
+        console.log(`Confidence     : ${artifacts.pack.confidence}`);
         console.log(`Needs human    : yes (always)`);
-        console.log(`CISO JSON      : ${artifacts.jsonPath}`);
-        console.log(`CISO report    : ${artifacts.markdownPath}`);
+        console.log(
+          `≠ exploitability: yes (classification is not exploitability)`,
+        );
+        console.log(`Evidence JSON  : ${artifacts.classifyJsonPath}`);
+        console.log(`Classify MD    : ${artifacts.classifyMdPath}`);
+        console.log(`CISO JSON      : ${artifacts.cisoJsonPath}`);
+        console.log(`CISO report    : ${artifacts.cisoMdPath}`);
         console.log("");
         console.log(
-          "Honesty: fixture-driven classifier · not production SOC · not live agent-misfire detection · not exploit proof · no auto-merge",
+          "Honesty: Desk E crash classify · fixture-driven · not production SOC · not live agent-misfire detection · classification ≠ exploitability · no auto-remediate · no auto-merge",
         );
       }
     } catch (e) {

@@ -72,3 +72,61 @@ export interface CisoObject {
     agentMisfire: boolean;
   };
 }
+
+/**
+ * Desk E evidence pack — crash classify + evidence for human review.
+ * Classification is never proof of exploitability.
+ */
+export interface ClassifyEvidencePack {
+  schemaVersion: "zeroday-classify-evidence/v1";
+  desk: "E";
+  generatedAt: string;
+  classification: ClassificationLabel;
+  finding_class: ClassificationLabel;
+  confidence: number;
+  needs_human: true;
+  human_review_required: true;
+  east_west_suspected: boolean;
+  /** Honesty rail — always true */
+  classification_not_exploitability: true;
+  source: {
+    from: string | null;
+    scenario: string | null;
+    locateReport: string | null;
+    telemetryFixture: string | null;
+    advisoryId: string | null;
+    cweId: string | null;
+  };
+  /** Embedded CISO rollup (same classifier output) */
+  ciso: CisoObject;
+  evidence: ClassificationEvidence[];
+  rationale: string[];
+  next_human_action: string;
+  signals: CisoObject["signals"];
+  posture: {
+    deskE: true;
+    crashClassify: true;
+    classificationNotExploitability: true;
+    needsHuman: true;
+    humanReviewRequired: true;
+    noAutoRemediate: true;
+    noAutoMerge: true;
+    noPoC: true;
+    secretsRedacted: true;
+    fixtureDrivenClassifier: true;
+    localizationOnly: true;
+    notLiveSoc: true;
+    notExploitProof: true;
+  };
+}
+
+export interface ClassifyEvidenceWriteResult {
+  pack: ClassifyEvidencePack;
+  ciso: CisoObject;
+  outputDir: string;
+  classifyJsonPath: string;
+  classifyMdPath: string;
+  cisoJsonPath: string;
+  cisoMdPath: string;
+  readmePath: string;
+}

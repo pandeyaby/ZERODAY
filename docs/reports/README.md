@@ -36,7 +36,7 @@ Checked-in sample: [`desk-a-packet/`](./desk-a-packet/) (`summary.md`, `findings
 | `dependency` | `dependency_harness` |
 | `unknown` | No evidence-backed mapping (no guessing) |
 
-**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC · no Desk D/E.
+**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC · no Desk D.
 
 ## Desk C — agent/package harden
 
@@ -59,4 +59,26 @@ Checked-in sample: [`desk-c-harden/`](./desk-c-harden/) (`harden.md`, `harden.js
 | `secrets-hygiene` | `ci_secret_pattern` / `env_example_honesty` |
 | `config-surface` | `config_surface` (already localized) |
 
-**Posture:** recommendations only · optional `--draft` notes human-gated · secrets redacted · no PoC · no Desk D/E · `mvp` / `inventory` / `packet` unchanged.
+**Posture:** recommendations only · optional `--draft` notes human-gated · secrets redacted · no PoC · no Desk D · `mvp` / `inventory` / `packet` unchanged.
+
+## Desk E — crash classify + evidence
+
+Offline crash/incident classification from locate + optional telemetry fixtures (**human review required — no auto-remediate**):
+
+```bash
+npm run zeroday -- classify --from fixtures/classify/software_defect
+# or:
+npm run zeroday -- classify --fixture
+```
+
+Checked-in sample: [`desk-e-classify/`](./desk-e-classify/) (`classify.md`, `classify.json`).
+
+| Label | When |
+|-------|------|
+| `software_defect` | Locate ranked files; no competing telemetry |
+| `possible_breach` | Lateral / east-west telemetry only (fixture input) |
+| `infra_failure` | Infra failure telemetry only |
+| `agent_misfire` | Agent-session misfire telemetry only (fixture output) |
+| `needs_human` | Ambiguous / competing / weak signals (**always preferred over invented breach**) |
+
+**Posture:** classification ≠ exploitability · secrets redacted · no PoC · no auto-remediate · no Desk D · `mvp` / `inventory` / `packet` / `harden` unchanged.

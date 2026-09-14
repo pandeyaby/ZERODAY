@@ -1,0 +1,51 @@
+{
+  "schema": "zeroday-ciso-v1",
+  "generatedAt": "2026-09-14T04:40:50.162Z",
+  "classification": "software_defect",
+  "finding_class": "software_defect",
+  "east_west_suspected": false,
+  "confidence": 0.7,
+  "needs_human": true,
+  "human_review_required": true,
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "notLiveAdversaryProof": true,
+    "notProductionSoc": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "fixtureDrivenClassifier": true,
+    "telemetryInputOnly": true
+  },
+  "inputs": {
+    "locateReport": "<repo>/report.json",
+    "advisoryId": "CWE-89",
+    "cweId": "CWE-89"
+  },
+  "evidence": [
+    {
+      "kind": "locate_file",
+      "id": "file:src/users.js",
+      "summary": "SQL query built via string concatenation",
+      "filePath": "src/users.js",
+      "cwe": "CWE-89"
+    },
+    {
+      "kind": "locate_file",
+      "id": "file:src/app.js",
+      "summary": "Request parameter passed to unsafe finder",
+      "filePath": "src/app.js",
+      "cwe": "CWE-89"
+    }
+  ],
+  "next_human_action": "Human triage required before accepting 'software_defect': confirm evidence, dismiss or escalate. Localization is not exploitability. Never auto-merge.",
+  "rationale": [
+    "Locate submitted ranked candidate file(s) with CWE evidence; no breach/infra/agent telemetry signals."
+  ],
+  "signals": {
+    "softwareDefect": true,
+    "possibleBreach": false,
+    "infraFailure": false,
+    "agentMisfire": false
+  }
+}
