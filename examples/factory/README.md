@@ -11,6 +11,8 @@ bundled demo-app. **Not** live Antares. **Not** RunPod.
 | `sample-run/` | Full fixture factory run (verify PASS) |
 | `*-desk.yaml` | Defensive vendor desk examples (not kill-chains) |
 
+Multi-repo / config inventory fixtures: [`fixtures/inventory/`](../../fixtures/inventory/) (`zeroday inventory --from …`).
+
 Regenerate:
 
 ```bash

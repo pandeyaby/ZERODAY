@@ -1,0 +1,6 @@
+# Multi-repo inventory manifest (Desk slice B)
+repos:
+  - path: ../locate/demo-app
+    id: demo-app
+  - path: ./sidecar-app
+    id: sidecar-app

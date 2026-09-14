@@ -3,6 +3,7 @@
  * ZERODAY CLI — Localization & Evidence Defense Factory.
  *
  *   zeroday mvp                        # keyless fixture → SARIF PASS/FAIL
+ *   zeroday inventory …                # multi-repo + config surfaces → locate hints
  *   zeroday antares doctor             # print-only live checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -81,6 +82,136 @@ function loadResult(fromPath: string): LocalizationResult {
   return JSON.parse(fs.readFileSync(abs, "utf8")) as LocalizationResult;
 }
 
+function collectRepoOption(value: string, previous: string[]): string[] {
+  return [...previous, value];
+}
+
+async function runInventoryCli(opts: {
+  repo: string[];
+  from?: string;
+  output?: string;
+  json: boolean;
+}): Promise<void> {
+  const {
+    writeInventory,
+    writeMultiRepoInventory,
+    loadInventoryManifest,
+  } = await import("../src/factory/index.ts");
+
+  const entries: Array<{ path: string; id?: string; optional?: boolean }> = [];
+  const skipped: Array<{ id: string; reason: string }> = [];
+
+  if (opts.from) {
+    const manifestAbs = path.resolve(opts.from);
+    const manifest = loadInventoryManifest(manifestAbs);
+    const baseDir = path.dirname(manifestAbs);
+    for (const r of manifest.repos) {
+      entries.push({
+        path: path.isAbsolute(r.path) ? r.path : path.resolve(baseDir, r.path),
+        id: r.id,
+        optional: r.optional === true,
+      });
+    }
+    skipped.push(...(manifest.skip ?? []));
+  }
+
+  for (const r of opts.repo ?? []) {
+    if (r && r.length > 0) entries.push({ path: path.resolve(r) });
+  }
+
+  if (entries.length === 0) {
+    entries.push({ path: defaultFixtureRepo(), id: "demo-app" });
+  }
+
+  const outRaw =
+    opts.output ||
+    path.join(process.cwd(), "zeroday-reports", `inventory-${Date.now()}`);
+  const outLooksLikeFile = /\.json$/i.test(outRaw);
+  const outDir = outLooksLikeFile ? path.dirname(path.resolve(outRaw)) : path.resolve(outRaw);
+  const jsonName = outLooksLikeFile ? path.basename(outRaw) : "inventory.json";
+
+  if (entries.length === 1 && skipped.length === 0) {
+    const only = entries[0]!;
+    fs.mkdirSync(outDir, { recursive: true });
+    const jsonPath = path.join(outDir, jsonName);
+    const inv = writeInventory(only.path, jsonPath, {
+      repoId: only.id,
+      markdownPath: path.join(outDir, "inventory.md"),
+      writeReports: true,
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(inv, null, 2));
+    } else {
+      const findingCount = inv.findings.filter(
+        (f) => f.kind !== "config_surface",
+      ).length;
+      console.log("");
+      console.log("ZERODAY inventory");
+      console.log("────────────────");
+      console.log(`Repo      : ${inv.repoRoot}`);
+      console.log(`Files     : ${inv.fileCount}`);
+      console.log(
+        `Languages : ${inv.languages.map((l) => l.language).join(", ") || "—"}`,
+      );
+      console.log(`Hotspots  : ${inv.configHotspots.length}`);
+      console.log(`Findings  : ${findingCount}`);
+      console.log(`CODEOWNERS: ${inv.codeownersPath ?? "none"}`);
+      console.log("");
+      console.log(`JSON      : ${jsonPath}`);
+      console.log(`Markdown  : ${path.join(outDir, "inventory.md")}`);
+      console.log(`SARIF     : ${path.join(outDir, "inventory.sarif")}`);
+      console.log(`Case note : ${path.join(outDir, "case-note.md")}`);
+      console.log("");
+      console.log(
+        "Next: npm run zeroday -- locate --cwe CWE-89 --fixture --repo <path>",
+      );
+      console.log(
+        "Posture: inventory only · feeds locate · no PoC · secrets redacted",
+      );
+    }
+    return;
+  }
+
+  const { multi, jsonPath, mdPath, sarifPath, caseNotePath } =
+    writeMultiRepoInventory(entries, outDir, {
+      skipped,
+      writeReports: true,
+    });
+  if (opts.json) {
+    console.log(JSON.stringify(multi, null, 2));
+  } else {
+    const findingCount = multi.findings.filter(
+      (f) => f.kind !== "config_surface",
+    ).length;
+    console.log("");
+    console.log("ZERODAY multi-repo inventory");
+    console.log("───────────────────────────");
+    console.log(`Repos     : ${multi.repoCount}`);
+    console.log(`Skipped   : ${multi.skipped.map((s) => s.id).join(", ") || "—"}`);
+    console.log(`Hotspots  : ${multi.rankedHotspots.length}`);
+    console.log(`Findings  : ${findingCount}`);
+    console.log("");
+    for (const hint of multi.locateHints) {
+      const preview = hint.paths.slice(0, 3).join(", ");
+      console.log(
+        `  ${hint.repoId}: ${preview}${hint.paths.length > 3 ? ", …" : ""}`,
+      );
+    }
+    console.log("");
+    console.log(`JSON      : ${jsonPath}`);
+    console.log(`Markdown  : ${mdPath}`);
+    if (sarifPath) console.log(`SARIF     : ${sarifPath}`);
+    if (caseNotePath) console.log(`Case note : ${caseNotePath}`);
+    console.log("");
+    console.log(
+      "Compose: inventory → locate (per repo) → factory run --fixture",
+    );
+    console.log(
+      "Posture: inventory only · feeds locate · no PoC · secrets redacted",
+    );
+  }
+}
+
 const program = new Command();
 program
   .name("zeroday")
@@ -118,6 +249,42 @@ program
       process.exitCode = 2;
     }
   });
+
+program
+  .command("inventory")
+  .description(
+    "Defensive multi-repo + config inventory (Actions/Docker/manifests/agent) → ranked locate hints",
+  )
+  .option(
+    "--repo <path>",
+    "Local repo path (repeatable)",
+    collectRepoOption,
+    [] as string[],
+  )
+  .option(
+    "--from <file>",
+    "Inventory manifest (JSON or YAML) listing repos/paths",
+  )
+  .option(
+    "--output <dir>",
+    "Output directory for inventory.json + inventory.md",
+  )
+  .option("--json", "Print inventory JSON to stdout", false)
+  .action(
+    async (opts: {
+      repo: string[];
+      from?: string;
+      output?: string;
+      json: boolean;
+    }) => {
+      try {
+        await runInventoryCli(opts);
+      } catch (e) {
+        console.error(`inventory failed: ${(e as Error).message}`);
+        process.exitCode = 2;
+      }
+    },
+  );
 
 const antares = program
   .command("antares")
@@ -341,34 +508,39 @@ factory
 
 factory
   .command("inventory")
-  .description("Write durable inventory artifact (files + CODEOWNERS + manifests)")
-  .option("--repo <path>", "Repository path", "")
-  .option("--output <file>", "Output inventory.json path")
-  .action(async (opts: { repo: string; output?: string }) => {
-    const { writeInventory } = await import("../src/factory/index.ts");
-    const repo =
-      opts.repo && opts.repo.length > 0
-        ? path.resolve(opts.repo)
-        : defaultFixtureRepo();
-    const out =
-      opts.output ||
-      path.join(
-        process.cwd(),
-        "zeroday-reports",
-        `inventory-${Date.now()}`,
-        "inventory.json",
-      );
-    try {
-      const inv = writeInventory(repo, out);
-      console.log(`Wrote inventory (${inv.fileCount} files) → ${out}`);
-      console.log(
-        `CODEOWNERS: ${inv.codeownersPath ?? "none"} · manifests: ${inv.manifests.length}`,
-      );
-    } catch (e) {
-      console.error(`factory inventory failed: ${(e as Error).message}`);
-      process.exitCode = 2;
-    }
-  });
+  .description(
+    "Write durable inventory (+ config hotspots / locate hints); same as `zeroday inventory`",
+  )
+  .option(
+    "--repo <path>",
+    "Local repo path (repeatable)",
+    collectRepoOption,
+    [] as string[],
+  )
+  .option(
+    "--from <file>",
+    "Inventory manifest (JSON or YAML) listing repos/paths",
+  )
+  .option(
+    "--output <dir>",
+    "Output directory for inventory.json + inventory.md",
+  )
+  .option("--json", "Print inventory JSON to stdout", false)
+  .action(
+    async (opts: {
+      repo: string[];
+      from?: string;
+      output?: string;
+      json: boolean;
+    }) => {
+      try {
+        await runInventoryCli(opts);
+      } catch (e) {
+        console.error(`factory inventory failed: ${(e as Error).message}`);
+        process.exitCode = 2;
+      }
+    },
+  );
 
 program
   .command("operate")

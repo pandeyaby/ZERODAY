@@ -1,0 +1,3056 @@
+{
+  "schemaVersion": "zeroday-config-inventory/v1",
+  "generatedAt": "2026-09-13T21:32:22.681Z",
+  "repoCount": 6,
+  "repos": [
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "webuzz",
+      "repoRoot": "<repo:webuzz>",
+      "generatedAt": "2026-09-13T21:32:22.674Z",
+      "fileCount": 5,
+      "manifests": [
+        "package.json"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "Dockerfile",
+          "fileCount": 1,
+          "bytes": 106
+        },
+        {
+          "language": "JavaScript",
+          "fileCount": 1,
+          "bytes": 52
+        },
+        {
+          "language": "YAML",
+          "fileCount": 1,
+          "bytes": 236
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "surface": "github_actions",
+          "score": 90,
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": ".env.example",
+          "surface": "env_example",
+          "score": 68,
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "rank": 1,
+          "score": 90,
+          "surface": "github_actions",
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "Dockerfile",
+          "rank": 2,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "package.json",
+          "rank": 3,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": ".env.example",
+          "rank": 4,
+          "score": 68,
+          "surface": "env_example",
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        },
+        {
+          "path": "src/app.js",
+          "rank": 5,
+          "score": 45,
+          "surface": "source",
+          "reason": "Source file — candidate locate target path"
+        }
+      ],
+      "findings": [
+        {
+          "id": "env-surface:.env.example",
+          "kind": "env_example_honesty",
+          "severity": "note",
+          "path": ".env.example",
+          "title": ".env.example surface (4 key(s))",
+          "summary": "`.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+          "tags": [
+            "inventory",
+            "env-example"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/ci.yml:GITHUB_TOKEN:8",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/ci.yml",
+          "startLine": 8,
+          "pattern": "GITHUB_TOKEN",
+          "title": "CI secret pattern `GITHUB_TOKEN`",
+          "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/ci.yml:NPM_TOKEN:7",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/ci.yml",
+          "startLine": 7,
+          "pattern": "NPM_TOKEN",
+          "title": "CI secret pattern `NPM_TOKEN`",
+          "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/ci.yml",
+          "startLine": 8,
+          "pattern": "secrets.GITHUB_TOKEN",
+          "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/ci.yml",
+          "startLine": 7,
+          "pattern": "secrets.NPM_TOKEN",
+          "title": "CI secret pattern `secrets.NPM_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "dep-harness:package.json:postinstall",
+          "kind": "dependency_harness",
+          "severity": "warning",
+          "path": "package.json",
+          "pattern": "scripts.postinstall",
+          "title": "Dependency/script harness `postinstall`",
+          "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+          "tags": [
+            "inventory",
+            "dependency",
+            "harness"
+          ]
+        }
+      ],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    },
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "galileo",
+      "repoRoot": "<repo:galileo>",
+      "generatedAt": "2026-09-13T21:32:22.675Z",
+      "fileCount": 7,
+      "manifests": [
+        "pyproject.toml",
+        "requirements.txt"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "YAML",
+          "fileCount": 2,
+          "bytes": 307
+        },
+        {
+          "language": "Dockerfile",
+          "fileCount": 1,
+          "bytes": 84
+        },
+        {
+          "language": "Python",
+          "fileCount": 1,
+          "bytes": 65
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": ".github/workflows/lint.yml",
+          "surface": "github_actions",
+          "score": 90,
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "docker-compose.yml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "pyproject.toml",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "requirements.txt",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": ".env.example",
+          "surface": "env_example",
+          "score": 68,
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": ".github/workflows/lint.yml",
+          "rank": 1,
+          "score": 90,
+          "surface": "github_actions",
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "Dockerfile",
+          "rank": 2,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "docker-compose.yml",
+          "rank": 3,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "pyproject.toml",
+          "rank": 4,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "requirements.txt",
+          "rank": 5,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": ".env.example",
+          "rank": 6,
+          "score": 68,
+          "surface": "env_example",
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        },
+        {
+          "path": "src/main.py",
+          "rank": 7,
+          "score": 45,
+          "surface": "source",
+          "reason": "Source file — candidate locate target path"
+        }
+      ],
+      "findings": [
+        {
+          "id": "env-surface:.env.example",
+          "kind": "env_example_honesty",
+          "severity": "note",
+          "path": ".env.example",
+          "title": ".env.example surface (2 key(s))",
+          "summary": "`.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+          "tags": [
+            "inventory",
+            "env-example"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/lint.yml:HF_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "HF_TOKEN",
+          "title": "CI secret pattern `HF_TOKEN`",
+          "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "HUGGING_FACE_HUB_TOKEN",
+          "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+          "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": ".github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "secrets.HF_TOKEN",
+          "title": "CI secret pattern `secrets.HF_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        }
+      ],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    },
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "aomb",
+      "repoRoot": "<repo:aomb>",
+      "generatedAt": "2026-09-13T21:32:22.676Z",
+      "fileCount": 5,
+      "manifests": [
+        "package.json"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "TypeScript",
+          "fileCount": 1,
+          "bytes": 58
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": ".cursor/rules/ops.mdc",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "skills/ops-skill/SKILL.md",
+          "surface": "skill_config",
+          "score": 72,
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": ".cursor/rules/ops.mdc",
+          "rank": 1,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "AGENTS.md",
+          "rank": 2,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "skills/ops-skill/SKILL.md",
+          "rank": 3,
+          "score": 72,
+          "surface": "skill_config",
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "package.json",
+          "rank": 4,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "src/index.ts",
+          "rank": 5,
+          "score": 45,
+          "surface": "source",
+          "reason": "Source file — candidate locate target path"
+        }
+      ],
+      "findings": [
+        {
+          "id": "agent-harness:AGENTS.md:remote-fetch-hint:4",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "AGENTS.md",
+          "startLine": 4,
+          "pattern": "remote-fetch-hint",
+          "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+          "summary": "Agent/skill config at `AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        },
+        {
+          "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:3",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "skills/ops-skill/SKILL.md",
+          "startLine": 3,
+          "pattern": "code-exec-hint",
+          "title": "Agent/skill harness hint (`code-exec-hint`)",
+          "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        },
+        {
+          "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:4",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "skills/ops-skill/SKILL.md",
+          "startLine": 4,
+          "pattern": "code-exec-hint",
+          "title": "Agent/skill harness hint (`code-exec-hint`)",
+          "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        }
+      ],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    },
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "cosmic-fusion",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "generatedAt": "2026-09-13T21:32:22.676Z",
+      "fileCount": 5,
+      "manifests": [
+        "package.json"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "Rust",
+          "fileCount": 1,
+          "bytes": 36
+        },
+        {
+          "language": "YAML",
+          "fileCount": 1,
+          "bytes": 44
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": "compose.yaml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "skills/merge-skill/SKILL.md",
+          "surface": "skill_config",
+          "score": 72,
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": "compose.yaml",
+          "rank": 1,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "AGENTS.md",
+          "rank": 2,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "skills/merge-skill/SKILL.md",
+          "rank": 3,
+          "score": 72,
+          "surface": "skill_config",
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "package.json",
+          "rank": 4,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "src/lib.rs",
+          "rank": 5,
+          "score": 35,
+          "surface": "source",
+          "reason": "Source file — candidate locate target path"
+        }
+      ],
+      "findings": [],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    },
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "zeroday",
+      "repoRoot": "<repo:zeroday>",
+      "generatedAt": "2026-09-13T21:32:22.681Z",
+      "fileCount": 254,
+      "manifests": [
+        "fixtures/inventory/desk-b/aomb/package.json",
+        "fixtures/inventory/desk-b/cosmic-fusion/package.json",
+        "fixtures/inventory/desk-b/galileo/pyproject.toml",
+        "fixtures/inventory/desk-b/galileo/requirements.txt",
+        "fixtures/inventory/desk-b/snipercore/package.json",
+        "fixtures/inventory/desk-b/webuzz/package.json",
+        "fixtures/inventory/sidecar-app/package.json",
+        "fixtures/locate/demo-app/package.json",
+        "package-lock.json",
+        "package.json"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "TypeScript",
+          "fileCount": 103,
+          "bytes": 502596
+        },
+        {
+          "language": "JSON",
+          "fileCount": 33,
+          "bytes": 70449
+        },
+        {
+          "language": "YAML",
+          "fileCount": 17,
+          "bytes": 16386
+        },
+        {
+          "language": "JavaScript",
+          "fileCount": 6,
+          "bytes": 3868
+        },
+        {
+          "language": "Dockerfile",
+          "fileCount": 4,
+          "bytes": 1466
+        },
+        {
+          "language": "Python",
+          "fileCount": 3,
+          "bytes": 18905
+        },
+        {
+          "language": "Rust",
+          "fileCount": 1,
+          "bytes": 36
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": ".github/workflows/zeroday-locate.yml",
+          "surface": "github_actions",
+          "score": 90,
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": ".github/actions/zeroday-locate-gate/action.yml",
+          "surface": "github_actions",
+          "score": 85,
+          "reason": "Composite/local GitHub Action definition"
+        },
+        {
+          "path": "Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/webuzz/Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/locate/demo-app/Dockerfile",
+          "surface": "docker",
+          "score": 80,
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "docker-compose.yml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/docker-compose.yml",
+          "surface": "compose",
+          "score": 78,
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": ".cursor/rules/zeroday-operator.mdc",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/AGENTS.md",
+          "surface": "agent_config",
+          "score": 75,
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+          "surface": "skill_config",
+          "score": 72,
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+          "surface": "skill_config",
+          "score": 72,
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+          "surface": "skill_config",
+          "score": 72,
+          "reason": "Agent skill definition"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/aomb/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/pyproject.toml",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/requirements.txt",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/snipercore/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/webuzz/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "fixtures/locate/demo-app/package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": "package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        },
+        {
+          "path": ".env.example",
+          "surface": "env_example",
+          "score": 68,
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/.env.example",
+          "surface": "env_example",
+          "score": 68,
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+          "surface": "env_example",
+          "score": 68,
+          "reason": ".env.example — documented env key surface (values not inventoried)"
+        },
+        {
+          "path": "fixtures/locate/demo-app/.github/CODEOWNERS",
+          "surface": "codeowners",
+          "score": 65,
+          "reason": "CODEOWNERS ownership map"
+        },
+        {
+          "path": "package-lock.json",
+          "surface": "package_manifest",
+          "score": 40,
+          "reason": "Lockfile (dependency pin surface)"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": ".github/workflows/zeroday-locate.yml",
+          "rank": 1,
+          "score": 90,
+          "surface": "github_actions",
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": ".github/actions/zeroday-locate-gate/action.yml",
+          "rank": 2,
+          "score": 85,
+          "surface": "github_actions",
+          "reason": "Composite/local GitHub Action definition"
+        },
+        {
+          "path": "Dockerfile",
+          "rank": 3,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/Dockerfile",
+          "rank": 4,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/webuzz/Dockerfile",
+          "rank": 5,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "fixtures/locate/demo-app/Dockerfile",
+          "rank": 6,
+          "score": 80,
+          "surface": "docker",
+          "reason": "Dockerfile — container build surface"
+        },
+        {
+          "path": "docker-compose.yml",
+          "rank": 7,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+          "rank": 8,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+          "rank": 9,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/docker-compose.yml",
+          "rank": 10,
+          "score": 78,
+          "surface": "compose",
+          "reason": "Compose file — multi-service runtime surface"
+        },
+        {
+          "path": ".cursor/rules/zeroday-operator.mdc",
+          "rank": 11,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "AGENTS.md",
+          "rank": 12,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+          "rank": 13,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+          "rank": 14,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        },
+        {
+          "path": "fixtures/inventory/sidecar-app/AGENTS.md",
+          "rank": 15,
+          "score": 75,
+          "surface": "agent_config",
+          "reason": "Agent / coding-assistant operator config"
+        }
+      ],
+      "findings": [
+        {
+          "id": "env-surface:.env.example",
+          "kind": "env_example_honesty",
+          "severity": "note",
+          "path": ".env.example",
+          "title": ".env.example surface (1 key(s))",
+          "summary": "`.env.example` documents keys: `ZERODAY_DATA_DIR`. Values not exported.",
+          "tags": [
+            "inventory",
+            "env-example"
+          ]
+        },
+        {
+          "id": "ci-secret:docker-compose.yml:ANTHROPIC_API_KEY:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "docker-compose.yml",
+          "startLine": 10,
+          "pattern": "ANTHROPIC_API_KEY",
+          "title": "CI secret pattern `ANTHROPIC_API_KEY`",
+          "summary": "Workflow references secret pattern `ANTHROPIC_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:docker-compose.yml:OPENAI_API_KEY:11",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "docker-compose.yml",
+          "startLine": 11,
+          "pattern": "OPENAI_API_KEY",
+          "title": "CI secret pattern `OPENAI_API_KEY`",
+          "summary": "Workflow references secret pattern `OPENAI_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "agent-harness:fixtures/inventory/desk-b/aomb/AGENTS.md:remote-fetch-hint:4",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+          "startLine": 4,
+          "pattern": "remote-fetch-hint",
+          "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+          "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        },
+        {
+          "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:3",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+          "startLine": 3,
+          "pattern": "code-exec-hint",
+          "title": "Agent/skill harness hint (`code-exec-hint`)",
+          "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        },
+        {
+          "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:4",
+          "kind": "agent_harness",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+          "startLine": 4,
+          "pattern": "code-exec-hint",
+          "title": "Agent/skill harness hint (`code-exec-hint`)",
+          "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+          "tags": [
+            "inventory",
+            "agent",
+            "harness"
+          ]
+        },
+        {
+          "id": "env-surface:fixtures/inventory/desk-b/galileo/.env.example",
+          "kind": "env_example_honesty",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/galileo/.env.example",
+          "title": ".env.example surface (2 key(s))",
+          "summary": "`fixtures/inventory/desk-b/galileo/.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+          "tags": [
+            "inventory",
+            "env-example"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HF_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "HF_TOKEN",
+          "title": "CI secret pattern `HF_TOKEN`",
+          "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "HUGGING_FACE_HUB_TOKEN",
+          "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+          "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+          "startLine": 10,
+          "pattern": "secrets.HF_TOKEN",
+          "title": "CI secret pattern `secrets.HF_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "env-surface:fixtures/inventory/desk-b/webuzz/.env.example",
+          "kind": "env_example_honesty",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+          "title": ".env.example surface (4 key(s))",
+          "summary": "`fixtures/inventory/desk-b/webuzz/.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+          "tags": [
+            "inventory",
+            "env-example"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:GITHUB_TOKEN:8",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+          "startLine": 8,
+          "pattern": "GITHUB_TOKEN",
+          "title": "CI secret pattern `GITHUB_TOKEN`",
+          "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:NPM_TOKEN:7",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+          "startLine": 7,
+          "pattern": "NPM_TOKEN",
+          "title": "CI secret pattern `NPM_TOKEN`",
+          "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+          "startLine": 8,
+          "pattern": "secrets.GITHUB_TOKEN",
+          "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+          "kind": "ci_secret_pattern",
+          "severity": "note",
+          "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+          "startLine": 7,
+          "pattern": "secrets.NPM_TOKEN",
+          "title": "CI secret pattern `secrets.NPM_TOKEN`",
+          "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+          "tags": [
+            "inventory",
+            "ci",
+            "secret-pattern"
+          ]
+        },
+        {
+          "id": "dep-harness:fixtures/inventory/desk-b/webuzz/package.json:postinstall",
+          "kind": "dependency_harness",
+          "severity": "warning",
+          "path": "fixtures/inventory/desk-b/webuzz/package.json",
+          "pattern": "scripts.postinstall",
+          "title": "Dependency/script harness `postinstall`",
+          "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+          "tags": [
+            "inventory",
+            "dependency",
+            "harness"
+          ]
+        }
+      ],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    },
+    {
+      "schemaVersion": "zeroday-factory-inventory/v1",
+      "repoId": "snipercore",
+      "repoRoot": "<repo:snipercore>",
+      "generatedAt": "2026-09-13T21:32:22.681Z",
+      "fileCount": 2,
+      "manifests": [
+        "package.json"
+      ],
+      "codeownersPath": null,
+      "languages": [
+        {
+          "language": "YAML",
+          "fileCount": 1,
+          "bytes": 120
+        }
+      ],
+      "configHotspots": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "surface": "github_actions",
+          "score": 90,
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "package.json",
+          "surface": "package_manifest",
+          "score": 70,
+          "reason": "Package / language manifest"
+        }
+      ],
+      "rankedPaths": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "rank": 1,
+          "score": 90,
+          "surface": "github_actions",
+          "reason": "GitHub Actions workflow — CI/CD config surface"
+        },
+        {
+          "path": "package.json",
+          "rank": 2,
+          "score": 70,
+          "surface": "package_manifest",
+          "reason": "Package / language manifest"
+        }
+      ],
+      "findings": [],
+      "posture": {
+        "localizationOnly": true,
+        "notExploitProof": true,
+        "noAutoMerge": true,
+        "noPoC": true,
+        "localFirstDefault": true
+      }
+    }
+  ],
+  "skipped": [
+    {
+      "id": "EternalEcho",
+      "reason": "parked — skip this desk pass"
+    },
+    {
+      "id": "snipercore-external",
+      "reason": "optional path missing: <repo>/SniperCore"
+    }
+  ],
+  "rankedHotspots": [
+    {
+      "path": ".github/workflows/lint.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 1
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface",
+      "repoRoot": "<repo:snipercore>",
+      "repoId": "snipercore",
+      "rank": 2
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface",
+      "repoRoot": "<repo:webuzz>",
+      "repoId": "webuzz",
+      "rank": 3
+    },
+    {
+      "path": ".github/workflows/zeroday-locate.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 4
+    },
+    {
+      "path": ".github/actions/zeroday-locate-gate/action.yml",
+      "surface": "github_actions",
+      "score": 85,
+      "reason": "Composite/local GitHub Action definition",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 5
+    },
+    {
+      "path": "Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 6
+    },
+    {
+      "path": "Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:webuzz>",
+      "repoId": "webuzz",
+      "rank": 7
+    },
+    {
+      "path": "Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 8
+    },
+    {
+      "path": "fixtures/inventory/desk-b/galileo/Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 9
+    },
+    {
+      "path": "fixtures/inventory/desk-b/webuzz/Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 10
+    },
+    {
+      "path": "fixtures/locate/demo-app/Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 11
+    },
+    {
+      "path": "compose.yaml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "repoId": "cosmic-fusion",
+      "rank": 12
+    },
+    {
+      "path": "docker-compose.yml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 13
+    },
+    {
+      "path": "docker-compose.yml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 14
+    },
+    {
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 15
+    },
+    {
+      "path": "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 16
+    },
+    {
+      "path": "fixtures/inventory/sidecar-app/docker-compose.yml",
+      "surface": "compose",
+      "score": 78,
+      "reason": "Compose file — multi-service runtime surface",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 17
+    },
+    {
+      "path": ".cursor/rules/ops.mdc",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:aomb>",
+      "repoId": "aomb",
+      "rank": 18
+    },
+    {
+      "path": "AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:aomb>",
+      "repoId": "aomb",
+      "rank": 19
+    },
+    {
+      "path": "AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "repoId": "cosmic-fusion",
+      "rank": 20
+    },
+    {
+      "path": ".cursor/rules/zeroday-operator.mdc",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 21
+    },
+    {
+      "path": "AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 22
+    },
+    {
+      "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 23
+    },
+    {
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 24
+    },
+    {
+      "path": "fixtures/inventory/sidecar-app/AGENTS.md",
+      "surface": "agent_config",
+      "score": 75,
+      "reason": "Agent / coding-assistant operator config",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 25
+    },
+    {
+      "path": "skills/ops-skill/SKILL.md",
+      "surface": "skill_config",
+      "score": 72,
+      "reason": "Agent skill definition",
+      "repoRoot": "<repo:aomb>",
+      "repoId": "aomb",
+      "rank": 26
+    },
+    {
+      "path": "skills/merge-skill/SKILL.md",
+      "surface": "skill_config",
+      "score": 72,
+      "reason": "Agent skill definition",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "repoId": "cosmic-fusion",
+      "rank": 27
+    },
+    {
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "surface": "skill_config",
+      "score": 72,
+      "reason": "Agent skill definition",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 28
+    },
+    {
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+      "surface": "skill_config",
+      "score": 72,
+      "reason": "Agent skill definition",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 29
+    },
+    {
+      "path": "fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+      "surface": "skill_config",
+      "score": 72,
+      "reason": "Agent skill definition",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 30
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:aomb>",
+      "repoId": "aomb",
+      "rank": 31
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "repoId": "cosmic-fusion",
+      "rank": 32
+    },
+    {
+      "path": "pyproject.toml",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 33
+    },
+    {
+      "path": "requirements.txt",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 34
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:snipercore>",
+      "repoId": "snipercore",
+      "rank": 35
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:webuzz>",
+      "repoId": "webuzz",
+      "rank": 36
+    },
+    {
+      "path": "fixtures/inventory/desk-b/aomb/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 37
+    },
+    {
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 38
+    },
+    {
+      "path": "fixtures/inventory/desk-b/galileo/pyproject.toml",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 39
+    },
+    {
+      "path": "fixtures/inventory/desk-b/galileo/requirements.txt",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 40
+    },
+    {
+      "path": "fixtures/inventory/desk-b/snipercore/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 41
+    },
+    {
+      "path": "fixtures/inventory/desk-b/webuzz/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 42
+    },
+    {
+      "path": "fixtures/inventory/sidecar-app/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 43
+    },
+    {
+      "path": "fixtures/locate/demo-app/package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 44
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 45
+    },
+    {
+      "path": ".env.example",
+      "surface": "env_example",
+      "score": 68,
+      "reason": ".env.example — documented env key surface (values not inventoried)",
+      "repoRoot": "<repo:galileo>",
+      "repoId": "galileo",
+      "rank": 46
+    },
+    {
+      "path": ".env.example",
+      "surface": "env_example",
+      "score": 68,
+      "reason": ".env.example — documented env key surface (values not inventoried)",
+      "repoRoot": "<repo:webuzz>",
+      "repoId": "webuzz",
+      "rank": 47
+    },
+    {
+      "path": ".env.example",
+      "surface": "env_example",
+      "score": 68,
+      "reason": ".env.example — documented env key surface (values not inventoried)",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 48
+    },
+    {
+      "path": "fixtures/inventory/desk-b/galileo/.env.example",
+      "surface": "env_example",
+      "score": 68,
+      "reason": ".env.example — documented env key surface (values not inventoried)",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 49
+    },
+    {
+      "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+      "surface": "env_example",
+      "score": 68,
+      "reason": ".env.example — documented env key surface (values not inventoried)",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 50
+    },
+    {
+      "path": "fixtures/locate/demo-app/.github/CODEOWNERS",
+      "surface": "codeowners",
+      "score": 65,
+      "reason": "CODEOWNERS ownership map",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 51
+    },
+    {
+      "path": "package-lock.json",
+      "surface": "package_manifest",
+      "score": 40,
+      "reason": "Lockfile (dependency pin surface)",
+      "repoRoot": "<repo:zeroday>",
+      "repoId": "zeroday",
+      "rank": 52
+    }
+  ],
+  "findings": [
+    {
+      "id": "surface:env_example:.env.example",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".env.example",
+      "pattern": "env_example",
+      "title": "Config surface `env_example`",
+      "summary": ".env.example — documented env key surface (values not inventoried)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "env_example"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "env-surface:.env.example",
+      "kind": "env_example_honesty",
+      "severity": "note",
+      "path": ".env.example",
+      "title": ".env.example surface (4 key(s))",
+      "summary": "`.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "startLine": 8,
+      "pattern": "GITHUB_TOKEN",
+      "title": "CI secret pattern `GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:NPM_TOKEN:7",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "startLine": 7,
+      "pattern": "NPM_TOKEN",
+      "title": "CI secret pattern `NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "startLine": 8,
+      "pattern": "secrets.GITHUB_TOKEN",
+      "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "ci-secret:.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "startLine": 7,
+      "pattern": "secrets.NPM_TOKEN",
+      "title": "CI secret pattern `secrets.NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "surface:github_actions:.github/workflows/ci.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "GitHub Actions workflow — CI/CD config surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "surface:docker:Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "dep-harness:package.json:postinstall",
+      "kind": "dependency_harness",
+      "severity": "warning",
+      "path": "package.json",
+      "pattern": "scripts.postinstall",
+      "title": "Dependency/script harness `postinstall`",
+      "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+      "tags": [
+        "inventory",
+        "dependency",
+        "harness"
+      ],
+      "repoId": "webuzz"
+    },
+    {
+      "id": "surface:env_example:.env.example",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".env.example",
+      "pattern": "env_example",
+      "title": "Config surface `env_example`",
+      "summary": ".env.example — documented env key surface (values not inventoried)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "env_example"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "env-surface:.env.example",
+      "kind": "env_example_honesty",
+      "severity": "note",
+      "path": ".env.example",
+      "title": ".env.example surface (2 key(s))",
+      "summary": "`.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:HF_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "HF_TOKEN",
+      "title": "CI secret pattern `HF_TOKEN`",
+      "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "HUGGING_FACE_HUB_TOKEN",
+      "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+      "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "ci-secret:.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": ".github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "secrets.HF_TOKEN",
+      "title": "CI secret pattern `secrets.HF_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:github_actions:.github/workflows/lint.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/workflows/lint.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "GitHub Actions workflow — CI/CD config surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:compose:docker-compose.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "docker-compose.yml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:docker:Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:package_manifest:pyproject.toml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "pyproject.toml",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:package_manifest:requirements.txt",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "requirements.txt",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "galileo"
+    },
+    {
+      "id": "surface:agent_config:.cursor/rules/ops.mdc",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".cursor/rules/ops.mdc",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "agent-harness:AGENTS.md:remote-fetch-hint:4",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "AGENTS.md",
+      "startLine": 4,
+      "pattern": "remote-fetch-hint",
+      "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+      "summary": "Agent/skill config at `AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "surface:agent_config:AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "skills/ops-skill/SKILL.md",
+      "startLine": 3,
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "agent-harness:skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "skills/ops-skill/SKILL.md",
+      "startLine": 4,
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "surface:skill_config:skills/ops-skill/SKILL.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "skills/ops-skill/SKILL.md",
+      "pattern": "skill_config",
+      "title": "Config surface `skill_config`",
+      "summary": "Agent skill definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "skill_config"
+      ],
+      "repoId": "aomb"
+    },
+    {
+      "id": "surface:agent_config:AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "cosmic-fusion"
+    },
+    {
+      "id": "surface:compose:compose.yaml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "compose.yaml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "cosmic-fusion"
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "cosmic-fusion"
+    },
+    {
+      "id": "surface:skill_config:skills/merge-skill/SKILL.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "skills/merge-skill/SKILL.md",
+      "pattern": "skill_config",
+      "title": "Config surface `skill_config`",
+      "summary": "Agent skill definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "skill_config"
+      ],
+      "repoId": "cosmic-fusion"
+    },
+    {
+      "id": "surface:agent_config:.cursor/rules/zeroday-operator.mdc",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".cursor/rules/zeroday-operator.mdc",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:env_example:.env.example",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".env.example",
+      "pattern": "env_example",
+      "title": "Config surface `env_example`",
+      "summary": ".env.example — documented env key surface (values not inventoried)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "env_example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "env-surface:.env.example",
+      "kind": "env_example_honesty",
+      "severity": "note",
+      "path": ".env.example",
+      "title": ".env.example surface (1 key(s))",
+      "summary": "`.env.example` documents keys: `ZERODAY_DATA_DIR`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:github_actions:.github/actions/zeroday-locate-gate/action.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/actions/zeroday-locate-gate/action.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "Composite/local GitHub Action definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:github_actions:.github/workflows/zeroday-locate.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/workflows/zeroday-locate.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "GitHub Actions workflow — CI/CD config surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:agent_config:AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:docker-compose.yml:ANTHROPIC_API_KEY:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "docker-compose.yml",
+      "startLine": 10,
+      "pattern": "ANTHROPIC_API_KEY",
+      "title": "CI secret pattern `ANTHROPIC_API_KEY`",
+      "summary": "Workflow references secret pattern `ANTHROPIC_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:docker-compose.yml:OPENAI_API_KEY:11",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "docker-compose.yml",
+      "startLine": 11,
+      "pattern": "OPENAI_API_KEY",
+      "title": "CI secret pattern `OPENAI_API_KEY`",
+      "summary": "Workflow references secret pattern `OPENAI_API_KEY` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:compose:docker-compose.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "docker-compose.yml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:docker:Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/AGENTS.md:remote-fetch-hint:4",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "startLine": 4,
+      "pattern": "remote-fetch-hint",
+      "title": "Agent/skill harness hint (`remote-fetch-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/AGENTS.md` mentions a `remote-fetch-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:agent_config:fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/aomb/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:3",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "startLine": 3,
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "agent-harness:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md:code-exec-hint:4",
+      "kind": "agent_harness",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "startLine": 4,
+      "pattern": "code-exec-hint",
+      "title": "Agent/skill harness hint (`code-exec-hint`)",
+      "summary": "Agent/skill config at `fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md` mentions a `code-exec-hint` pattern (line text redacted). Inventory only — confirm operator allowlist before any live agent run.",
+      "tags": [
+        "inventory",
+        "agent",
+        "harness"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:skill_config:fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/aomb/skills/ops-skill/SKILL.md",
+      "pattern": "skill_config",
+      "title": "Config surface `skill_config`",
+      "summary": "Agent skill definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "skill_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:agent_config:fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:compose:fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/cosmic-fusion/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:skill_config:fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/cosmic-fusion/skills/merge-skill/SKILL.md",
+      "pattern": "skill_config",
+      "title": "Config surface `skill_config`",
+      "summary": "Agent skill definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "skill_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:env_example:fixtures/inventory/desk-b/galileo/.env.example",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/.env.example",
+      "pattern": "env_example",
+      "title": "Config surface `env_example`",
+      "summary": ".env.example — documented env key surface (values not inventoried)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "env_example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "env-surface:fixtures/inventory/desk-b/galileo/.env.example",
+      "kind": "env_example_honesty",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/.env.example",
+      "title": ".env.example surface (2 key(s))",
+      "summary": "`fixtures/inventory/desk-b/galileo/.env.example` documents keys: `GALILEO_TOKEN`, `HF_TOKEN`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HF_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "HF_TOKEN",
+      "title": "CI secret pattern `HF_TOKEN`",
+      "summary": "Workflow references secret pattern `HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:HUGGING_FACE_HUB_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "HUGGING_FACE_HUB_TOKEN",
+      "title": "CI secret pattern `HUGGING_FACE_HUB_TOKEN`",
+      "summary": "Workflow references secret pattern `HUGGING_FACE_HUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml:secrets.HF_TOKEN:10",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/.github/workflows/lint.yml",
+      "startLine": 10,
+      "pattern": "secrets.HF_TOKEN",
+      "title": "CI secret pattern `secrets.HF_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.HF_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:compose:fixtures/inventory/desk-b/galileo/docker-compose.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:docker:fixtures/inventory/desk-b/galileo/Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/galileo/pyproject.toml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/pyproject.toml",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/galileo/requirements.txt",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/galileo/requirements.txt",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/snipercore/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/snipercore/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:env_example:fixtures/inventory/desk-b/webuzz/.env.example",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+      "pattern": "env_example",
+      "title": "Config surface `env_example`",
+      "summary": ".env.example — documented env key surface (values not inventoried)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "env_example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "env-surface:fixtures/inventory/desk-b/webuzz/.env.example",
+      "kind": "env_example_honesty",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.env.example",
+      "title": ".env.example surface (4 key(s))",
+      "summary": "`fixtures/inventory/desk-b/webuzz/.env.example` documents keys: `DATABASE_URL`, `API_KEY`, `SESSION_SECRET`, `PUBLIC_URL`. Values not exported.",
+      "tags": [
+        "inventory",
+        "env-example"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:GITHUB_TOKEN:8",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "startLine": 8,
+      "pattern": "GITHUB_TOKEN",
+      "title": "CI secret pattern `GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:NPM_TOKEN:7",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "startLine": 7,
+      "pattern": "NPM_TOKEN",
+      "title": "CI secret pattern `NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.GITHUB_TOKEN:8",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "startLine": 8,
+      "pattern": "secrets.GITHUB_TOKEN",
+      "title": "CI secret pattern `secrets.GITHUB_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.GITHUB_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "ci-secret:fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml:secrets.NPM_TOKEN:7",
+      "kind": "ci_secret_pattern",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/.github/workflows/ci.yml",
+      "startLine": 7,
+      "pattern": "secrets.NPM_TOKEN",
+      "title": "CI secret pattern `secrets.NPM_TOKEN`",
+      "summary": "Workflow references secret pattern `secrets.NPM_TOKEN` (name only; value not captured). Human review: confirm least-privilege + no plaintext secret in logs.",
+      "tags": [
+        "inventory",
+        "ci",
+        "secret-pattern"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:docker:fixtures/inventory/desk-b/webuzz/Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/desk-b/webuzz/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/desk-b/webuzz/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "dep-harness:fixtures/inventory/desk-b/webuzz/package.json:postinstall",
+      "kind": "dependency_harness",
+      "severity": "warning",
+      "path": "fixtures/inventory/desk-b/webuzz/package.json",
+      "pattern": "scripts.postinstall",
+      "title": "Dependency/script harness `postinstall`",
+      "summary": "package.json script `postinstall` matches an install/remote-shell harness pattern (command body not reproduced). Localize for human review — not exploit confirmation.",
+      "tags": [
+        "inventory",
+        "dependency",
+        "harness"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:agent_config:fixtures/inventory/sidecar-app/AGENTS.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/sidecar-app/AGENTS.md",
+      "pattern": "agent_config",
+      "title": "Config surface `agent_config`",
+      "summary": "Agent / coding-assistant operator config",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "agent_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:compose:fixtures/inventory/sidecar-app/docker-compose.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/sidecar-app/docker-compose.yml",
+      "pattern": "compose",
+      "title": "Config surface `compose`",
+      "summary": "Compose file — multi-service runtime surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "compose"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/inventory/sidecar-app/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/sidecar-app/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:skill_config:fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/inventory/sidecar-app/skills/demo-skill/SKILL.md",
+      "pattern": "skill_config",
+      "title": "Config surface `skill_config`",
+      "summary": "Agent skill definition",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "skill_config"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:codeowners:fixtures/locate/demo-app/.github/CODEOWNERS",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/locate/demo-app/.github/CODEOWNERS",
+      "pattern": "codeowners",
+      "title": "Config surface `codeowners`",
+      "summary": "CODEOWNERS ownership map",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "codeowners"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:docker:fixtures/locate/demo-app/Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/locate/demo-app/Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:fixtures/locate/demo-app/package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "fixtures/locate/demo-app/package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:package-lock.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package-lock.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Lockfile (dependency pin surface)",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "zeroday"
+    },
+    {
+      "id": "surface:github_actions:.github/workflows/ci.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "GitHub Actions workflow — CI/CD config surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ],
+      "repoId": "snipercore"
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
+      ],
+      "repoId": "snipercore"
+    }
+  ],
+  "locateHints": [
+    {
+      "repoId": "webuzz",
+      "repoRoot": "<repo:webuzz>",
+      "paths": [
+        ".github/workflows/ci.yml",
+        "Dockerfile",
+        "package.json",
+        ".env.example",
+        "src/app.js"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    },
+    {
+      "repoId": "galileo",
+      "repoRoot": "<repo:galileo>",
+      "paths": [
+        ".github/workflows/lint.yml",
+        "Dockerfile",
+        "docker-compose.yml",
+        "pyproject.toml",
+        "requirements.txt",
+        ".env.example",
+        "src/main.py"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    },
+    {
+      "repoId": "aomb",
+      "repoRoot": "<repo:aomb>",
+      "paths": [
+        ".cursor/rules/ops.mdc",
+        "AGENTS.md",
+        "skills/ops-skill/SKILL.md",
+        "package.json",
+        "src/index.ts"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    },
+    {
+      "repoId": "cosmic-fusion",
+      "repoRoot": "<repo:cosmic-fusion>",
+      "paths": [
+        "compose.yaml",
+        "AGENTS.md",
+        "skills/merge-skill/SKILL.md",
+        "package.json",
+        "src/lib.rs"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    },
+    {
+      "repoId": "zeroday",
+      "repoRoot": "<repo:zeroday>",
+      "paths": [
+        ".github/workflows/zeroday-locate.yml",
+        ".github/actions/zeroday-locate-gate/action.yml",
+        "Dockerfile",
+        "fixtures/inventory/desk-b/galileo/Dockerfile",
+        "fixtures/inventory/desk-b/webuzz/Dockerfile",
+        "fixtures/locate/demo-app/Dockerfile",
+        "docker-compose.yml",
+        "fixtures/inventory/desk-b/cosmic-fusion/compose.yaml",
+        "fixtures/inventory/desk-b/galileo/docker-compose.yml",
+        "fixtures/inventory/sidecar-app/docker-compose.yml",
+        ".cursor/rules/zeroday-operator.mdc",
+        "AGENTS.md"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    },
+    {
+      "repoId": "snipercore",
+      "repoRoot": "<repo:snipercore>",
+      "paths": [
+        ".github/workflows/ci.yml",
+        "package.json"
+      ],
+      "reason": "Top inventory-ranked paths (config hotspots + source) for locate planning"
+    }
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "localFirstDefault": true,
+    "inventoryOnly": true
+  }
+}

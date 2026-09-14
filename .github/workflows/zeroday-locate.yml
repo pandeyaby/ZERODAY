@@ -105,3 +105,60 @@ jobs:
           name: zeroday-operate-reports
           path: zeroday-reports/ci-operate/
           if-no-files-found: error
+
+  inventory:
+    name: Fixture multi-repo inventory (Desk slice B)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Multi-repo inventory (fixture only)
+        run: |
+          set -euo pipefail
+          npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
+            --output zeroday-reports/ci-inventory
+          test -f zeroday-reports/ci-inventory/inventory.json
+          test -f zeroday-reports/ci-inventory/inventory.md
+          test -f zeroday-reports/ci-inventory/inventory.sarif
+          test -f zeroday-reports/ci-inventory/case-note.md
+          test -f zeroday-reports/ci-inventory/repos/webuzz/inventory.json
+          node -e '
+            const j = require("./zeroday-reports/ci-inventory/inventory.json");
+            if (j.schemaVersion !== "zeroday-config-inventory/v1") process.exit(2);
+            if (j.repoCount < 5) process.exit(3);
+            if (!j.rankedHotspots?.length) process.exit(4);
+            if (!j.posture?.inventoryOnly) process.exit(5);
+            if (!Array.isArray(j.findings)) process.exit(6);
+            if (!j.skipped?.some((s) => s.id === "EternalEcho")) process.exit(7);
+            const blob = JSON.stringify(j.findings);
+            if (/sk_[A-Za-z0-9]{10,}/.test(blob)) process.exit(8);
+            console.log("inventory fixture OK", j.repoCount, "repos", j.findings.length, "findings", j.skipped.length, "skipped");
+          '
+
+      - name: Summarize inventory gate
+        run: |
+          {
+            echo "## ZERODAY inventory gate (Desk slice B)"
+            echo ""
+            echo "- Mode: fixture multi-repo + config surfaces (no GPU / no HF)"
+            echo "- Output: \`zeroday-reports/ci-inventory/\`"
+            echo "- Feeds locate — not exploit scanning"
+            echo "- Posture: inventory only · localization only · no PoC · no auto-merge"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload inventory artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-inventory-reports
+          path: zeroday-reports/ci-inventory/
+          if-no-files-found: error

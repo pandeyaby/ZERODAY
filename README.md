@@ -117,7 +117,22 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
 npm run zeroday -- verify --from zeroday-reports/factory-demo
 ```
 
-Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · [`examples/factory/`](./examples/factory/)
+Multi-repo / config inventory (Desk B — fixture/static; feeds locate; still keyless):
+
+```bash
+npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
+  --output zeroday-reports/desk-b-inventory
+```
+
+Stranger summary (fixture desk):
+
+- Scans local fixture stand-ins + this repo for Actions / Docker / manifests / agent-skill surfaces
+- Records CI secret *patterns* (names only), `.env.example` honesty, dependency/agent harness hints
+- Emits `inventory.json` + `inventory.md` + redacted SARIF + case note (`docs/reports/desk-b-*`)
+- EternalEcho parked/skipped; SniperCore optional if path present
+- **No** live Antares/RunPod · **no** PoC · `npm run mvp` stays the door
+
+Docs: [`docs/defense-factory.md`](./docs/defense-factory.md) · [`docs/reports/`](./docs/reports/) · [`fixtures/inventory/desk-b/`](./fixtures/inventory/desk-b/)
 
 ---
 
@@ -238,6 +253,8 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 | CrowdStrike | `crowdstrike-hec-events.ndjson` |
 | AWS Security | `asff-findings.json` |
 
+Inventory desk (multi-repo + config surfaces → locate hints): `npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json` · reports: [`docs/reports/`](./docs/reports/) · [`docs/defense-factory.md`](./docs/defense-factory.md)
+
 [`docs/vendor-packs/README.md`](./docs/vendor-packs/README.md) · [`docs/antares.md`](./docs/antares.md) · [`docs/agent-operator.md`](./docs/agent-operator.md)
 
 ---
@@ -247,6 +264,9 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 ```bash
 # MVP door (keyless)
 npm run mvp
+
+# Inventory desk (fixture Desk B — multi-repo + config surfaces → locate hints)
+npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json
 
 # Opt-in live (costs $) — print-only first
 npm run zeroday -- antares doctor

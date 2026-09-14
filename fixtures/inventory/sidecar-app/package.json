@@ -1,0 +1,6 @@
+{
+  "name": "zeroday-sidecar-app",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Second fixture repo for multi-repo inventory (Desk slice B)"
+}

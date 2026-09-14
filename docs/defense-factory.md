@@ -9,7 +9,7 @@ live) and the keyless `operate` path — not a Cisco product mandate.
 
 | Stage | ZERODAY |
 |-------|---------|
-| Inventory | `zeroday factory inventory` / `factory run` — files, CODEOWNERS, manifests |
+| Inventory | `zeroday inventory` / `factory inventory` / `factory run` — multi-repo paths + config surfaces (Actions, Docker/compose, manifests, agent/skills) + ranked locate hints |
 | Locate | Antares fixture **or** live `/v1/completions` **or** keyless `operate` |
 | Classify | Fixture-driven CISO rollup (`classify`) |
 | Ownership | CODEOWNERS + blame → review markdown + GitHub comment body |
@@ -26,7 +26,34 @@ live) and the keyless `operate` path — not a Cisco product mandate.
 - Silent remote inference of customer source (requires `--remote-inference` / ACK)
 - Offensive framing: kill-chains, stego, jailbreak packs, red-team mission UIs
 
-## One command (CI-safe)
+## Inventory (Desk B — multi-repo + config surfaces)
+
+Keyless, **fixture/static** stage that lists authorized local repos/paths (or
+bundled desk-b stand-ins) and **config hotspots** (GitHub Actions, Docker/compose,
+package manifests, agent/skill configs), plus:
+
+- CI secret **patterns** (names only — never values)
+- `.env.example` honesty (placeholder check)
+- Dependency / agent harness risk localization
+
+Emits ranked JSON + markdown + redacted SARIF + case note. Not exploit scanning.
+
+```bash
+# Desk B fixture manifest (webuzz / galileo / aomb / cosmic-fusion / zeroday; EternalEcho skipped)
+npm run zeroday -- inventory --from fixtures/inventory/desk-b/manifest.json \
+  --output zeroday-reports/desk-b-inventory
+
+# Checked-in redacted sample reports
+# docs/reports/desk-b-case-note.md
+# docs/reports/desk-b-inventory.sarif
+```
+
+Artifacts: `inventory.json` · `inventory.md` · `inventory.sarif` · `case-note.md`
+(and `repos/<id>/` for multi-repo). Compose: **inventory → locate → classify → own → verify**.
+
+Stranger door stays **`npm run mvp`** (fixture → SARIF). Live Antares remains opt-in.
+
+## One command (CI-safe factory)
 
 ```bash
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend \
@@ -64,7 +91,7 @@ CI / GitHub Action stays **fixture-only** — no RunPod, no weights.
 
 Each factory run writes under `zeroday-reports/<run>/`:
 
-- `inventory.json` · `ownership.md` · `ownership-comment.md`
+- `inventory.json` · `inventory.md` · `ownership.md` · `ownership-comment.md`
 - `report.json` / `report.sarif` / `comment.md` (locate)
 - `classify/` (optional) · `defend.json` (optional) · `drafts/` (human gate)
 - `factory.json` · `factory.md` · `evidence/manifest.json` · `verify.json`

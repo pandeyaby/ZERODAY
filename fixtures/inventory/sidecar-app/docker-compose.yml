@@ -1,0 +1,4 @@
+# Fixture compose — inventory surface only
+services:
+  web:
+    image: nginx:alpine

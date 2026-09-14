@@ -47,7 +47,9 @@ function summaryMarkdown(s: FactoryRunSummary): string {
   lines.push("");
   lines.push("## Stages");
   lines.push("");
-  lines.push("1. **Inventory** — files + CODEOWNERS + manifests");
+  lines.push(
+    "1. **Inventory** — repos/paths + config surfaces (Actions, Docker, manifests, agent/skills) → locate hints",
+  );
   lines.push("2. **Locate** — Antares fixture / live / agent candidates");
   lines.push("3. **Classify** — optional CISO rollup (fixture telemetry)");
   lines.push("4. **Own** — CODEOWNERS / blame → review markdown + GitHub comment");
@@ -111,9 +113,13 @@ export async function runFactory(
   );
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // 1) Inventory
+  // 1) Inventory — config surfaces + ranked locate hints (feeds locate planning)
   const inventoryPath = path.join(outputDir, "inventory.json");
-  const inventory = writeInventory(repo, inventoryPath);
+  const inventoryMdPath = path.join(outputDir, "inventory.md");
+  const inventory = writeInventory(repo, inventoryPath, {
+    markdownPath: inventoryMdPath,
+    writeReports: true,
+  });
 
   // 2) Locate — fixture by default; live only when explicitly requested
   const useLive = Boolean(
@@ -197,6 +203,7 @@ export async function runFactory(
 
   const paths: FactoryStagePaths = {
     inventory: inventoryPath,
+    inventoryMd: inventoryMdPath,
     locateReport: locateReportPath,
     classifyJson,
     ownership: ownershipJson,
@@ -217,11 +224,14 @@ export async function runFactory(
     JSON.stringify(inventory, null, 2),
     {
       title: "Repo inventory",
-      summary: `${inventory.fileCount} file(s); CODEOWNERS=${inventory.codeownersPath ?? "none"}`,
+      summary:
+        `${inventory.fileCount} file(s); hotspots=${inventory.configHotspots.length}; ` +
+        `CODEOWNERS=${inventory.codeownersPath ?? "none"}`,
       tags: ["factory", "inventory"],
     },
   );
   registerIfExists(vault, inventoryPath, "inventory.json");
+  registerIfExists(vault, inventoryMdPath, "inventory.md");
   registerIfExists(vault, path.join(outputDir, "report.json"), "report.json");
   registerIfExists(vault, path.join(outputDir, "report.md"), "report.md");
   registerIfExists(vault, path.join(outputDir, "report.sarif"), "report.sarif");
