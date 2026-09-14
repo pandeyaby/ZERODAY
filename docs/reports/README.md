@@ -36,4 +36,27 @@ Checked-in sample: [`desk-a-packet/`](./desk-a-packet/) (`summary.md`, `findings
 | `dependency` | `dependency_harness` |
 | `unknown` | No evidence-backed mapping (no guessing) |
 
-**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC · no Desk C/D/E.
+**Posture:** localize + evidence + harden · secrets redacted · no Slack/GH/email auto-send · no PoC · no Desk D/E.
+
+## Desk C — agent/package harden
+
+Recommend-only hardening from Desk B inventory + Desk A packet evidence (**no auto-apply / auto-PR / auto-merge**):
+
+```bash
+npm run zeroday -- harden --from docs/reports
+# or Desk A packet:
+npm run zeroday -- harden --from docs/reports/desk-a-packet
+# optional CodeGuard-aligned draft notes (still human-gated):
+npm run zeroday -- harden --from docs/reports --draft
+```
+
+Checked-in sample: [`desk-c-harden/`](./desk-c-harden/) (`harden.md`, `harden.json`).
+
+| Category | Evidence |
+|----------|----------|
+| `agent-harness` | Inventory `agent_harness` |
+| `package-scripts` | `dependency_harness` |
+| `secrets-hygiene` | `ci_secret_pattern` / `env_example_honesty` |
+| `config-surface` | `config_surface` (already localized) |
+
+**Posture:** recommendations only · optional `--draft` notes human-gated · secrets redacted · no PoC · no Desk D/E · `mvp` / `inventory` / `packet` unchanged.

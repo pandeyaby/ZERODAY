@@ -74,6 +74,29 @@ module/PR/ticket placeholders. Labels (`agent-misfire` / `config` / `dependency`
 
 Sample: [`docs/reports/desk-a-packet/`](./reports/desk-a-packet/).
 
+## Agent/package harden (Desk C — recommend-only)
+
+Consumes Desk B inventory and/or Desk A packet reports. Emits recommendations
+only by default; optional `--draft` writes CodeGuard-aligned **notes** that
+remain human-gated. **Never** auto-apply, auto-PR, or auto-merge.
+
+```bash
+# One command — consume checked-in Desk B reports
+npm run zeroday -- harden --from docs/reports
+
+# Or Desk A packet folder:
+npm run zeroday -- harden --from docs/reports/desk-a-packet \
+  --output zeroday-reports/harden
+
+# Optional draft notes (still no auto-apply):
+npm run zeroday -- harden --from docs/reports --draft
+```
+
+Emits `harden.md` · `harden.json` · optional `drafts/*.md`. Categories:
+`agent-harness` / `package-scripts` / `secrets-hygiene` / `config-surface`.
+
+Sample: [`docs/reports/desk-c-harden/`](./reports/desk-c-harden/).
+
 ## One command (CI-safe factory)
 
 ```bash
