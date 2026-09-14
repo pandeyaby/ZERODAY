@@ -1,0 +1,6 @@
+{
+  "name": "zeroday-rules-sample",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Locate --rules sample (CWE-89 surface for keyless heuristics)"
+}

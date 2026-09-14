@@ -59,38 +59,48 @@ makes Antares usable every day.
 
 ## How it works
 
-**Same pipeline, different brain.** Both paths share one shape: CWE / CVE / GHSA
-(or fixture) → sandbox explore (grep / find / cat) → ranked files + hashed
+**Same pipeline, different brain.** All doors share one shape: CWE / CVE / GHSA
+→ explore (grep / find / cat or thin heuristics) → ranked files + hashed
 evidence → SARIF / `report.md`. Keyless does **not** invent a second product —
 only the localization brain swaps.
 
-**Keyless / fixture** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp`):
-deterministic fixture brain for CI and strangers — no GPU, no HF token, no
-spend. Proves the workstation + SARIF habit. Output `mode: "fixture"`. Honest:
-this is not live Antares F1; it validates the factory shape.
+**Three doors:**
 
-**Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live path
-details](#opt-in-live-path-details), opt-in, costs $): same pipeline with
-Antares-1B as the localization brain via `--endpoint` + human HF gated accept +
-CUDA/vLLM (or documented RunPod Secure A40). Output `mode: "live"`. Never
-auto-provisions pods; never scrapes HF; never silent fallback to fixture if the
-endpoint is down.
+1. **Fixture smoke** ([MVP path](#mvp-path-keyless-10-min), `npm run mvp` /
+   `locate --fixture`): deterministic recorded brain for CI and strangers — no
+   GPU, no HF token, no spend. Proves the workstation + SARIF habit. Output
+   `mode: "fixture"`. Honest: this is not live Antares F1; it validates the
+   factory shape. **mvp stays fixture smoke** — it does not switch to rules.
 
-| | Keyless / fixture | Live Antares |
-|--|-------------------|--------------|
-| Brain | Deterministic fixture | Antares-1B (your completions host) |
-| What you need | `npm install` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
-| Command door | `npm run mvp` | `locate --endpoint … --remote-inference` |
-| SARIF `mode` | `"fixture"` | `"live"` |
-| Cost | $0 | GPU / pod spend (you control) |
-| What it proves | Factory shape + SARIF habit | Live localization on an authorized repo |
+2. **Rules on a real repo** (`locate --rules`, $0): thin in-repo CWE heuristics
+   (CWE-89 required; CWE-79 / CWE-22 optional) on your authorized `--repo`.
+   Explicit flag only — refuses `--fixture` and `--live`/`--endpoint`. Output
+   `mode: "rules"`. Honest: **rules ≠ Antares File F1** and ≠ exploitability.
+   No Semgrep binary, no Docker, no HF.
+
+3. **Live Antares** ([Live Antares](#live-antares-opt-in-costs-) · [Opt-in live
+   path details](#opt-in-live-path-details), opt-in, costs $): same pipeline with
+   Antares-1B via `--endpoint` + human HF gated accept + CUDA/vLLM (or
+   documented RunPod Secure A40). Output `mode: "live"`. Never auto-provisions
+   pods; never scrapes HF; never silent fallback to fixture/rules if the
+   endpoint is down.
+
+| | Fixture smoke | Rules (keyless real-repo) | Live Antares |
+|--|---------------|---------------------------|--------------|
+| Brain | Deterministic fixture | Thin in-repo CWE heuristics | Antares-1B (your completions host) |
+| What you need | `npm install` | `npm install` + authorized `--repo` | HF gated accept + CUDA/vLLM (or RunPod Secure A40 you provision) |
+| Command door | `npm run mvp` / `locate --fixture` | `locate --cwe CWE-89 --repo <path> --rules` | `locate --endpoint … --remote-inference` |
+| SARIF `mode` | `"fixture"` | `"rules"` | `"live"` |
+| Cost | $0 | $0 | GPU / pod spend (you control) |
+| What it proves | Factory shape + SARIF habit | Keyless localize candidates on a real tree | Live localization on an authorized repo |
 
 Then the Desk loop (`inventory` → `packet` → `harden` → `classify` → `craft`)
 runs **keyless on your tree** (cwd / `--repo` / `--from`) without Antares —
 config inventory, offline packets, harden notes, crash classify, defensive
 craft. Fixtures stay available via `--fixture` / `npm run mvp` smoke. Desk is
-**not** localization / vuln discovery; use `locate --fixture` / mvp for smoke
-and live Antares (future `--rules`) for localize.
+**not** localization / vuln discovery; use `locate --fixture` / mvp for smoke,
+`locate --rules` for keyless real-repo localize, and live Antares when you host
+completions.
 
 Hard limits stay: localization ≠ exploitability · **Not a Cisco product** · not
 a partnership claim.
@@ -111,6 +121,23 @@ npm run mvp
 Expect **PASS**, then open the printed SARIF paths under `zeroday-reports/mvp/`.
 
 Equivalent: `npm run zeroday -- mvp`
+
+---
+
+## Rules locate (keyless real-repo, $0)
+
+Explicit `--rules` on an authorized local tree — thin in-repo CWE heuristics
+(CWE-89 required). Same SARIF / evidence writers as fixture and live. **Not**
+Antares File F1; **not** exploitability. Does not change `npm run mvp`
+(fixture smoke stays).
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo --rules
+# Sample tree in this repo:
+npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rules
+```
+
+Refuses mixed doors: `--rules` + `--fixture` or `--live`/`--endpoint` → fail closed.
 
 ---
 
@@ -284,8 +311,8 @@ npm run zeroday -- plugin --fixture
 - Sample: [`docs/reports/desk-d-craft/`](./docs/reports/desk-d-craft/)
 
 **Honesty:** Desk keyless on *your* tree does **not** replace localization. Fixture
-`locate` / `npm run mvp` still smoke the factory; live Antares (and later
-`--rules`) is the localize brain.
+`locate` / `npm run mvp` still smoke the factory; `locate --rules` is keyless
+real-repo localize; live Antares is the opt-in GPU brain.
 ---
 
 ## Opt-in live path details
@@ -365,7 +392,8 @@ Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) · [coo
 
 | Path | Needs | Writes SARIF? |
 |------|-------|---------------|
-| **`npm run mvp`** / **`locate --fixture`** | No GPU / no HF | Yes — **default** |
+| **`npm run mvp`** / **`locate --fixture`** | No GPU / no HF | Yes — **default smoke** |
+| **`locate --rules`** | No GPU / no HF + authorized `--repo` | Yes — keyless real-repo heuristics |
 | **`operate`** (keyless) | Coding agent + snapshot | Yes (after submission / `--fixture`) |
 | **`locate --endpoint …`** (live) | HF accept + CUDA/vLLM or RunPod + ACK | Yes — **opt-in, costs $** |
 | **`antares doctor`** | Nothing | No — print-only checklist |
@@ -416,6 +444,9 @@ Inventory desk (cwd / `--repo` by default; `--fixture` for smoke): `npm run zero
 ```bash
 # MVP door (keyless fixture smoke — locate + operate→verify)
 npm run mvp
+
+# Rules locate on a real authorized repo ($0 — not Antares F1)
+npm run zeroday -- locate --cwe CWE-89 --repo /path/to/repo --rules
 
 # Desk on your tree (keyless, no Antares — not vuln discovery)
 npm run zeroday -- inventory

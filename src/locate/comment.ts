@@ -20,7 +20,9 @@ export function toPullRequestComment(result: LocalizationResult): string {
       ? "fixture CI / no-GPU — recorded localization, not live weights"
       : result.mode === "live"
         ? "live Antares — local completions endpoint"
-        : "keyless agent operator";
+        : result.mode === "rules"
+          ? "rules — thin in-repo heuristics (not Antares F1)"
+          : "keyless agent operator";
   lines.push(
     `| Advisory | \`${result.advisory.id}\` → \`${result.advisory.cweId}\` |`,
   );

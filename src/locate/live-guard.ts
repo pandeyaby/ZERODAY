@@ -21,11 +21,13 @@ import {
   REMOTE_DOCS_HINT,
 } from "../factory/provider";
 
-export type LocateRunMode = "fixture" | "live";
+export type LocateRunMode = "fixture" | "live" | "rules";
 
 export interface ModeResolveInput {
   fixture?: boolean;
   live?: boolean;
+  /** Explicit keyless real-repo heuristics (Keyless K1). Incompatible with fixture/live. */
+  rules?: boolean;
   /** Raw or normalized endpoint (ANTARES_ENDPOINT / --endpoint) */
   endpoint?: string;
   /** Opt-in: allow prompts/repo-derived context to a remote GPU endpoint */
@@ -40,9 +42,10 @@ export const LIVE_ENDPOINT_REQUIRED =
   "(requires --remote-inference).";
 
 export const MIXED_MODE_REFUSED =
-  "Refusing mixed mode: --fixture cannot be combined with --live or --endpoint. " +
-  "--fixture is the CI / no-GPU path only. For live Antares → SARIF, omit --fixture " +
-  "and pass a healthy --endpoint (see scripts/quickstart-live.sh).";
+  "Refusing mixed mode: --fixture, --rules, and --live/--endpoint are mutually exclusive. " +
+  "--fixture is CI / no-GPU recorded smoke only; --rules is keyless real-repo heuristics; " +
+  "live Antares needs a healthy --endpoint (see scripts/quickstart-live.sh). " +
+  "Do not combine these doors.";
 
 export function liveEndpointUnhealthyMessage(detail: string): string {
   return (
@@ -70,18 +73,23 @@ function isLoopbackEndpoint(endpoint: string): boolean {
 }
 
 /**
- * Resolve fixture vs live. Throws on ambiguous / unsafe combinations.
- * Default (no flags) → fixture (CI-safe). --endpoint or --live → live (hard).
- * Remote (non-loopback) endpoints require --remote-inference / ACK env.
+ * Resolve fixture vs rules vs live. Throws on ambiguous / unsafe combinations.
+ * Default (no flags) → fixture (CI-safe). --rules → rules (keyless real-repo).
+ * --endpoint or --live → live (hard). Remote endpoints need --remote-inference.
  */
 export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
   const endpoint = input.endpoint?.trim() || "";
   const hasEndpoint = endpoint.length > 0;
   const wantsLive = Boolean(input.live) || hasEndpoint;
+  const wantsRules = Boolean(input.rules);
+  const wantsFixture = Boolean(input.fixture);
 
-  if (input.fixture && wantsLive) {
+  // Mutual exclusion: fixture / rules / live
+  const doors = [wantsFixture, wantsRules, wantsLive].filter(Boolean).length;
+  if (doors > 1) {
     throw new Error(MIXED_MODE_REFUSED);
   }
+
   if (input.live && !hasEndpoint) {
     throw new Error(LIVE_ENDPOINT_REQUIRED);
   }
@@ -93,6 +101,9 @@ export function resolveLocateMode(input: ModeResolveInput): LocateRunMode {
       }
     }
     return "live";
+  }
+  if (wantsRules) {
+    return "rules";
   }
   return "fixture";
 }

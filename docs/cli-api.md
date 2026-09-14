@@ -7,6 +7,9 @@
 npm run mvp
 npm run zeroday -- mvp
 
+# Rules locate on a real authorized repo ($0 — mode=rules; not Antares F1)
+npm run zeroday -- locate --cwe CWE-89 --repo ./app --rules
+
 # Desk on your tree (keyless — not vuln discovery; no Antares required)
 npm run zeroday -- inventory
 npm run zeroday -- packet
@@ -50,8 +53,9 @@ npm run zeroday -- play --action locate
 npm run zeroday -- sweep --endpoint http://127.0.0.1:8000/v1
 ```
 
-`--fixture` cannot be combined with `--live` / `--endpoint` (no silent mock fallback).
+`--fixture`, `--rules`, and `--live`/`--endpoint` are mutually exclusive (no silent mock fallback).
 Non-loopback endpoints require `--remote-inference` or `ZERODAY_REMOTE_INFERENCE_ACK=1`.
+Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** exploitability.
 
 ## Local UI API (npm run play)
 

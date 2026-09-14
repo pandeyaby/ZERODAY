@@ -43,8 +43,13 @@ export interface TraceStep {
 }
 
 export interface LocalizationResult {
-  /** fixture = recorded Antares; live = local Antares CLI; agent = keyless coding-agent operator */
-  mode: "fixture" | "live" | "agent";
+  /**
+   * fixture = recorded Antares smoke;
+   * rules = thin in-repo heuristics (keyless real-repo);
+   * live = local Antares CLI;
+   * agent = keyless coding-agent operator
+   */
+  mode: "fixture" | "live" | "agent" | "rules";
   advisory: AdvisoryRef;
   targetRepo: string;
   snapshotPath?: string;
@@ -85,10 +90,15 @@ export interface LocateOptions {
   repo: string;
   /** Raw advisory string: CWE-89 | CVE-… | GHSA-… */
   advisory: string;
-  /** Force fixture (CI / no-GPU). Incompatible with --live / --endpoint. */
+  /** Force fixture (CI / no-GPU). Incompatible with --rules / --live / --endpoint. */
   fixture?: boolean;
   /** Force live Antares path (also implied when endpoint is set). Requires healthy --endpoint. */
   live?: boolean;
+  /**
+   * Keyless real-repo heuristics (Keyless K1). Explicit --rules only.
+   * Incompatible with --fixture and --live/--endpoint. Not mvp default.
+   */
+  rules?: boolean;
   /** Skip NVD/GHSA network resolve */
   offline?: boolean;
   /** Explicit CWE when CVE/GHSA cannot be resolved */
