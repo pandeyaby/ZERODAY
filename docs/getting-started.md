@@ -50,5 +50,11 @@ Desk Console wraps locate `--rules` / `--from-sarif` and Desk
 `inventory → packet → harden → classify → craft` **in-process** (path-sandboxed
 under cwd / `ZERODAY_UI_ROOTS`). Not a live Antares / RunPod spend UI.
 
+**Reports & cassettes** (UI-2): after a Desk run, open the Reports panel to list
+`zeroday-reports/`, preview locate summaries (copy paths only), then
+**record** a redacted org cassette (redact always ON — UI refuses `--no-redact`)
+and **replay** with honest `mode: "recording"`. Org cassettes are for CI
+regression — not discovery.
+
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.
 Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).

@@ -141,6 +141,9 @@ git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
 # optional Desk Console UI:  npm run play  →  http://localhost:3333/play
+#   Commands tab: rules / from-sarif / inventory → packet chain
+#   Reports & cassettes: browse zeroday-reports/, record/replay org cassettes
+#   (redact ON; org regression — not discovery)
 ```
 
 Expect **PASS**, then open the printed SARIF paths under `zeroday-reports/mvp/`.
@@ -192,7 +195,8 @@ smoke stays).
 
 After a real locate (rules / ingest / live / fixture), save a **redacted** org
 recording for CI regression. These are the **team's cassettes** — not mvp
-product fixtures in `fixtures/locate/recordings/`.
+product fixtures in `fixtures/locate/recordings/`. Org cassettes = **org
+regression, not discovery**.
 
 ```bash
 # 1. Locate (example: rules on sample tree)
@@ -208,6 +212,10 @@ npm run zeroday -- record --from zeroday-reports/org-locate \
 # 4. Replay offline
 npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json
 ```
+
+Same flow from Desk Console (`npm run play` → **Reports & cassettes**): pick a
+locate reports dir → Record (redact ON; UI refuses `--no-redact`) → Replay →
+results show `mode: "recording"`. Path sandbox matches Desk commands.
 
 Hard locks: absolute paths → repo-relative; secret-shaped strings stripped;
 refuse write if redaction fail-closed; **no auto-commit / auto-PR / network

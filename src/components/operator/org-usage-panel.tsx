@@ -182,7 +182,8 @@ export function OrgUsagePanel({
             </h2>
             <p className="text-sm text-[var(--muted)] mt-1 max-w-2xl">
               Interactive local product UI around ZERODAY locate / desk libs —
-              not an Antares CLI brochure. FAQ and fixture smoke are tabs.
+              not an Antares CLI brochure. Reports &amp; cassettes = org
+              regression (redact ON). FAQ and fixture smoke remain tabs.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

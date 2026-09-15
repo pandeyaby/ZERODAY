@@ -1,6 +1,7 @@
 /**
  * Desk shared helpers — path resolution (real-first; --fixture for smoke)
- * + Desk Console in-process runners for the local Operator /play UI.
+ * + Desk Console in-process runners for the local Operator /play UI
+ * + Reports browser + org cassette record/replay (UI-2).
  */
 
 export {
@@ -37,3 +38,20 @@ export {
   type DeskResult,
   type DeskRunRequest,
 } from "./console.ts";
+
+export {
+  REPORTS_ACTIONS,
+  listReports,
+  previewReport,
+  recordOrgCassette,
+  replayOrgCassette,
+  runReportsAction,
+  type ReportsAction,
+  type ReportsResult,
+  type ReportsRunRequest,
+  type ReportListEntry,
+  type ReportsListResult,
+  type ReportsPreviewResult,
+  type ReportsRecordResult,
+  type ReportsReplayResult,
+} from "./reports.ts";
