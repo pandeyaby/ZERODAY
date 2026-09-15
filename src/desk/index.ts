@@ -1,7 +1,8 @@
 /**
  * Desk shared helpers — path resolution (real-first; --fixture for smoke)
  * + Desk Console in-process runners for the local Operator /play UI
- * + Reports browser + org cassette record/replay (UI-2).
+ * + Reports browser + org cassette record/replay (UI-2)
+ * + Live brain endpoint wizard (UI-3).
  */
 
 export {
@@ -55,3 +56,24 @@ export {
   type ReportsRecordResult,
   type ReportsReplayResult,
 } from "./reports.ts";
+
+export {
+  LIVE_ACTIONS,
+  LIVE_PRESETS,
+  DESK_ENDPOINT_SCHEMA,
+  DESK_ENDPOINT_REL,
+  liveCatalog,
+  loadLiveEndpointConfig,
+  saveLiveEndpointConfig,
+  applyPreset,
+  runLiveDoctor,
+  runLiveLocate,
+  runLiveAction,
+  LiveEndpointError,
+  type LiveAction,
+  type LiveEndpointConfig,
+  type LivePreset,
+  type LivePresetId,
+  type LiveResult,
+  type LiveRunRequest,
+} from "./live-endpoint.ts";

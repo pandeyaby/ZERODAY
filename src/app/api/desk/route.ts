@@ -1,7 +1,7 @@
 /**
  * POST /api/desk — Desk Console in-process runners (rules / from-sarif /
  * inventory → packet → harden → classify → craft).
- * Path-sandboxed. No live Antares / RunPod / spend.
+ * Path-sandboxed. Keyless Commands tab — live brain is /api/live (UI-3).
  */
 
 import { NextResponse } from "next/server";
