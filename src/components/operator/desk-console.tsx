@@ -503,7 +503,7 @@ function LiveBrainPanel({
   defaultRepo: string;
 }) {
   type LivePreset = {
-    id: "antares-1b" | "local-openai" | "custom";
+    id: "antares-1b" | "antares-350m-ollama" | "local-openai" | "custom";
     label: string;
     description: string;
     endpoint: string;

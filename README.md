@@ -236,7 +236,8 @@ default; live is opt-in with an explicit human click and spend banner.
 ```bash
 npm run play
 # → http://localhost:3333/play → Live brain tab
-#    1) Pick preset: Antares-1B (HF gated — accept terms yourself) or local OpenAI-compatible
+#    1) Pick preset: Antares-1B (HF gated — accept terms yourself),
+#       optional Antares-350M (Ollama), or local OpenAI-compatible
 #    2) Save → .zeroday/desk-endpoint.json (token env *name* only; never the secret)
 #    3) Doctor ping → K4 checklist + /v1/models probe
 #    4) Spend banner confirm → live locate (reuses --endpoint / live-guard)
@@ -244,8 +245,11 @@ npm run play
 ```
 
 No auto RunPod / auto-spend. Completions-only (chat refused). Same path sandbox
-as Desk Commands (`ZERODAY_UI_ROOTS`). Details: [`docs/getting-started.md`](./docs/getting-started.md)
-· [`docs/local-brain.md`](./docs/local-brain.md).
+as Desk Commands (`ZERODAY_UI_ROOTS`). Optional Antares-350M via Ollama (import
+yourself; no auto-download; no F1 claim):
+[`docs/antares-350m-ollama.md`](./docs/antares-350m-ollama.md). Details:
+[`docs/getting-started.md`](./docs/getting-started.md) ·
+[`docs/local-brain.md`](./docs/local-brain.md).
 
 ---
 

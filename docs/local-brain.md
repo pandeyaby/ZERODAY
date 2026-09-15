@@ -84,6 +84,10 @@ curl -sS http://127.0.0.1:11434/v1/completions \
 If your Ollama build only exposes chat completions, it is **out of contract** for
 ZERODAY live locate until completions are available.
 
+**Optional Antares-350M via Ollama** (import yourself; no auto-download; no F1
+claim): [`antares-350m-ollama.md`](./antares-350m-ollama.md) · Desk Live brain
+preset `antares-350m-ollama`.
+
 ### LM Studio
 
 Start LM Studio’s local server, pick the OpenAI-compatible base URL, and use the
@@ -138,6 +142,7 @@ Prefer CUDA/vLLM for Antares-1B. Local helpers: `scripts/completions_server.py`
 ## Related
 
 - [`antares.md`](./antares.md) — Antares CLI + HF gated path
+- [`antares-350m-ollama.md`](./antares-350m-ollama.md) — optional Antares-350M via Ollama
 - [`runpod-antares.md`](./runpod-antares.md) — recommended remote CUDA
 - [`remote-antares-vllm.md`](./remote-antares-vllm.md) — host-agnostic completions contract
 - [`cli-api.md`](./cli-api.md) — CLI reference
