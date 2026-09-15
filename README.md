@@ -140,7 +140,7 @@ recording vs live; Desk without locate; local brain ≠ Antares F1).
 git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
-# optional same fixtures in UI:  npm run play  →  http://localhost:3333/play
+# optional Desk Console UI:  npm run play  →  http://localhost:3333/play
 ```
 
 Expect **PASS**, then open the printed SARIF paths under `zeroday-reports/mvp/`.
@@ -529,7 +529,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 - **No silent spend** — print-only `doctor` / `antares doctor` / RunPod scaffold; you provision and terminate
 - **Local brain honesty** — arbitrary Ollama/vLLM/LM Studio models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available
 
-Full Q&A: [`docs/faq.md`](./docs/faq.md) · also in the play UI (`npm run play` → FAQ).
+Full Q&A: [`docs/faq.md`](./docs/faq.md) · also in the play UI FAQ tab (`npm run play` → Desk Console home; FAQ is a tab).
 
 [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · [`SECURITY.md`](./SECURITY.md)
 
@@ -595,7 +595,7 @@ bash scripts/quickstart-live.sh ./app CWE-89
 npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
-npm run operator   # local Operator UI on :3333
+npm run operator   # local Desk Console / Operator UI on :3333
 npm test
 ```
 

@@ -6,7 +6,7 @@
 git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
-# optional: npm run play → http://localhost:3333/play
+# optional: npm run play → http://localhost:3333/play (Desk Console home)
 ```
 
 Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No spend.
@@ -39,12 +39,16 @@ npm run zeroday -- locate --repo /path/to/authorized/repo --cwe CWE-89 \
 Live path **refuses** silent fixture/mock fallback when `--endpoint` / `--live` is set.
 Remote endpoints need `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`.
 
-## Playground UI
+## Desk Console UI
 
 ```bash
 npm run play
-# → http://localhost:3333/play
+# → http://localhost:3333/play  (Desk Console default; FAQ + fixture smoke as tabs)
 ```
+
+Desk Console wraps locate `--rules` / `--from-sarif` and Desk
+`inventory → packet → harden → classify → craft` **in-process** (path-sandboxed
+under cwd / `ZERODAY_UI_ROOTS`). Not a live Antares / RunPod spend UI.
 
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.
 Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).

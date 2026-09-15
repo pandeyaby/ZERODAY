@@ -1,5 +1,6 @@
 /**
- * Desk shared helpers — path resolution (real-first; --fixture for smoke).
+ * Desk shared helpers — path resolution (real-first; --fixture for smoke)
+ * + Desk Console in-process runners for the local Operator /play UI.
  */
 
 export {
@@ -19,3 +20,20 @@ export {
   type ResolvedDeskReports,
   type ResolvedInventoryTarget,
 } from "./resolve-from.ts";
+
+export {
+  DESK_ACTIONS,
+  deskCatalog,
+  runDeskAction,
+  runDeskRules,
+  runDeskFromSarif,
+  runDeskInventory,
+  runDeskPacket,
+  runDeskHarden,
+  runDeskClassify,
+  runDeskCraft,
+  type DeskAction,
+  type DeskCatalog,
+  type DeskResult,
+  type DeskRunRequest,
+} from "./console.ts";

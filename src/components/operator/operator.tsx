@@ -3,10 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DocsPanel } from "@/components/docs/docs-panel";
+import { DeskConsole } from "@/components/operator/desk-console";
+import { FaqPanel } from "@/components/operator/faq-panel";
 import { OrgUsagePanel } from "@/components/operator/org-usage-panel";
 import { cn } from "@/lib/cn";
 import {
   BookOpen,
+  CircleHelp,
+  LayoutDashboard,
   Package,
   Settings2,
   Shield,
@@ -15,10 +19,12 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type Tab = "howto" | "vendors" | "docs" | "settings";
+type Tab = "desk" | "howto" | "faq" | "vendors" | "docs" | "settings";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "desk", label: "Desk Console", icon: <LayoutDashboard size={14} /> },
   { id: "howto", label: "How orgs use this", icon: <Waypoints size={14} /> },
+  { id: "faq", label: "FAQ", icon: <CircleHelp size={14} /> },
   { id: "vendors", label: "Vendor packs", icon: <Package size={14} /> },
   { id: "docs", label: "Docs", icon: <BookOpen size={14} /> },
   { id: "settings", label: "Settings", icon: <Settings2 size={14} /> },
@@ -64,7 +70,7 @@ const VENDOR_PACKS = [
 ] as const;
 
 export function Operator() {
-  const [tab, setTab] = useState<Tab>("howto");
+  const [tab, setTab] = useState<Tab>("desk");
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
   const [health, setHealth] = useState<Record<string, unknown> | null>(null);
 
@@ -88,7 +94,7 @@ export function Operator() {
                 ZERODAY
               </h1>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--muted)] mt-1">
-                Agent operator · defensive localization
+                Desk Console · defensive localization
               </p>
             </div>
           </Link>
@@ -97,7 +103,7 @@ export function Operator() {
             href="/play"
             className="text-xs uppercase tracking-wider text-[var(--muted)] hover:text-[var(--accent)]"
           >
-            Playground →
+            Desk /play →
           </Link>
           <Badge tone="ok">local</Badge>
           <Badge tone="muted">keyless default</Badge>
@@ -123,7 +129,11 @@ export function Operator() {
       </header>
 
       <main className="flex-1 mx-auto w-full max-w-[1400px] p-4">
-        {tab === "howto" && <OrgUsagePanel />}
+        {tab === "desk" && <DeskConsole />}
+
+        {tab === "howto" && <OrgUsagePanel initialView="person" />}
+
+        {tab === "faq" && <FaqPanel />}
 
         {tab === "vendors" && (
           <div className="space-y-4 animate-fade-up">
