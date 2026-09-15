@@ -17,6 +17,7 @@ import {
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Wrench,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ type DeskAction =
   | "classify"
   | "craft";
 
-type DeskPanel = "commands" | "reports";
+type DeskPanel = "commands" | "reports" | "live";
 
 type DeskCatalog = {
   kind: "catalog";
@@ -80,6 +81,24 @@ type DeskResult = {
   humanReviewNote?: string;
   cassettePath?: string;
   dir?: string;
+  /* live-doctor / live-locate */
+  ok?: boolean;
+  checks?: Array<{ id: string; ok: boolean; label: string; detail: string }>;
+  endpoint?: string;
+  model?: string;
+  remoteInference?: boolean;
+  remoteAckRequired?: boolean;
+  configPath?: string;
+  tokenHygiene?: { scanned: boolean; leaked: boolean };
+  spendBanner?: string;
+  config?: {
+    endpoint: string;
+    model: string;
+    preset: string;
+    remoteInference: boolean;
+    tokenEnvVar?: string;
+  };
+  exists?: boolean;
 };
 
 type ReportListEntry = {
@@ -259,8 +278,8 @@ export function DeskConsole() {
                 Hard limits:{" "}
               </span>
               <code className="text-[var(--accent)]">needs_human</code> always ·
-              no PoC · localization ≠ exploitability · no auto-merge · no live
-              Antares spend UI
+              no PoC · localization ≠ exploitability · no auto-merge · Commands
+              stay keyless · Live brain is opt-in (spend banner)
             </p>
             <p className="text-xs">
               Desk Console imports locate / desk libs in-process. Paths must stay
@@ -268,7 +287,9 @@ export function DeskConsole() {
               {catalog?.allowedRoots?.[0]
                 ? ` (default: ${catalog.allowedRoots[0]})`
                 : " (cwd + ZERODAY_UI_ROOTS)"}
-              . Reports + cassettes are org regression — not discovery.
+              . UI-2 “No live Antares” meant validate didn’t exercise spend —
+              live already existed via <code>locate --endpoint</code> + doctor;
+              this Live brain tab makes it first-class.
             </p>
           </div>
         </div>
@@ -293,6 +314,16 @@ export function DeskConsole() {
         >
           <FolderOpen size={14} />
           Reports &amp; cassettes
+        </Button>
+        <Button
+          size="sm"
+          variant={panel === "live" ? "primary" : "outline"}
+          onClick={() => setPanel("live")}
+          disabled={busy}
+          data-testid="live-brain-tab"
+        >
+          <Sparkles size={14} />
+          Live brain
         </Button>
       </div>
 
@@ -437,6 +468,16 @@ export function DeskConsole() {
         />
       )}
 
+      {panel === "live" && (
+        <LiveBrainPanel
+          busy={busy}
+          setBusy={setBusy}
+          setError={setError}
+          setResult={setResult}
+          defaultRepo={catalog?.defaults?.rulesRepo || ""}
+        />
+      )}
+
       {error && (
         <div className="panel rounded-lg p-4 border-[var(--danger)]/40 text-sm text-[var(--danger)]">
           {error}
@@ -444,6 +485,493 @@ export function DeskConsole() {
       )}
 
       {result && !error && <DeskResultPanel result={result} />}
+    </div>
+  );
+}
+
+function LiveBrainPanel({
+  busy,
+  setBusy,
+  setError,
+  setResult,
+  defaultRepo,
+}: {
+  busy: boolean;
+  setBusy: (v: boolean) => void;
+  setError: (v: string | null) => void;
+  setResult: (v: DeskResult | null) => void;
+  defaultRepo: string;
+}) {
+  type LivePreset = {
+    id: "antares-1b" | "local-openai" | "custom";
+    label: string;
+    description: string;
+    endpoint: string;
+    model: string;
+    remoteInference: boolean;
+    tokenEnvVar?: string;
+    hfGated?: boolean;
+    hfTermsUrl?: string;
+  };
+
+  const [presets, setPresets] = useState<LivePreset[]>([]);
+  const [spendBanner, setSpendBanner] = useState("");
+  const [honesty, setHonesty] = useState<string[]>([]);
+  const [configPath, setConfigPath] = useState("");
+  const [endpoint, setEndpoint] = useState("http://127.0.0.1:8000/v1");
+  const [model, setModel] = useState("fdtn-ai/antares-1b");
+  const [preset, setPreset] = useState<LivePreset["id"]>("antares-1b");
+  const [remoteInference, setRemoteInference] = useState(false);
+  const [tokenEnvVar, setTokenEnvVar] = useState("HF_TOKEN");
+  const [repo, setRepo] = useState(defaultRepo);
+  const [cwe, setCwe] = useState("CWE-89");
+  const [output, setOutput] = useState("");
+  const [spendConfirmOpen, setSpendConfirmOpen] = useState(false);
+  const [doctorChecks, setDoctorChecks] = useState<
+    Array<{ id: string; ok: boolean; label: string; detail: string }>
+  >([]);
+
+  useEffect(() => {
+    void fetch("/api/live")
+      .then((r) => r.json())
+      .then(
+        (j: {
+          presets?: LivePreset[];
+          spendBanner?: string;
+          honesty?: string[];
+          configPath?: string;
+          defaults?: {
+            endpoint: string;
+            model: string;
+            preset: LivePreset["id"];
+            remoteInference: boolean;
+            tokenEnvVar?: string;
+          };
+        }) => {
+          setPresets(j.presets || []);
+          setSpendBanner(j.spendBanner || "");
+          setHonesty(j.honesty || []);
+          setConfigPath(j.configPath || "");
+          if (j.defaults) {
+            setEndpoint(j.defaults.endpoint);
+            setModel(j.defaults.model);
+            setPreset(j.defaults.preset);
+            setRemoteInference(j.defaults.remoteInference);
+            setTokenEnvVar(j.defaults.tokenEnvVar || "");
+          }
+        },
+      )
+      .catch(() => {
+        /* offline unit contexts */
+      });
+
+    void fetch("/api/live", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "load" }),
+    })
+      .then((r) => r.json())
+      .then(
+        (j: {
+          exists?: boolean;
+          config?: {
+            endpoint: string;
+            model: string;
+            preset: LivePreset["id"];
+            remoteInference: boolean;
+            tokenEnvVar?: string;
+          };
+          configPath?: string;
+        }) => {
+          if (j.exists && j.config) {
+            setEndpoint(j.config.endpoint);
+            setModel(j.config.model);
+            setPreset(j.config.preset);
+            setRemoteInference(j.config.remoteInference);
+            setTokenEnvVar(j.config.tokenEnvVar || "");
+          }
+          if (j.configPath) setConfigPath(j.configPath);
+        },
+      )
+      .catch(() => {
+        /* ignore */
+      });
+  }, []);
+
+  useEffect(() => {
+    if (defaultRepo) setRepo(defaultRepo);
+  }, [defaultRepo]);
+
+  const applyPresetLocal = (id: LivePreset["id"]) => {
+    const p = presets.find((x) => x.id === id);
+    if (!p) return;
+    setPreset(p.id);
+    setEndpoint(p.endpoint);
+    setModel(p.model);
+    setRemoteInference(p.remoteInference);
+    setTokenEnvVar(p.tokenEnvVar || "");
+  };
+
+  const post = useCallback(
+    async (body: Record<string, unknown>) => {
+      setBusy(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/live", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const json = (await res.json()) as DeskResult;
+        if (!res.ok) {
+          setError(json.error || "Live brain action failed");
+          setResult(null);
+          return null;
+        }
+        setResult(json);
+        if (json.kind === "live-doctor" && json.checks) {
+          setDoctorChecks(json.checks);
+        }
+        if (json.kind === "live-save" && json.configPath) {
+          setConfigPath(json.configPath);
+        }
+        return json;
+      } catch (e) {
+        setError((e as Error).message);
+        setResult(null);
+        return null;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [setBusy, setError, setResult],
+  );
+
+  const selectedPreset = presets.find((p) => p.id === preset);
+
+  return (
+    <div className="panel rounded-lg" data-testid="live-brain-panel">
+      <div className="panel-header">
+        <span className="text-sm font-display tracking-wide">Live brain</span>
+        <Badge tone="warn">opt-in · spend</Badge>
+      </div>
+      <div className="p-4 space-y-4">
+        <p className="text-xs text-[var(--muted)]">
+          Configure a completions endpoint in seconds. Keyless stays default —
+          live locate needs an explicit spend confirm. Reuses{" "}
+          <code className="text-[var(--accent)]">locate --endpoint</code> +{" "}
+          <code className="text-[var(--accent)]">doctor</code> (no new engines).
+          Chat-only hosts refused. Config:{" "}
+          <code className="text-[var(--accent)]">.zeroday/desk-endpoint.json</code>
+          {configPath ? (
+            <span className="font-mono text-[10px] block mt-1 truncate">
+              {configPath}
+            </span>
+          ) : null}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          {presets.map((p) => (
+            <Button
+              key={p.id}
+              size="sm"
+              variant={preset === p.id ? "primary" : "outline"}
+              disabled={busy}
+              onClick={() => applyPresetLocal(p.id)}
+              data-testid={`preset-${p.id}`}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </div>
+        {selectedPreset && (
+          <p className="text-xs text-[var(--muted)]">
+            {selectedPreset.description}
+            {selectedPreset.hfGated && selectedPreset.hfTermsUrl ? (
+              <>
+                {" "}
+                Accept HF terms:{" "}
+                <a
+                  className="text-[var(--accent)] underline"
+                  href={selectedPreset.hfTermsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {selectedPreset.hfTermsUrl}
+                </a>
+              </>
+            ) : null}
+          </p>
+        )}
+
+        <div className="grid md:grid-cols-2 gap-3">
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Endpoint URL (OpenAI-compatible /v1 — not chat)
+            </span>
+            <Input
+              value={endpoint}
+              onChange={(e) => {
+                setEndpoint(e.target.value);
+                setPreset("custom");
+              }}
+              placeholder="http://127.0.0.1:8000/v1"
+              disabled={busy}
+              data-testid="live-endpoint"
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Model id
+            </span>
+            <Input
+              value={model}
+              onChange={(e) => {
+                setModel(e.target.value);
+                setPreset("custom");
+              }}
+              placeholder="fdtn-ai/antares-1b"
+              disabled={busy}
+              data-testid="live-model"
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Token env var name (never the secret)
+            </span>
+            <Input
+              value={tokenEnvVar}
+              onChange={(e) => setTokenEnvVar(e.target.value)}
+              placeholder="HF_TOKEN"
+              disabled={busy}
+              data-testid="live-token-env"
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Repo path (sandboxed)
+            </span>
+            <Input
+              value={repo}
+              onChange={(e) => setRepo(e.target.value)}
+              placeholder="fixtures/locate/rules-sample"
+              disabled={busy}
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              CWE / advisory
+            </span>
+            <Input
+              value={cwe}
+              onChange={(e) => setCwe(e.target.value)}
+              placeholder="CWE-89"
+              disabled={busy}
+            />
+          </label>
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Output dir (optional, sandboxed)
+            </span>
+            <Input
+              value={output}
+              onChange={(e) => setOutput(e.target.value)}
+              placeholder="zeroday-reports/desk-live-… (default)"
+              disabled={busy}
+            />
+          </label>
+        </div>
+
+        <label className="inline-flex items-start gap-2 text-xs text-[var(--muted)]">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={remoteInference}
+            onChange={(e) => setRemoteInference(e.target.checked)}
+            disabled={busy}
+            data-testid="remote-inference-ack"
+          />
+          <span>
+            <span className="text-[var(--warn)] font-medium">
+              Remote-inference ACK
+            </span>{" "}
+            — required when the host is not loopback (maps to{" "}
+            <code>--remote-inference</code> /{" "}
+            <code>ZERODAY_REMOTE_INFERENCE_ACK</code>). Customer source stays
+            local-first unless you check this.
+          </span>
+        </label>
+
+        <p className="text-[11px] text-[var(--muted)]">
+          HF / API tokens come from the environment (
+          <code>{tokenEnvVar || "HF_TOKEN"}</code>
+          ). Desk never stores the secret value in JSON config — only the env
+          var name.
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            data-testid="live-save"
+            onClick={() =>
+              void post({
+                action: "save",
+                preset,
+                endpoint,
+                model,
+                remoteInference,
+                tokenEnvVar: tokenEnvVar.trim() || undefined,
+              })
+            }
+          >
+            Save config
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            data-testid="live-load"
+            onClick={() =>
+              void post({ action: "load" }).then((j) => {
+                if (j && j.kind === "live-load" && "config" in j) {
+                  const cfg = (
+                    j as {
+                      config?: {
+                        endpoint: string;
+                        model: string;
+                        preset: LivePreset["id"];
+                        remoteInference: boolean;
+                        tokenEnvVar?: string;
+                      };
+                    }
+                  ).config;
+                  if (cfg) {
+                    setEndpoint(cfg.endpoint);
+                    setModel(cfg.model);
+                    setPreset(cfg.preset);
+                    setRemoteInference(cfg.remoteInference);
+                    setTokenEnvVar(cfg.tokenEnvVar || "");
+                  }
+                }
+              })
+            }
+          >
+            Load config
+          </Button>
+          <Button
+            size="sm"
+            disabled={busy || !endpoint.trim()}
+            data-testid="live-doctor"
+            onClick={() =>
+              void post({
+                action: "doctor",
+                endpoint,
+                model,
+                remoteInference,
+              })
+            }
+          >
+            {busy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <ShieldCheck size={14} />
+            )}
+            Doctor ping
+          </Button>
+          <Button
+            size="sm"
+            disabled={busy || !endpoint.trim() || !repo.trim()}
+            data-testid="live-locate-open"
+            onClick={() => setSpendConfirmOpen(true)}
+          >
+            <Sparkles size={14} />
+            Run live locate…
+          </Button>
+        </div>
+
+        {spendConfirmOpen && (
+          <div
+            className="border border-[var(--warn)]/50 bg-[var(--warn)]/10 rounded-md p-3 space-y-3"
+            data-testid="spend-banner"
+          >
+            <p className="text-sm text-[var(--warn)] font-medium">
+              Spend / cost confirm
+            </p>
+            <p className="text-xs text-[var(--muted)]">
+              {spendBanner ||
+                "Live locate may spend GPU / host resources. No auto RunPod. Explicit human click required."}
+            </p>
+            <p className="text-[11px] font-mono text-[var(--muted)]">
+              {endpoint} · {model}
+              {remoteInference ? " · remote-inference ACK" : ""}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={busy}
+                data-testid="spend-confirm"
+                onClick={() => {
+                  setSpendConfirmOpen(false);
+                  void post({
+                    action: "locate",
+                    endpoint,
+                    model,
+                    remoteInference,
+                    tokenEnvVar: tokenEnvVar.trim() || undefined,
+                    repo,
+                    cwe,
+                    output: output.trim() || undefined,
+                    spendAcknowledged: true,
+                  });
+                }}
+              >
+                I understand — run live locate
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => setSpendConfirmOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {doctorChecks.length > 0 && (
+          <div className="border border-[var(--line)] rounded-md p-3 space-y-2">
+            <div className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Doctor checklist
+            </div>
+            <ul className="space-y-2 text-xs">
+              {doctorChecks.map((c) => (
+                <li key={c.id} className="flex gap-2 items-start">
+                  <Badge tone={c.ok ? "ok" : "danger"}>
+                    {c.ok ? "pass" : "fail"}
+                  </Badge>
+                  <div>
+                    <div className="text-[var(--fg)]">{c.label}</div>
+                    <div className="text-[var(--muted)] font-mono text-[10px] break-all">
+                      {c.detail}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {honesty.length > 0 && (
+          <ul className="text-[11px] text-[var(--muted)] space-y-1 list-disc pl-4">
+            {honesty.map((h) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -773,6 +1301,41 @@ function DeskResultPanel({ result }: { result: DeskResult }) {
                 </p>
               )}
             </>
+          )}
+          {result.kind === "live-locate" && (
+            <>
+              <Meta
+                label="Advisory"
+                value={`${result.advisory} → ${result.cweId}`}
+              />
+              <Meta label="Findings" value={String(result.findingCount ?? 0)} />
+              <Meta label="Endpoint" value={result.endpoint || "—"} mono />
+              <Meta label="Model" value={result.model || "—"} mono />
+              <Meta
+                label="Remote ACK"
+                value={result.remoteInference ? "yes" : "no"}
+              />
+              {result.tokenHygiene && (
+                <Meta
+                  label="Token hygiene"
+                  value={
+                    result.tokenHygiene.leaked
+                      ? "LEAK DETECTED"
+                      : "clean (no env secret in artifacts)"
+                  }
+                />
+              )}
+            </>
+          )}
+          {result.kind === "live-doctor" && (
+            <>
+              <Meta label="Doctor" value={result.ok ? "pass" : "fail"} />
+              <Meta label="Endpoint" value={result.endpoint || "—"} mono />
+              <Meta label="Model" value={result.model || "—"} mono />
+            </>
+          )}
+          {result.kind === "live-save" && result.configPath && (
+            <CopyRow label="Config" value={result.configPath} />
           )}
           {result.kind === "inventory" && (
             <>

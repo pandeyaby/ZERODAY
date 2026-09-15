@@ -30,7 +30,7 @@ exploitability. Live Antares weights stay **opt-in** when you already host them.
 | Need | Antares | ZERODAY |
 |------|---------|---------|
 | Morning / stranger path | Model + your own completions host | `npm run mvp` — fixture → SARIF; no GPU / HF token / spend |
-| Live Antares when wanted | Direct CLI against your endpoint | Opt-in `locate --endpoint` + doctor/checklist; never auto-provisions pods |
+| Live Antares when wanted | Direct CLI against your endpoint | Opt-in `locate --endpoint` + doctor; Desk **Live brain** tab (`npm run play`) configures it in seconds — never auto-provisions pods |
 | CI/CD early review | You wire inference into CI yourself | Fixture locate + SARIF in Actions without gated weights |
 | Privacy / compliance default | Your hosting choice | Local-first keyless default; remote only with explicit ack |
 | After localization | Ranked files | Desk on **your** tree (keyless, no Antares): `inventory` → `packet` → `harden` → `classify` → `craft` — not vuln discovery |
@@ -141,10 +141,11 @@ git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
 # optional Desk Console UI:  npm run play  →  http://localhost:3333/play
-#   Commands tab: rules / from-sarif / inventory → packet chain
+#   Commands tab: rules / from-sarif / inventory → packet chain (keyless)
 #   Reports & cassettes: browse zeroday-reports/, record/replay org cassettes
 #   (redact ON; org regression — not discovery)
-```
+#   Live brain (UI-3): preset → save → doctor → spend banner → live locate
+#   (opt-in; reuses locate --endpoint + doctor; no auto RunPod)```
 
 Expect **PASS**, then open the printed SARIF paths under `zeroday-reports/mvp/`.
 
@@ -216,11 +217,35 @@ npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-8
 Same flow from Desk Console (`npm run play` → **Reports & cassettes**): pick a
 locate reports dir → Record (redact ON; UI refuses `--no-redact`) → Replay →
 results show `mode: "recording"`. Path sandbox matches Desk commands.
+(UI-2 “No live Antares” meant that validate path didn’t exercise spend — live
+CLI already existed; see **Live brain** below for the first-class UI.)
 
 Hard locks: absolute paths → repo-relative; secret-shaped strings stripped;
 refuse write if redaction fail-closed; **no auto-commit / auto-PR / network
 exfil**; localization ≠ exploitability. See
 [`fixtures/locate/org-recordings/README.md`](./fixtures/locate/org-recordings/README.md).
+
+---
+
+## Live brain from Desk Console (UI-3)
+
+Configure live Antares (or any local OpenAI-compatible completions host) in
+seconds from `/play` — first-class UI, not a CLI scavenger hunt. Keyless stays
+default; live is opt-in with an explicit human click and spend banner.
+
+```bash
+npm run play
+# → http://localhost:3333/play → Live brain tab
+#    1) Pick preset: Antares-1B (HF gated — accept terms yourself) or local OpenAI-compatible
+#    2) Save → .zeroday/desk-endpoint.json (token env *name* only; never the secret)
+#    3) Doctor ping → K4 checklist + /v1/models probe
+#    4) Spend banner confirm → live locate (reuses --endpoint / live-guard)
+# Non-loopback: check remote-inference ACK (maps to --remote-inference)
+```
+
+No auto RunPod / auto-spend. Completions-only (chat refused). Same path sandbox
+as Desk Commands (`ZERODAY_UI_ROOTS`). Details: [`docs/getting-started.md`](./docs/getting-started.md)
+· [`docs/local-brain.md`](./docs/local-brain.md).
 
 ---
 

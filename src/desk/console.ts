@@ -1,7 +1,7 @@
 /**
  * Desk Console — in-process runners for the local Operator /play UI.
  * Wraps existing locate / factory / packet / harden / classify / craft libs.
- * Not an Antares CLI shell wrapper. No live endpoint / RunPod / spend.
+ * Not an Antares CLI shell wrapper. Live brain opt-in lives in UI-3 (/api/live).
  */
 
 import fs from "node:fs";
@@ -248,7 +248,9 @@ export function deskCatalog(options?: { cwd?: string }): DeskCatalog {
     honesty: [
       "Desk Console wraps existing libs in-process — not an Antares CLI shell product",
       "needs_human is always true — localization ≠ exploitability",
-      "No PoCs · no auto-merge · no live Antares / RunPod spend UI",
+      "No PoCs · no auto-merge · Commands tab stays keyless (no silent spend)",
+      "Live brain is opt-in on the Live brain tab (UI-3) — spend banner + human click; reuses locate --endpoint + doctor",
+      "UI-2 “No live Antares” meant validate didn’t exercise spend — live path already existed via CLI",
       "Paths must stay under cwd (or ZERODAY_UI_ROOTS)",
       "Reports & cassettes = org regression (redact ON) — not discovery",
       "Fixture playground remains a separate smoke action via /api/playground",

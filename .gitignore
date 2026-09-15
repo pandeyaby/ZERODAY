@@ -49,4 +49,6 @@ yarn-error.log*
 !.yarn/releases
 !.yarn/versions
 /zeroday-reports/
+# Desk Console live endpoint config (may note tokenEnvVar — never commit secrets)
+.zeroday/
 # ZERODAY runtime data
