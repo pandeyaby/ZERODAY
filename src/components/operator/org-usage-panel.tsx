@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeskConsole } from "@/components/operator/desk-console";
 import { FaqPanel } from "@/components/operator/faq-panel";
 import { cn } from "@/lib/cn";
 import {
@@ -10,6 +11,7 @@ import {
   Crosshair,
   FlaskConical,
   GitBranch,
+  LayoutDashboard,
   ShieldAlert,
   User,
   Loader2,
@@ -17,7 +19,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-type View = "person" | "org" | "playground" | "faq";
+type View = "desk" | "playground" | "faq" | "person" | "org";
 
 type Catalog = {
   classifyScenarios: string[];
@@ -109,10 +111,13 @@ const ORG_SECTIONS = [
 
 export function OrgUsagePanel({
   standalone = false,
+  initialView = "desk",
 }: {
   standalone?: boolean;
+  /** Default tab when embedded (Operator howto → person; /play → desk). */
+  initialView?: View;
 }) {
-  const [view, setView] = useState<View>("person");
+  const [view, setView] = useState<View>(initialView);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [scenario, setScenario] = useState("software_defect");
   const [busy, setBusy] = useState(false);
@@ -169,29 +174,33 @@ export function OrgUsagePanel({
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Badge tone="ok">local only</Badge>
-              <Badge tone="muted">fixtures</Badge>
+              <Badge tone="muted">in-process libs</Badge>
               <Badge tone="warn">human in the loop</Badge>
             </div>
             <h2 className="font-display text-2xl tracking-wide">
-              How to use ZERODAY
+              Desk Console
             </h2>
             <p className="text-sm text-[var(--muted)] mt-1 max-w-2xl">
-              Honest guidance for people and orgs — what the code actually does.
-              Playground below runs the same fixture paths as the CLI (no live
-              network, no gated weights).
+              Interactive local product UI around ZERODAY locate / desk libs —
+              not an Antares CLI brochure. FAQ and fixture smoke are tabs.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             {(
               [
-                ["person", "Best for a person", <User size={14} key="u" />],
-                ["org", "How orgs use it", <Building2 size={14} key="b" />],
+                [
+                  "desk",
+                  "Desk Console",
+                  <LayoutDashboard size={14} key="d" />,
+                ],
                 [
                   "playground",
-                  "Fixture playground",
+                  "Fixture smoke",
                   <FlaskConical size={14} key="f" />,
                 ],
                 ["faq", "FAQ", <CircleHelp size={14} key="q" />],
+                ["person", "Best for a person", <User size={14} key="u" />],
+                ["org", "How orgs use it", <Building2 size={14} key="b" />],
               ] as const
             ).map(([id, label, icon]) => (
               <Button
@@ -207,6 +216,8 @@ export function OrgUsagePanel({
           </div>
         </div>
       </div>
+
+      {view === "desk" && <DeskConsole />}
 
       {view === "person" && (
         <div className="grid md:grid-cols-2 gap-3 animate-fade-up">
@@ -230,9 +241,9 @@ export function OrgUsagePanel({
               </span>
             </div>
             <pre className="mt-2 font-mono text-[11px] text-[var(--muted)] overflow-x-auto whitespace-pre-wrap">
-{`npm run zeroday -- locate --cwe CWE-89 --fixture
-npm run zeroday -- classify --scenario possible_breach
-npm run zeroday -- demo --output zeroday-reports/mixed-pack
+{`npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rules
+npm run zeroday -- inventory --repo fixtures/inventory/sidecar-app
+npm run zeroday -- locate --cwe CWE-89 --fixture
 npm run zeroday -- draft-fix --i-asked-for-a-fix --from …/report.json`}
             </pre>
           </div>
@@ -273,28 +284,22 @@ npm run zeroday -- draft-fix --i-asked-for-a-fix --from …/report.json`}
 
       {view === "faq" && <FaqPanel />}
 
-      {(view === "playground" || result || busy) && view !== "faq" && (
-        <div
-          className={cn(
-            "space-y-4",
-            view === "playground" && "animate-fade-up",
-          )}
-        >
+      {view === "playground" && (
+        <div className="space-y-4 animate-fade-up">
           <div className="panel rounded-lg">
             <div className="panel-header">
               <span className="text-sm font-display tracking-wide flex items-center gap-2">
-                <FlaskConical size={14} /> Fixture playground
+                <FlaskConical size={14} /> Fixture smoke
               </span>
               <Badge tone="ok">no weights</Badge>
             </div>
             <div className="p-4 space-y-4">
               <p className="text-xs text-[var(--muted)]">
-                Buttons call existing fixture paths via{" "}
-                <code className="text-[var(--accent)]">/api/playground</code>.
-                Same engines as{" "}
-                <code className="text-[var(--accent)]">zeroday locate</code>,{" "}
-                <code className="text-[var(--accent)]">classify</code>, and{" "}
-                <code className="text-[var(--accent)]">demo</code>.
+                Explicit smoke via{" "}
+                <code className="text-[var(--accent)]">/api/playground</code> —
+                same fixture engines as{" "}
+                <code className="text-[var(--accent)]">zeroday locate --fixture</code>
+                . Prefer Desk Console for rules / inventory / packet chain.
               </p>
 
               <div className="flex flex-wrap gap-2 items-center">

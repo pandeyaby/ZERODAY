@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Shield } from "lucide-react";
 
 /**
- * Local-only fixture playground + org usage guide.
+ * Local Desk Console (default) + fixture smoke + FAQ tabs.
  * Start with: npm run play → http://localhost:3333/play
  */
 export default function PlayPage() {
@@ -18,7 +18,7 @@ export default function PlayPage() {
                 ZERODAY
               </h1>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--muted)] mt-1">
-                How to use · Fixture playground · FAQ
+                Desk Console · Fixture smoke · FAQ
               </p>
             </div>
           </Link>
