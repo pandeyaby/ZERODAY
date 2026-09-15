@@ -27,15 +27,18 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 
 function mkSandbox(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zd-live-"));
+  // Canonicalize so macOS `/var/folders` → `/private/var/folders` matches
+  // PathPolicy / resolveLiveCwd (req.cwd) consistently.
+  const cwd = fs.realpathSync(dir);
   // Mirror minimal fixtures so locate path checks can resolve relative samples
-  fs.mkdirSync(path.join(dir, "fixtures", "locate", "rules-sample"), {
+  fs.mkdirSync(path.join(cwd, "fixtures", "locate", "rules-sample"), {
     recursive: true,
   });
   fs.writeFileSync(
-    path.join(dir, "fixtures", "locate", "rules-sample", "app.js"),
+    path.join(cwd, "fixtures", "locate", "rules-sample", "app.js"),
     "const q = req.query.id; db.query('select ' + q);\n",
   );
-  return dir;
+  return cwd;
 }
 
 describe("live endpoint wizard (UI-3)", () => {
@@ -87,6 +90,35 @@ describe("live endpoint wizard (UI-3)", () => {
     assert.equal(loaded.exists, true);
     assert.equal(loaded.config?.endpoint, "http://127.0.0.1:8000/v1");
     assert.equal(loaded.config?.model, "fdtn-ai/antares-1b");
+  });
+
+  it("save/load works when req.cwd is a symlink (macOS tmpdir form)", () => {
+    const physical = fs.mkdtempSync(path.join(os.tmpdir(), "zd-live-phys-"));
+    const linkParent = fs.mkdtempSync(path.join(os.tmpdir(), "zd-live-lp-"));
+    const link = path.join(linkParent, "sandbox");
+    fs.symlinkSync(physical, link);
+    fs.mkdirSync(path.join(link, "fixtures", "locate", "rules-sample"), {
+      recursive: true,
+    });
+    try {
+      // Pass the *symlink* path as cwd — PathPolicy + resolveLiveCwd must agree
+      const saved = saveLiveEndpointConfig(
+        {
+          preset: "antares-1b",
+          endpoint: "http://127.0.0.1:8000/v1",
+          model: "fdtn-ai/antares-1b",
+          tokenEnvVar: "HF_TOKEN",
+        },
+        { cwd: link },
+      );
+      assert.ok(fs.existsSync(saved.configPath));
+      const loaded = loadLiveEndpointConfig({ cwd: link });
+      assert.equal(loaded.exists, true);
+      assert.equal(loaded.config?.endpoint, "http://127.0.0.1:8000/v1");
+    } finally {
+      fs.rmSync(linkParent, { recursive: true, force: true });
+      fs.rmSync(physical, { recursive: true, force: true });
+    }
   });
 
   it("applyPreset fills Antares + local OpenAI defaults", () => {

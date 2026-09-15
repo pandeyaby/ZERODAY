@@ -2,7 +2,8 @@
 #
 # Fixture-only smoke + keyless rules + SARIF ingest + org cassette record/replay —
 # no model weights, no HF pull, no GPU.
-# Jobs: locate (SARIF + PR comment) + operate→verify + locate-rules (K1) +
+# Jobs: locate (SARIF + PR comment + npm test) + operate→verify + desk-ui
+# (UI-2 reports + UI-3 live-endpoint unit tests) + locate-rules (K1) +
 # locate-ingest (K2) + locate-record (K3).
 # Never auto-merges. Localization ≠ exploitability.
 
@@ -107,6 +108,42 @@ jobs:
           name: zeroday-operate-reports
           path: zeroday-reports/ci-operate/
           if-no-files-found: error
+
+  desk-ui:
+    name: Desk UI unit tests (UI-2 reports + UI-3 live-endpoint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Desk unit tests (path-policy + reports + live-endpoint)
+        run: |
+          set -euo pipefail
+          # Explicit desk surface — also covered by npm test in the locate gate.
+          # UI-2 reports + UI-3 live-endpoint must stay green on PRs (Mac PathPolicy
+          # regression: symlinked os.tmpdir /var/folders → /private/var/folders).
+          npm run test:desk
+
+      - name: Summarize desk-ui gate
+        run: |
+          {
+            echo "## ZERODAY Desk UI unit tests"
+            echo ""
+            echo "- Suite: \`npm run test:desk\` → \`tests/desk/**/*.test.ts\`"
+            echo "- Covers: **UI-2** reports browser + cassette record/replay"
+            echo "- Covers: **UI-3** live-endpoint wizard (save/load sandbox, doctor, spend/remote ACK)"
+            echo "- PathPolicy: symlink cwd canonicalize (macOS tmpdir-safe); escape outside cwd still 403"
+            echo "- Also runs via \`npm test\` in the locate gate — this job makes Desk UI coverage visible"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   inventory:
     name: Fixture multi-repo inventory (Desk slice B)

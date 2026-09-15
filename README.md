@@ -629,9 +629,11 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
 npm run operator   # local Desk Console / Operator UI on :3333
-npm test
+npm test           # full suite (includes Desk UI-2 reports + UI-3 live-endpoint)
+npm run test:desk  # Desk unit tests only (path-policy + reports + live-endpoint)
 ```
 
+Desk unit tests cover **UI-2** reports/cassettes and **UI-3** live-endpoint (Mac-safe PathPolicy under `os.tmpdir()`). CI runs them via the `desk-ui` job and via `npm test` in the locate gate.
 ---
 
 ## License & credits

@@ -60,9 +60,14 @@ runs:
       shell: bash
       run: npm ci
 
-    - name: Unit tests (locate surface)
+    - name: Unit tests (locate + Desk UI surfaces)
       shell: bash
-      run: npm test
+      run: |
+        set -euo pipefail
+        # Full suite includes tests/desk/{reports,live-endpoint,console}.test.ts
+        # (UI-2 reports + UI-3 live-endpoint). Dedicated desk-ui CI job also runs
+        # npm run test:desk for visible PR coverage.
+        npm test
 
     - name: Fixture locate (CI / no-GPU — not the live product path)
       id: locate
