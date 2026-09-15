@@ -15,6 +15,7 @@
     "start": "next start -p 3333",
     "lint": "eslint .",
     "test": "tsx --test \"tests/**/*.test.ts\"",
+    "test:desk": "tsx --test \"tests/desk/**/*.test.ts\"",
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "inventory": "tsx cli/index.ts inventory",

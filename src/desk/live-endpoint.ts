@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   assertPathAllowed,
+  canonicalizePath,
   PathPolicyError,
   resolveOutputDir,
 } from "../lib/path-policy";
@@ -234,8 +235,19 @@ function defaultConfig(): LiveEndpointConfig {
   };
 }
 
+/** Resolve request cwd for path checks (canonical when the dir exists). */
+export function resolveLiveCwd(cwd?: string): string {
+  const raw = path.resolve(cwd ?? process.cwd());
+  try {
+    if (fs.existsSync(raw)) return canonicalizePath(raw);
+  } catch {
+    /* keep resolved form */
+  }
+  return raw;
+}
+
 export function resolveDeskEndpointPath(options?: { cwd?: string }): string {
-  const cwd = path.resolve(options?.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(options?.cwd);
   return assertPathAllowed(DESK_ENDPOINT_REL, {
     cwd,
     label: "desk-endpoint config",
@@ -338,7 +350,7 @@ export function applyPreset(id: LivePresetId): LiveEndpointConfig {
 }
 
 export function liveCatalog(options?: { cwd?: string }): LiveCatalog {
-  const cwd = path.resolve(options?.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(options?.cwd);
   return {
     kind: "live-catalog",
     schema: DESK_ENDPOINT_SCHEMA,
@@ -354,7 +366,7 @@ export function liveCatalog(options?: { cwd?: string }): LiveCatalog {
 export function loadLiveEndpointConfig(options?: {
   cwd?: string;
 }): LiveLoadResult {
-  const cwd = path.resolve(options?.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(options?.cwd);
   const configPath = resolveDeskEndpointPath({ cwd });
   if (!fs.existsSync(configPath)) {
     return {
@@ -403,7 +415,7 @@ export function saveLiveEndpointConfig(
   input: Partial<LiveEndpointConfig>,
   options?: { cwd?: string },
 ): LiveSaveResult {
-  const cwd = path.resolve(options?.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(options?.cwd);
   const configPath = resolveDeskEndpointPath({ cwd });
   const dir = path.dirname(configPath);
   // Ensure .zeroday stays under sandbox
@@ -438,7 +450,7 @@ function assertNoSecretLeak(text: string, tokenEnvVar?: string): void {
 export async function runLiveDoctor(
   req: LiveRunRequest,
 ): Promise<LiveDoctorResult> {
-  const cwd = path.resolve(req.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(req.cwd);
   let endpoint = req.endpoint?.trim();
   let model = req.model?.trim();
   let remoteInference = req.remoteInference === true;
@@ -538,7 +550,7 @@ function scanArtifactsForTokenLeak(
 export async function runLiveLocate(
   req: LiveRunRequest,
 ): Promise<LiveLocateResult> {
-  const cwd = path.resolve(req.cwd ?? process.cwd());
+  const cwd = resolveLiveCwd(req.cwd);
 
   if (req.spendAcknowledged !== true) {
     throw new LiveEndpointError(

@@ -10,6 +10,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   assertPathAllowed,
+  canonicalizePath,
   getAllowedRoots,
   isInsideRoot,
   parseUiRootsEnv,
@@ -78,6 +79,48 @@ describe("path-policy sandbox", () => {
       );
     } finally {
       fs.rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  it("allows non-existent descendants under a symlinked cwd (macOS tmpdir)", () => {
+    // Reproduces Abhinav Mac failure: os.tmpdir() under /var/folders is a
+    // symlink to /private/var/folders; realpath(root) ≠ path.resolve(child)
+    // when the child does not exist yet (.zeroday/desk-endpoint.json).
+    const physical = fs.mkdtempSync(path.join(os.tmpdir(), "zd-phys-"));
+    const linkParent = fs.mkdtempSync(path.join(os.tmpdir(), "zd-link-"));
+    const link = path.join(linkParent, "sandbox");
+    fs.symlinkSync(physical, link);
+    try {
+      const abs = assertPathAllowed(".zeroday/desk-endpoint.json", {
+        cwd: link,
+        envRoots: null,
+        label: "desk-endpoint config",
+      });
+      assert.ok(abs.endsWith(path.join(".zeroday", "desk-endpoint.json")));
+      assert.equal(
+        canonicalizePath(path.join(link, ".zeroday", "desk-endpoint.json")),
+        canonicalizePath(path.join(physical, ".zeroday", "desk-endpoint.json")),
+      );
+      // Escape outside the sandbox still refused (no broad /var/folders allow)
+      assert.throws(
+        () =>
+          assertPathAllowed("/tmp", {
+            cwd: link,
+            envRoots: null,
+          }),
+        PathPolicyError,
+      );
+      assert.throws(
+        () =>
+          assertPathAllowed(path.join(os.tmpdir(), "outside-escape"), {
+            cwd: link,
+            envRoots: null,
+          }),
+        PathPolicyError,
+      );
+    } finally {
+      fs.rmSync(linkParent, { recursive: true, force: true });
+      fs.rmSync(physical, { recursive: true, force: true });
     }
   });
 

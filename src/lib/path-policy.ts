@@ -2,6 +2,10 @@
  * UI path sandbox — only allow paths under configured workspace roots.
  * Default roots: process.cwd() + optional env ZERODAY_UI_ROOTS
  * (colon / semicolon / comma separated). Rejects .. escape and FS escape.
+ *
+ * Comparison uses canonicalizePath so macOS `/var` → `/private/var` (and other
+ * symlink cwd forms from `os.tmpdir()`) do not false-reject in-sandbox paths.
+ * Escape outside the canonical root still 403 — this does not widen roots.
  */
 
 import fs from "node:fs";
@@ -21,6 +25,34 @@ export function parseUiRootsEnv(raw?: string | null): string[] {
     .split(/[:;,]/)
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+/**
+ * Resolve symlinks for sandbox comparison. For paths that do not exist yet
+ * (e.g. `.zeroday/desk-endpoint.json` before first save), realpath the nearest
+ * existing ancestor and rejoin the missing suffix — matches macOS tmpdir
+ * (`/var/folders/...` vs `/private/var/folders/...`) without allowing
+ * arbitrary `/var/folders` as a production root.
+ */
+export function canonicalizePath(p: string): string {
+  const resolved = path.resolve(p);
+  const missing: string[] = [];
+  let cur = resolved;
+  for (;;) {
+    try {
+      if (fs.existsSync(cur)) {
+        const real = fs.realpathSync(cur);
+        return missing.length ? path.join(real, ...missing) : real;
+      }
+    } catch {
+      /* keep walking up */
+    }
+    const parent = path.dirname(cur);
+    if (parent === cur) break;
+    missing.unshift(path.basename(cur));
+    cur = parent;
+  }
+  return resolved;
 }
 
 export function getAllowedRoots(options?: {
@@ -43,15 +75,6 @@ export function getAllowedRoots(options?: {
     }
   }
   return roots;
-}
-
-function realIfExists(p: string): string {
-  try {
-    if (fs.existsSync(p)) return fs.realpathSync(p);
-  } catch {
-    /* fall through */
-  }
-  return path.resolve(p);
 }
 
 /** True when absPath is the root itself or a descendant (after normalize). */
@@ -97,9 +120,11 @@ export function assertPathAllowed(
     options?.roots ??
     getAllowedRoots({ cwd, envRoots: options?.envRoots });
 
-  const checkPath = realIfExists(abs);
+  // Canonicalize both sides so symlink cwd (macOS tmpdir) matches non-existent
+  // descendants under the same root. Return value stays `abs` (caller form).
+  const checkPath = canonicalizePath(abs);
   const allowed = roots.some((r) =>
-    isInsideRoot(checkPath, realIfExists(r)),
+    isInsideRoot(checkPath, canonicalizePath(r)),
   );
   if (!allowed) {
     throw new PathPolicyError(
