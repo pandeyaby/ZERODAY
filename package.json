@@ -43,7 +43,7 @@
     "clsx": "^2.1.1",
     "commander": "^15.0.0",
     "lucide-react": "^1.24.0",
-    "next": "15.5.20",
+    "next": "15.5.25",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.6.0"
@@ -56,10 +56,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.20",
+    "eslint-config-next": "15.5.25",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "8.5.28"
   },
   "engines": {
     "node": ">=20"
