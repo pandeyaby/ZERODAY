@@ -250,6 +250,7 @@ export function deskCatalog(options?: { cwd?: string }): DeskCatalog {
       "needs_human is always true — localization ≠ exploitability",
       "No PoCs · no auto-merge · no live Antares / RunPod spend UI",
       "Paths must stay under cwd (or ZERODAY_UI_ROOTS)",
+      "Reports & cassettes = org regression (redact ON) — not discovery",
       "Fixture playground remains a separate smoke action via /api/playground",
     ],
   };
