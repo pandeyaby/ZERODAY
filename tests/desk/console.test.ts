@@ -138,6 +138,22 @@ describe("desk console runners", () => {
     assert.ok(sidecar === r.repoRoot || r.repoRoot.includes("sidecar"));
   });
 
+  it("from-sarif ingest on fixtures sample", async () => {
+    const out = path.join(root, "zeroday-reports", "test-desk-ingest");
+    const r = await runDeskAction({
+      action: "from-sarif",
+      sarif: "fixtures/locate/ingest-sample/sample.sarif",
+      output: out,
+      cwd: root,
+    });
+    assert.equal(r.kind, "locate");
+    assert.equal(r.mode, "ingest");
+    assert.equal(r.needs_human, true);
+    assert.ok(
+      "findingCount" in r && (r as { findingCount: number }).findingCount >= 1,
+    );
+  });
+
   it("runDeskAction refuses path escape on rules", async () => {
     await assert.rejects(
       () =>
