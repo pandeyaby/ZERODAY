@@ -349,6 +349,13 @@ export function adaptAntaresReport(
     summary.terminal_calls_used ?? explorationTrace.length,
   );
 
+  // Antares may populate findings[] / total_findings even when the explore
+  // trace omitted an explicit submit_* tool call (partial tool failures).
+  // Prefer concrete findings entries — never invent paths from a bare count.
+  const totalFindingsDeclared = Number(
+    summary.total_findings ?? summary.finding_count ?? findings.length,
+  );
+
   const classified = classifyIncomplete({
     rankedFileCount: rankedFiles.length,
     submitted,
@@ -365,6 +372,9 @@ export function adaptAntaresReport(
     typeof metadata.model === "string" ? metadata.model : params.model,
   );
 
+  const findingsWithoutSubmit =
+    rankedFiles.length > 0 && !submitted && !classified.incomplete;
+
   return {
     mode: "live",
     advisory: params.advisory,
@@ -380,6 +390,15 @@ export function adaptAntaresReport(
       "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
       `Model id sent to endpoint: ${modelId} (default ${DEFAULT_ANTARES_MODEL} when unset).`,
       `Tool budget: ${toolBudget} (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).`,
+      ...(findingsWithoutSubmit
+        ? [
+            "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+            Number.isFinite(totalFindingsDeclared) &&
+            totalFindingsDeclared > rankedFiles.length
+              ? `Antares declared total_findings=${totalFindingsDeclared} but only ${rankedFiles.length} finding row(s) were present — surfacing rows only (never invent paths).`
+              : null,
+          ].filter((w): w is string => Boolean(w))
+        : []),
       ...(classified.incomplete
         ? [
             `Incomplete submission [${classified.class}]: ${classified.reason}`,
