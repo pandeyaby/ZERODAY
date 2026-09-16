@@ -1,17 +1,29 @@
 name: ZERODAY locate gate
 description: >
-  Fixture Antares localization CI gate — SARIF upload + reviewable PR comment.
-  No model weights, no HF pull, no GPU. Never auto-merges. Localization ≠ exploitability.
+  Keyless localization CI gate — fixture (default), rules, or org cassette replay.
+  SARIF upload + reviewable PR comment. No model weights, no HF pull, no GPU.
+  Live Antares / --endpoint is never supported here (workstation opt-in only).
+  Never auto-merges. Localization ≠ exploitability.
   On pull_request, posting the findings comment is fail-closed (not optional soft-fail).
 inputs:
+  mode:
+    description: >
+      Locate door: fixture (default CI smoke) | rules (authorized repo snapshot) |
+      recording (org cassette replay). Live / endpoint refused.
+    required: false
+    default: fixture
   cwe:
-    description: CWE id for fixture localization (e.g. CWE-89)
+    description: CWE id for fixture/rules localization (e.g. CWE-89). Ignored for recording.
     required: false
     default: CWE-89
   repo:
-    description: Path to scan (fixture demo-app by default)
+    description: Path to scan (fixture demo-app by default; set to checkout root for rules)
     required: false
     default: fixtures/locate/demo-app
+  recording:
+    description: Org cassette path when mode=recording (zeroday-org-cassette/v1)
+    required: false
+    default: ""
   output:
     description: Report output directory
     required: false
@@ -32,10 +44,23 @@ inputs:
       On pull_request this is fail-closed when true — job fails if comment cannot be posted.
     required: false
     default: "true"
+  run-unit-tests:
+    description: >
+      Run npm test before locate. Default true for this repo's CI; set false when
+      consuming the Action from an org workflow that already tested elsewhere.
+    required: false
+    default: "true"
   sarif-category:
     description: Code Scanning category for this upload
     required: false
     default: zeroday-antares
+  working-directory:
+    description: >
+      Directory that contains package.json / the ZERODAY CLI (default `.`).
+      When ZERODAY is checked out to a subdirectory (e.g. `_zeroday`), set this
+      so npm ci / locate run there while `repo` can still point at the consumer tree.
+    required: false
+    default: "."
 outputs:
   sarif-path:
     description: Path to report.sarif
@@ -46,6 +71,9 @@ outputs:
   comment-path:
     description: Path to comment.md
     value: ${{ steps.locate.outputs.comment-path }}
+  locate-mode:
+    description: Resolved locate mode (fixture | rules | recording)
+    value: ${{ steps.locate.outputs.locate-mode }}
 
 runs:
   using: composite
@@ -55,13 +83,17 @@ runs:
       with:
         node-version: "22"
         cache: npm
+        cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
     - name: Install dependencies
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: npm ci
 
     - name: Unit tests (locate + Desk UI surfaces)
+      if: inputs.run-unit-tests == 'true'
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
         # Full suite includes tests/desk/{reports,live-endpoint,console}.test.ts
@@ -69,18 +101,29 @@ runs:
         # npm run test:desk for visible PR coverage.
         npm test
 
-    - name: Fixture locate (CI / no-GPU — not the live product path)
+    - name: Keyless locate (fixture | rules | recording — never live)
       id: locate
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       env:
         CWE: ${{ inputs.cwe }}
         REPO: ${{ inputs.repo }}
         OUT: ${{ inputs.output }}
+        RECORDING: ${{ inputs.recording }}
+        ZERODAY_GATE_MODE: ${{ inputs.mode }}
       run: |
         set -euo pipefail
         mkdir -p "$OUT"
-        # Explicit --fixture only. Never --endpoint / --live in CI (no weights).
-        npm run zeroday -- locate --cwe "$CWE" --repo "$REPO" --fixture --output "$OUT"
+        RESOLVED="$(node "${{ github.action_path }}/resolve-locate-cmd.js")"
+        EXPECTED_MODE="$(node -e "const j=JSON.parse(process.argv[1]);process.stdout.write(j.expectedMode)" "$RESOLVED")"
+        LABEL="$(node -e "const j=JSON.parse(process.argv[1]);process.stdout.write(j.label)" "$RESOLVED")"
+        # Explicit keyless doors only. Never --endpoint / --live in CI (no weights / no spend).
+        node -e "
+          const {spawnSync}=require('child_process');
+          const j=JSON.parse(process.argv[1]);
+          const r=spawnSync('npm', j.argv, {stdio:'inherit', env:process.env});
+          process.exit(r.status===null?1:r.status);
+        " "$RESOLVED"
         test -f "$OUT/report.sarif"
         test -f "$OUT/report.json"
         test -f "$OUT/comment.md"
@@ -88,17 +131,22 @@ runs:
         grep -E 'Ranked candidate files|No vulnerable files submitted' "$OUT/comment.md" >/dev/null
         grep -F 'Human review required' "$OUT/comment.md" >/dev/null
         MODE="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(r.mode)")"
-        test "$MODE" = "fixture"
+        test "$MODE" = "$EXPECTED_MODE"
         COUNT="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(String(r.summary.findingCount))")"
-        echo "sarif-path=$OUT/report.sarif" >> "$GITHUB_OUTPUT"
-        echo "comment-path=$OUT/comment.md" >> "$GITHUB_OUTPUT"
-        echo "json-path=$OUT/report.json" >> "$GITHUB_OUTPUT"
+        # Absolute paths so upload-sarif / PR comment work when working-directory ≠ workspace root
+        ABS_OUT="$(node -e "process.stdout.write(require('path').resolve(process.env.OUT))")"
+        echo "sarif-path=$ABS_OUT/report.sarif" >> "$GITHUB_OUTPUT"
+        echo "comment-path=$ABS_OUT/comment.md" >> "$GITHUB_OUTPUT"
+        echo "json-path=$ABS_OUT/report.json" >> "$GITHUB_OUTPUT"
         echo "finding-count=$COUNT" >> "$GITHUB_OUTPUT"
-        echo "ZERODAY CI/no-GPU fixture locate complete — findings=$COUNT (localization only)"
+        echo "locate-mode=$MODE" >> "$GITHUB_OUTPUT"
+        echo "ZERODAY $LABEL complete — mode=$MODE findings=$COUNT (localization only)"
 
     - name: Optional antares plan (no inference)
       continue-on-error: true
+      if: inputs.mode == 'fixture'
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       env:
         REPO: ${{ inputs.repo }}
       run: |
@@ -141,7 +189,7 @@ runs:
         steps.pr-comment.outcome == 'failure'
       shell: bash
       run: |
-        echo "::error title=ZERODAY PR comment failed::post-comment is required on pull_request. Job fails closed — every PR must get a visible ranked-findings comment (fixture locate is fine; no GPU)."
+        echo "::error title=ZERODAY PR comment failed::post-comment is required on pull_request. Job fails closed — every PR must get a visible ranked-findings comment (keyless locate is fine; no GPU)."
         exit 1
 
     - name: Summarize for Actions UI
@@ -149,15 +197,17 @@ runs:
       env:
         COUNT: ${{ steps.locate.outputs.finding-count }}
         SARIF: ${{ steps.locate.outputs.sarif-path }}
+        LOCATE_MODE: ${{ steps.locate.outputs.locate-mode }}
       run: |
         {
           echo "## ZERODAY locate gate"
           echo ""
+          echo "- Mode: **${LOCATE_MODE}** (keyless — never live / never auto-spend)"
           echo "- Findings (localization candidates): **${COUNT}**"
           echo "- SARIF: \`${SARIF}\`"
           echo "- Also written: asff / splunk / xsoar / fortisiem / crowdstrike local projections"
           echo "- Posture: detector-lane candidate · localization only · not exploitability proof · no auto-merge"
-          echo "- Mode: **CI / no-GPU fixture** (not the live Antares product path)"
+          echo "- Live Antares: workstation opt-in only after human GPU spend approval"
           echo "- PR comment: fail-closed on \`pull_request\` when \`post-comment=true\`"
         } >> "$GITHUB_STEP_SUMMARY"
 

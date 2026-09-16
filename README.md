@@ -209,6 +209,7 @@ npm run zeroday -- record --from zeroday-reports/org-locate \
   --out fixtures/locate/org-recordings/rules-cwe-89.cassette.json
 
 # 3. Human reviews the cassette (paths relative? secrets stripped?) before commit
+#    Full checklist: docs/cassette-runbook.md
 
 # 4. Replay offline
 npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json
@@ -217,6 +218,8 @@ npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-8
 Same flow from Desk Console (`npm run play` → **Reports & cassettes**): pick a
 locate reports dir → Record (redact ON; UI refuses `--no-redact`) → Replay →
 results show `mode: "recording"`. Path sandbox matches Desk commands.
+
+Org forever path (Action + spend gates): [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md).
 (UI-2 “No live Antares” meant that validate path didn’t exercise spend — live
 CLI already existed; see **Live brain** below for the first-class UI.)
 
@@ -551,9 +554,17 @@ Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) · [coo
 
 ## GitHub Action
 
-On `pull_request`: fixture locate → upload SARIF → reviewable PR comment (fail-closed). Never pulls weights. Never auto-merge.
+On `pull_request`: keyless locate → upload SARIF → reviewable PR comment (fail-closed).
+Default door is **fixture**; the `org-path` job also exercises **rules** + **cassette
+replay** via the same composite Action. Never pulls weights. Never auto-merge.
+Live Antares is **not** wired into CI.
 
-Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
+Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml) ·
+Action: [`.github/actions/zeroday-locate-gate`](./.github/actions/zeroday-locate-gate/) ·
+Org copy-paste example: [`examples/ops/zeroday-org-locate.yml`](./examples/ops/zeroday-org-locate.yml)
+
+**Runbooks:** [Org ops (private forever path)](./docs/org-ops-runbook.md) ·
+[Cassette record/replay](./docs/cassette-runbook.md)
 
 ---
 

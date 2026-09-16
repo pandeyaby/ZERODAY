@@ -21,6 +21,9 @@ describe("GitHub Action PR comment (fail-closed)", () => {
     assert.match(yml, /Fail closed if PR comment step broke/);
     assert.match(yml, /pull_request/);
     assert.match(yml, /Ranked candidate files/);
+    assert.match(yml, /resolve-locate-cmd\.js/);
+    assert.match(yml, /mode:\s*\n\s*description:/);
+    assert.match(yml, /default:\s*fixture/);
 
     // Comment step must not soft-fail
     const commentBlock = yml.slice(
@@ -29,18 +32,27 @@ describe("GitHub Action PR comment (fail-closed)", () => {
     );
     assert.doesNotMatch(commentBlock, /continue-on-error:\s*true/);
 
-    // CI locate command must be fixture-only (comments may mention --endpoint/--live as forbidden)
+    // Keyless locate step must resolve via helper — never wire --endpoint/--live
     const runBlock = yml.slice(
-      yml.indexOf("Fixture locate"),
+      yml.indexOf("Keyless locate"),
       yml.indexOf("Optional antares"),
     );
-    const cmdLine = runBlock
-      .split("\n")
-      .map((l) => l.trim())
-      .find((l) => l.startsWith("npm run zeroday -- locate"));
-    assert.ok(cmdLine, "missing locate command in action");
-    assert.match(cmdLine!, /--fixture/);
-    assert.doesNotMatch(cmdLine!, /--endpoint|--live/);
+    assert.match(runBlock, /resolve-locate-cmd\.js/);
+    assert.match(runBlock, /Never --endpoint \/ --live/);
+    assert.doesNotMatch(runBlock, /npm run zeroday -- locate[^\n]*(--endpoint|--live)/);
+
+    const resolver = fs.readFileSync(
+      path.join(root, ".github/actions/zeroday-locate-gate/resolve-locate-cmd.js"),
+      "utf8",
+    );
+    assert.match(resolver, /expectedMode:\s*"fixture"/);
+    assert.match(resolver, /--fixture/);
+    assert.match(resolver, /live Antares/);
+    // argv arrays must never include live flags (mentions in refuse errors are ok)
+    assert.doesNotMatch(
+      resolver,
+      /argv:\s*\[[^\]]*(--endpoint|--live)/,
+    );
   });
 
   it("workflow enables pull-requests: write and post-comment", () => {
@@ -51,6 +63,11 @@ describe("GitHub Action PR comment (fail-closed)", () => {
     assert.match(wf, /pull-requests:\s*write/);
     assert.match(wf, /post-comment:\s*"true"/);
     assert.match(wf, /upload-sarif:\s*"true"/);
+    assert.match(wf, /mode:\s*fixture/);
+    assert.match(wf, /org-path:/);
+    assert.match(wf, /mode:\s*rules/);
+    assert.match(wf, /mode:\s*recording/);
+    assert.match(wf, /org-recordings\/rules-cwe-89\.cassette\.json/);
   });
 
   it("post-pr-comment.js requires ranked findings and human-review posture", async () => {

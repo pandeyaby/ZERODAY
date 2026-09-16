@@ -6,6 +6,8 @@
 | [runpod-antares.md](./runpod-antares.md) | Recommended remote CUDA path (RunPod + vLLM) |
 | [remote-antares-vllm.md](./remote-antares-vllm.md) | Host-agnostic remote completions contract |
 | [howto.md](./howto.md) | Person + org usage + playground |
+| [org-ops-runbook.md](./org-ops-runbook.md) | Private org forever path — Action + keyless vs live + spend gates |
+| [cassette-runbook.md](./cassette-runbook.md) | `record --redact` → `locate --recording` (GPU-free regression) |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
 | [exporters.md](./exporters.md) | Customer ingest paths |
 | [vendor-packs/README.md](./vendor-packs/README.md) | Desk-by-desk operator packs |
