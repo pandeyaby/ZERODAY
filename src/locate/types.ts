@@ -70,7 +70,7 @@ export interface LocalizationResult {
   summary: {
     findingCount: number;
     incompleteReason: string | null;
-    /** Machine class for incomplete live runs (null when complete) */
+    /** Machine class for incomplete live runs (null when complete or when Antares raw findings were present) */
     incompleteClass?:
       | "no_submit"
       | "budget_exhausted"

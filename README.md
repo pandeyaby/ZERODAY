@@ -518,10 +518,12 @@ bash scripts/quickstart-live.sh /path/to/your/authorized/repo CWE-89
 
 **Incomplete runs:** no invented findings. Defaults: `--tool-budget 30`, best-effort re-query, `--fail-on-incomplete` (exit 2). Prefer **vLLM/CUDA**; MPS float32 is bang-safe but tool-schema unreliable — ZERODAY does not rewrite malformed tool_call JSON.
 
+If the Antares raw `report.json` already lists ranked `findings` (even when the exploration trace omitted an explicit `submit_*` tool call), ZERODAY treats that as **complete localization evidence** and surfaces the ranked files — not bare `no_submit` (Harden D). `no_submit` applies only when there are **zero** findings and no submit. Never invent file paths.
+
 | Class | Meaning |
 |-------|---------|
-| `no_submit` | Model stopped without `submit_*` |
-| `budget_exhausted` | Tool budget used up |
+| `no_submit` | Zero findings and model stopped without `submit_*` |
+| `budget_exhausted` | Tool budget used up (and no ranked findings) |
 | `timeout` | Deadline hit |
 | `endpoint_error` | Completions failed |
 | `parse_failure` | No usable `report.json` |

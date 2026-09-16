@@ -91,6 +91,29 @@ describe("incomplete classification", () => {
     assert.equal(c.class, null);
   });
 
+  it("complete when raw findings exist even without explicit submit (Harden D)", () => {
+    const c = classifyIncomplete({
+      rankedFileCount: 1,
+      submitted: false,
+      rawIncompleteReason: null,
+      terminalCallsUsed: 6,
+      terminalCallBudget: 11,
+    });
+    assert.equal(c.incomplete, false);
+    assert.equal(c.class, null);
+    assert.equal(c.reason, null);
+  });
+
+  it("complete with findings even if Antares incomplete_reason text is present", () => {
+    const c = classifyIncomplete({
+      rankedFileCount: 1,
+      submitted: false,
+      rawIncompleteReason: "Model ended without an explicit final submission.",
+    });
+    assert.equal(c.incomplete, false);
+    assert.equal(c.class, null);
+  });
+
   it("fail-on-incomplete defaults true for live only", () => {
     assert.equal(
       shouldFailOnIncomplete({
@@ -183,5 +206,67 @@ describe("adaptAntaresReport incomplete fields", () => {
     const comment = toPullRequestComment(result);
     assert.match(comment, /Incomplete localization/);
     assert.match(comment, /no_submit/);
+  });
+
+  it("Harden D: raw findings + missing submit → ranked file, not bare no_submit", () => {
+    const result = adaptAntaresReport(
+      {
+        findings: [
+          {
+            file_path: "src/search.js",
+            submission_rank: 1,
+            cwe_ids: ["CWE-89"],
+            title: "SQL concatenation candidate",
+            rationale: "User input concatenated into a query string.",
+            start_line: 12,
+          },
+        ],
+        summary: {
+          total_findings: 1,
+          incomplete_reason: null,
+          terminal_calls_used: 6,
+          status: "complete",
+        },
+        metadata: { model: "fdtn-ai/antares-350m", terminal_call_budget: 11 },
+        exploration_trace: [
+          { step: 1, tool: "grep", command: "grep SELECT", summary: "hit" },
+          {
+            step: 2,
+            tool: "cat",
+            command: "cat src/search.js",
+            summary: "read candidate",
+          },
+          // Partial tool failures — no submit_vulnerable_files in trace
+        ],
+      },
+      {
+        advisory: { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
+        repo: "/tmp/demo",
+        snapshotPath: "/tmp/snap",
+        outputDir: "/tmp/out",
+        model: "fdtn-ai/antares-350m",
+        toolBudget: 30,
+      },
+    );
+
+    assert.equal(result.rankedFiles.length, 1);
+    assert.equal(result.rankedFiles[0].filePath, "src/search.js");
+    assert.equal(result.summary.findingCount, 1);
+    assert.equal(result.summary.incompleteReason, null);
+    assert.equal(result.summary.incompleteClass, null);
+    assert.ok(
+      result.warnings.some((w) => /not bare no_submit/i.test(w)),
+      "should warn that candidates came without submit_* in trace",
+    );
+
+    const md = toHumanReport(result);
+    assert.match(md, /src\/search\.js/);
+    assert.doesNotMatch(md, /### Incomplete localization/);
+    assert.doesNotMatch(md, /`no_submit`/);
+
+    const comment = toPullRequestComment(result);
+    assert.match(comment, /src\/search\.js/);
+    assert.doesNotMatch(comment, /Incomplete localization/);
+    assert.match(comment, /Incomplete \| no/);
   });
 });

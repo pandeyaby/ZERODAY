@@ -2,8 +2,16 @@
  * Live incomplete-submission classification — never invent findings.
  *
  * When Antares ends without submit_vulnerable_files /
- * submit_no_vulnerability_found, ZERODAY must surface *why* (best-effort)
- * and operator next steps — not a fake ranked-file list.
+ * submit_no_vulnerability_found **and** the raw report has zero findings,
+ * ZERODAY must surface *why* (best-effort) and operator next steps — not a
+ * fake ranked-file list.
+ *
+ * Harden D: if the Antares raw report already lists ranked finding(s)
+ * (`findings.length` / submit_vulnerable_files-equivalent evidence), treat
+ * the run as **complete** for localization purposes. Do not classify that
+ * shape as bare `no_submit` (false-negative that looks like a clean miss).
+ * Incomplete `no_submit` is reserved for true missing-submit with zero
+ * findings. Never invent file paths.
  */
 
 export type IncompleteClass =
@@ -178,8 +186,14 @@ function reasonFor(
 }
 
 /**
- * Classify whether a localization finished with an explicit submit.
+ * Classify whether a localization finished with usable candidate evidence.
  * Never fabricates ranked files.
+ *
+ * Complete when:
+ * - explicit submit (vulnerable files or clean-negative), or
+ * - Antares raw report already has ranked finding(s) (Harden D — not `no_submit`)
+ *
+ * Bare `no_submit` incomplete only when zero findings and no submit.
  */
 export function classifyIncomplete(
   input: ClassifyIncompleteInput,
@@ -195,6 +209,18 @@ export function classifyIncomplete(
 
   // Explicit submit (vulnerable files or clean-negative) → complete
   if (input.submitted) {
+    return {
+      incomplete: false,
+      class: null,
+      reason: null,
+      tips: [],
+    };
+  }
+
+  // Harden D: raw Antares findings are submit_vulnerable_files-equivalent
+  // evidence. Surface them as a complete localization; do not false-negative
+  // as bare no_submit when tool calls partially failed but candidates exist.
+  if (input.rankedFileCount > 0) {
     return {
       incomplete: false,
       class: null,
