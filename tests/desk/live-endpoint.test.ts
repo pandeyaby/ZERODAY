@@ -57,12 +57,66 @@ describe("live endpoint wizard (UI-3)", () => {
     assert.equal(c.kind, "live-catalog");
     assert.equal(c.schema, DESK_ENDPOINT_SCHEMA);
     assert.ok(c.presets.some((p) => p.id === "antares-1b"));
+    assert.ok(c.presets.some((p) => p.id === "antares-350m-ollama"));
     assert.ok(c.presets.some((p) => p.id === "local-openai"));
     assert.ok(c.presets.find((p) => p.id === "antares-1b")?.hfGated);
     assert.match(c.spendBanner, /spend|confirm|GPU/i);
     assert.ok(c.honesty.some((h) => /UI-2/i.test(h)));
     assert.ok(c.configPath.endsWith(DESK_ENDPOINT_REL));
     assert.ok(c.configPath.startsWith(cwd));
+  });
+
+  it("antares-350m-ollama preset fills Ollama loopback + placeholder model (no F1 / no download)", () => {
+    const c = liveCatalog({ cwd });
+    const p = c.presets.find((x) => x.id === "antares-350m-ollama");
+    assert.ok(p, "antares-350m-ollama preset must exist");
+    assert.equal(p.endpoint, "http://127.0.0.1:11434/v1");
+    assert.equal(p.model, "antares-350m");
+    assert.equal(p.remoteInference, false);
+    assert.equal(p.hfGated, true);
+    assert.match(p.hfTermsUrl || "", /fdtn-ai\/antares-350m/);
+    assert.match(p.description, /HF gated|accept terms/i);
+    assert.match(p.description, /import|yourself|must/i);
+    assert.match(p.description, /never auto-download|no auto-download/i);
+    assert.match(p.description, /Q8|Q6/);
+    assert.doesNotMatch(p.description, /File F1\s*=|F1\s*=\s*0\.|guarantees?\s+F1|agentic F1/i);
+    assert.match(p.description, /No File F1|no File F1|quality guarantee|incomplete/i);
+
+    const applied = applyPreset("antares-350m-ollama");
+    assert.equal(applied.preset, "antares-350m-ollama");
+    assert.equal(applied.endpoint, "http://127.0.0.1:11434/v1");
+    assert.equal(applied.model, "antares-350m");
+    assert.equal(applied.remoteInference, false);
+
+    // Preset is config-only: apply/save must not trigger network download hooks
+    const saved = saveLiveEndpointConfig(applied, { cwd });
+    assert.equal(saved.kind, "live-save");
+    const raw = fs.readFileSync(saved.configPath, "utf8");
+    assert.match(raw, /antares-350m-ollama/);
+    assert.doesNotMatch(raw, /huggingface\.co\/.*download|auto-download|RunPod/i);
+    assert.doesNotMatch(raw, /File F1|F1\s*=/i);
+  });
+
+  it("docs/antares-350m-ollama.md exists and stays inside GRAX locks", () => {
+    const doc = fs.readFileSync(
+      path.join(root, "docs/antares-350m-ollama.md"),
+      "utf8",
+    );
+    assert.match(doc, /fdtn-ai\/antares-350m/);
+    assert.match(doc, /DevQuasar\/fdtn-ai\.antares-350m-GGUF/);
+    assert.match(doc, /POST \/v1\/completions/);
+    assert.match(doc, /Q8|Q6/);
+    assert.match(doc, /No auto-download|never.*auto-download|never pulls HF/i);
+    assert.match(doc, /No auto RunPod|never provisions RunPod/i);
+    assert.match(doc, /never scrapes|No scraping/i);
+    assert.match(doc, /No guarantees|no F1 claim|No agentic F1|No File F1/i);
+    assert.doesNotMatch(
+      doc,
+      /achieves File F1|guarantees File F1|agentic F1\s*=|F1\s*=\s*0\.135/,
+    );
+    // Must not instruct ZERODAY to download / create pods
+    assert.doesNotMatch(doc, /ZERODAY (will|auto-|downloads?|provisions?)/i);
+    assert.doesNotMatch(doc, /npm run zeroday -- .*download|hf download|huggingface-cli download/i);
   });
 
   it("save/load under sandboxed .zeroday/desk-endpoint.json", () => {
@@ -125,6 +179,9 @@ describe("live endpoint wizard (UI-3)", () => {
     const a = applyPreset("antares-1b");
     assert.equal(a.model, "fdtn-ai/antares-1b");
     assert.equal(a.tokenEnvVar, "HF_TOKEN");
+    const m = applyPreset("antares-350m-ollama");
+    assert.equal(m.model, "antares-350m");
+    assert.match(m.endpoint, /11434/);
     const l = applyPreset("local-openai");
     assert.match(l.endpoint, /11434|127\.0\.0\.1/);
     assert.equal(l.preset, "local-openai");

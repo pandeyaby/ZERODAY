@@ -37,6 +37,10 @@ export const DESK_ENDPOINT_REL = path.join(".zeroday", "desk-endpoint.json");
 export const HF_ANTARES_TERMS_URL =
   "https://huggingface.co/fdtn-ai/antares-1b";
 
+/** Official Antares-350M card (HF gated Transformers; no official GGUF). */
+export const HF_ANTARES_350M_TERMS_URL =
+  "https://huggingface.co/fdtn-ai/antares-350m";
+
 export const LIVE_ACTIONS = [
   "catalog",
   "load",
@@ -47,7 +51,11 @@ export const LIVE_ACTIONS = [
 
 export type LiveAction = (typeof LIVE_ACTIONS)[number];
 
-export type LivePresetId = "antares-1b" | "local-openai" | "custom";
+export type LivePresetId =
+  | "antares-1b"
+  | "antares-350m-ollama"
+  | "local-openai"
+  | "custom";
 
 export interface LiveEndpointConfig {
   schema: typeof DESK_ENDPOINT_SCHEMA;
@@ -88,6 +96,17 @@ export const LIVE_PRESETS: LivePreset[] = [
     tokenEnvVar: "HF_TOKEN",
     hfGated: true,
     hfTermsUrl: HF_ANTARES_TERMS_URL,
+  },
+  {
+    id: "antares-350m-ollama",
+    label: "Antares-350M (Ollama)",
+    description:
+      "Optional local Ollama preset: fills loopback /v1 + model id antares-350m only. Official fdtn-ai/antares-350m is HF gated (no official GGUF) — accept terms yourself, or knowingly import community GGUF (prefer Q8/Q6). You must import the model first; ZERODAY never auto-downloads. No File F1 / quality guarantee; incomplete locate possible. See docs/antares-350m-ollama.md.",
+    endpoint: "http://127.0.0.1:11434/v1",
+    model: "antares-350m",
+    remoteInference: false,
+    hfGated: true,
+    hfTermsUrl: HF_ANTARES_350M_TERMS_URL,
   },
   {
     id: "local-openai",
@@ -298,6 +317,7 @@ export function sanitizeLiveConfig(
 
   const preset: LivePresetId =
     input.preset === "antares-1b" ||
+    input.preset === "antares-350m-ollama" ||
     input.preset === "local-openai" ||
     input.preset === "custom"
       ? input.preset

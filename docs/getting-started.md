@@ -60,9 +60,12 @@ path didn’t exercise spend — the live CLI path already existed via
 
 **Live brain** (UI-3): open the **Live brain** tab to configure a completions
 endpoint in seconds — presets for **Antares-1B** (HF gated; accept terms
-yourself) and **local OpenAI-compatible** (Ollama / vLLM / LM Studio). Save to
-sandboxed `.zeroday/desk-endpoint.json` (env var *name* only for tokens — never
-the secret). **Doctor ping** reuses the K4 checklist. **Run live locate** only
+yourself), optional **Antares-350M (Ollama)** (HF gated note; you import the
+model first — no auto-download; no F1 claim; see
+[`antares-350m-ollama.md`](./antares-350m-ollama.md)), and **local
+OpenAI-compatible** (Ollama / vLLM / LM Studio). Save to sandboxed
+`.zeroday/desk-endpoint.json` (env var *name* only for tokens — never the
+secret). **Doctor ping** reuses the K4 checklist. **Run live locate** only
 after the spend banner confirm; non-loopback needs the remote-inference
 checkbox. No auto RunPod / auto-spend.
 
@@ -72,4 +75,4 @@ npm run play
 ```
 
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.
-Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).
+Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`antares-350m-ollama.md`](./antares-350m-ollama.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).

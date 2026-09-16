@@ -13,6 +13,7 @@
 | [classify.md](./classify.md) | Fixture classifier + Desk E evidence |
 | [craft.md](./craft.md) | Desk D defensive skill/plugin craft |
 | [local-brain.md](./local-brain.md) | Keyless K4 — any local `/v1/completions` host (Ollama/vLLM/LM Studio) |
+| [antares-350m-ollama.md](./antares-350m-ollama.md) | Optional Antares-350M via Ollama (import yourself; no F1 claim; no auto-download) |
 | [antares.md](./antares.md) | Optional local Antares |
 | [sandbox.md](./sandbox.md) | Live Docker network=none |
 | [cli-api.md](./cli-api.md) | CLI reference |

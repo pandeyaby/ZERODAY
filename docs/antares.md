@@ -80,6 +80,12 @@ npm run zeroday -- operate --cwe CWE-89 --fixture  # keyless agent path
 
 100k files / 2 GiB / 256 MiB per file · Linux/macOS · native Windows not supported.
 
+## Optional: Antares-350M via Ollama
+
+Local Ollama import of Antares-350M-class weights (official HF gated; community
+GGUF unofficial; prefer Q8/Q6; **no File F1 claim**; you import first — ZERODAY
+never auto-downloads): [`antares-350m-ollama.md`](./antares-350m-ollama.md).
+
 ## Sister pieces
 
 - [Antares site](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
