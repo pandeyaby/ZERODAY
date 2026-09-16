@@ -6,7 +6,10 @@
 
 ## Best way for a person
 
-- **Morning/PR** — leave the GitHub Action on forever (CI / no-GPU fixture locate → SARIF → **fail-closed** reviewable PR comment). No GPU in CI. Live Antares stays on the workstation (`scripts/quickstart-live.sh`).
+- **Morning/PR** — leave the GitHub Action on forever (keyless fixture / rules /
+  cassette → SARIF → **fail-closed** reviewable PR comment). No GPU in CI. Live
+  Antares stays on the workstation after human spend approval
+  (`scripts/quickstart-live.sh`). See [`org-ops-runbook.md`](./org-ops-runbook.md).
 - **Known CWE/CVE/GHSA** — default `zeroday operate` (keyless coding-agent path). Product path: `zeroday locate --repo … --endpoint …` when you host Antares locally. Source never leaves the machine.
 - **CISO / Desk E** — `zeroday classify --from fixtures/classify/software_defect` → `classify.md` / `classify.json` (+ `ciso.*`). **Classification ≠ exploitability.** Human review required.
 - **Desk D craft** — `zeroday craft --from docs/reports` → defensive `SKILL.md` + plugin stub (generate-only; no auto-install).
@@ -14,8 +17,8 @@
 
 ## How orgs should use it
 
-- **Platform eng** — Action on every repo; no GPU in CI.
-- **Security analyst** — operate/locate on a workstation; ingest SARIF in GitHub Code Scanning.
+- **Platform eng** — Action on every repo (`examples/ops/zeroday-org-locate.yml`); no GPU in CI. Runbook: [`org-ops-runbook.md`](./org-ops-runbook.md).
+- **Security analyst** — operate/locate on a workstation; ingest SARIF in GitHub Code Scanning; cassette regression: [`cassette-runbook.md`](./cassette-runbook.md).
 - **SOC / Splunk / Cisco Security Cloud buyer** — take Splunk CIM JSON, ASFF, and the CISO object as **FILES** your team ingests with your credentials. We do not push to your clouds.
 - **Classifier honesty** — four-class classifier is fixture-driven (`possible_breach` | `infra_failure` | `software_defect` | `agent_misfire` | `needs_human`). Ambiguous → `needs_human`. Do not claim live agent-misfire SOC.
 

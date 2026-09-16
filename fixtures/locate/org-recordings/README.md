@@ -3,6 +3,15 @@
 Redacted **org** cassettes for CI regression — not product mvp fixtures under
 `fixtures/locate/recordings/`.
 
+**Full runbook:** [`docs/cassette-runbook.md`](../../../docs/cassette-runbook.md) ·
+org path: [`docs/org-ops-runbook.md`](../../../docs/org-ops-runbook.md)
+
+## Sample cassette
+
+`rules-cwe-89.cassette.json` — recorded from
+`fixtures/locate/rules-sample` via `locate --rules` → `record --redact`.
+Human-reviewed shape for CI (`org-path` + `locate-record` jobs).
+
 ## Flow
 
 ```bash

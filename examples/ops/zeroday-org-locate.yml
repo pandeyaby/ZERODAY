@@ -1,0 +1,92 @@
+# Example: org daily-driver locate → SARIF (keyless)
+#
+# Copy into YOUR private repo as `.github/workflows/zeroday-org-locate.yml`
+# after vendoring or npm-installing ZERODAY, OR call the composite Action from
+# a checkout of this repo.
+#
+# Default: rules on the PR / push checkout (authorized snapshot).
+# Optional: set mode=recording + recording=<cassette> for GPU-free regression.
+# Live Antares is NEVER wired here — workstation opt-in only after human spend approval.
+#
+# Full runbook: https://github.com/pandeyaby/ZERODAY/blob/main/docs/org-ops-runbook.md
+# Cassette:     https://github.com/pandeyaby/ZERODAY/blob/main/docs/cassette-runbook.md
+
+name: ZERODAY org locate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Locate door (fixture | rules | recording)"
+        required: false
+        default: rules
+      cwe:
+        description: "CWE id for rules/fixture"
+        required: false
+        default: CWE-89
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+concurrency:
+  group: zeroday-org-locate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  locate:
+    name: Keyless locate → SARIF + PR comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout consumer repo
+        uses: actions/checkout@v4
+
+      # When ZERODAY is a sibling dependency / submodule, adjust paths.
+      # This example assumes the Action is available at ./.github/actions/zeroday-locate-gate
+      # (copy from ZERODAY) OR checkout ZERODAY into _zeroday/ and point `uses:` there.
+      - name: Checkout ZERODAY (for composite Action + CLI)
+        uses: actions/checkout@v4
+        with:
+          repository: pandeyaby/ZERODAY
+          path: _zeroday
+          # Private clone needs a token with contents:read on ZERODAY if not public.
+          # token: ${{ secrets.ZERODAY_READ_TOKEN }}
+
+      - name: List PR diff (context only)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          echo "## PR changed files (context)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          git fetch origin "${{ github.base_ref }}" --depth=1 2>/dev/null || true
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" | head -100 | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: ZERODAY locate gate (keyless)
+        uses: ./_zeroday/.github/actions/zeroday-locate-gate
+        with:
+          # Default org door: rules on THIS checkout (authorized snapshot).
+          # For cassette regression: mode=recording + recording=path/to/cassette.json
+          # For fixture smoke only: mode=fixture + repo=_zeroday/fixtures/locate/demo-app
+          working-directory: _zeroday
+          mode: ${{ github.event.inputs.mode || 'rules' }}
+          cwe: ${{ github.event.inputs.cwe || 'CWE-89' }}
+          # Absolute path so locate still sees the consumer tree from _zeroday cwd
+          repo: ${{ github.workspace }}
+          output: ${{ github.workspace }}/zeroday-reports/org-ci
+          run-unit-tests: "false"
+          upload-sarif: "true"
+          post-comment: "true"
+          fail-on-findings: "false"
+          sarif-category: zeroday-org-rules
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-org-locate
+          path: zeroday-reports/org-ci/
+          if-no-files-found: error

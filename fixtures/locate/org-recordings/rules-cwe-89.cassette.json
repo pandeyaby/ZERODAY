@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zeroday-org-cassette/v1",
+  "redacted": true,
+  "recordedAt": "2026-09-16T04:38:24.649Z",
+  "sourceMode": "rules",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "targetRepo": "<repo>",
+  "model": "zeroday/rules-heuristics",
+  "rankedFiles": [
+    {
+      "filePath": "src/search.js",
+      "rank": 1,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "SQL query built via string concatenation",
+      "evidence": [
+        {
+          "filePath": "src/search.js",
+          "startLine": 9,
+          "endLine": 10,
+          "excerpt": "  const sql =\n    \"SELECT id, total FROM orders WHERE customer_id = '\" + customerId + \"'\";\n  return db.query(sql);",
+          "note": "User-controlled identifier concatenated into SQL-like text — candidate for CWE-89 review. [rule cwe-89/sql-plus-embed-classic]"
+        }
+      ]
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "find",
+      "command": "rules-walk source extensions",
+      "summary": "Rules walk listed 2 source file(s) for CWE-89 heuristics."
+    },
+    {
+      "step": 2,
+      "tool": "grep",
+      "command": "rules:cwe-89 sql-concat / template / format",
+      "summary": "Applied thin in-repo CWE-89 allowlisted patterns (no Semgrep)."
+    },
+    {
+      "step": 3,
+      "tool": "other",
+      "command": "rules:rank",
+      "summary": "Ranked 1 CWE-89 heuristic hit(s) across unique files."
+    },
+    {
+      "step": 4,
+      "tool": "grep",
+      "command": "rules-hit cwe-89/sql-plus-embed-classic src/search.js:9",
+      "summary": "SQL query built via string concatenation @ src/search.js:9"
+    },
+    {
+      "step": 5,
+      "tool": "submit",
+      "command": "submit_vulnerable_files",
+      "summary": "Submitted 1 ranked file(s) from rules heuristics."
+    }
+  ],
+  "warnings": [
+    "Rules mode: thin in-repo CWE heuristics — not Antares inference and not Antares File F1.",
+    "Localization only: ranked files are candidates for human review — not proof of exploitability.",
+    "No Semgrep binary dependency; network=none; Docker not required (CI-safe).",
+    "No PoC / exploit / payload content is emitted.",
+    "Read-only snapshot: 4 files (destroyed after run)",
+    "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
+    "Rules mode is container-free (no Docker / no Semgrep) — CI-safe keyless localize.",
+    "Org cassette (Keyless K3): redacted recording for CI regression — not mvp product fixtures.",
+    "Replay via: zeroday locate --recording <cassette.json>",
+    "Human review required before commit: confirm paths are repo-relative, secret-shaped strings are stripped, and no customer source or tokens remain. Org cassettes are for CI regression — not mvp product fixtures. Never auto-commit / auto-PR / network-exfil cassettes."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 1,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "terminalCallBudget": 5,
+    "terminalCallsUsed": 5
+  },
+  "humanReviewNote": "Human review required before commit: confirm paths are repo-relative, secret-shaped strings are stripped, and no customer source or tokens remain. Org cassettes are for CI regression — not mvp product fixtures. Never auto-commit / auto-PR / network-exfil cassettes."
+}
