@@ -13,6 +13,7 @@ operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
 > - Default path: **`npm run mvp`** (fixture → SARIF; CI / no-GPU; no HF token)
 > - Live Antares is **opt-in** and **costs $** — human accepts HF gated terms + CUDA/vLLM (or documented RunPod Secure A40); ZERODAY never auto-provisions pods
 > - Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · disclosure: [`SECURITY.md`](./SECURITY.md)
+> - Private design partners: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) (honest dry-run; repo may stay private)
 
 ---
 
@@ -580,6 +581,8 @@ Org copy-paste example: [`examples/ops/zeroday-org-locate.yml`](./examples/ops/z
 - **Local brain honesty** — arbitrary Ollama/vLLM/LM Studio models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available
 
 Full Q&A: [`docs/faq.md`](./docs/faq.md) · also in the play UI FAQ tab (`npm run play` → Desk Console home; FAQ is a tab).
+
+Private design-partner one-pager (no public-readiness claim): [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 
 [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · [`SECURITY.md`](./SECURITY.md)
 
