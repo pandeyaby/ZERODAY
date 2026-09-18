@@ -1,17 +1,19 @@
-# Org ops runbook — private clone → locate → SARIF
+# Org ops runbook — authorized clone → locate → SARIF
 
-Short daily-driver path for a **private org / design-partner** team that wants
+Short daily-driver path for an **org / design-partner** team that wants
 ZERODAY left on forever in CI and on the workstation — without inventing
 findings, without auto-merge, and without silent GPU spend.
 
-> Localization ≠ exploitability. Human in the loop. No PoC / exploit / payload.
-> Action default is **keyless**. Live Antares is **opt-in** and human-gated.
+> This ZERODAY repo is **public** OSS. **Customer source you assess must stay
+> private / local.** Localization ≠ exploitability. Human in the loop.
+> No PoC / exploit / payload. Action default is **keyless**. Live Antares is
+> **opt-in** and human-gated. **Not a Cisco product.**
 
 ## Prerequisites
 
 | Need | Notes |
 |------|--------|
-| Authorized local / private clone | You own or are authorized to assess the tree ([`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md)) |
+| Authorized local clone of the tree under assessment | You own or are authorized to assess it ([`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md)); keep that source private |
 | Node 20+ | `npm install` / `npm ci` |
 | GitHub Code Scanning (optional) | For SARIF upload; Action uses `security-events: write` |
 | **No** HF token / GPU for the default path | Fixture, rules, ingest, cassette replay are $0 |
@@ -50,7 +52,7 @@ Do **not** claim Antares File F1 for arbitrary Ollama models or for `--rules`.
 Leave [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
 on in this repo (fixture + org-path jobs), **or** copy
 [`examples/ops/zeroday-org-locate.yml`](../examples/ops/zeroday-org-locate.yml)
-into a consumer private repo.
+into a consumer repo that holds the private tree under assessment.
 
 Composite Action: [`.github/actions/zeroday-locate-gate`](../.github/actions/zeroday-locate-gate/)
 
@@ -75,7 +77,7 @@ after publish when candidates exist (still not exploit proof).
 ## Workstation Desk path (keyless)
 
 ```bash
-git clone <your-private-zeroday-or-fork> && cd ZERODAY
+git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run play   # Desk Console — Reports & cassettes, Live brain (spend-gated)
 # or headless:
@@ -85,7 +87,8 @@ npm run zeroday -- packet && npm run zeroday -- harden
 ```
 
 Desk is config inventory / packet / harden / classify / craft — **not** vuln discovery.
-Use locate doors above for localization candidates.
+Use locate doors above for localization candidates. Keep the authorized app tree
+private; do not publish customer source into this public repo.
 
 ## Spend gates (human must approve GPU)
 
@@ -104,6 +107,7 @@ Use locate doors above for localization candidates.
 - **No** PoC / exploit / payload / attack procedure
 - **No** auto-merge; patch drafts only with `--i-asked-for-a-fix`
 - **No** public flip of private customer source
+- **No** auto GPU / paid endpoint spend
 - **No** fake metrics / F1 claims for rules, ingest, cassette, or arbitrary local models
 - Org cassettes require human redaction review before commit ([cassette runbook](./cassette-runbook.md))
 
@@ -111,6 +115,7 @@ Use locate doors above for localization candidates.
 
 | Doc | Why |
 |-----|-----|
+| [design-partner-trust.md](./design-partner-trust.md) | Honest trust pack (public OSS; customer source private) |
 | [cassette-runbook.md](./cassette-runbook.md) | `record --redact` → replay without live GPU |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
 | [local-brain.md](./local-brain.md) | Any local completions host (honest ≠ Antares F1) |

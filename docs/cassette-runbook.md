@@ -69,7 +69,7 @@ UI refuses `--no-redact`) → Replay. Path sandbox matches Desk commands.
 
 ## Related
 
-- [org-ops-runbook.md](./org-ops-runbook.md) — private org forever path
+- [org-ops-runbook.md](./org-ops-runbook.md) — org forever path (customer source stays private)
 - Root README § Org CI cassettes
 - [`docs/cli-api.md`](./cli-api.md) — `record` / `locate --recording`
 - Soft MVP Desk UI-2 (Reports & cassettes)
