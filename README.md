@@ -58,6 +58,23 @@ have a completions host). Desk runs on **your** tree without Antares — it is
 not vuln discovery. Deeper walkthrough:
 [`docs/howto.md`](./docs/howto.md) · [`docs/getting-started.md`](./docs/getting-started.md)
 
+### Watch the Desk
+
+No clone required — play inline on github.com (or open the file view).
+
+<video src="./artifacts/desk-ui-demo/desk-console-keyless-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/04-locate-result.png">
+  <a href="./artifacts/desk-ui-demo/desk-console-keyless-demo.webm">Keyless Desk demo</a>
+</video>
+
+<video src="./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/live-06-locate-result.png">
+  <a href="./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm">Live Antares Desk demo</a>
+</video>
+
+[Open keyless demo](./artifacts/desk-ui-demo/desk-console-keyless-demo.webm) ·
+[Open live Antares demo](./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm)
+
+Keyless = `$0` fixture path; live clip = opt-in completions host you run (not Cisco hosting); localization only — no PoC. Re-record notes: [`artifacts/desk-ui-demo/README.md`](./artifacts/desk-ui-demo/README.md).
+
 ---
 
 ## How it works
