@@ -18,9 +18,14 @@ import {
   runLiveAction,
   runLiveDoctor,
   runLiveLocate,
+  runLiveValidate,
+  resolveValidateTarget,
+  isAntaresShaped,
   LiveEndpointError,
   DESK_ENDPOINT_REL,
   DESK_ENDPOINT_SCHEMA,
+  LIVE_VALIDATE_DEFAULT_REPO,
+  LIVE_VALIDATE_DEFAULT_CWE,
 } from "../../src/desk/live-endpoint.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -377,6 +382,127 @@ describe("live endpoint wizard (UI-3)", () => {
         }),
       (e: Error) =>
         e instanceof PathPolicyError || /escapes sandbox/i.test(e.message),
+    );
+  });
+
+  it("isAntaresShaped accepts Antares ids and rejects llama chat models", () => {
+    assert.equal(isAntaresShaped("fdtn-ai/antares-1b"), true);
+    assert.equal(isAntaresShaped("antares-350m"), true);
+    assert.equal(isAntaresShaped("antares-1b"), true);
+    assert.equal(isAntaresShaped("llama3.2:3b"), false);
+    assert.equal(isAntaresShaped("local-model"), false);
+  });
+
+  it("resolveValidateTarget prefers last-good Antares over a saved llama chat model", () => {
+    // Stranger Mac verify tree: prior save pointed at Ollama llama3.2
+    saveLiveEndpointConfig(
+      {
+        preset: "local-openai",
+        endpoint: "http://127.0.0.1:11434/v1",
+        model: "llama3.2:3b",
+        remoteInference: false,
+        lastGoodAntares: {
+          endpoint: "http://127.0.0.1:8000/v1",
+          model: "fdtn-ai/antares-1b",
+          remoteInference: false,
+          updatedAt: new Date().toISOString(),
+        },
+      },
+      { cwd },
+    );
+    const t = resolveValidateTarget({ cwd });
+    assert.equal(t.source, "last-good-antares");
+    assert.equal(t.endpoint, "http://127.0.0.1:8000/v1");
+    assert.equal(t.model, "fdtn-ai/antares-1b");
+    assert.ok(isAntaresShaped(t.model));
+  });
+
+  it("resolveValidateTarget falls back to Antares-1B defaults when only llama is saved", () => {
+    saveLiveEndpointConfig(
+      {
+        preset: "local-openai",
+        endpoint: "http://127.0.0.1:11434/v1",
+        model: "llama3.2:3b",
+        remoteInference: false,
+      },
+      { cwd },
+    );
+    const t = resolveValidateTarget({ cwd });
+    assert.equal(t.source, "antares-1b-default");
+    assert.equal(t.endpoint, "http://127.0.0.1:8000/v1");
+    assert.match(t.model, /antares/i);
+  });
+
+  it("validate runs doctor on Antares target and opens spend prefill when healthy", async () => {
+    const result = await runLiveValidate({
+      action: "validate",
+      cwd,
+      probeResult: {
+        ok: true,
+        endpoint: "http://127.0.0.1:8000/v1/completions",
+        modelsUrl: "http://127.0.0.1:8000/v1/models",
+        detail: "GET mocked → 200 (1 model(s))",
+        modelIds: ["fdtn-ai/antares-1b"],
+      },
+    });
+    assert.equal(result.kind, "live-validate");
+    assert.equal(result.ok, true);
+    assert.equal(result.readyForSpendConfirm, true);
+    assert.equal(result.locatePrefill.repo, LIVE_VALIDATE_DEFAULT_REPO);
+    assert.equal(result.locatePrefill.cwe, LIVE_VALIDATE_DEFAULT_CWE);
+    assert.match(result.target.model, /antares/i);
+    assert.ok(result.lastGoodAntares);
+    assert.equal(result.lastGoodAntares?.endpoint, "http://127.0.0.1:8000/v1");
+
+    // Persisted last-good so a later llama save cannot steal the default
+    const loaded = loadLiveEndpointConfig({ cwd });
+    assert.ok(loaded.config?.lastGoodAntares);
+    assert.match(loaded.config!.lastGoodAntares!.model, /antares/i);
+  });
+
+  it("validate returns empty-state copy when doctor cannot reach endpoint", async () => {
+    const result = await runLiveValidate({
+      action: "validate",
+      cwd,
+      probeResult: {
+        ok: false,
+        endpoint: "http://127.0.0.1:8000/v1/completions",
+        modelsUrl: "http://127.0.0.1:8000/v1/models",
+        detail: "GET mocked → connection refused",
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.readyForSpendConfirm, false);
+    assert.ok(result.emptyState);
+    assert.match(result.emptyState!, /\/v1|completions|paste/i);
+    assert.ok(result.docs.length >= 1);
+  });
+
+  it("validate via runLiveAction still requires spend ACK before locate", async () => {
+    const v = await runLiveAction({
+      action: "validate",
+      cwd,
+      probeResult: {
+        ok: true,
+        endpoint: "http://127.0.0.1:8000/v1/completions",
+        modelsUrl: "http://127.0.0.1:8000/v1/models",
+        detail: "ok",
+        modelIds: ["fdtn-ai/antares-1b"],
+      },
+    });
+    assert.equal(v.kind, "live-validate");
+    await assert.rejects(
+      () =>
+        runLiveLocate({
+          action: "locate",
+          endpoint: (v as { target: { endpoint: string } }).target.endpoint,
+          model: (v as { target: { model: string } }).target.model,
+          repo: LIVE_VALIDATE_DEFAULT_REPO,
+          spendAcknowledged: false,
+          cwd,
+        }),
+      (e: Error) =>
+        e instanceof LiveEndpointError && e.code === "SPEND_ACK_REQUIRED",
     );
   });
 });
