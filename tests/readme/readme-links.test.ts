@@ -7,8 +7,9 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 describe("README adoption path sanity", () => {
-  it("leads with MVP door + hard limits, then opt-in live Antares (costs $)", () => {
+  it("leads with Start-in-2-minutes + hard limits, then opt-in live Antares (costs $)", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    const pathsDoc = fs.readFileSync(path.join(root, "docs/paths.md"), "utf8");
 
     assert.match(readme, /Hard limits/i);
     assert.match(readme, /No PoCs|no PoC/i);
@@ -17,13 +18,19 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /SECURITY\.md/);
     assert.match(readme, /Apache-2\.0|LICENSE/);
 
-    // Single front door: MVP before live
-    const mvpIdx = readme.indexOf("## MVP path");
-    const liveIdx = readme.indexOf("## Live Antares");
+    // Single front door: Start / MVP before live
+    const startIdx = Math.max(
+      readme.indexOf("## Start in 2 minutes"),
+      readme.indexOf("## MVP path"),
+    );
+    const liveIdx = Math.max(
+      readme.indexOf("## When you want live Antares"),
+      readme.indexOf("## Live Antares"),
+    );
     const defaultIdx = readme.indexOf("## Default path");
-    assert.ok(mvpIdx >= 0, "missing MVP path section");
-    assert.ok(liveIdx >= 0, "missing Live Antares section");
-    assert.ok(mvpIdx < liveIdx, "MVP path must precede Live Antares");
+    assert.ok(startIdx >= 0, "missing Start in 2 minutes / MVP path section");
+    assert.ok(liveIdx >= 0, "missing live Antares section");
+    assert.ok(startIdx < liveIdx, "Start/MVP path must precede Live Antares");
     assert.ok(
       defaultIdx < 0 || liveIdx < defaultIdx,
       "Live Antares teaser should stay above deep Default path details",
@@ -45,7 +52,8 @@ describe("README adoption path sanity", () => {
       readme,
       /cisco-foundation-ai\/cookbook\/blob\/main\/1_quickstarts\/Quickstart_Antares\.md/,
     );
-    assert.match(readme, /uv tool install cisco-antares-cli/);
+    // Deep install / live details live in docs/paths.md (README stays skim-first)
+    assert.match(pathsDoc, /uv tool install cisco-antares-cli/);
     assert.match(
       readme,
       /locate[\s\S]*--endpoint http:\/\/127\.0\.0\.1:8000\/v1/,
@@ -60,6 +68,7 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /\/v1\/completions/);
     assert.match(readme, /--fixture/);
     assert.match(readme, /docs\/runpod-antares\.md/);
+    assert.match(readme, /docs\/paths\.md/);
   });
 
   it("quickstart-live.sh refuses fixture fallback and probes endpoint", () => {
@@ -80,18 +89,18 @@ describe("README adoption path sanity", () => {
     assert.match(script, /mode.*live|expected 'live'/);
   });
 
-  it("documents Mac MPS float32 server and model default", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
-    assert.match(readme, /completions_server\.py/);
-    assert.match(readme, /float32/i);
-    assert.match(readme, /float16/i);
-    assert.match(readme, /malformed tool_call|tool-schema unreliable|tool_call JSON/i);
-    assert.match(readme, /vLLM\/CUDA|vLLM on CUDA/i);
-    assert.match(readme, /does not soft-rewrite|does not rewrite/i);
-    assert.match(readme, /MPS|Apple Silicon/);
-    assert.match(readme, /fdtn-ai\/antares-1b/);
-    assert.match(readme, /Incomplete runs|submit_vulnerable_files|no invented findings/i);
-    assert.match(readme, /--tool-budget/);
+  it("documents Mac MPS float32 server and model default (deep paths doc)", () => {
+    const pathsDoc = fs.readFileSync(path.join(root, "docs/paths.md"), "utf8");
+    assert.match(pathsDoc, /completions_server\.py/);
+    assert.match(pathsDoc, /float32/i);
+    assert.match(pathsDoc, /float16/i);
+    assert.match(pathsDoc, /malformed tool_call|tool-schema unreliable|tool_call JSON/i);
+    assert.match(pathsDoc, /vLLM\/CUDA|vLLM on CUDA/i);
+    assert.match(pathsDoc, /does not soft-rewrite|does not rewrite/i);
+    assert.match(pathsDoc, /MPS|Apple Silicon/);
+    assert.match(pathsDoc, /fdtn-ai\/antares-1b/);
+    assert.match(pathsDoc, /Incomplete runs|submit_vulnerable_files|no invented findings/i);
+    assert.match(pathsDoc, /--tool-budget/);
     assert.ok(
       fs.existsSync(path.join(root, "scripts/completions_server.py")),
     );
@@ -109,9 +118,12 @@ describe("README adoption path sanity", () => {
   it("Proof section links sample SARIF + images (no private paths)", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const proofIdx = readme.indexOf("## Proof");
-    const mvpIdx = readme.indexOf("## MVP path");
+    const startIdx = Math.max(
+      readme.indexOf("## Start in 2 minutes"),
+      readme.indexOf("## MVP path"),
+    );
     assert.ok(proofIdx >= 0, "missing Proof section");
-    assert.ok(mvpIdx >= 0 && mvpIdx < proofIdx, "MVP path must lead before Proof");
+    assert.ok(startIdx >= 0 && startIdx < proofIdx, "Start/MVP path must lead before Proof");
     assert.match(readme, /examples\/sample-live-sarif\/report\.sarif/);
     assert.match(readme, /docs\/images\/zeroday-locate-cli\.png/);
     assert.match(readme, /docs\/images\/zeroday-sarif-findings\.png/);

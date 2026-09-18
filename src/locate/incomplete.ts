@@ -63,7 +63,7 @@ const TIP_COMPLETIONS =
   "Confirm endpoint is POST /v1/completions only — /v1/chat/completions breaks the Antares tool prompt.";
 const TIP_NO_FAKE =
   "Do not invent findings. Incomplete ≠ clean negative; re-run or triage the exploration trace.";
-const TIP_DOCS = "See README § Live incomplete runs and docs/antares.md.";
+const TIP_DOCS = "See docs/paths.md (Live Antares) and docs/antares.md.";
 
 export function defaultIncompleteTips(klass: IncompleteClass): string[] {
   switch (klass) {

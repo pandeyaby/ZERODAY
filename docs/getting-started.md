@@ -1,32 +1,54 @@
 # Getting started
 
-## MVP path (keyless, &lt;10 min)
+Follow the [root README](../README.md) skim path first. This page is the same
+doors with a little more detail — not a second encyclopedia.
+
+## 1. Start in 2 minutes (keyless)
 
 ```bash
 git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
 npm run mvp
-# optional: npm run play → http://localhost:3333/play (Desk Console home)
 ```
 
-Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No spend.
+Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No
+spend. Same door as `locate --fixture`.
 
-## Local OpenAI-compatible brain (Keyless K4, print-only)
+Checklist mirror: [`first-time-users.md`](./first-time-users.md)
+
+## 2. Desk Console (optional UI)
 
 ```bash
-npm run zeroday -- doctor   # $0 checklist — no download / auto-start
-# After YOU start a completions host on loopback:
-npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
-  --endpoint http://127.0.0.1:8000/v1 --model <your-model-id>
+npm run play
+# → http://localhost:3333/play
 ```
 
-Completions-only (`POST /v1/completions`). Chat-only hosts refused. Arbitrary local
-models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
+Desk wraps locate `--rules` / `--from-sarif` and
+`inventory → packet → harden → classify → craft` in-process (path-sandboxed
+under cwd / `ZERODAY_UI_ROOTS`). Commands stay keyless (no silent spend).
 
-## Live Antares (opt-in, costs $)
+**Reports & cassettes:** list `zeroday-reports/`, record a redacted org cassette
+(redact always ON), replay with `mode: "recording"`. Org cassettes are CI
+regression — not discovery. See [`cassette-runbook.md`](./cassette-runbook.md).
+
+**Live brain:** configure a completions endpoint (Antares-1B recommended; or
+local OpenAI-compatible). Save → doctor → spend banner → live locate.
+Non-loopback needs the remote-inference checkbox. No auto RunPod / auto-spend.
+Optional Antares-350M via Ollama (import yourself; no F1 claim):
+[`antares-350m-ollama.md`](./antares-350m-ollama.md).
+
+**Validate live (≤60s):** with a healthy completions endpoint already running,
+click **Validate live (≤60s)** — applies Antares-1B / last-good Antares
+(ignores a stray `llama3.2` save), runs doctor, then opens the spend confirm
+prefilled with `fixtures/locate/rules-sample` + `CWE-89`. CLI mirror:
+`npm run zeroday -- live validate` (add `--spend-ack` for one explicit locate).
+
+Person / org habits: [`howto.md`](./howto.md)
+
+## 3. When you want live Antares (opt-in, costs $)
 
 ```bash
-npm run zeroday -- antares doctor   # print-only checklist — no spend
+npm run zeroday -- antares doctor   # print-only — no spend
 # Human: accept terms at https://huggingface.co/fdtn-ai/antares-1b
 # Provision Secure A40 yourself (docs/runpod-antares.md), serve vLLM, then:
 
@@ -36,50 +58,19 @@ npm run zeroday -- locate --repo /path/to/authorized/repo --cwe CWE-89 \
 # Then terminate the pod.
 ```
 
-Live path **refuses** silent fixture/mock fallback when `--endpoint` / `--live` is set.
-Remote endpoints need `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`.
+Live path **refuses** silent fixture fallback when `--endpoint` / `--live` is
+set. Remote endpoints need `--remote-inference` /
+`ZERODAY_REMOTE_INFERENCE_ACK=1`.
 
-## Desk Console UI
-
-```bash
-npm run play
-# → http://localhost:3333/play  (Desk Console default; FAQ + fixture smoke as tabs)
-```
-
-Desk Console wraps locate `--rules` / `--from-sarif` and Desk
-`inventory → packet → harden → classify → craft` **in-process** (path-sandboxed
-under cwd / `ZERODAY_UI_ROOTS`). Commands tab stays keyless (no silent spend).
-
-**Reports & cassettes** (UI-2): after a Desk run, open the Reports panel to list
-`zeroday-reports/`, preview locate summaries (copy paths only), then
-**record** a redacted org cassette (redact always ON — UI refuses `--no-redact`)
-and **replay** with honest `mode: "recording"`. Org cassettes are for CI
-regression — not discovery. UI-2’s “No live Antares” note meant that validate
-path didn’t exercise spend — the live CLI path already existed via
-`locate --endpoint` + `doctor`.
-
-**Live brain** (UI-3): open the **Live brain** tab to configure a completions
-endpoint in seconds — presets for **Antares-1B** (HF gated; accept terms
-yourself), optional **Antares-350M (Ollama)** (HF gated note; you import the
-model first — no auto-download; no F1 claim; see
-[`antares-350m-ollama.md`](./antares-350m-ollama.md)), and **local
-OpenAI-compatible** (Ollama / vLLM / LM Studio). Save to sandboxed
-`.zeroday/desk-endpoint.json` (env var *name* only for tokens — never the
-secret). **Doctor ping** reuses the K4 checklist. **Run live locate** only
-after the spend banner confirm; non-loopback needs the remote-inference
-checkbox. No auto RunPod / auto-spend.
-
-**Validate live in under a minute:** with a healthy completions endpoint already
-running, click **Validate live (≤60s)** — applies Antares-1B / last-good Antares
-(ignores a stray `llama3.2` save), runs doctor, then opens the spend confirm
-prefilled with `fixtures/locate/rules-sample` + `CWE-89`. CLI mirror:
-`npm run zeroday -- live validate` (add `--spend-ack` for one explicit locate).
+Any local completions host without Antares weights (Keyless K4):
 
 ```bash
-npm run play
-# → Live brain → Validate live (≤60s)
-# advanced: pick preset → Save → Doctor ping → spend banner → locate
+npm run zeroday -- doctor   # $0 checklist
+# → docs/local-brain.md
 ```
 
-Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.
-Full details: root [`README.md`](../README.md) · [`local-brain.md`](./local-brain.md) · [`antares-350m-ollama.md`](./antares-350m-ollama.md) · [`runpod-antares.md`](./runpod-antares.md) · [`antares.md`](./antares.md).
+Install steps, MPS caveats, incomplete-run classes, Desk chain, Action, cheat
+sheet: [`paths.md`](./paths.md) · RunPod: [`runpod-antares.md`](./runpod-antares.md)
+
+Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before
+assessing any repo you do not own.
