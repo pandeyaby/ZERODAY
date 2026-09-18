@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability in ZERODAY
+    url: https://github.com/pandeyaby/ZERODAY/security/advisories/new
+    about: Report a vulnerability in this repository privately. Do not post exploit details, PoCs, or payloads in public issues. See SECURITY.md.
+  - name: Security policy
+    url: https://github.com/pandeyaby/ZERODAY/blob/main/SECURITY.md
+    about: How to disclose issues in ZERODAY itself (private reporting preferred).
+  - name: Getting help (docs)
+    url: https://github.com/pandeyaby/ZERODAY/blob/main/SUPPORT.md
+    about: Docs index, product Q via Issues, and what is out of scope. Not Cisco support; no SLA.

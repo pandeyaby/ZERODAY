@@ -14,7 +14,7 @@ operate → ranked files + **SARIF** + hashed evidence.
 > - Default path: **`npm run mvp`** (fixture → SARIF; CI / no-GPU; no HF token)
 > - Live Antares is **opt-in** and **costs $** — human accepts HF gated terms + CUDA/vLLM (or documented RunPod Secure A40); ZERODAY never auto-provisions pods
 > - This repo is **public**; **customer source you assess must stay private** / local unless you explicitly ACK remote inference
-> - Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · disclosure: [`SECURITY.md`](./SECURITY.md)
+> - Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · disclosure: [`SECURITY.md`](./SECURITY.md) · help: [`SUPPORT.md`](./SUPPORT.md)
 > - Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) (honest dry-run; no F1 marketing claims)
 
 ---
