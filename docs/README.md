@@ -5,6 +5,7 @@
 | [defense-factory.md](./defense-factory.md) | Localization & Evidence Defense Factory north star |
 | [runpod-antares.md](./runpod-antares.md) | Recommended remote CUDA path (RunPod + vLLM) |
 | [remote-antares-vllm.md](./remote-antares-vllm.md) | Host-agnostic remote completions contract |
+| [paths.md](./paths.md) | Every locate door · Desk chain · live install · Action · cheat sheet (deep README spill) |
 | [howto.md](./howto.md) | Person + org usage + playground |
 | [org-ops-runbook.md](./org-ops-runbook.md) | Org forever path — Action + keyless vs live + spend gates (customer source stays private) |
 | [cassette-runbook.md](./cassette-runbook.md) | `record --redact` → `locate --recording` (GPU-free regression) |
@@ -21,7 +22,8 @@
 | [sandbox.md](./sandbox.md) | Live Docker network=none |
 | [cli-api.md](./cli-api.md) | CLI reference |
 | [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden · Desk E classify · Desk D craft samples |
-| [getting-started.md](./getting-started.md) | Quick start |
+| [getting-started.md](./getting-started.md) | Quick start (aligns with root README skim path) |
+| [first-time-users.md](./first-time-users.md) | Three-step stranger checklist |
 | [SUPPORT.md](../SUPPORT.md) | How to get help (docs · Issues · SECURITY.md; no SLA; not Cisco support) |
 | [SCOPE_AND_AUTHORIZATION.md](../SCOPE_AND_AUTHORIZATION.md) | Defensive scope |
 

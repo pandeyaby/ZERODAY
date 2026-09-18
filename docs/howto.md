@@ -1,6 +1,8 @@
 # How to use ZERODAY
 
 > Best way for a person, how orgs should use it, and the local fixture playground.
+> Strangers: start at the [root README](../README.md) (`npm run mvp`), then
+> [`getting-started.md`](./getting-started.md). Full door map: [`paths.md`](./paths.md).
 
 [Open in app](http://localhost:3333/play) · Operator tab **How orgs use this**
 

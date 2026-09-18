@@ -10,7 +10,11 @@ maintainers triage best-effort when available.
 
 | Need | Doc |
 |------|-----|
-| Quick start / keyless MVP | [`docs/getting-started.md`](./docs/getting-started.md) |
+| Skim + act (root) | [`README.md`](./README.md) — Start in 2 minutes → Desk → live |
+| First-time checklist | [`docs/first-time-users.md`](./docs/first-time-users.md) |
+| Getting started (same doors, more detail) | [`docs/getting-started.md`](./docs/getting-started.md) |
+| Every locate door / Desk chain / cheat sheet | [`docs/paths.md`](./docs/paths.md) |
+| Person + org habits | [`docs/howto.md`](./docs/howto.md) |
 | Org forever path (Action, spend gates) | [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md) |
 | Design-partner trust pack | [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) |
 | Full docs index | [`docs/README.md`](./docs/README.md) |

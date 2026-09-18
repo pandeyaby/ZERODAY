@@ -103,4 +103,4 @@ honest failure, not a silent fixture fallback.
 - [`local-brain.md`](./local-brain.md) — any local completions host (Keyless K4)
 - [`antares.md`](./antares.md) — official CLI + Antares-1B recommended path
 - Desk **Live brain** presets — `antares-350m-ollama` in `src/desk/live-endpoint.ts`
-- Root README § Live brain / Local brain
+- Root README → Live brain · [`paths.md`](./paths.md) · [`local-brain.md`](./local-brain.md)
