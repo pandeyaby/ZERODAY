@@ -475,7 +475,9 @@ npm test
 npm run test:desk
 ```
 
-Paced Desk demos for strangers (one-click from root README): [`artifacts/desk-ui-demo/`](../artifacts/desk-ui-demo/).
+Paced Desk demos for strangers (one-click from root README via
+[`desk-demos` release](https://github.com/pandeyaby/ZERODAY/releases/tag/desk-demos);
+posters + re-record notes: [`artifacts/desk-ui-demo/`](../artifacts/desk-ui-demo/)).
 
 Desk unit tests cover **UI-2** reports/cassettes and **UI-3** live-endpoint.
 CI runs them via the `desk-ui` job and via `npm test` in the locate gate.

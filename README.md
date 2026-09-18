@@ -60,18 +60,21 @@ not vuln discovery. Deeper walkthrough:
 
 ### Watch the Desk
 
-No clone required — play inline on github.com (or open the file view).
+No clone required — play inline on github.com from the release CDN.
 
-<video src="./artifacts/desk-ui-demo/desk-console-keyless-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/04-locate-result.png">
-  <a href="./artifacts/desk-ui-demo/desk-console-keyless-demo.webm">Keyless Desk demo</a>
+GitHub’s file browser can’t preview large videos — play from this README or the
+[`desk-demos` release](https://github.com/pandeyaby/ZERODAY/releases/tag/desk-demos).
+
+<video src="https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-keyless-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/04-locate-result.png">
+  <a href="https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-keyless-demo.webm">Keyless Desk demo</a>
 </video>
 
-<video src="./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/live-06-locate-result.png">
-  <a href="./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm">Live Antares Desk demo</a>
+<video src="https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-live-antares-demo.webm" controls width="100%" poster="./artifacts/desk-ui-demo/live-06-locate-result.png">
+  <a href="https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-live-antares-demo.webm">Live Antares Desk demo</a>
 </video>
 
-[Open keyless demo](./artifacts/desk-ui-demo/desk-console-keyless-demo.webm) ·
-[Open live Antares demo](./artifacts/desk-ui-demo/desk-console-live-antares-demo.webm)
+[Open keyless demo](https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-keyless-demo.webm) ·
+[Open live Antares demo](https://github.com/pandeyaby/ZERODAY/releases/download/desk-demos/desk-console-live-antares-demo.webm)
 
 Keyless = `$0` fixture path; live clip = opt-in completions host you run (not Cisco hosting); localization only — no PoC. Re-record notes: [`artifacts/desk-ui-demo/README.md`](./artifacts/desk-ui-demo/README.md).
 
