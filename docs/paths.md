@@ -469,9 +469,13 @@ npm run zeroday -- factory run --cwe CWE-89 --fixture --defend
 npm run zeroday -- classify --scenario possible_breach
 npm run zeroday -- demo
 npm run operator   # local Desk Console / Operator UI on :3333
+npm run demo:desk:keyless   # re-record paced keyless Desk webm (needs npm run play)
+npm run demo:desk:live      # re-record live Desk webm (local completions + play)
 npm test
 npm run test:desk
 ```
+
+Paced Desk demos for strangers (one-click from root README): [`artifacts/desk-ui-demo/`](../artifacts/desk-ui-demo/).
 
 Desk unit tests cover **UI-2** reports/cassettes and **UI-3** live-endpoint.
 CI runs them via the `desk-ui` job and via `npm test` in the locate gate.

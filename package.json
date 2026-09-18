@@ -31,6 +31,8 @@
     "factory": "tsx cli/index.ts factory",
     "quickstart:live": "bash scripts/quickstart-live.sh",
     "demo:proof": "bash scripts/demo-proof.sh",
+    "demo:desk:keyless": "node scripts/desk-ui-keyless-demo.mjs",
+    "demo:desk:live": "node scripts/desk-ui-live-demo.mjs",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "export": "tsx cli/index.ts export",
