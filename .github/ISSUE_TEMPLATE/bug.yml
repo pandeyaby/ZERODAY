@@ -1,0 +1,101 @@
+name: Bug report
+description: Report a crash, incorrect packaging, CLI/Action failure, or docs mismatch in ZERODAY.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug in **ZERODAY**.
+
+        - Localization ≠ exploitability. Do **not** attach PoCs, exploits, payloads, or attack procedures.
+        - Do **not** paste customer source, secrets, or HF / cloud credentials.
+        - Vulnerabilities **in ZERODAY itself** → private reporting via [SECURITY.md](https://github.com/pandeyaby/ZERODAY/blob/main/SECURITY.md), not this form.
+        - Help / docs: [SUPPORT.md](https://github.com/pandeyaby/ZERODAY/blob/main/SUPPORT.md) (no SLA; not Cisco support).
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong in one or two sentences?
+      placeholder: e.g. `npm run mvp` fails after install with exit code 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: High-level steps only. Fixture / public demo paths preferred. No weaponized reproduction.
+      placeholder: |
+        1. `npm install`
+        2. `npm run mvp`
+        3. Observe failure …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Include relevant error text (redact secrets).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: path
+    attributes:
+      label: Path used
+      description: Keyless (fixture / rules / ingest / cassette) vs live / remote inference.
+      options:
+        - Keyless — fixture / mvp
+        - Keyless — rules
+        - Keyless — SARIF ingest
+        - Keyless — cassette / recording replay
+        - Keyless — local OpenAI-compatible brain (K4)
+        - Live Antares (opt-in endpoint)
+        - GitHub Action / org locate
+        - Coding-agent operate / emit-brief
+        - Other / unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, ZERODAY commit/tag, and (if live) host type — no credentials.
+      placeholder: |
+        - OS:
+        - Node:
+        - ZERODAY commit / tag:
+        - Endpoint host (if live; e.g. local vLLM / RunPod — no URLs with tokens):
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / output
+      description: Paste truncated, redacted CLI or Action logs. No secrets, no customer source, no PoC payloads.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I am reporting a defect in ZERODAY tooling/docs — not requesting a PoC, exploit, or proof of exploitability.
+          required: true
+        - label: I have not included secrets, customer source, or exploit details in this issue.
+          required: true

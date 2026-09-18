@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest a defensive product improvement for ZERODAY (not exploits or PoC tooling).
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Propose a **defensive** improvement to ZERODAY (localization harness, evidence, Desk, docs, CI).
+
+        **Rejected / out of scope**
+        - PoC, exploit, payload, or attack-procedure generators
+        - “Prove this CWE is exploitable” tooling
+        - Auto-merge of fixes or silent live→fixture fallback
+        - Anything that conflicts with [SCOPE_AND_AUTHORIZATION.md](https://github.com/pandeyaby/ZERODAY/blob/main/SCOPE_AND_AUTHORIZATION.md)
+
+        Help / docs: [SUPPORT.md](https://github.com/pandeyaby/ZERODAY/blob/main/SUPPORT.md) · security in ZERODAY itself: [SECURITY.md](https://github.com/pandeyaby/ZERODAY/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What defensive workflow is painful or missing today?
+      placeholder: e.g. Org Action docs are hard to find from the stranger path
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What should ZERODAY do differently? Keep it localization / evidence / packaging oriented.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Docs / SUPPORT
+        - CLI (locate / operate / verify / factory)
+        - GitHub Action
+        - Desk / playground
+        - Evidence / SARIF / exporters
+        - Cassette / recordings
+        - Agent operator brief
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: This request is not for PoCs, exploits, payloads, attack procedures, or exploitability proof tooling.
+          required: true
+        - label: I understand localization ≠ exploitability and `needs_human` remains required.
+          required: true

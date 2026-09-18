@@ -22,6 +22,7 @@
 | [cli-api.md](./cli-api.md) | CLI reference |
 | [reports/README.md](./reports/README.md) | Desk B inventory · Desk A packet · Desk C harden · Desk E classify · Desk D craft samples |
 | [getting-started.md](./getting-started.md) | Quick start |
+| [SUPPORT.md](../SUPPORT.md) | How to get help (docs · Issues · SECURITY.md; no SLA; not Cisco support) |
 | [SCOPE_AND_AUTHORIZATION.md](../SCOPE_AND_AUTHORIZATION.md) | Defensive scope |
 
 Local UI: `npm run play` → http://localhost:3333/play
