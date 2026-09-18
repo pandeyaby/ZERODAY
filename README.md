@@ -2,9 +2,10 @@
 
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
-Local-first defensive vulnerability **localization** around
+**Public OSS · Apache-2.0 · not a Cisco product.** Local-first defensive
+vulnerability **localization** around
 [Antares](https://cisco-foundation-ai.github.io/antares/) — keyless fixture /
-operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
+operate → ranked files + **SARIF** + hashed evidence.
 
 > **Hard limits**
 >
@@ -12,8 +13,9 @@ operate → ranked files + **SARIF** + hashed evidence. **Not a Cisco product.**
 > - Localization ≠ proof of exploitability · `needs_human` always · never auto-merge
 > - Default path: **`npm run mvp`** (fixture → SARIF; CI / no-GPU; no HF token)
 > - Live Antares is **opt-in** and **costs $** — human accepts HF gated terms + CUDA/vLLM (or documented RunPod Secure A40); ZERODAY never auto-provisions pods
+> - This repo is **public**; **customer source you assess must stay private** / local unless you explicitly ACK remote inference
 > - Acceptable use / scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · disclosure: [`SECURITY.md`](./SECURITY.md)
-> - Private design partners: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) (honest dry-run; repo may stay private)
+> - Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) (honest dry-run; no F1 marketing claims)
 
 ---
 
@@ -564,7 +566,7 @@ Workflow: [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-l
 Action: [`.github/actions/zeroday-locate-gate`](./.github/actions/zeroday-locate-gate/) ·
 Org copy-paste example: [`examples/ops/zeroday-org-locate.yml`](./examples/ops/zeroday-org-locate.yml)
 
-**Runbooks:** [Org ops (private forever path)](./docs/org-ops-runbook.md) ·
+**Runbooks:** [Org ops (keyless forever path)](./docs/org-ops-runbook.md) ·
 [Cassette record/replay](./docs/cassette-runbook.md)
 
 ---
@@ -582,7 +584,7 @@ Org copy-paste example: [`examples/ops/zeroday-org-locate.yml`](./examples/ops/z
 
 Full Q&A: [`docs/faq.md`](./docs/faq.md) · also in the play UI FAQ tab (`npm run play` → Desk Console home; FAQ is a tab).
 
-Private design-partner one-pager (no public-readiness claim): [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
+Trust pack (public OSS; customer source stays private): [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 
 [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) · [`SECURITY.md`](./SECURITY.md)
 
@@ -658,8 +660,8 @@ Desk unit tests cover **UI-2** reports/cassettes and **UI-3** live-endpoint (Mac
 
 ## License & credits
 
-**Apache-2.0** — see [`LICENSE`](./LICENSE) (`SPDX-License-Identifier: Apache-2.0`).
-Authorized / defensive use only ([`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)). No warranty.
+**Apache-2.0** public OSS — see [`LICENSE`](./LICENSE) (`SPDX-License-Identifier: Apache-2.0`).
+**Not a Cisco product.** Authorized / defensive use only ([`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md)). No warranty.
 
 - **Antares** — [site](https://cisco-foundation-ai.github.io/antares/) · [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) · [HF `fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) · [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
 - Foundry Security Spec · Project CodeGuard — compose, don’t replace

@@ -1,10 +1,20 @@
-# Design-partner trust pack (honest private dry-run)
+# Design-partner trust pack (honest dry-run)
 
-One-pager for **private** design partners who want to run Desk / keyless locate
-without treating this repo as world-public ready. Not a brochure. Not outreach.
+One-pager for operators and design partners who want to run Desk / keyless
+locate with clear hard limits. Not a brochure. Not outreach.
 
-**Audience:** invited operators with access to this private clone.  
-**Posture:** localization + evidence + Desk around [Cisco Antares](https://cisco-foundation-ai.github.io/antares/). **Not a Cisco product.**
+**Audience:** anyone cloning this **public** Apache-2.0 repo to assess trees they
+are authorized to touch.  
+**Posture:** localization + evidence + Desk around
+[Cisco Antares](https://cisco-foundation-ai.github.io/antares/).
+**Not a Cisco product.** Not an official Cisco partnership.
+
+**Privacy split (honest):**
+
+| Surface | Visibility |
+|---------|------------|
+| This ZERODAY repo | **Public** OSS |
+| Customer / partner source you assess | Must stay **private** / local unless you explicitly opt into remote inference with the documented ACK |
 
 ---
 
@@ -18,6 +28,7 @@ without treating this repo as world-public ready. Not a brochure. Not outreach.
 | **CI default** | Fixture / keyless smoke → SARIF → human-reviewed PR comment |
 
 Localization is detector-lane **candidates**. Always `needs_human: true`.
+Localization ≠ exploitability.
 
 ---
 
@@ -25,16 +36,16 @@ Localization is detector-lane **candidates**. Always `needs_human: true`.
 
 - No PoCs, exploits, payloads, or attack procedures (lab / localhost framing included)
 - No auto-merge, auto-PR, auto-apply harden, or auto-install craft artifacts
-- No public File-F1 marketing claims for fixture / rules / ingest / recording / arbitrary local models
+- No public File-F1 / marketing metrics for fixture / rules / ingest / recording / arbitrary local models
 - No auto GPU / RunPod spend — print-only doctors; **you** provision and terminate
 - No silent fixture fallback on the live `--endpoint` path
-- No world-public readiness claim — **this repo may stay private**
+- No claim that public OSS means customer source is fair game — **assessed trees stay private**
 
 ---
 
-## How to run (private dry-run)
+## How to run (honest dry-run)
 
-### Keyless (preferred partner start — $0)
+### Keyless (preferred start — $0)
 
 ```bash
 npm install
@@ -63,8 +74,6 @@ Arbitrary local models ≠ Antares File F1. See [`antares.md`](./antares.md),
 
 ## Ops runbooks
 
-On current `main` (Ops package merged):
-
 | Path | Role |
 |------|------|
 | [`docs/org-ops-runbook.md`](./org-ops-runbook.md) | Org daily-driver: keyless vs live, spend gates, no auto-merge |
@@ -82,7 +91,7 @@ Also: root [`README.md`](../README.md) (MVP / Desk / Honesty) and
 |------|--------|
 | Acceptable use / authorization | [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) |
 | Product hard limits + reporting a bug **in ZERODAY** | [`SECURITY.md`](../SECURITY.md) |
-| Private partner questions / access | GitHub private issues or discussion with maintainers who granted you clone access |
+| Product / docs questions | GitHub Issues or Discussions on this public repo |
 | Responsible disclosure of a ZERODAY defect | Prefer GitHub private vulnerability reporting; else contact [`@pandeyaby`](https://github.com/pandeyaby) privately — impact summary, no weaponized PoC required |
 
 **Do not** open public issues with exploit details against assessed third-party code.
@@ -90,13 +99,13 @@ ZERODAY will not help prove exploitability of a CWE it localized.
 
 ---
 
-## Design-partner checklist
+## Operator checklist
 
-- [ ] Clone stays **private** unless maintainers explicitly flip visibility
+- [ ] Customer / partner source under assessment stays **private** (this public repo ≠ your tree)
 - [ ] Ran `npm run mvp` (or fixture Action) before any live spend
 - [ ] Desk / rules / ingest only on trees you are authorized to assess
 - [ ] Live Antares only after HF accept + human-approved GPU budget
 - [ ] Read [`SECURITY.md`](../SECURITY.md) + [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md)
-- [ ] No F1 / partnership / public-readiness claims in partner write-ups
+- [ ] No F1 / partnership / exploitability claims in write-ups
 
 More detail: [`howto.md`](./howto.md) · [`faq.md`](./faq.md) · [`agent-operator.md`](./agent-operator.md) · [`defense-factory.md`](./defense-factory.md)

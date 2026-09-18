@@ -17,7 +17,7 @@
 
 ## How orgs should use it
 
-- **Design partners (private dry-run)** — start with [`design-partner-trust.md`](./design-partner-trust.md): keyless first, live only with human spend, no public F1 / readiness claims.
+- **Design partners / org operators** — start with [`design-partner-trust.md`](./design-partner-trust.md): public OSS, customer source private; keyless first; live only with human spend; no F1 marketing claims.
 - **Platform eng** — Action on every repo (`examples/ops/zeroday-org-locate.yml`); no GPU in CI. Runbook: [`org-ops-runbook.md`](./org-ops-runbook.md).
 - **Security analyst** — operate/locate on a workstation; ingest SARIF in GitHub Code Scanning; cassette regression: [`cassette-runbook.md`](./cassette-runbook.md).
 - **SOC / Splunk / Cisco Security Cloud buyer** — take Splunk CIM JSON, ASFF, and the CISO object as **FILES** your team ingests with your credentials. We do not push to your clouds.
