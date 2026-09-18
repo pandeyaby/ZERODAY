@@ -47,6 +47,7 @@ export const LIVE_ACTIONS = [
   "save",
   "doctor",
   "locate",
+  "validate",
 ] as const;
 
 export type LiveAction = (typeof LIVE_ACTIONS)[number];
@@ -56,6 +57,36 @@ export type LivePresetId =
   | "antares-350m-ollama"
   | "local-openai"
   | "custom";
+
+/** Fixture + CWE used by the ≤60s Live validate CTA (Desk + CLI). */
+export const LIVE_VALIDATE_DEFAULT_REPO = path.join(
+  "fixtures",
+  "locate",
+  "rules-sample",
+);
+export const LIVE_VALIDATE_DEFAULT_CWE = "CWE-89";
+
+export const LIVE_VALIDATE_DOCS = [
+  "docs/runpod-antares.md",
+  "docs/getting-started.md",
+  "scripts/quickstart-live.sh",
+] as const;
+
+/** Empty-state copy when doctor cannot reach a completions host. */
+export const LIVE_VALIDATE_EMPTY_STATE =
+  "No healthy OpenAI-compatible completions endpoint. Paste a base URL ending in /v1 " +
+  "(example: http://127.0.0.1:8000/v1 — not /v1/chat/completions). " +
+  "Start vLLM yourself (docs/runpod-antares.md) or run bash scripts/quickstart-live.sh. " +
+  "Accept HF terms for fdtn-ai/antares-1b yourself — ZERODAY never scrapes or bypasses.";
+
+export interface LastGoodAntares {
+  endpoint: string;
+  model: string;
+  remoteInference: boolean;
+  tokenEnvVar?: string;
+  /** ISO timestamp of last green doctor (or locate) */
+  updatedAt: string;
+}
 
 export interface LiveEndpointConfig {
   schema: typeof DESK_ENDPOINT_SCHEMA;
@@ -70,6 +101,11 @@ export interface LiveEndpointConfig {
   tokenEnvVar?: string;
   note?: string;
   updatedAt?: string;
+  /**
+   * Last green Antares (or Antares-shaped) endpoint — used by Validate live
+   * so a stray llama3.2 / chat-model save does not become the stranger default.
+   */
+  lastGoodAntares?: LastGoodAntares;
 }
 
 export interface LivePreset {
@@ -125,6 +161,7 @@ const SPEND_BANNER =
 const HONESTY = [
   "Keyless stays default; live is opt-in with an explicit human click + spend banner",
   "UI-2 “No live Antares” meant validate/CI didn’t exercise spend — live path already exists via locate --endpoint + doctor; UI-3 makes it first-class in Desk Console",
+  "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — not a random chat model (llama3.2)",
   "Reuses --endpoint / live-guard / doctor — no new inference engines",
   "Non-loopback requires remote-inference ACK (UI checkbox)",
   "HF / auth tokens stay in env (tokenEnvVar name only in config) — never written to reports/SARIF",
@@ -212,12 +249,44 @@ export interface LiveLocateResult {
   tokenHygiene: { scanned: boolean; leaked: boolean };
 }
 
+export interface LiveValidateResult {
+  kind: "live-validate";
+  ok: boolean;
+  readyForSpendConfirm: boolean;
+  /** Resolved Antares-preferring target used for doctor */
+  target: {
+    preset: LivePresetId;
+    endpoint: string;
+    model: string;
+    remoteInference: boolean;
+    tokenEnvVar?: string;
+    source: "last-good-antares" | "saved-antares" | "antares-1b-default" | "request";
+  };
+  doctor: LiveDoctorResult;
+  /** Prefill for the existing spend / locate confirm */
+  locatePrefill: {
+    repo: string;
+    cwe: string;
+    endpoint: string;
+    model: string;
+    remoteInference: boolean;
+    tokenEnvVar?: string;
+  };
+  emptyState?: string;
+  docs: readonly string[];
+  configPath: string;
+  lastGoodAntares?: LastGoodAntares;
+  honesty: string[];
+  spendBanner: string;
+}
+
 export type LiveResult =
   | LiveCatalog
   | LiveLoadResult
   | LiveSaveResult
   | LiveDoctorResult
-  | LiveLocateResult;
+  | LiveLocateResult
+  | LiveValidateResult;
 
 export interface LiveRunRequest {
   action: LiveAction;
@@ -348,8 +417,47 @@ export function sanitizeLiveConfig(
 
   if (tokenEnvVar) cfg.tokenEnvVar = tokenEnvVar;
   if (input.note?.trim()) cfg.note = input.note.trim().slice(0, 500);
+  const lastGood = sanitizeLastGoodAntares(input.lastGoodAntares);
+  if (lastGood) cfg.lastGoodAntares = lastGood;
 
   return cfg;
+}
+
+function sanitizeLastGoodAntares(
+  raw: unknown,
+): LastGoodAntares | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const endpoint = typeof o.endpoint === "string" ? o.endpoint.trim() : "";
+  const model = typeof o.model === "string" ? o.model.trim() : "";
+  if (!endpoint || !model) return undefined;
+  try {
+    assertNotChatCompletions(endpoint);
+  } catch {
+    return undefined;
+  }
+  const out: LastGoodAntares = {
+    endpoint: endpoint.replace(/\/+$/, ""),
+    model,
+    remoteInference: o.remoteInference === true,
+    updatedAt:
+      typeof o.updatedAt === "string" && o.updatedAt
+        ? o.updatedAt
+        : new Date().toISOString(),
+  };
+  const tev = sanitizeTokenEnvVar(
+    typeof o.tokenEnvVar === "string" ? o.tokenEnvVar : undefined,
+  );
+  if (tev) out.tokenEnvVar = tev;
+  return out;
+}
+
+/** True when model/preset looks like Antares (not llama3.2 / random chat). */
+export function isAntaresShaped(modelOrPreset: string | undefined): boolean {
+  const s = (modelOrPreset || "").trim().toLowerCase();
+  if (!s) return false;
+  if (s === "antares-1b" || s === "antares-350m-ollama") return true;
+  return s.includes("antares");
 }
 
 export function applyPreset(id: LivePresetId): LiveEndpointConfig {
@@ -421,6 +529,7 @@ export function loadLiveEndpointConfig(options?: {
     tokenEnvVar:
       typeof raw.tokenEnvVar === "string" ? raw.tokenEnvVar : undefined,
     note: typeof raw.note === "string" ? raw.note : undefined,
+    lastGoodAntares: raw.lastGoodAntares as LastGoodAntares | undefined,
   });
   return {
     kind: "live-load",
@@ -442,7 +551,23 @@ export function saveLiveEndpointConfig(
   assertPathAllowed(dir, { cwd, label: ".zeroday" });
   fs.mkdirSync(dir, { recursive: true });
 
-  const config = sanitizeLiveConfig(input);
+  // Preserve last-good Antares across saves unless the caller sets it explicitly.
+  let merged: Partial<LiveEndpointConfig> = { ...input };
+  if (input.lastGoodAntares === undefined && fs.existsSync(configPath)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(configPath, "utf8")) as Record<
+        string,
+        unknown
+      >;
+      if (prev.lastGoodAntares) {
+        merged = { ...merged, lastGoodAntares: prev.lastGoodAntares as LastGoodAntares };
+      }
+    } catch {
+      /* ignore corrupt prior */
+    }
+  }
+
+  const config = sanitizeLiveConfig(merged);
   const serialized = JSON.stringify(config, null, 2) + "\n";
   // Defense: never write env secret values into the file
   assertNoSecretLeak(serialized, config.tokenEnvVar);
@@ -656,6 +781,26 @@ export async function runLiveLocate(
   });
   assertNoSecretLeak(responseProbe, tokenEnvVar);
 
+  if (isAntaresShaped(model)) {
+    try {
+      persistLastGoodAntares(
+        {
+          endpoint: normalizeCompletionsEndpoint(endpoint).replace(
+            /\/completions$/i,
+            "",
+          ),
+          model,
+          remoteInference:
+            remoteInference || remoteInferenceAcked({ remoteInference }),
+          tokenEnvVar,
+        },
+        { cwd },
+      );
+    } catch {
+      /* persistence best-effort — locate result still returned */
+    }
+  }
+
   return {
     kind: "live-locate",
     mode: artifacts.result.mode,
@@ -682,6 +827,207 @@ export async function runLiveLocate(
     needs_human: true,
     honesty: `${SPEND_BANNER} · needs_human · no PoC · localization ≠ exploitability`,
     tokenHygiene,
+  };
+}
+
+
+export type ValidateTargetSource =
+  | "request"
+  | "last-good-antares"
+  | "saved-antares"
+  | "antares-1b-default";
+
+export interface ValidateTarget {
+  preset: LivePresetId;
+  endpoint: string;
+  model: string;
+  remoteInference: boolean;
+  tokenEnvVar?: string;
+  source: ValidateTargetSource;
+}
+
+/**
+ * Prefer last-good Antares → saved Antares-shaped config → Antares-1B defaults.
+ * Explicit request endpoint/model still win (source=request) so advanced users
+ * can override; Validate CTA typically omits them so strangers avoid llama3.2.
+ */
+export function resolveValidateTarget(
+  req: Pick<
+    LiveRunRequest,
+    "endpoint" | "model" | "preset" | "remoteInference" | "tokenEnvVar" | "cwd"
+  >,
+): ValidateTarget {
+  const cwd = resolveLiveCwd(req.cwd);
+  const loaded = loadLiveEndpointConfig({ cwd });
+  const antaresDefault = applyPreset("antares-1b");
+
+  const reqEndpoint = req.endpoint?.trim();
+  const reqModel = req.model?.trim();
+  if (reqEndpoint) {
+    return {
+      preset:
+        req.preset && req.preset !== "custom"
+          ? req.preset
+          : isAntaresShaped(reqModel) || isAntaresShaped(req.preset)
+            ? (req.preset as LivePresetId) || "antares-1b"
+            : "custom",
+      endpoint: reqEndpoint,
+      model: reqModel || antaresDefault.model,
+      remoteInference: req.remoteInference === true,
+      tokenEnvVar: sanitizeTokenEnvVar(req.tokenEnvVar) || antaresDefault.tokenEnvVar,
+      source: "request",
+    };
+  }
+
+  const last = loaded.config?.lastGoodAntares;
+  if (last?.endpoint && last.model) {
+    return {
+      preset: "antares-1b",
+      endpoint: last.endpoint,
+      model: last.model,
+      remoteInference:
+        req.remoteInference === true || last.remoteInference === true,
+      tokenEnvVar:
+        sanitizeTokenEnvVar(req.tokenEnvVar) ||
+        last.tokenEnvVar ||
+        antaresDefault.tokenEnvVar,
+      source: "last-good-antares",
+    };
+  }
+
+  const saved = loaded.config;
+  if (
+    saved &&
+    (isAntaresShaped(saved.model) || isAntaresShaped(saved.preset))
+  ) {
+    return {
+      preset: isAntaresShaped(saved.preset) ? saved.preset : "antares-1b",
+      endpoint: saved.endpoint,
+      model: saved.model,
+      remoteInference:
+        req.remoteInference === true || saved.remoteInference === true,
+      tokenEnvVar:
+        sanitizeTokenEnvVar(req.tokenEnvVar) ||
+        saved.tokenEnvVar ||
+        antaresDefault.tokenEnvVar,
+      source: "saved-antares",
+    };
+  }
+
+  return {
+    preset: "antares-1b",
+    endpoint: antaresDefault.endpoint,
+    model: antaresDefault.model,
+    remoteInference: req.remoteInference === true,
+    tokenEnvVar:
+      sanitizeTokenEnvVar(req.tokenEnvVar) || antaresDefault.tokenEnvVar,
+    source: "antares-1b-default",
+  };
+}
+
+function persistLastGoodAntares(
+  target: {
+    endpoint: string;
+    model: string;
+    remoteInference: boolean;
+    tokenEnvVar?: string;
+  },
+  options?: { cwd?: string },
+): LastGoodAntares {
+  const cwd = resolveLiveCwd(options?.cwd);
+  const lastGood: LastGoodAntares = {
+    endpoint: target.endpoint
+      .replace(/\/+$/, "")
+      .replace(/\/completions$/i, ""),
+    model: target.model,
+    remoteInference: target.remoteInference === true,
+    updatedAt: new Date().toISOString(),
+  };
+  if (target.tokenEnvVar) lastGood.tokenEnvVar = target.tokenEnvVar;
+
+  const loaded = loadLiveEndpointConfig({ cwd });
+  const base = loaded.config ?? applyPreset("antares-1b");
+  // Keep active saved fields; only refresh last-good (+ promote Antares when
+  // the active model was a chat stray so strangers reopen on Antares).
+  const next: Partial<LiveEndpointConfig> = {
+    ...base,
+    lastGoodAntares: lastGood,
+  };
+  if (!isAntaresShaped(base.model) && !isAntaresShaped(base.preset)) {
+    next.preset = "antares-1b";
+    next.endpoint = lastGood.endpoint;
+    next.model = lastGood.model;
+    next.remoteInference = lastGood.remoteInference;
+    if (lastGood.tokenEnvVar) next.tokenEnvVar = lastGood.tokenEnvVar;
+  }
+  saveLiveEndpointConfig(next, { cwd });
+  return lastGood;
+}
+
+/**
+ * ≤60s Live validate: resolve Antares-preferring target → doctor → if healthy,
+ * return spend/locate prefill (fixture rules-sample + CWE-89). Does not locate
+ * until spendAcknowledged on a subsequent locate action.
+ */
+export async function runLiveValidate(
+  req: LiveRunRequest,
+): Promise<LiveValidateResult> {
+  const cwd = resolveLiveCwd(req.cwd);
+  const target = resolveValidateTarget(req);
+  const doctor = await runLiveDoctor({
+    ...req,
+    action: "doctor",
+    endpoint: target.endpoint,
+    model: target.model,
+    remoteInference: target.remoteInference,
+    tokenEnvVar: target.tokenEnvVar,
+    cwd,
+  });
+
+  let lastGoodAntares: LastGoodAntares | undefined =
+    loadLiveEndpointConfig({ cwd }).config?.lastGoodAntares;
+  if (doctor.ok && isAntaresShaped(target.model)) {
+    lastGoodAntares = persistLastGoodAntares(
+      {
+        // Prefer the validate target (…/v1), not doctor.endpoint which may be …/completions
+        endpoint: target.endpoint,
+        model: target.model,
+        remoteInference: target.remoteInference,
+        tokenEnvVar: target.tokenEnvVar,
+      },
+      { cwd },
+    );
+  }
+
+  const locatePrefill = {
+    repo: (req.repo?.trim() || LIVE_VALIDATE_DEFAULT_REPO),
+    cwe: (req.cwe?.trim() || LIVE_VALIDATE_DEFAULT_CWE),
+    endpoint: target.endpoint,
+    model: target.model,
+    remoteInference: target.remoteInference,
+    tokenEnvVar: target.tokenEnvVar,
+  };
+
+  return {
+    kind: "live-validate",
+    ok: doctor.ok,
+    readyForSpendConfirm: doctor.ok,
+    target: {
+      preset: target.preset,
+      endpoint: target.endpoint,
+      model: target.model,
+      remoteInference: target.remoteInference,
+      tokenEnvVar: target.tokenEnvVar,
+      source: target.source,
+    },
+    doctor,
+    locatePrefill,
+    emptyState: doctor.ok ? undefined : LIVE_VALIDATE_EMPTY_STATE,
+    docs: LIVE_VALIDATE_DOCS,
+    configPath: resolveDeskEndpointPath({ cwd }),
+    lastGoodAntares,
+    honesty: HONESTY,
+    spendBanner: SPEND_BANNER,
   };
 }
 
@@ -723,6 +1069,8 @@ export async function runLiveAction(
       return runLiveDoctor(req);
     case "locate":
       return runLiveLocate(req);
+    case "validate":
+      return runLiveValidate(req);
     default: {
       const _exhaustive: never = action;
       throw new Error(`Unhandled action: ${_exhaustive}`);

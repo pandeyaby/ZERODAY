@@ -71,6 +71,11 @@ import {
   resolveClassifyFromPath,
   resolveDeskReportsFrom,
   resolveInventoryTarget,
+  runLiveValidate,
+  LIVE_VALIDATE_DEFAULT_REPO,
+  LIVE_VALIDATE_DEFAULT_CWE,
+  LIVE_VALIDATE_EMPTY_STATE,
+  LIVE_VALIDATE_DOCS,
 } from "../src/desk/index.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -1935,5 +1940,128 @@ program
     }
     process.stdout.write(result.stdout);
   });
+
+
+const live = program
+  .command("live")
+  .description(
+    "Opt-in Live brain helpers (Desk Console mirror). Keyless stays default; spend still requires --spend-ack.",
+  );
+
+live
+  .command("validate")
+  .description(
+    "≤60s Live validate: apply Antares-1B / last-good Antares → doctor → print spend/locate prefill for fixtures/locate/rules-sample + CWE-89. Does not locate unless --spend-ack (still no auto-spend).",
+  )
+  .option(
+    "--endpoint <url>",
+    "Optional override (otherwise last-good Antares or http://127.0.0.1:8000/v1)",
+  )
+  .option("--model <id>", "Optional model override (default fdtn-ai/antares-1b)")
+  .option(
+    "--remote-inference",
+    "ACK non-loopback remote inference (maps to ZERODAY_REMOTE_INFERENCE_ACK)",
+    false,
+  )
+  .option(
+    "--repo <path>",
+    `Locate repo (default ${LIVE_VALIDATE_DEFAULT_REPO})`,
+  )
+  .option("--cwe <id>", `CWE / advisory (default ${LIVE_VALIDATE_DEFAULT_CWE})`)
+  .option(
+    "--spend-ack",
+    "After a green doctor, also run live locate (explicit spend ACK — still no auto RunPod)",
+    false,
+  )
+  .option(
+    "--token-env <name>",
+    "Env var *name* for HF/auth token (never the secret value)",
+  )
+  .action(
+    async (opts: {
+      endpoint?: string;
+      model?: string;
+      remoteInference: boolean;
+      repo?: string;
+      cwe?: string;
+      spendAck: boolean;
+      tokenEnv?: string;
+    }) => {
+      console.log("");
+      console.log("ZERODAY live validate");
+      console.log("────────────────────");
+      console.log(
+        "Antares-preferring doctor for Desk ≤60s path. Localization ≠ exploitability. No PoC.",
+      );
+      console.log("");
+
+      try {
+        const result = await runLiveValidate({
+          action: "validate",
+          endpoint: opts.endpoint,
+          model: opts.model,
+          remoteInference: opts.remoteInference === true,
+          tokenEnvVar: opts.tokenEnv,
+          repo: opts.repo || LIVE_VALIDATE_DEFAULT_REPO,
+          cwe: opts.cwe || LIVE_VALIDATE_DEFAULT_CWE,
+        });
+
+        console.log(`Target:  ${result.target.endpoint}`);
+        console.log(`Model:   ${result.target.model}`);
+        console.log(`Source:  ${result.target.source}`);
+        console.log(`Doctor:  ${result.ok ? "GREEN" : "RED"}`);
+        for (const c of result.doctor.checks) {
+          console.log(`  [${c.ok ? "pass" : "fail"}] ${c.label} — ${c.detail}`);
+        }
+
+        if (!result.ok) {
+          console.log("");
+          console.log(result.emptyState || LIVE_VALIDATE_EMPTY_STATE);
+          console.log(`Docs: ${(result.docs || LIVE_VALIDATE_DOCS).join(" · ")}`);
+          process.exitCode = 2;
+          return;
+        }
+
+        console.log("");
+        console.log("Ready for spend confirm (Desk) / --spend-ack (CLI).");
+        console.log(
+          `Prefill: repo=${result.locatePrefill.repo} cwe=${result.locatePrefill.cwe}`,
+        );
+
+        if (!opts.spendAck) {
+          console.log("");
+          console.log(
+            "Doctor green. Re-run with --spend-ack to execute one live locate (explicit spend).",
+          );
+          console.log(
+            "Mirror UI: npm run play → Live brain → Validate live (≤60s).",
+          );
+          return;
+        }
+
+        const { runLiveLocate } = await import("../src/desk/index.ts");
+        const locate = await runLiveLocate({
+          action: "locate",
+          endpoint: result.target.endpoint,
+          model: result.target.model,
+          remoteInference: result.target.remoteInference,
+          tokenEnvVar: result.target.tokenEnvVar,
+          repo: result.locatePrefill.repo,
+          cwe: result.locatePrefill.cwe,
+          spendAcknowledged: true,
+        });
+        console.log("");
+        console.log(
+          `Locate done: ${locate.findingCount} finding(s) → ${locate.outputDir}`,
+        );
+        console.log(locate.honesty);
+        console.log("needs_human=true · no auto-merge · no PoC");
+      } catch (e) {
+        console.error((e as Error).message);
+        process.exitCode = 2;
+      }
+    },
+  );
+
 
 program.parseAsync(process.argv);

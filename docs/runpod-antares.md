@@ -178,3 +178,18 @@ Re-runs may differ; always set `needs_human: true` and keep CI fixture-safe.
 - [`remote-antares-vllm.md`](./remote-antares-vllm.md) — host-agnostic contract
 - [`defense-factory.md`](./defense-factory.md) — factory north star
 - [`antares.md`](./antares.md) — local Antares wrap
+
+## Desk: validate live in under a minute
+
+Once your completions base URL is up (often `http://127.0.0.1:8000/v1` after
+port-forward):
+
+```bash
+npm run play          # Live brain → Validate live (≤60s)
+# or: npm run zeroday -- live validate
+```
+
+ZERODAY prefers last-good Antares / Antares-1B defaults — not a random chat
+model left in `.zeroday/desk-endpoint.json`. Spend banner + remote-inference
+ACK remain mandatory for paid / non-loopback paths.
+

@@ -69,9 +69,16 @@ secret). **Doctor ping** reuses the K4 checklist. **Run live locate** only
 after the spend banner confirm; non-loopback needs the remote-inference
 checkbox. No auto RunPod / auto-spend.
 
+**Validate live in under a minute:** with a healthy completions endpoint already
+running, click **Validate live (≤60s)** — applies Antares-1B / last-good Antares
+(ignores a stray `llama3.2` save), runs doctor, then opens the spend confirm
+prefilled with `fixtures/locate/rules-sample` + `CWE-89`. CLI mirror:
+`npm run zeroday -- live validate` (add `--spend-ack` for one explicit locate).
+
 ```bash
 npm run play
-# → Live brain → pick preset → Save → Doctor ping → spend banner → locate
+# → Live brain → Validate live (≤60s)
+# advanced: pick preset → Save → Doctor ping → spend banner → locate
 ```
 
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before assessing any repo you do not own.

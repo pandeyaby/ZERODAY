@@ -530,6 +530,8 @@ function LiveBrainPanel({
   const [doctorChecks, setDoctorChecks] = useState<
     Array<{ id: string; ok: boolean; label: string; detail: string }>
   >([]);
+  const [validateEmpty, setValidateEmpty] = useState<string | null>(null);
+  const [validateDocs, setValidateDocs] = useState<string[]>([]);
 
   useEffect(() => {
     void fetch("/api/live")
@@ -632,6 +634,50 @@ function LiveBrainPanel({
         if (json.kind === "live-doctor" && json.checks) {
           setDoctorChecks(json.checks);
         }
+        if (json.kind === "live-validate") {
+          const v = json as {
+            doctor?: { checks?: Array<{ id: string; ok: boolean; label: string; detail: string }> };
+            emptyState?: string;
+            docs?: string[];
+            readyForSpendConfirm?: boolean;
+            locatePrefill?: {
+              repo?: string;
+              cwe?: string;
+              endpoint?: string;
+              model?: string;
+              remoteInference?: boolean;
+              tokenEnvVar?: string;
+            };
+            target?: {
+              endpoint?: string;
+              model?: string;
+              remoteInference?: boolean;
+              tokenEnvVar?: string;
+              preset?: LivePreset["id"];
+            };
+          };
+          if (v.doctor?.checks) setDoctorChecks(v.doctor.checks);
+          setValidateEmpty(v.emptyState || null);
+          setValidateDocs(v.docs || []);
+          if (v.target) {
+            if (v.target.endpoint) setEndpoint(v.target.endpoint);
+            if (v.target.model) setModel(v.target.model);
+            if (typeof v.target.remoteInference === "boolean") {
+              setRemoteInference(v.target.remoteInference);
+            }
+            if (v.target.tokenEnvVar !== undefined) {
+              setTokenEnvVar(v.target.tokenEnvVar || "");
+            }
+            if (v.target.preset) setPreset(v.target.preset);
+          }
+          if (v.locatePrefill) {
+            if (v.locatePrefill.repo) setRepo(v.locatePrefill.repo);
+            if (v.locatePrefill.cwe) setCwe(v.locatePrefill.cwe);
+          }
+          if (v.readyForSpendConfirm) {
+            setSpendConfirmOpen(true);
+          }
+        }
         if (json.kind === "live-save" && json.configPath) {
           setConfigPath(json.configPath);
         }
@@ -657,8 +703,10 @@ function LiveBrainPanel({
       </div>
       <div className="p-4 space-y-4">
         <p className="text-xs text-[var(--muted)]">
-          Configure a completions endpoint in seconds. Keyless stays default —
-          live locate needs an explicit spend confirm. Reuses{" "}
+          Validate live in under a minute: one primary CTA applies Antares-1B
+          (or last-good Antares), runs doctor, then opens the spend confirm on
+          the rules-sample fixture. Keyless stays default — live locate still
+          needs an explicit spend click. Reuses{" "}
           <code className="text-[var(--accent)]">locate --endpoint</code> +{" "}
           <code className="text-[var(--accent)]">doctor</code> (no new engines).
           Chat-only hosts refused. Config:{" "}
@@ -812,6 +860,30 @@ function LiveBrainPanel({
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
+            disabled={busy}
+            data-testid="live-validate"
+            onClick={() => {
+              setValidateEmpty(null);
+              void post({
+                action: "validate",
+                // Omit endpoint/model so server prefers last-good Antares /
+                // Antares-1B defaults (not a stray llama3.2 save).
+                remoteInference,
+                tokenEnvVar: tokenEnvVar.trim() || undefined,
+                repo: repo.trim() || "fixtures/locate/rules-sample",
+                cwe: cwe.trim() || "CWE-89",
+              });
+            }}
+          >
+            {busy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Sparkles size={14} />
+            )}
+            Validate live (≤60s)
+          </Button>
+          <Button
+            size="sm"
             variant="outline"
             disabled={busy}
             data-testid="live-save"
@@ -890,6 +962,37 @@ function LiveBrainPanel({
             Run live locate…
           </Button>
         </div>
+
+        {validateEmpty && (
+          <div
+            className="border border-[var(--line)] rounded-md p-3 space-y-2"
+            data-testid="live-validate-empty"
+          >
+            <p className="text-sm text-[var(--warn)] font-medium">
+              Endpoint not reachable
+            </p>
+            <p className="text-xs text-[var(--muted)]">{validateEmpty}</p>
+            <p className="text-[11px] text-[var(--muted)]">
+              Paste an OpenAI-compatible base URL ending in{" "}
+              <code className="text-[var(--accent)]">/v1</code> (example{" "}
+              <code className="text-[var(--accent)]">http://127.0.0.1:8000/v1</code>
+              ). Docs:{" "}
+              {(validateDocs.length
+                ? validateDocs
+                : [
+                    "docs/runpod-antares.md",
+                    "docs/getting-started.md",
+                    "scripts/quickstart-live.sh",
+                  ]
+              ).map((d, i) => (
+                <span key={d}>
+                  {i > 0 ? " · " : ""}
+                  <code className="text-[var(--accent)]">{d}</code>
+                </span>
+              ))}
+            </p>
+          </div>
+        )}
 
         {spendConfirmOpen && (
           <div

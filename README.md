@@ -239,9 +239,32 @@ Configure live Antares (or any local OpenAI-compatible completions host) in
 seconds from `/play` — first-class UI, not a CLI scavenger hunt. Keyless stays
 default; live is opt-in with an explicit human click and spend banner.
 
+### Validate live in under a minute
+
+With a healthy OpenAI-compatible **completions** endpoint already running
+(loopback `http://127.0.0.1:8000/v1` or last-good Antares):
+
+```bash
+npm run play
+# → Live brain → **Validate live (≤60s)**
+#    applies Antares-1B / last-good Antares (never a stray llama3.2 save)
+#    → doctor → spend banner → one click locate on fixtures/locate/rules-sample + CWE-89
+```
+
+CLI mirror:
+
+```bash
+npm run zeroday -- live validate
+# green doctor only; add --spend-ack for one explicit live locate
+```
+
+Hard limits unchanged: spend banner + remote-inference ACK for non-loopback;
+localization ≠ exploitability; no PoC; no auto-merge.
+
 ```bash
 npm run play
 # → http://localhost:3333/play → Live brain tab
+#    Primary: Validate live (≤60s)  — or advanced path:
 #    1) Pick preset: Antares-1B (HF gated — accept terms yourself),
 #       optional Antares-350M (Ollama), or local OpenAI-compatible
 #    2) Save → .zeroday/desk-endpoint.json (token env *name* only; never the secret)
