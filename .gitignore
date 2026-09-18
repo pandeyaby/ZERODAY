@@ -52,12 +52,11 @@ yarn-error.log*
 # Desk Console live endpoint config (may note tokenEnvVar — never commit secrets)
 .zeroday/
 # ZERODAY runtime data
-# Desk demo re-record junk (keep the two named demos + posters + README tracked)
+# Desk demo re-record junk (posters + README stay tracked; .webm stay local)
+# Published demos: https://github.com/pandeyaby/ZERODAY/releases/tag/desk-demos
 /artifacts/desk-ui-demo/*-journey-log.json
 /artifacts/desk-ui-demo/*_VALIDATION.md
 /artifacts/desk-ui-demo/*.png
 !/artifacts/desk-ui-demo/04-locate-result.png
 !/artifacts/desk-ui-demo/live-06-locate-result.png
 /artifacts/desk-ui-demo/*.webm
-!/artifacts/desk-ui-demo/desk-console-keyless-demo.webm
-!/artifacts/desk-ui-demo/desk-console-live-antares-demo.webm
