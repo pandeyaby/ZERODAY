@@ -21,6 +21,14 @@ describe("reusable stranger-verify workflow", () => {
     assert.match(wf, /npm run stranger:verify/);
     assert.match(wf, /repository:\s*\$\{\{\s*inputs\.zeroday_repository\s*\}\}/);
     assert.match(wf, /pandeyaby\/ZERODAY/);
+    assert.match(
+      wf,
+      /--json|ZERODAY_STRANGER_JSON/,
+      "reusable stranger-verify should emit machine-readable JSON",
+    );
+    assert.match(wf, /stranger-verify\.json/);
+    assert.match(wf, /upload-artifact/);
+    assert.match(wf, /stranger-verify-json/);
     assert.doesNotMatch(wf, /--endpoint|--live|HF_TOKEN|HF_HUB|create-pod/i);
     assert.match(wf, /no GPU|keyless/i);
   });

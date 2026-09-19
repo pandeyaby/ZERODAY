@@ -11,8 +11,8 @@ the [README](../README.md) and want the honest story without reading CI YAML.
 | Workflow file | [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 | Workflow `name:` (badge label) | `ZERODAY locate` |
 | Required paired-probe job | `paired-probe` — all 8 operators + `gate_axis_mutate` |
-| Stranger prove-doors job | `stranger-verify` — runs `npm run stranger:verify` (Door A keyless + Door B citation-only; no GPU) |
-| Reusable workflow (other repos) | [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) — `uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` (checks out ZERODAY, not caller source; see [`stranger-verify.md`](./stranger-verify.md)) |
+| Stranger prove-doors job | `stranger-verify` — runs `npm run --silent stranger:verify -- --json` (Door A keyless + Door B citation-only; no GPU); uploads artifact `stranger-verify-json` (`stranger-verify.json` — Door A proof card + Door B citation; **not** vuln / AUROC proof) |
+| Reusable workflow (other repos) | [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) — `uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` (checks out ZERODAY, not caller source; same JSON artifact; see [`stranger-verify.md`](./stranger-verify.md)) |
 | Posture | Keyless · fixture / offline adapters · **no GPU** · no HF pull · never auto-merge |
 
 Deep paired-probe detail: [`paired-probes.md`](./paired-probes.md).
@@ -30,7 +30,7 @@ keyless locate gate **and** the `paired-probe` job:
 | Fixture / keyless locate → SARIF | Factory **shape** on in-repo fixtures (human gate still required) |
 | **`paired-probe`** (all 8 ops × conforming/violating) | Emit-only DIPTYCH adapters (`diptych_schema` 0.2) under `zeroday-reports/paired-probe/` |
 | **`gate_axis_mutate`** (inside `npm run test:paired-probes`) | Every claimed-green cell fails when only its hyperproperty axis is mutated |
-| **`stranger-verify`** (`npm run stranger:verify`) | Door A keyless trust-loop PASS + Door B citation card (no RunPod / HF / live Antares in CI) |
+| **`stranger-verify`** (`npm run stranger:verify -- --json`) | Door A keyless trust-loop PASS + Door B citation card; CI uploads `stranger-verify-json` (not vuln / AUROC proof; no RunPod / HF / live Antares in CI) |
 
 Operators covered when claimed green: FREEZEDRY · RESEED · SCHEMAX · SIGNFLIP ·
 SATEXTEND · HISTSWAP · TRAJSWAP · VARSCALE. Prefer honest `deferred` over

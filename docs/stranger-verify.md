@@ -18,10 +18,14 @@ run fixture locate first. Machine-readable (CI/partners):
 single JSON object on stdout (`schemaVersion` `zeroday-stranger-verify/v1`,
 `doorA` / `doorB` / `nonClaims`; Door B `mode: "citation"`, `ran: false` — no
 live GPU). Prefer `--silent` so npm’s script banner does not precede the JSON.
-CI runs the same keyless command in the
+CI runs the same keyless `--json` command in the
 `stranger-verify` job on
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
-(badge ≠ vuln proof — see [`ci-trust.md`](./ci-trust.md)).
+and uploads artifact **`stranger-verify-json`** (`stranger-verify.json`) — Door A
+proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof —
+see [`ci-trust.md`](./ci-trust.md)). The reusable
+[`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
+same artifact for external `workflow_call` callers.
 
 ### Clone-free — GitHub Codespaces (Door A)
 
