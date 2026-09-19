@@ -18,7 +18,7 @@ export default function PlayPage() {
                 ZERODAY
               </h1>
               <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--muted)] mt-1">
-                Desk Console · Reports · FAQ
+                Desk Console · Prove doors · FAQ
               </p>
             </div>
           </Link>

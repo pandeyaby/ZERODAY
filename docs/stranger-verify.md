@@ -18,6 +18,9 @@ run fixture locate first. CI runs the same keyless command in the
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
 (badge ≠ vuln proof — see [`ci-trust.md`](./ci-trust.md)).
 
+Browser: `npm run play` → http://localhost:3333/play → **Prove doors** tab
+(same honesty card; copy-paste the command — Desk does not shell out to npm).
+
 | Door | This command | Evidence |
 |------|--------------|----------|
 | **A — Keyless** | **Runs** locally · $0 · no GPU · no HF | PASS + SARIF / paired-probe paths under `zeroday-reports/trust-loop/` · sample grade [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |

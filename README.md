@@ -135,11 +135,14 @@ npm run play
 ```
 
 One screen for fixture smoke, rules / SARIF ingest commands, Desk
-`inventory → packet → harden → classify → craft`, reports & cassettes, FAQ, and
-the opt-in **Live brain** tab (including **Validate live (≤60s)** when you already
-have a completions host). Desk runs on **your** tree without Antares — it is
-not vuln discovery. Deeper walkthrough:
-[`docs/howto.md`](./docs/howto.md) · [`docs/getting-started.md`](./docs/getting-started.md)
+`inventory → packet → harden → classify → craft`, reports & cassettes, the
+**Prove doors** tab (Door A keyless `npm run stranger:verify` copy-paste + Door B
+citation to [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof — no GPU
+spend from the UI), FAQ, and the opt-in **Live brain** tab (including
+**Validate live (≤60s)** when you already have a completions host). Desk runs on
+**your** tree without Antares — it is not vuln discovery. Deeper walkthrough:
+[`docs/howto.md`](./docs/howto.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) ·
+[`docs/getting-started.md`](./docs/getting-started.md)
 
 ### Watch the Desk
 

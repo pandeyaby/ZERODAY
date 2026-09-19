@@ -4,11 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeskConsole } from "@/components/operator/desk-console";
 import { FaqPanel } from "@/components/operator/faq-panel";
+import { ProveDoorsPanel } from "@/components/operator/prove-doors-panel";
 import { cn } from "@/lib/cn";
 import {
   Building2,
   CircleHelp,
   Crosshair,
+  DoorOpen,
   FlaskConical,
   GitBranch,
   LayoutDashboard,
@@ -19,7 +21,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-type View = "desk" | "playground" | "faq" | "person" | "org";
+type View = "desk" | "playground" | "prove" | "faq" | "person" | "org";
 
 type Catalog = {
   classifyScenarios: string[];
@@ -199,6 +201,11 @@ export function OrgUsagePanel({
                   "Fixture smoke",
                   <FlaskConical size={14} key="f" />,
                 ],
+                [
+                  "prove",
+                  "Prove doors",
+                  <DoorOpen size={14} key="p" />,
+                ],
                 ["faq", "FAQ", <CircleHelp size={14} key="q" />],
                 ["person", "Best for a person", <User size={14} key="u" />],
                 ["org", "How orgs use it", <Building2 size={14} key="b" />],
@@ -219,6 +226,8 @@ export function OrgUsagePanel({
       </div>
 
       {view === "desk" && <DeskConsole />}
+
+      {view === "prove" && <ProveDoorsPanel />}
 
       {view === "person" && (
         <div className="grid md:grid-cols-2 gap-3 animate-fade-up">
