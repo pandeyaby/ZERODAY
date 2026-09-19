@@ -5,7 +5,8 @@
 # Jobs: locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
 # the composite Action) + operate→verify + desk-ui (UI-2 reports + UI-3
 # live-endpoint unit tests) + locate-rules (K1) + locate-ingest (K2) +
-# locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2).
+# locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2) +
+# stranger-verify (Door A keyless + Door B citation-only; no RunPod / HF / live).
 # Never auto-merges. Localization ≠ exploitability.
 # Org daily-driver runbook: docs/org-ops-runbook.md · cassette: docs/cassette-runbook.md
 # Paired probes: docs/paired-probes.md · docs/diptych-onepager.md
@@ -699,6 +700,49 @@ jobs:
           path: |
             zeroday-reports/paired-probe/
             zeroday-reports/diptych-probes/
+          if-no-files-found: error
+
+  # Stranger prove-doors — Door A keyless (trust-loop) + Door B citation only.
+  # No GPU / HF / RunPod / live Antares. Fails the job if stranger:verify ≠ 0.
+  stranger-verify:
+    name: stranger:verify (Door A keyless + Door B citation)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm run stranger:verify (keyless · no GPU)
+        run: |
+          set -euo pipefail
+          npm run stranger:verify
+          test -f zeroday-reports/trust-loop/paired-probe/coverage/matrix.json
+
+      - name: Summarize stranger-verify gate
+        run: |
+          {
+            echo "## ZERODAY stranger:verify (prove-doors)"
+            echo ""
+            echo "- Ran: \`npm run stranger:verify\` (alias \`npm run doors\`)"
+            echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
+            echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares in CI)"
+            echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
+            echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload stranger-verify artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-stranger-verify
+          path: zeroday-reports/trust-loop/
           if-no-files-found: error
 
   packet:

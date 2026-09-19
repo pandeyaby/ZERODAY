@@ -99,6 +99,8 @@ npm run stranger:verify
 | **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
 | **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
 
+Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions).
+
 Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · DIPTYCH grades separately · sample grade illustrative.
 
 ---
@@ -351,6 +353,7 @@ Antares is **not** wired into CI. Badge above → stranger one-pager:
 | Keyless locate → SARIF → reviewable comment | Factory shape + human gate |
 | **`paired-probe`** (all 8 ops × conforming/violating) | Emit-only DIPTYCH adapters (`diptych_schema` 0.2) |
 | **`gate_axis_mutate`** (inside `npm run test:paired-probes`) | Every claimed-green cell fails when only its hyperproperty axis is mutated |
+| **`stranger-verify`** (`npm run stranger:verify`) | Door A keyless + Door B citation-only — not vuln proof · no AUROC · no GPU |
 
 Workflow:
 [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)

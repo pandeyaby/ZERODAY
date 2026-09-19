@@ -49,6 +49,17 @@ describe("CI trust badge + ci-trust one-pager", () => {
     assert.match(wf, /all.?8|all 8/i);
     assert.match(wf, /npm run test:paired-probes/);
     assert.match(wf, /npm run paired-probe/);
+    // Stranger prove-doors visible next to locate CI (keyless; Door B citation-only)
+    assert.match(wf, /^ {2}stranger-verify:\s*$/m);
+    assert.match(wf, /npm run stranger:verify/);
+    const strangerJob = wf.match(
+      /^ {2}stranger-verify:\n([\s\S]*?)(?=^ {2}[a-z]|\z)/m,
+    );
+    assert.ok(strangerJob, "could not isolate stranger-verify job block");
+    assert.doesNotMatch(
+      strangerJob[1],
+      /--endpoint|--live|runpod|HF_TOKEN|HF_HUB/i,
+    );
   });
 
   it("docs/ci-trust.md exists with honest prove / non-prove surface", () => {
@@ -61,6 +72,7 @@ describe("CI trust badge + ci-trust one-pager", () => {
     assert.match(doc, /paired-probe/);
     assert.match(doc, /gate_axis_mutate/);
     assert.match(doc, /all.?8|all 8/i);
+    assert.match(doc, /stranger-verify|stranger:verify/);
     assert.match(doc, /What the badge \*\*does\*\* prove/);
     assert.match(doc, /What the badge does \*\*not\*\* prove/);
     assert.match(doc, /≠ vulnerability|not.*exploitability|≠.*exploitability/i);
