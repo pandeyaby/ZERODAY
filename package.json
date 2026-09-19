@@ -22,7 +22,7 @@
     "trust-loop": "bash scripts/trust-loop.sh",
     "stranger:verify": "bash scripts/stranger-verify.sh",
     "doors": "bash scripts/stranger-verify.sh",
-    "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\" \"tests/locate/paired-probe-from-sarif.test.ts\" \"tests/locate/paired-probe-sample-report.test.ts\" \"tests/locate/trust-loop-door.test.ts\" \"tests/locate/stranger-verify-door.test.ts\"",
+    "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\" \"tests/locate/paired-probe-from-sarif.test.ts\" \"tests/locate/paired-probe-sample-report.test.ts\" \"tests/locate/trust-loop-door.test.ts\" \"tests/locate/stranger-verify-door.test.ts\" \"tests/locate/design-partner-day1-door.test.ts\"",
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "inventory": "tsx cli/index.ts inventory",
