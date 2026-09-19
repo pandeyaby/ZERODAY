@@ -69,6 +69,12 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /--fixture/);
     assert.match(readme, /docs\/runpod-antares\.md/);
     assert.match(readme, /docs\/paths\.md/);
+    // World-ready: DIPTYCH paired-trace layer + required CI gates
+    assert.match(readme, /github\.com\/pandeyaby\/DIPTYCH/);
+    assert.match(readme, /paired-probe/);
+    assert.match(readme, /gate_axis_mutate/);
+    assert.match(readme, /docs\/images\/zeroday-diptych-architecture\.png/);
+    assert.match(readme, /never exploit theater|No PoCs, exploits/i);
   });
 
   it("quickstart-live.sh refuses fixture fallback and probes endpoint", () => {
@@ -143,10 +149,12 @@ describe("README adoption path sanity", () => {
       "docs/images/zeroday-locate-cli.png",
       "docs/images/zeroday-sarif-findings.png",
       "docs/images/zeroday-live-path.png",
+      "docs/images/zeroday-diptych-architecture.png",
     ]) {
       assert.ok(fs.existsSync(path.join(root, img)), `missing ${img}`);
     }
   });
+
 
   it("package.json exposes mvp script", () => {
     const pkg = JSON.parse(
