@@ -2,11 +2,16 @@
 
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
-**Public OSS · Apache-2.0 · not a Cisco product.** ZERODAY is a local-first
-defensive **localization** desk around
-[Antares](https://cisco-foundation-ai.github.io/antares/): given a CWE / CVE /
-GHSA, it helps you rank which files matter, then writes **SARIF** + hashed
-evidence for a human to review.
+**Public OSS · Apache-2.0 · not a Cisco product.**  
+Local-first defensive **localization** desk: given a CWE / CVE / GHSA you are
+authorized to assess, rank which files matter, then emit **SARIF** + hashed
+evidence for a human to review — never auto-merge, never exploit theater.
+
+Built around [Antares](https://cisco-foundation-ai.github.io/antares/) as an
+optional live brain. Calibration claims for paired-trace / hyperproperty grading
+go through the emit-only adapters into
+**[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** (paired probes already on
+`main`; ZERODAY does not implement DIPTYCH’s grader).
 
 > **Hard limits** (unchanged product rules)
 >
@@ -19,6 +24,16 @@ evidence for a human to review.
 >   ACK remote inference (`--remote-inference`)
 > - Scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) ·
 >   disclosure: [`SECURITY.md`](./SECURITY.md) · help: [`SUPPORT.md`](./SUPPORT.md)
+
+![ZERODAY architecture — locate desk → SARIF/cassette → DIPTYCH paired probes](./docs/images/zeroday-diptych-architecture.png)
+
+**Pipeline (honest):** locate desk → SARIF / redacted cassette →
+`paired-probe` conforming+violating twins →
+[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) grades hyperproperties.
+CI requires **`paired-probe` + `gate_axis_mutate`** (all 8 operators green or
+honestly deferred — never cosmetic greens). Details:
+[`docs/paired-probes.md`](./docs/paired-probes.md) ·
+[`docs/architecture.md`](./docs/architecture.md).
 
 ---
 
@@ -86,17 +101,23 @@ Keyless = `$0` fixture path; live clip = opt-in completions host you run (not Ci
 
 CWE / CVE / GHSA → explore → ranked files + hashed evidence → SARIF / `report.md`
 
-| | Antares (brain) | ZERODAY (desk) |
-|--|-----------------|----------------|
-| Job | “Which files?” for a CWE / advisory | Workstation + CI habit around that answer |
-| Morning path | Model + your completions host | `npm run mvp` — fixture → SARIF; $0 |
-| After locate | Ranked files | Desk on your tree, exporters, human gate |
-| Live weights | You host them | Opt-in `--endpoint` / Desk **Live brain**; never auto-provisions pods |
+| | Antares (brain) | ZERODAY (desk) | DIPTYCH (grade) |
+|--|-----------------|----------------|-----------------|
+| Job | “Which files?” for a CWE / advisory | Workstation + CI habit around that answer | Paired-trace / hyperproperty grading of calibration claims |
+| Morning path | Model + your completions host | `npm run mvp` — fixture → SARIF; $0 | Consumes ZERODAY probe pairs (emit-only adapters on `main`) |
+| After locate | Ranked files | Desk on your tree, exporters, human gate · optional `paired-probe` | Grades conforming vs violating twins — not exploit proof |
+| Live weights | You host them | Opt-in `--endpoint` / Desk **Live brain**; never auto-provisions pods | Offline / CI — no GPU required for ZERODAY emit |
 
 Keyless does not invent a second product — only the localization brain swaps
 (fixture · rules · SARIF ingest · live · org recording). Full door map:
 [`docs/paths.md`](./docs/paths.md). Honesty Q&A: [`docs/faq.md`](./docs/faq.md)
 (also a tab in `npm run play`).
+
+**Calibration layer:** ZERODAY emits `diptych_schema` 0.2 probe pairs; grading
+lives in [DIPTYCH](https://github.com/pandeyaby/DIPTYCH). A Desk `/play` session
+does **not** prove FREEZEDRY bit-reproducibility or full hyperproperty coverage —
+CI `paired-probe` + `gate_axis_mutate` does. See
+[`docs/paired-probes.md`](./docs/paired-probes.md).
 
 ---
 
@@ -180,6 +201,8 @@ Sample: [`examples/sample-live-sarif/report.sarif`](./examples/sample-live-sarif
 - **No silent fixture fallback** on the live path
 - **No silent spend** — print-only `doctor` / `antares doctor`; you provision and terminate
 - **Local brain honesty** — arbitrary local models ≠ Antares File F1
+- **Calibration honesty** — DIPTYCH grades paired traces; ZERODAY emits adapters
+  only. Green cells require `gate_axis_mutate` power — prefer deferred over thin green
 
 Full Q&A: [`docs/faq.md`](./docs/faq.md) · play UI FAQ tab (`npm run play`).
 Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
@@ -194,14 +217,25 @@ Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 | All locate doors (rules, ingest, recordings, K3/K4, Desk chain, Action, cheat sheet) | [`docs/paths.md`](./docs/paths.md) |
 | Person + org habits + playground | [`docs/howto.md`](./docs/howto.md) |
 | Org forever path (Action + spend gates) | [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md) |
-| DIPTYCH paired probes (schema 0.2) | [`docs/paired-probes.md`](./docs/paired-probes.md) |
+| Architecture (locate → SARIF/cassette → DIPTYCH) | [`docs/architecture.md`](./docs/architecture.md) · [figure](./docs/images/zeroday-diptych-architecture.png) |
+| DIPTYCH paired probes (schema 0.2) | [`docs/paired-probes.md`](./docs/paired-probes.md) · [DIPTYCH repo](https://github.com/pandeyaby/DIPTYCH) |
 | Docs index | [`docs/README.md`](./docs/README.md) |
 | Get help | [`SUPPORT.md`](./SUPPORT.md) |
 
-CI on `pull_request`: keyless locate → upload SARIF → reviewable comment
-(fail-closed). Never pulls weights. Never auto-merge. Live Antares is **not**
-wired into CI. Workflow:
+### CI (required on `pull_request`)
+
+Fail-closed. Never pulls weights. Never auto-merge. Live Antares is **not**
+wired into CI.
+
+| Gate | What it proves |
+|------|----------------|
+| Keyless locate → SARIF → reviewable comment | Factory shape + human gate |
+| **`paired-probe`** (all 8 ops × conforming/violating) | Emit-only DIPTYCH adapters (`diptych_schema` 0.2) |
+| **`gate_axis_mutate`** (inside `npm run test:paired-probes`) | Every claimed-green cell fails when only its hyperproperty axis is mutated |
+
+Workflow:
 [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
+· docs: [`docs/paired-probes.md`](./docs/paired-probes.md).
 
 ---
 
@@ -216,4 +250,6 @@ No warranty.
   [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) ·
   [HF `fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) ·
   [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
+- **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** — paired-trace / hyperproperty
+  grading layer for calibration claims (ZERODAY emits; DIPTYCH grades)
 - Foundry Security Spec · Project CodeGuard — compose, don’t replace
