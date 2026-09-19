@@ -79,6 +79,11 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /AUROC|auroc/i);
     assert.match(readme, /SUPPORT\.md/);
     assert.match(readme, /docs\/design-partner-trust\.md/);
+    assert.match(readme, /docs\/ci-trust\.md/);
+    assert.match(
+      readme,
+      /actions\/workflows\/zeroday-locate\.yml\/badge\.svg/,
+    );
     assert.match(readme, /never exploit theater|No PoCs, exploits/i);
   });
 

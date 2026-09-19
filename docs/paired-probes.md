@@ -33,8 +33,9 @@ Witness recipes (SIGNFLIP / TRAJSWAP / VARSCALE): DIPTYCH
 
 Required on `main` / `pull_request` via the `paired-probe` job in
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
-([badge on README](../README.md)). After #41/#42: **all-8 green** +
-`gate_axis_mutate`. Keyless / offline — **no GPU**, no HF, no spend in this gate.
+([badge on README](../README.md) · stranger one-pager [`ci-trust.md`](./ci-trust.md)).
+After #41/#42: **all-8 green** + `gate_axis_mutate`. Keyless / offline —
+**no GPU**, no HF, no spend in this gate.
 
 | Operator | Cell | Hyperproperty (DIPTYCH) | Why the ZeroDay channel is a valid witness |
 |----------|------|-------------------------|--------------------------------------------|
@@ -186,5 +187,6 @@ DIPTYCH consumers: start at
 `zeroday-reports/paired-probe/coverage/matrix.json`, then per-op envelopes.
 Repo: [github.com/pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
 
-Related: [`cassette-runbook.md`](./cassette-runbook.md) · [`paths.md`](./paths.md)
-· [`design-partner-trust.md`](./design-partner-trust.md) · root [`README.md`](../README.md)
+Related: [`ci-trust.md`](./ci-trust.md) · [`cassette-runbook.md`](./cassette-runbook.md)
+· [`paths.md`](./paths.md) · [`design-partner-trust.md`](./design-partner-trust.md)
+· root [`README.md`](../README.md)
