@@ -9,6 +9,8 @@
 # Never auto-merges. Localization ≠ exploitability.
 # Org daily-driver runbook: docs/org-ops-runbook.md · cassette: docs/cassette-runbook.md
 # Paired probes: docs/paired-probes.md · docs/diptych-onepager.md
+# Stranger CI trust (badge + non-claims): docs/ci-trust.md
+# Badge label = this workflow `name:` (keep short / human-readable).
 
 name: ZERODAY locate
 

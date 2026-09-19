@@ -1,6 +1,7 @@
 # ZERODAY
 
 [![ZERODAY locate](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml/badge.svg)](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml)
+ · [CI trust — `paired-probe` all-8 + `gate_axis_mutate`](./docs/ci-trust.md)
 
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
@@ -304,7 +305,8 @@ Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 ### CI (required on `pull_request`)
 
 Fail-closed. Never pulls weights. Never auto-merge. No GPU in this gate. Live
-Antares is **not** wired into CI. Badge above.
+Antares is **not** wired into CI. Badge above → stranger one-pager:
+[`docs/ci-trust.md`](./docs/ci-trust.md) (what the badge proves / does not).
 
 | Gate | What it proves |
 |------|----------------|
@@ -314,7 +316,8 @@ Antares is **not** wired into CI. Badge above.
 
 Workflow:
 [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
-· docs: [`docs/paired-probes.md`](./docs/paired-probes.md).
+(`name: ZERODAY locate`) · docs: [`docs/ci-trust.md`](./docs/ci-trust.md) ·
+[`docs/paired-probes.md`](./docs/paired-probes.md).
 
 ---
 

@@ -98,8 +98,10 @@ Arbitrary local models ≠ Antares File F1. See [`antares.md`](./antares.md),
 | [`docs/cassette-runbook.md`](./cassette-runbook.md) | Record / redact / replay org cassettes for CI |
 | [`examples/ops/zeroday-org-locate.yml`](../examples/ops/zeroday-org-locate.yml) | Copy-paste consumer Action (fixture / rules / recording — no live GPU in CI) |
 
-Also: root [`README.md`](../README.md) (MVP / Desk / Honesty) and
-[`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml).
+Also: root [`README.md`](../README.md) (MVP / Desk / Honesty),
+[`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml),
+and stranger CI trust (badge ≠ vuln proof / ≠ live Antares F1):
+[`ci-trust.md`](./ci-trust.md).
 
 ---
 
