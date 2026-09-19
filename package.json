@@ -16,6 +16,8 @@
     "lint": "eslint .",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "test:desk": "tsx --test \"tests/desk/**/*.test.ts\"",
+    "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\"",
+    "paired-probe": "tsx cli/index.ts paired-probe",
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "inventory": "tsx cli/index.ts inventory",

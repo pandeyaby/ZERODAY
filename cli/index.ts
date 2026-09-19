@@ -1475,6 +1475,43 @@ program
   });
 
 program
+  .command("paired-probe")
+  .description(
+    "Emit DIPTYCH paired-probe artifacts (diptych_schema 0.2) for all 8 operators — keyless/offline. Localization only.",
+  )
+  .option(
+    "--output <dir>",
+    "Output root (writes paired-probe/ + diptych-probes/)",
+    "zeroday-reports",
+  )
+  .action(async (opts: { output: string }) => {
+    try {
+      const { runAllPairedProbes, JUSTIFICATIONS } = await import(
+        "../src/locate/paired-probes/index.ts"
+      );
+      const { matrix, matrixPath } = await runAllPairedProbes(opts.output);
+      console.log("");
+      console.log("ZERODAY paired-probe (DIPTYCH diptych_schema 0.2)");
+      console.log("────────────────────────────────────────────────");
+      console.log(`Output : ${path.resolve(opts.output)}`);
+      console.log(`Matrix : ${matrixPath}`);
+      console.log("");
+      for (const [op, cell] of Object.entries(matrix.operators)) {
+        const j = JUSTIFICATIONS[op as keyof typeof JUSTIFICATIONS];
+        console.log(`  ${op.padEnd(10)} ${cell.status.padEnd(10)} ${j.justification.slice(0, 72)}…`);
+      }
+      console.log("");
+      console.log(
+        "Posture: localization only · not exploitability · no PoC · no AUROC · no auto-merge",
+      );
+      console.log("Docs: docs/diptych-onepager.md · docs/paired-probes.md");
+    } catch (e) {
+      console.error(`paired-probe failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
   .command("record")
   .description(
     "Save a redacted org CI cassette from locate report.json (Keyless K3). --redact default ON; fail-closed.",

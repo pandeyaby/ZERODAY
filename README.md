@@ -194,6 +194,7 @@ Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 | All locate doors (rules, ingest, recordings, K3/K4, Desk chain, Action, cheat sheet) | [`docs/paths.md`](./docs/paths.md) |
 | Person + org habits + playground | [`docs/howto.md`](./docs/howto.md) |
 | Org forever path (Action + spend gates) | [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md) |
+| DIPTYCH paired probes (schema 0.2) | [`docs/paired-probes.md`](./docs/paired-probes.md) |
 | Docs index | [`docs/README.md`](./docs/README.md) |
 | Get help | [`SUPPORT.md`](./SUPPORT.md) |
 
