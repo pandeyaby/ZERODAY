@@ -52,7 +52,12 @@ export interface TraceMeta {
   sat_lo?: number;
   sat_hi?: number;
   hist_splice_at?: number;
+  traj_swap_at?: number;
+  residual_eps?: number;
   var_scale?: number;
+  var_eps?: number;
+  mean_finding_count?: number;
+  stability_floor?: number;
   /** Honest deferral — does NOT count as green. */
   inconclusive_reason?: string;
   deferred_without_semantic_witness?: boolean;
