@@ -12,6 +12,10 @@ org path: [`docs/org-ops-runbook.md`](../../../docs/org-ops-runbook.md)
 `fixtures/locate/rules-sample` via `locate --rules` → `record --redact`.
 Human-reviewed shape for CI (`org-path` + `locate-record` jobs).
 
+Paired-probe extras (DIPTYCH):
+- `fixture-cwe-89-multi.cassette.json` — 2 ranked files (FREEZEDRY / RESEED / HISTSWAP)
+- `fixture-cwe-89-alt-history.cassette.json` — same findings, alt `explorationTrace` (HISTSWAP violating)
+
 ## Flow
 
 ```bash

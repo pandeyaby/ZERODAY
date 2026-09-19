@@ -9,6 +9,8 @@
 | [howto.md](./howto.md) | Person + org usage + playground |
 | [org-ops-runbook.md](./org-ops-runbook.md) | Org forever path — Action + keyless vs live + spend gates (customer source stays private) |
 | [cassette-runbook.md](./cassette-runbook.md) | `record --redact` → `locate --recording` (GPU-free regression) |
+| [paired-probes.md](./paired-probes.md) | DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY…VARSCALE |
+| [diptych-onepager.md](./diptych-onepager.md) | Canonical DIPTYCH ONEPAGER mirror (enums + per-op table) |
 | [design-partner-trust.md](./design-partner-trust.md) | Trust pack — public OSS; customer source private; honest dry-run |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
 | [exporters.md](./exporters.md) | Customer ingest paths |

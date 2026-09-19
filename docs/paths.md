@@ -50,6 +50,11 @@ under `fixtures/locate/recordings/`. `--redact` is default ON and fail-closed.
 Replay sets honest `mode: "recording"`. Never auto-commit / auto-PR / upload
 cassettes; **a human reviews redaction before commit**.
 
+**DIPTYCH paired probes** (schema 0.2): cassette/serialize-restore twins for
+FREEZEDRY / RESEED / SCHEMAX / … — see [`paired-probes.md`](./paired-probes.md).
+A single `/play` Desk session does **not** prove bit-reproducible FREEZEDRY or
+full hyperproperty coverage.
+
 | | Fixture smoke | Rules (keyless) | SARIF ingest | Live completions | Org recording |
 |--|---------------|-----------------|--------------|------------------|---------------|
 | Brain | Deterministic fixture | Thin in-repo CWE heuristics | Existing SARIF file | Antares-1B **recommended**; or any local completions host (Ollama/vLLM/LM Studio) | Redacted cassette replay |

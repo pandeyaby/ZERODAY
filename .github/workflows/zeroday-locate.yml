@@ -5,9 +5,10 @@
 # Jobs: locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
 # the composite Action) + operate→verify + desk-ui (UI-2 reports + UI-3
 # live-endpoint unit tests) + locate-rules (K1) + locate-ingest (K2) +
-# locate-record (K3).
+# locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2).
 # Never auto-merges. Localization ≠ exploitability.
 # Org daily-driver runbook: docs/org-ops-runbook.md · cassette: docs/cassette-runbook.md
+# Paired probes: docs/paired-probes.md · docs/diptych-onepager.md
 
 name: ZERODAY locate
 
@@ -614,6 +615,86 @@ jobs:
             zeroday-reports/ci-locate-record/
             zeroday-reports/ci-locate-record-replay/
             zeroday-reports/ci-locate-record-committed/
+          if-no-files-found: error
+
+  # DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY…VARSCALE
+  # Keyless/offline. Localization only. No GPU / HF / spend / PoC / AUROC.
+  paired-probe:
+    name: paired-probe / freezedry (DIPTYCH 0.2 · all 8 ops)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests (fingerprint + gating + Wave A power)
+        run: |
+          set -euo pipefail
+          npm run test:paired-probes
+
+      - name: Emit all 8 operators × conforming/violating
+        run: |
+          set -euo pipefail
+          npm run paired-probe -- --output zeroday-reports
+          test -f zeroday-reports/paired-probe/coverage/matrix.json
+          test -f zeroday-reports/paired-probe/FREEZEDRY/conforming.json
+          test -f zeroday-reports/paired-probe/FREEZEDRY/violating.json
+          node -e '
+            const fs = require("fs");
+            const m = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/coverage/matrix.json", "utf8"));
+            if (m.diptych_schema !== "0.2") process.exit(2);
+            const ops = Object.keys(m.operators);
+            if (ops.length !== 8) process.exit(3);
+            for (const op of ["FREEZEDRY","RESEED","SCHEMAX","SATEXTEND","HISTSWAP"]) {
+              if (m.operators[op].status !== "green") process.exit(4);
+              const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
+              const v = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/violating.json","utf8"));
+              if (c.expected_verdict !== "pass" || v.expected_verdict !== "fail") process.exit(5);
+              if (c.traces.length < 2 || v.traces.length < 2) process.exit(6);
+            }
+            for (const op of ["SIGNFLIP","TRAJSWAP","VARSCALE"]) {
+              if (m.operators[op].status !== "deferred") process.exit(7);
+              const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
+              if (c.expected_verdict !== "inconclusive") process.exit(8);
+              if (!c.traces[0].meta.inconclusive_reason) process.exit(9);
+            }
+            for (const op of ["TRAJSWAP","VARSCALE"]) {
+              const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
+              if (c.coupling !== "crn_closed_loop") process.exit(10);
+            }
+            const blob = JSON.stringify(m);
+            if (/"auroc"\s*:/i.test(blob)) process.exit(11);
+            console.log("paired-probe OK", ops.join(","));
+          '
+
+      - name: Summarize paired-probe gate
+        run: |
+          {
+            echo "## ZERODAY paired-probe / FREEZEDRY (DIPTYCH diptych_schema 0.2)"
+            echo ""
+            echo "- Emits 8×{conforming,violating} under \`zeroday-reports/paired-probe/\`"
+            echo "- Green (power-on-axis): FREEZEDRY · RESEED · SCHEMAX · SATEXTEND · HISTSWAP"
+            echo "- Deferred (honest inconclusive): SIGNFLIP · TRAJSWAP · VARSCALE"
+            echo "- TRAJSWAP/VARSCALE coupling: \`crn_closed_loop\`"
+            echo "- Posture: keyless · localization only · not exploit proof · no PoC · no AUROC · no auto-merge"
+            echo "- Docs: \`docs/paired-probes.md\` · \`docs/diptych-onepager.md\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload paired-probe artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-paired-probe
+          path: |
+            zeroday-reports/paired-probe/
+            zeroday-reports/diptych-probes/
           if-no-files-found: error
 
   packet:

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "zeroday-org-cassette/v1",
+  "redacted": true,
+  "recordedAt": "2026-09-16T05:00:00.000Z",
+  "sourceMode": "fixture",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "targetRepo": "<repo>",
+  "model": "fixture/antares-1b-recorded",
+  "rankedFiles": [
+    {
+      "filePath": "src/users.js",
+      "rank": 1,
+      "cweIds": ["CWE-89"],
+      "title": "SQL query built via string concatenation",
+      "evidence": [
+        {
+          "filePath": "src/users.js",
+          "startLine": 8,
+          "endLine": 10,
+          "note": "User-controlled name is concatenated into a SQL string before db.query. [localization candidate — not exploit proof]",
+          "excerpt": "const sql = \"SELECT id, name, email FROM users WHERE name = '\" + name + \"'\";"
+        }
+      ]
+    },
+    {
+      "filePath": "src/app.js",
+      "rank": 2,
+      "cweIds": ["CWE-89"],
+      "title": "Request parameter passed to unsafe finder",
+      "evidence": [
+        {
+          "filePath": "src/app.js",
+          "startLine": 7,
+          "endLine": 9,
+          "note": "HTTP query name flows into findUserByName without neutralization. [localization candidate]",
+          "excerpt": "const name = req.query.name ?? \"\";\n  return findUserByName(db, name);"
+        }
+      ]
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "ls",
+      "command": "ls src/",
+      "summary": "ALT history: listed src/ before deep grep (different exploration prefix)."
+    },
+    {
+      "step": 2,
+      "tool": "grep",
+      "command": "grep -Rni 'db.query' .",
+      "summary": "ALT history: started from db.query call sites."
+    },
+    {
+      "step": 3,
+      "tool": "cat",
+      "command": "cat src/app.js",
+      "summary": "ALT history: read app.js before users.js."
+    },
+    {
+      "step": 4,
+      "tool": "cat",
+      "command": "cat src/users.js",
+      "summary": "ALT history: confirmed SQL concatenation in users.js."
+    },
+    {
+      "step": 5,
+      "tool": "other",
+      "command": "rank-files",
+      "summary": "ALT history: ranked two candidate files."
+    },
+    {
+      "step": 6,
+      "tool": "submit",
+      "command": "submit_vulnerable_files",
+      "summary": "Submitted src/users.js (rank 1) and src/app.js (rank 2)."
+    }
+  ],
+  "warnings": [
+    "Alt-history org cassette for HISTSWAP violating twin — same findings, different explorationTrace.",
+    "Localization only; not exploitability. No PoC / exploit / payload."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 2,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "terminalCallBudget": 15,
+    "terminalCallsUsed": 6
+  },
+  "humanReviewNote": "Human review required before commit: alt exploration history for HISTSWAP contrast only."
+}
