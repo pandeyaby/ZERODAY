@@ -20,6 +20,7 @@ import {
   decisionFingerprintFromPacket,
   SARIF_FINGERPRINT_KEYS,
 } from "../fingerprint";
+import type { PairedProbeSeed } from "../probe-seed";
 
 function historyValues(trace: TraceStep[]): unknown[] {
   return trace.map((s) => ({
@@ -42,12 +43,17 @@ function historyDigest(values: unknown[]): string {
   return decisionFingerprintFromPacket(values);
 }
 
-export function runHistswap(outputRoot: string): {
+export function runHistswap(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const primary = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
-  const alt = loadRecordingResult(FIXTURE_CASSETTE_ALT_HISTORY);
+  const primary = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const alt =
+    seed?.alt ?? loadRecordingResult(FIXTURE_CASSETTE_ALT_HISTORY);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi";
   const spliceAt = 2;
 
   const prefix = primary.explorationTrace.slice(0, spliceAt);
@@ -89,7 +95,7 @@ export function runHistswap(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.histswap.conforming",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "serialize_restore",
       bytes_or_path: "diptych-probes/HISTSWAP/conforming/cassette.json",
@@ -157,7 +163,7 @@ export function runHistswap(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.histswap.violating",
-    fixture_id: "fixture-cwe-89-multi+alt-history",
+    fixture_id: seed != null ? `${seed.fixtureId}+alt-history` : "fixture-cwe-89-multi+alt-history",
     cassette: {
       format: "serialize_restore",
       bytes_or_path: "diptych-probes/HISTSWAP/violating/cassette.json",

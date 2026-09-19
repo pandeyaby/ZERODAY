@@ -20,15 +20,20 @@ import {
   signNormalizedInvariant,
 } from "../score-margin";
 import { SARIF_FINGERPRINT_KEYS } from "../fingerprint";
+import type { PairedProbeSeed } from "../probe-seed";
 
 const FREEZE = ["clock"] as const;
 const CHANNEL = "score_margin";
 
-export function runSignflip(outputRoot: string): {
+export function runSignflip(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const base = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi";
   const ordered = scoredFromResult(base);
   const paths = ordered.map((f) => f.filePath);
   const m = scoreMargin(ordered);
@@ -74,7 +79,7 @@ export function runSignflip(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.signflip.conforming",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "serialize_restore",
       bytes_or_path: "diptych-probes/SIGNFLIP/conforming/cassette.json",
@@ -142,7 +147,7 @@ export function runSignflip(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.signflip.violating",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "serialize_restore",
       bytes_or_path: "diptych-probes/SIGNFLIP/violating/cassette.json",

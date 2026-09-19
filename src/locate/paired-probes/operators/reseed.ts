@@ -16,14 +16,19 @@ import {
   gradeSeedLeaking,
 } from "../seed";
 import { SARIF_FINGERPRINT_KEYS } from "../fingerprint";
+import type { PairedProbeSeed } from "../probe-seed";
 
 const EPSILON = 0;
 
-export function runReseed(outputRoot: string): {
+export function runReseed(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const base = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi";
   if (base.rankedFiles.length < 2) {
     throw new Error("RESEED requires multi-finding cassette (≥2 rankedFiles)");
   }
@@ -59,7 +64,7 @@ export function runReseed(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.reseed.conforming",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "none",
       bytes_or_path: "diptych-probes/RESEED/conforming/cassette.json",
@@ -122,7 +127,7 @@ export function runReseed(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.reseed.violating",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "none",
       bytes_or_path: "diptych-probes/RESEED/violating/cassette.json",

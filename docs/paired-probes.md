@@ -59,6 +59,31 @@ npm run zeroday -- paired-probe --output zeroday-reports
 npm run test:paired-probes
 ```
 
+### Stranger door — locate SARIF / vault → paired-probe (no DIPTYCH clone)
+
+Already have a locate `report.sarif`, `report.json`, or vault dir on disk?
+One command emits the same envelopes + coverage matrix — **no GPU**, no
+DIPTYCH clone, no HF token:
+
+```bash
+# from a SARIF file (in-repo sample works keyless):
+npm run paired-probe:from-sarif -- --sarif fixtures/locate/ingest-sample/sample.sarif
+
+# from a locate / vault directory (prefers report.json, else report.sarif):
+npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp
+
+# same door via the paired-probe flag:
+npm run paired-probe -- --sarif path/to/report.sarif --output zeroday-reports
+```
+
+Pipeline: **locate → SARIF → `paired-probe:from-sarif` → optional DIPTYCH grade**
+(or `npm run paired-probe:sample-report` for an illustrative DIPTYCH-shaped
+mirror without cloning DIPTYCH).
+
+**Honest non-claims:** emit-only; greens are adapter hyperproperties
+(FREEZEDRY…VARSCALE), **not** exploitability; DIPTYCH grades (ZeroDay emits);
+`needs_human` stays true; no PoC / AUROC theater.
+
 ### Artifacts
 
 ```

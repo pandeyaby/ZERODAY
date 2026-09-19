@@ -21,6 +21,7 @@ import {
 import { leakClockRngIntoSarif } from "../fingerprint";
 import { decisionFingerprintFromSarif, SARIF_FINGERPRINT_KEYS } from "../fingerprint";
 import type { PairedProbeTrace } from "../types";
+import type { PairedProbeSeed } from "../probe-seed";
 
 function traceFromGrade(
   id: string,
@@ -50,11 +51,15 @@ function traceFromGrade(
   };
 }
 
-export function runFreezedry(outputRoot: string): {
+export function runFreezedry(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const base = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi";
   const frozen = freezePacket(base, ["rng", "clock"]);
   const bytes = serializePacket(frozen);
 
@@ -81,7 +86,7 @@ export function runFreezedry(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.freezedry.conforming",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "serialize_restore",
       bytes_or_path: confCassette.rel,
@@ -124,7 +129,7 @@ export function runFreezedry(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.freezedry.violating",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     cassette: {
       format: "serialize_restore",
       bytes_or_path: violCassette.rel,

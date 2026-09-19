@@ -1,6 +1,9 @@
 /**
  * Run all 8 DIPTYCH paired probes → zeroday-reports artifacts + coverage matrix.
  * Keyless / offline. Fail closed on GATING violations for claimed-green ops.
+ *
+ * Optional `seed` (from locate SARIF / report / vault) grounds FREEZEDRY…VARSCALE
+ * in a stranger artifact; omit seed for the default in-repo fixture path.
  */
 
 import path from "node:path";
@@ -15,6 +18,7 @@ import { runVarscale } from "./operators/varscale";
 import { buildMatrix, gateEnvelopes, writeMatrix } from "./gate";
 import { gateAxisMutate } from "./gate-axis-mutate";
 import type { DiptychOperator, ZerodayCoverageMatrix } from "./types";
+import type { PairedProbeSeed } from "./probe-seed";
 
 export const JUSTIFICATIONS: Record<
   DiptychOperator,
@@ -62,20 +66,23 @@ export const JUSTIFICATIONS: Record<
   },
 };
 
-export async function runAllPairedProbes(outputRoot: string): Promise<{
+export async function runAllPairedProbes(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): Promise<{
   matrix: ZerodayCoverageMatrix;
   matrixPath: string;
 }> {
   const root = path.resolve(outputRoot);
 
-  runFreezedry(root);
-  runReseed(root);
-  await runSchemax(root);
-  runSatextend(root);
-  runHistswap(root);
-  runSignflip(root);
-  runTrajswap(root);
-  runVarscale(root);
+  runFreezedry(root, seed);
+  runReseed(root, seed);
+  await runSchemax(root, seed);
+  runSatextend(root); // tool-budget channel — independent of locate artifact
+  runHistswap(root, seed);
+  runSignflip(root, seed);
+  runTrajswap(root, seed);
+  runVarscale(root, seed);
 
   const matrix = buildMatrix(JUSTIFICATIONS);
   const matrixPath = writeMatrix(root, matrix);
