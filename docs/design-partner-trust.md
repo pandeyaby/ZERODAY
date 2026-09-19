@@ -77,12 +77,17 @@ Also keyless: SARIF ingest (`locate --from-sarif`), org cassette replay
 (`record --redact` → `locate --recording`), and `operate --emit-brief` for a
 coding-agent handoff. Fixtures and cassettes prove **shape**, not Antares F1.
 
-### Live Antares (opt-in — human spend yes)
+### Live Antares (opt-in — human spend yes) — Door B
+
+Proven vs deferred (CUDA/vLLM / RunPod Secure A40; no invented AUROC / latency
+SLAs): **[`gpu-claims.md`](./gpu-claims.md)**.
 
 1. Accept HF gated terms for `fdtn-ai/antares-1b` yourself (never scrape / bypass).
 2. Host completions (`POST /v1/completions`) on CUDA/vLLM (or documented RunPod Secure A40).
 3. Print-only first: `npm run zeroday -- antares doctor` (and `doctor` for local Ollama/vLLM/LM Studio).
-4. Only then: `locate --endpoint …` (non-loopback needs `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`).
+4. Desk **Validate live** / `live validate --endpoint <url>` — **fails closed** if unreachable.
+5. Only then: `locate --endpoint …` (non-loopback needs `--remote-inference` / `ZERODAY_REMOTE_INFERENCE_ACK=1`).
+6. **Terminate** the pod after one-shot locate (documented ~$0.49/hr Secure A40 class — quote console).
 
 ZERODAY never downloads `model.safetensors` and never auto-provisions pods.
 Arbitrary local models ≠ Antares File F1. See [`antares.md`](./antares.md),

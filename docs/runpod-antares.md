@@ -20,6 +20,9 @@ via an OpenAI-compatible API that exposes **`POST /v1/completions`** (required b
 
 Host-agnostic overview (any GPU host): [`remote-antares-vllm.md`](./remote-antares-vllm.md).
 
+Design-partner **proven vs deferred** table (no invented AUROC / File-F1 /
+latency SLAs): [`gpu-claims.md`](./gpu-claims.md).
+
 ## GPU tier: prefer Secure A40
 
 `fdtn-ai/antares-1b` is a ~1B-parameter GraniteMoeHybrid model with a large
@@ -159,8 +162,13 @@ zeroday-reports/antares-live-proof/
   report.md
 ```
 
+**Operator-run proof; not a checked-in cassette** — those SARIF files are not
+shipped in this repo for CI replay. Lab notes landed in commit `3e6eaec`
+(“Document Secure A40 live Antares proof path on RunPod”). Re-runs may differ.
+
 This is **not** proof of exploitability, not a PoC, and not a partnership claim.
-Re-runs may differ; always set `needs_human: true` and keep CI fixture-safe.
+Always set `needs_human: true` and keep CI fixture-safe. Claim boundary:
+[`gpu-claims.md`](./gpu-claims.md).
 
 ## Honesty
 
@@ -175,6 +183,7 @@ Re-runs may differ; always set `needs_human: true` and keep CI fixture-safe.
 
 ## Related
 
+- [`gpu-claims.md`](./gpu-claims.md) — proven vs deferred (design partners)
 - [`remote-antares-vllm.md`](./remote-antares-vllm.md) — host-agnostic contract
 - [`defense-factory.md`](./defense-factory.md) — factory north star
 - [`antares.md`](./antares.md) — local Antares wrap

@@ -6,6 +6,9 @@ RunPod** as the remote CUDA path; the env contract is host-agnostic.
 
 → **Start here (recommended):** [`runpod-antares.md`](./runpod-antares.md)
 
+→ **Honest claim boundary:** [`gpu-claims.md`](./gpu-claims.md) (proven when
+operator brings endpoint; no public File-F1 / AUROC / latency SLA theater).
+
 ## Completions contract
 
 | Requirement | Detail |
@@ -49,7 +52,8 @@ Nebius resources and does not treat Nebius as the default remote host.
 
 ## Related
 
+- [`gpu-claims.md`](./gpu-claims.md) — proven vs deferred
 - [`local-brain.md`](./local-brain.md) — any local completions host (Ollama/vLLM/LM Studio; Keyless K4)
 - [`runpod-antares.md`](./runpod-antares.md) — recommended remote path
 - [`defense-factory.md`](./defense-factory.md)
-- Root README § Remote CUDA / RunPod
+- Root README · Door B (opt-in live GPU brain)
