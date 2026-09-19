@@ -13,7 +13,12 @@ npm run stranger:verify
 
 Runs `npm run trust-loop` (fixture SARIF → `paired-probe:from-sarif`) and prints
 an honest Door A / Door B card. Optional: `npm run stranger:verify -- --mvp` to
-run fixture locate first. CI runs the same keyless command in the
+run fixture locate first. Machine-readable (CI/partners):  
+`npm run --silent stranger:verify -- --json` (or `ZERODAY_STRANGER_JSON=1`) —
+single JSON object on stdout (`schemaVersion` `zeroday-stranger-verify/v1`,
+`doorA` / `doorB` / `nonClaims`; Door B `mode: "citation"`, `ran: false` — no
+live GPU). Prefer `--silent` so npm’s script banner does not precede the JSON.
+CI runs the same keyless command in the
 `stranger-verify` job on
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
 (badge ≠ vuln proof — see [`ci-trust.md`](./ci-trust.md)).

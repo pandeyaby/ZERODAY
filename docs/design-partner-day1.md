@@ -47,11 +47,12 @@ Same story as mvp → `paired-probe:from-sarif` → paths printed. Detail:
 ```bash
 npm run stranger:verify
 # alias: npm run doors
+# machine-readable: npm run --silent stranger:verify -- --json
 ```
 
 | Surface | What you get |
 |---------|----------------|
-| Local / Codespace | Door A **PASS** + Door B **citation** card (no GPU) |
+| Local / Codespace | Door A **PASS** + Door B **citation** card (no GPU) · optional `--json` for parsers |
 | Desk UI | `npm run play` → **Prove doors** tab (copy-paste only) |
 | This repo’s Actions badge | `stranger-verify` job on [`zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 

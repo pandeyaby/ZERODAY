@@ -20,6 +20,7 @@ describe("design-partner Day-1 checklist", () => {
 
     assert.match(doc, /npm run mvp/);
     assert.match(doc, /npm run stranger:verify/);
+    assert.match(doc, /--json|ZERODAY_STRANGER_JSON/);
     assert.match(doc, /npm run trust-loop/);
     assert.match(doc, /gpu-claims\.md/);
     assert.match(doc, /ci-trust\.md/);
