@@ -51,9 +51,10 @@ Replay sets honest `mode: "recording"`. Never auto-commit / auto-PR / upload
 cassettes; **a human reviews redaction before commit**.
 
 **DIPTYCH paired probes** (schema 0.2): cassette/serialize-restore twins for
-FREEZEDRY / RESEED / SCHEMAX / … — see [`paired-probes.md`](./paired-probes.md).
-A single `/play` Desk session does **not** prove bit-reproducible FREEZEDRY or
-full hyperproperty coverage.
+FREEZEDRY / RESEED / SCHEMAX / … — see [`paired-probes.md`](./paired-probes.md)
+and [DIPTYCH](https://github.com/pandeyaby/DIPTYCH). CI requires `paired-probe`
++ `gate_axis_mutate`. A single `/play` Desk session does **not** prove
+bit-reproducible FREEZEDRY or full hyperproperty coverage.
 
 | | Fixture smoke | Rules (keyless) | SARIF ingest | Live completions | Org recording |
 |--|---------------|-----------------|--------------|------------------|---------------|

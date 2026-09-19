@@ -1,13 +1,17 @@
 # Paired probes — ZERODAY → DIPTYCH (diptych_schema 0.2)
 
 Emit-only adapter for [DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
-hyperproperty grading. **ZERODAY does not implement DIPTYCH’s operator
-orchestration** — we emit conforming + violating probe pairs; DIPTYCH grades.
+hyperproperty / paired-trace grading. **ZERODAY does not implement DIPTYCH’s
+operator orchestration** — we emit conforming + violating probe pairs; DIPTYCH
+grades.
 
 **DIPTYCH is optional.** Core `locate` / Desk / SARIF work without it. This
 adapter is paired-probe / trust tooling, not a runtime dependency.
 
 ![ZERODAY trust pipeline — Desk → locate → SARIF/evidence → optional DIPTYCH](./images/zeroday-trust-pipeline.svg)
+
+Architecture figure:
+[`images/zeroday-diptych-architecture.png`](./images/zeroday-diptych-architecture.png).
 
 Canonical enums + per-op table: [`diptych-onepager.md`](./diptych-onepager.md)
 (mirrored from DIPTYCH ONEPAGER; **0.1 rejected**).
