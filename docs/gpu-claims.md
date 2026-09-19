@@ -21,11 +21,11 @@ from this doc (print-only doctors; you provision and terminate).
 
 | Claim | Status | Evidence / cite |
 |-------|--------|-----------------|
-| OpenAI-compatible **`POST /v1/completions`** on CUDA / vLLM for `fdtn-ai/antares-1b` | **Proven (when operator brings endpoint)** | Contract: [`remote-antares-vllm.md`](./remote-antares-vllm.md); recommended host: [`runpod-antares.md`](./runpod-antares.md) |
-| RunPod **Secure A40** (or Secure CUDA ≥ 12.8 equivalent), recent vLLM, `--max-model-len 32768` | **Proven path (operator-run)** | [`runpod-antares.md`](./runpod-antares.md) · print-only `npm run zeroday -- antares doctor` · commit `3e6eaec` (Secure A40 live-proof notes on `main`) |
-| Desk **Validate live (≤60s)** / `live validate` + doctor against fixture CWE-89-style path | **Proven tooling (fail closed if unreachable)** | Desk CTA + `npm run zeroday -- live validate`; unit: `tests/locate/live-guard.test.ts`, `tests/desk/live-endpoint.test.ts` |
-| Live locate → SARIF on fixture demo-app (**CWE-89** / `src/users.js` candidate) | **Operator-run proof; not a checked-in cassette** | Narrative in [`runpod-antares.md`](./runpod-antares.md) § Honest live proof note — artifacts were under `zeroday-reports/antares-live-proof/` on the operator machine; **not** shipped as a CI cassette |
-| Spend ceiling + **terminate-after** discipline | **Documented operator habit** | Prefer Secure A40 ~**$0.49/hr** (console price at provision time — do not treat as a fixed SLA). One-shot locate → SARIF → **stop/terminate**; ZERODAY never auto-stops pods. See [`runpod-antares.md`](./runpod-antares.md) §5 |
+| OpenAI-compatible **`POST /v1/completions`** on CUDA / vLLM for `fdtn-ai/antares-1b` | **Proven (when operator brings endpoint)** | Contract: [`remote-antares-vllm.md`](./remote-antares-vllm.md); recommended host: [`runpod-antares.md`](./runpod-antares.md); **live GPU** re-proof 2026-09-19 below |
+| RunPod **Secure A40** (or Secure CUDA ≥ 12.8 equivalent), recent vLLM | **Proven path (operator-run)** | [`runpod-antares.md`](./runpod-antares.md) · print-only `npm run zeroday -- antares doctor` · commit `3e6eaec` (earlier notes) · **live GPU** re-proof pod `d65ny3xqf7bwza` (this page) |
+| Desk **Validate live (≤60s)** / `live validate` + doctor against fixture CWE-89-style path | **Proven tooling (fail closed if unreachable)** | Desk CTA + `npm run zeroday -- live validate`; unit: `tests/locate/live-guard.test.ts`, `tests/desk/live-endpoint.test.ts` (**keyless** CI — no live GPU) |
+| Live locate → SARIF on fixture demo-app (**CWE-89** / `src/users.js` candidate) | **Operator-run proof; not a checked-in cassette** | Earlier: [`runpod-antares.md`](./runpod-antares.md) § Honest live proof note · **live GPU** re-proof 2026-09-19 (below) — Mac report dir not shipped in CI |
+| Spend ceiling + **terminate-after** discipline | **Documented + measured (one session)** | Prefer Secure A40 **$0.49/hr** at create (not an SLA). Re-proof estimated **~$0.034** under ≤$0.50 ceiling — see dated section. Recipe: [`runpod-antares.md`](./runpod-antares.md) §5 |
 | Public File-F1 / marketing F1 for fixture · rules · ingest · recording · arbitrary local models | **Deferred / not claimed** | [`design-partner-trust.md`](./design-partner-trust.md) · [`local-brain.md`](./local-brain.md) |
 | Mac MPS / Ollama tool-call reliability as production Antares | **Deferred / not claimed** | MPS unsupported for schema-faithful live locate ([`antares.md`](./antares.md)); Ollama 350M path has **no** File F1 claim ([`antares-350m-ollama.md`](./antares-350m-ollama.md)) |
 | Org-scale latency SLAs | **Deferred / not claimed** | [`SUPPORT.md`](../SUPPORT.md) — no SLA; not Cisco support |
@@ -90,11 +90,64 @@ Wrap overview: [`antares.md`](./antares.md).
   Exact SKUs and prices change; quote the RunPod console at provision time.
 - Discipline: one-shot locate → SARIF → terminate. No auto-spend, no silent
   pod create, no org-scale cost SLA invented here.
-- This PR / doc pack does **not** create pods or burn GPU credit.
+- Dated **live GPU** measurement: see [Live re-proof (2026-09-19 PT)](#live-re-proof-2026-09-19-pt) below.
 
 ---
 
-## Smoke / fail-closed (no live GPU in CI)
+## Live re-proof (2026-09-19 PT)
+
+**Label: live GPU** (operator-hosted Secure A40). Distinct from **keyless**
+fixture/CI (no weights, no RunPod — Door A / CI gate above).
+
+Operator-measured session. Cite recipes:
+[`runpod-antares.md`](./runpod-antares.md) ·
+[`remote-antares-vllm.md`](./remote-antares-vllm.md).
+**Not** a checked-in cassette. Invent nothing beyond the facts below.
+
+| Field | Measured |
+|-------|----------|
+| Pod id | `d65ny3xqf7bwza` |
+| Tier / GPU / DC | RunPod Secure Cloud · `NVIDIA A40` · `EU-SE-1` |
+| Image | `vllm/vllm-openai:latest` (vLLM **0.29.0**) |
+| Model | `fdtn-ai/antares-1b` · `--max-model-len 8192` |
+| Rate at create | **$0.49/hr** |
+| Timeline (UTC) | startedAt `2026-09-19T21:14:47Z` · Application startup complete ~`2026-09-19T21:16:55Z` · terminate (delete-pod 204) ~`2026-09-19T21:19:00Z` |
+| Wall start→terminate | **~4.2 minutes** |
+| Estimated spend | **~$0.034** (= 4.2/60 × $0.49). Hard ceiling was ≤ **$0.50** — under ceiling. Prefer billing API figure if/when available; do not invent a different number. |
+| Doctor-style ping | `GET /v1/models` → **200** (~0.51s); model id listed `fdtn-ai/antares-1b` |
+| Completions smoke | `POST /v1/completions` prompt=`ping` `max_tokens=8` → **200** (~0.63s) |
+| Live locate smoke | Pass (defensive localization only) — details below |
+
+### Live locate smoke (ZERODAY-mac-verify)
+
+```bash
+zeroday locate --cwe CWE-89 --repo fixtures/locate/demo-app --live \
+  --endpoint https://d65ny3xqf7bwza-8000.proxy.runpod.net/v1 \
+  --model fdtn-ai/antares-1b --remote-inference --tool-budget 15
+```
+
+| Field | Measured |
+|-------|----------|
+| Locate wall | ~**18s** |
+| Ranked file | **`src/users.js`** rank 1 |
+| findingCount | 1 |
+| incompleteReason | `null` |
+| Report dir (Mac) | `zeroday-reports/a40-smoke-20260919T211837Z/` (SARIF written; **not** checked into this repo) |
+| Posture | localizationOnly · notExploitProof · noPoC · noAutoMerge |
+
+### Honest non-claims (this re-proof)
+
+- Localization ≠ exploitability · `needs_human` · no PoC · no auto-merge
+- **Not** a public AUROC / File-F1 / marketing-F1 claim
+- **Not** an org-scale latency SLA (the ~0.51s / ~0.63s / ~18s figures are
+  **this session only** — not product SLAs)
+- **Not** a CI cassette; **keyless** CI still never pulls weights or calls RunPod
+- `--max-model-len 8192` on this run — does not retract the longer-context
+  guidance in [`runpod-antares.md`](./runpod-antares.md); report what was used
+
+---
+
+## Smoke / fail-closed (**keyless** CI — no live GPU)
 
 | Check | What it does | Live GPU? |
 |-------|--------------|-----------|
