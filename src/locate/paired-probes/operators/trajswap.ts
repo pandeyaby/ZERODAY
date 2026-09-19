@@ -20,6 +20,7 @@ import {
   swapTrajectorySegment,
 } from "../crn";
 import { decisionFingerprintFromPacket } from "../fingerprint";
+import type { PairedProbeSeed } from "../probe-seed";
 
 const FREEZE = ["rng", "clock"] as const;
 const RESIDUAL_EPS = 0.25;
@@ -118,12 +119,21 @@ function trajChannel(steps: TraceStep[], verified: string[]) {
   };
 }
 
-export function runTrajswap(outputRoot: string): {
+export function runTrajswap(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const primary = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
-  const alt = loadRecordingResult(FIXTURE_CASSETTE_ALT_HISTORY);
+  const primary = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const alt =
+    seed?.alt ?? loadRecordingResult(FIXTURE_CASSETTE_ALT_HISTORY);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi+alt-history";
+  const fixtureIdPoison =
+    seed != null
+      ? `${seed.fixtureId}+poison-traj`
+      : "fixture-cwe-89-multi+poison-traj";
   const verified = primary.rankedFiles.map((f) => f.filePath).sort();
   const trajA = primary.explorationTrace.map((s) => ({ ...s }));
   const trajB = alt.explorationTrace.map((s) => ({ ...s }));
@@ -177,7 +187,7 @@ export function runTrajswap(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.trajswap.conforming",
-    fixture_id: "fixture-cwe-89-multi+alt-history",
+    fixture_id: fixtureId,
     horizon: { unit: "steps", length: swapped.a.length },
     cassette: {
       format: "vcr_json",
@@ -260,7 +270,7 @@ export function runTrajswap(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.trajswap.violating",
-    fixture_id: "fixture-cwe-89-multi+poison-traj",
+    fixture_id: fixtureIdPoison,
     horizon: { unit: "steps", length: broken.a.length },
     cassette: {
       format: "vcr_json",

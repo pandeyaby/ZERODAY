@@ -15,6 +15,7 @@ import { evidenceScore } from "../score-margin";
 import { hashSeed, mulberry32 } from "../seed";
 import { decisionFingerprintFromPacket } from "../fingerprint";
 import { closedLoopResidual } from "../crn";
+import type { PairedProbeSeed } from "../probe-seed";
 
 const VAR_EPS = 0.15;
 const STABILITY_FLOOR = 0.85;
@@ -91,11 +92,15 @@ function maxProxy(values: number[]): number {
   return values.reduce((m, v) => Math.max(m, v), 0);
 }
 
-export function runVarscale(outputRoot: string): {
+export function runVarscale(
+  outputRoot: string,
+  seed?: PairedProbeSeed,
+): {
   conforming: DiptychPairedProbeEnvelope;
   violating: DiptychPairedProbeEnvelope;
 } {
-  const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const base = seed?.primary ?? loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+  const fixtureId = seed?.fixtureId ?? "fixture-cwe-89-multi";
   if (base.rankedFiles.length < 2) {
     throw new Error("VARSCALE requires ≥2 rankedFiles");
   }
@@ -193,7 +198,7 @@ export function runVarscale(outputRoot: string): {
     control_role: "conforming",
     expected_verdict: "pass",
     probe_id: "zeroday.varscale.conforming",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     horizon: { unit: "steps", length: confA.variance_proxy.length },
     cassette: {
       format: "none",
@@ -258,7 +263,7 @@ export function runVarscale(outputRoot: string): {
     control_role: "violating",
     expected_verdict: "fail",
     probe_id: "zeroday.varscale.violating",
-    fixture_id: "fixture-cwe-89-multi",
+    fixture_id: fixtureId,
     horizon: { unit: "steps", length: violA.variance_proxy.length },
     cassette: {
       format: "none",

@@ -1484,16 +1484,35 @@ program
     "Output root (writes paired-probe/ + diptych-probes/)",
     "zeroday-reports",
   )
-  .action(async (opts: { output: string }) => {
+  .option(
+    "--sarif <path>",
+    "Optional locate SARIF / report.json / vault dir — same as paired-probe:from-sarif",
+  )
+  .action(async (opts: { output: string; sarif?: string }) => {
     try {
-      const { runAllPairedProbes, JUSTIFICATIONS } = await import(
-        "../src/locate/paired-probes/index.ts"
-      );
-      const { matrix, matrixPath } = await runAllPairedProbes(opts.output);
+      const { runAllPairedProbes, JUSTIFICATIONS, runPairedProbesFromSarif } =
+        await import("../src/locate/paired-probes/index.ts");
+      let matrix: Awaited<ReturnType<typeof runAllPairedProbes>>["matrix"];
+      let matrixPath: string;
+      let sourceNote = "in-repo fixture cassettes";
+      if (opts.sarif && opts.sarif.trim().length > 0) {
+        const out = await runPairedProbesFromSarif({
+          input: opts.sarif.trim(),
+          output: opts.output,
+        });
+        matrix = out.matrix;
+        matrixPath = out.matrixPath;
+        sourceNote = out.seed.sourcePath;
+      } else {
+        const out = await runAllPairedProbes(opts.output);
+        matrix = out.matrix;
+        matrixPath = out.matrixPath;
+      }
       console.log("");
       console.log("ZERODAY paired-probe (DIPTYCH diptych_schema 0.2)");
       console.log("────────────────────────────────────────────────");
       console.log(`Output : ${path.resolve(opts.output)}`);
+      console.log(`Source : ${sourceNote}`);
       console.log(`Matrix : ${matrixPath}`);
       console.log("");
       for (const [op, cell] of Object.entries(matrix.operators)) {
@@ -1502,7 +1521,7 @@ program
       }
       console.log("");
       console.log(
-        "Posture: localization only · not exploitability · no PoC · no AUROC · no auto-merge",
+        "Posture: emit-only · localization only · not exploitability · greens = adapter hyperproperties · DIPTYCH grades · no PoC · no AUROC · no auto-merge",
       );
       console.log("Docs: docs/diptych-onepager.md · docs/paired-probes.md");
     } catch (e) {
@@ -1510,6 +1529,64 @@ program
       process.exitCode = 2;
     }
   });
+
+program
+  .command("paired-probe:from-sarif")
+  .description(
+    "One-command door: locate SARIF / report.json / vault on disk → DIPTYCH paired-probe envelopes + coverage matrix (keyless, no GPU, no DIPTYCH clone).",
+  )
+  .requiredOption(
+    "--sarif <path>",
+    "Path to report.sarif, report.json, or a locate/vault directory containing either",
+  )
+  .option(
+    "--output <dir>",
+    "Output root (writes paired-probe/ + diptych-probes/)",
+    "zeroday-reports",
+  )
+  .option(
+    "--cwe <id>",
+    "Optional CWE filter when ingesting third-party SARIF (e.g. CWE-89)",
+  )
+  .action(
+    async (opts: { sarif: string; output: string; cwe?: string }) => {
+      try {
+        const { runPairedProbesFromSarif, JUSTIFICATIONS } = await import(
+          "../src/locate/paired-probes/index.ts"
+        );
+        const { matrix, matrixPath, seed, outputRoot } =
+          await runPairedProbesFromSarif({
+            input: opts.sarif,
+            output: opts.output,
+            cweFilter: opts.cwe?.trim() || null,
+          });
+        console.log("");
+        console.log(
+          "ZERODAY paired-probe:from-sarif (DIPTYCH diptych_schema 0.2)",
+        );
+        console.log("────────────────────────────────────────────────");
+        console.log(`Input  : ${seed.sourcePath} (${seed.sourceKind})`);
+        console.log(`Output : ${outputRoot}`);
+        console.log(`Matrix : ${matrixPath}`);
+        console.log(`Seed   : ${seed.fixtureId}`);
+        console.log("");
+        for (const [op, cell] of Object.entries(matrix.operators)) {
+          const j = JUSTIFICATIONS[op as keyof typeof JUSTIFICATIONS];
+          console.log(
+            `  ${op.padEnd(10)} ${cell.status.padEnd(10)} ${j.justification.slice(0, 72)}…`,
+          );
+        }
+        console.log("");
+        console.log(
+          "Honest non-claims: emit-only · greens are adapter hyperproperties · not exploitability · DIPTYCH grades · optional: npm run paired-probe:sample-report",
+        );
+        console.log("Docs: docs/paired-probes.md");
+      } catch (e) {
+        console.error(`paired-probe:from-sarif failed: ${(e as Error).message}`);
+        process.exitCode = 2;
+      }
+    },
+  );
 
 program
   .command("record")

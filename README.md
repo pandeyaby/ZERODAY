@@ -44,6 +44,12 @@ honestly deferred — never cosmetic greens). Details:
 (illustrative DIPTYCH-shaped mirror — not a live harness claim; greens =
 hyperproperty adapters; localization ≠ exploitability).
 
+**One-command from an existing locate SARIF / vault:**  
+`npm run paired-probe:from-sarif -- --sarif path/to/report.sarif` → same
+envelopes + coverage matrix (keyless, no GPU, no DIPTYCH clone). Pipeline:
+locate → SARIF → this command → optional DIPTYCH grade. Details:
+[`docs/paired-probes.md`](./docs/paired-probes.md).
+
 ---
 
 ## Start in 2 minutes

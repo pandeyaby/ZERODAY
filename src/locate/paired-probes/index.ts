@@ -41,6 +41,16 @@ export {
 } from "./packet";
 
 export {
+  runPairedProbesFromSarif,
+  loadPairedProbeSeedFromInput,
+  resolveLocateArtifact,
+  prepareSeedFromResult,
+  synthesizeAltHistory,
+} from "./from-sarif";
+export type { FromSarifOptions } from "./from-sarif";
+export type { PairedProbeSeed } from "./probe-seed";
+
+export {
   SAMPLE_GRADE_KIND,
   buildSampleDiptychGradeReport,
   renderSampleGradeMarkdown,

@@ -10,7 +10,7 @@
 | [org-ops-runbook.md](./org-ops-runbook.md) | Org forever path — Action + keyless vs live + spend gates (customer source stays private) |
 | [cassette-runbook.md](./cassette-runbook.md) | `record --redact` → `locate --recording` (GPU-free regression) |
 | [architecture.md](./architecture.md) | Locate desk → SARIF/cassette → DIPTYCH paired probes ([figure](./images/zeroday-diptych-architecture.png)) |
-| [paired-probes.md](./paired-probes.md) | DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY…VARSCALE; CI: paired-probe + gate_axis_mutate; sample grade: [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
+| [paired-probes.md](./paired-probes.md) | DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY…VARSCALE; CI: paired-probe + gate_axis_mutate; stranger door: `paired-probe:from-sarif`; sample grade: [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
 | [diptych-onepager.md](./diptych-onepager.md) | Canonical DIPTYCH ONEPAGER mirror (enums + per-op table) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) |
 | [design-partner-trust.md](./design-partner-trust.md) | Trust pack — public OSS; customer source private; honest dry-run |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |
