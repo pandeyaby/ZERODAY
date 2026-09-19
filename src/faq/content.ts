@@ -223,6 +223,29 @@ export const FAQ_ITEMS: FaqItem[] = [
       },
     ],
   },
+  {
+    id: "stranger-trust-loop",
+    question: "What is the stranger trust loop after locate?",
+    answer: [
+      {
+        type: "p",
+        text: "Design-partner one-screen story: fixture locate → SARIF → `paired-probe:from-sarif` → checked-in sample DIPTYCH-shaped grade — no DIPTYCH clone, no GPU.",
+      },
+      {
+        type: "ul",
+        items: [
+          "`npm run mvp` — fixture locate → `zeroday-reports/mvp/report.sarif`",
+          "`npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp` — envelopes + coverage matrix",
+          "Open `docs/reports/diptych-sample-grade.md` (illustrative sample grade; not a live DIPTYCH harness run)",
+          "One-shot: `npm run trust-loop` (prints the same paths)",
+        ],
+      },
+      {
+        type: "p",
+        text: "Honest non-claims: localization ≠ exploitability · no AUROC · DIPTYCH grades · ZeroDay emits · `needs_human` stays true. See `docs/paired-probes.md`, `docs/design-partner-trust.md`, and `SUPPORT.md`.",
+      },
+    ],
+  },
 ];
 
 /** Question titles in display order (for sync tests / indexes). */

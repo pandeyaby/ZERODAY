@@ -83,3 +83,14 @@ No. If asked for fix + PoC: patch draft only (with `--i-asked-for-a-fix`), refus
 ## Do I need Antares weights / Hugging Face gated terms?
 
 Only for optional live Antares localization (`locate --live --endpoint …`) on a workstation that already hosts `fdtn-ai/antares-1b` via completions. Accept HF terms yourself — never scrape or bypass. CI never downloads `model.safetensors`. ZERODAY never downloads weights for you.
+
+## What is the stranger trust loop after locate?
+
+Design-partner one-screen story: fixture locate → SARIF → `paired-probe:from-sarif` → checked-in sample DIPTYCH-shaped grade — no DIPTYCH clone, no GPU.
+
+- `npm run mvp` — fixture locate → `zeroday-reports/mvp/report.sarif`
+- `npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp` — envelopes + coverage matrix
+- Open `docs/reports/diptych-sample-grade.md` (illustrative sample grade; not a live DIPTYCH harness run)
+- One-shot: `npm run trust-loop` (prints the same paths)
+
+Honest non-claims: localization ≠ exploitability · no AUROC · DIPTYCH grades · ZeroDay emits · `needs_human` stays true. See `docs/paired-probes.md`, `docs/design-partner-trust.md`, and `SUPPORT.md`.

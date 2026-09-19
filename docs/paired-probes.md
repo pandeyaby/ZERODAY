@@ -59,6 +59,32 @@ npm run zeroday -- paired-probe --output zeroday-reports
 npm run test:paired-probes
 ```
 
+### Stranger trust loop (≤3 commands)
+
+One-screen story for design partners after locate — Desk UI / CLI → paired-probe
+artifacts → checked-in sample DIPTYCH-shaped grade **without cloning DIPTYCH**:
+
+```bash
+npm run mvp                                                      # 1 · fixture locate → SARIF
+npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp   # 2 · envelopes + matrix
+# 3 · open sample grade (illustrative): docs/reports/diptych-sample-grade.md
+```
+
+One-shot (fixture SARIF → emit + print paths): `npm run trust-loop`  
+(or `npm run trust-loop -- --mvp` to run fixture locate first).
+
+| Step | What you get |
+|------|----------------|
+| 1 `mvp` / locate | `zeroday-reports/mvp/report.sarif` (keyless fixture) |
+| 2 `paired-probe:from-sarif` | `zeroday-reports/…/paired-probe/` envelopes + `coverage/matrix.json` |
+| 3 sample grade docs | [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) (checked-in; illustrative) |
+
+**Honest non-claims:** localization ≠ exploitability · no AUROC · DIPTYCH grades ·
+ZeroDay emits · sample grade is **not** a live DIPTYCH harness run · `needs_human`
+stays true. Trust pack: [`design-partner-trust.md`](./design-partner-trust.md) ·
+help: [`SUPPORT.md`](../SUPPORT.md). Desk FAQ tab mirrors the same door
+(`npm run play` → FAQ).
+
 ### Stranger door — locate SARIF / vault → paired-probe (no DIPTYCH clone)
 
 Already have a locate `report.sarif`, `report.json`, or vault dir on disk?

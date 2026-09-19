@@ -27,6 +27,7 @@ describe("FAQ (Keyless Strength honesty)", () => {
     assert.match(qs, /partner product/i);
     assert.match(qs, /PoC/i);
     assert.match(qs, /Hugging Face|Antares weights/i);
+    assert.match(qs, /stranger trust loop/i);
     assert.ok(FAQ_ITEMS.length >= 10, "expected expanded FAQ");
   });
 
