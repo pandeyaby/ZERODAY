@@ -29,7 +29,8 @@ describe("design-partner Day-1 checklist", () => {
     assert.match(doc, /no AUROC|AUROC/i);
     assert.match(doc, /DIPTYCH grades/i);
     assert.match(doc, /illustrative/i);
-    assert.doesNotMatch(doc, /create-pod|auto-provision|AUROC\s*[:=]\s*0?\.\d+/i);
+    assert.match(doc, /never auto-provision/i);
+    assert.doesNotMatch(doc, /create-pod|runpod create|AUROC\s*[:=]\s*0?\.\d+/i);
   });
 
   it("README + SUPPORT + design-partner-trust + stranger-verify cross-link day1", () => {
