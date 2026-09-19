@@ -39,3 +39,15 @@ export {
   serializePacket,
   deserializePacket,
 } from "./packet";
+
+export {
+  SAMPLE_GRADE_KIND,
+  buildSampleDiptychGradeReport,
+  renderSampleGradeMarkdown,
+  writeSampleGradeReport,
+  loadMatrixOrJustifications,
+} from "./sample-report";
+export type {
+  SampleGradeCell,
+  SampleDiptychGradeReport,
+} from "./sample-report";

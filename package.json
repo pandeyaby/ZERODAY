@@ -18,6 +18,7 @@
     "test:desk": "tsx --test \"tests/desk/**/*.test.ts\"",
     "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\"",
     "paired-probe": "tsx cli/index.ts paired-probe",
+    "paired-probe:sample-report": "tsx scripts/paired-probe-sample-report.ts",
     "cli": "tsx cli/index.ts",
     "zeroday": "tsx cli/index.ts",
     "inventory": "tsx cli/index.ts inventory",
