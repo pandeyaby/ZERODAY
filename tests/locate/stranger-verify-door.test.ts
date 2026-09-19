@@ -42,6 +42,9 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(script, /no AUROC|AUROC/i);
     assert.match(script, /DIPTYCH grades/i);
     assert.match(script, /illustrative/i);
+    assert.match(script, /--json|ZERODAY_STRANGER_JSON/);
+    assert.match(script, /zeroday-stranger-verify\/v1/);
+    assert.match(script, /mode.*citation|"citation"/);
     // Must not auto-provision or spend GPU
     assert.doesNotMatch(script, /create-pod|runpod create|auto-provision/i);
     assert.match(script, /NOT run|citation only|Do not provision/i);
@@ -71,6 +74,7 @@ describe("stranger prove-doors (stranger:verify)", () => {
     const doc = fs.readFileSync(docPath, "utf8");
     assert.match(doc, /stranger:verify/);
     assert.match(doc, /trust-loop/);
+    assert.match(doc, /--json|ZERODAY_STRANGER_JSON/);
     assert.match(doc, /ci-trust\.md/);
     assert.match(doc, /gpu-claims\.md/);
     assert.match(doc, /d65ny3xqf7bwza/);
@@ -156,5 +160,99 @@ describe("stranger prove-doors (stranger:verify)", () => {
       fs.existsSync(path.join(out, "paired-probe")),
       "expected paired-probe envelopes under TRUST_LOOP_OUT",
     );
+  });
+
+  it("--json prints parseable object with doorA/doorB/nonClaims (no live GPU claim)", () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-stranger-json-"));
+    const pathEnv = `${path.join(root, "node_modules", ".bin")}${path.delimiter}${process.env.PATH ?? ""}`;
+    const result = spawnSync(
+      "bash",
+      ["scripts/stranger-verify.sh", "--json"],
+      {
+        cwd: root,
+        encoding: "utf8",
+        env: { ...process.env, TRUST_LOOP_OUT: out, PATH: pathEnv },
+        timeout: 120_000,
+      },
+    );
+    assert.equal(
+      result.status,
+      0,
+      `stranger:verify --json failed:\n${result.stdout}\n${result.stderr}`,
+    );
+
+    const payload = JSON.parse(result.stdout.trim()) as {
+      schemaVersion: string;
+      doorA: {
+        status: string;
+        ran: boolean;
+        command: string;
+        artifacts: Record<string, string>;
+      };
+      doorB: {
+        mode: string;
+        ran: boolean;
+        citation: { doc: string; section: string };
+      };
+      nonClaims: Record<string, boolean>;
+    };
+
+    assert.equal(payload.schemaVersion, "zeroday-stranger-verify/v1");
+    assert.ok(payload.doorA, "missing doorA");
+    assert.ok(payload.doorB, "missing doorB");
+    assert.ok(payload.nonClaims, "missing nonClaims");
+
+    assert.equal(payload.doorA.status, "pass");
+    assert.equal(payload.doorA.ran, true);
+    assert.match(payload.doorA.command, /trust-loop/);
+    assert.ok(payload.doorA.artifacts.envelopes);
+    assert.ok(payload.doorA.artifacts.matrix);
+    assert.match(payload.doorA.artifacts.sampleGradeMd, /diptych-sample-grade/);
+
+    assert.equal(payload.doorB.mode, "citation");
+    assert.equal(payload.doorB.ran, false, "Door B must not claim live GPU ran");
+    assert.match(payload.doorB.citation.doc, /gpu-claims\.md/);
+    assert.match(payload.doorB.citation.section, /Live re-proof/);
+
+    assert.equal(payload.nonClaims.localizationNotExploitability, true);
+    assert.equal(payload.nonClaims.noAurocFileF1OrgLatencySla, true);
+    assert.equal(payload.nonClaims.diptychGradesSeparately, true);
+
+    // Honest: stdout is JSON only; Door B did not run live GPU
+    assert.doesNotMatch(result.stdout, /PROVE-DOORS CARD/);
+    assert.doesNotMatch(result.stdout, /liveGpuRan"\s*:\s*true/i);
+  });
+
+  it("ZERODAY_STRANGER_JSON=1 matches --json schema keys", () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-stranger-env-"));
+    const pathEnv = `${path.join(root, "node_modules", ".bin")}${path.delimiter}${process.env.PATH ?? ""}`;
+    const result = spawnSync("bash", ["scripts/stranger-verify.sh"], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        TRUST_LOOP_OUT: out,
+        ZERODAY_STRANGER_JSON: "1",
+        PATH: pathEnv,
+      },
+      timeout: 120_000,
+    });
+    assert.equal(
+      result.status,
+      0,
+      `ZERODAY_STRANGER_JSON failed:\n${result.stdout}\n${result.stderr}`,
+    );
+    const payload = JSON.parse(result.stdout.trim()) as {
+      schemaVersion: string;
+      doorA: unknown;
+      doorB: { ran: boolean; mode: string };
+      nonClaims: unknown;
+    };
+    assert.equal(payload.schemaVersion, "zeroday-stranger-verify/v1");
+    assert.ok(payload.doorA);
+    assert.ok(payload.doorB);
+    assert.ok(payload.nonClaims);
+    assert.equal(payload.doorB.mode, "citation");
+    assert.equal(payload.doorB.ran, false);
   });
 });
