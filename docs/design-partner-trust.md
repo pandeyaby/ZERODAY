@@ -31,6 +31,21 @@ are authorized to touch.
 Localization is detector-lane **candidates**. Always `needs_human: true`.
 Localization ≠ exploitability. DIPTYCH greens ≠ vulnerability proof.
 
+### Stranger trust loop (after locate)
+
+Three commands max — Desk / CLI → paired-probe artifacts → checked-in sample
+grade **without cloning DIPTYCH** (keyless / no GPU):
+
+```bash
+npm run mvp
+npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp
+# open: docs/reports/diptych-sample-grade.md
+```
+
+Or one-shot: `npm run trust-loop`. Details:
+[`paired-probes.md`](./paired-probes.md) · help: [`SUPPORT.md`](../SUPPORT.md).
+No AUROC · localization ≠ exploitability · DIPTYCH grades · ZeroDay emits.
+
 ---
 
 ## What it does **not** do

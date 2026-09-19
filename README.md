@@ -50,6 +50,26 @@ envelopes + coverage matrix (keyless, no GPU, no DIPTYCH clone). Pipeline:
 locate → SARIF → this command → optional DIPTYCH grade. Details:
 [`docs/paired-probes.md`](./docs/paired-probes.md).
 
+### Stranger trust loop (≤3 commands)
+
+After locate, the design-partner path from Desk / CLI to paired-probe artifacts
++ a checked-in sample DIPTYCH-shaped grade — **no DIPTYCH clone**, no GPU:
+
+```bash
+npm run mvp                                                      # 1 · fixture locate → SARIF
+npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp   # 2 · envelopes + matrix
+# 3 · open sample grade (illustrative): docs/reports/diptych-sample-grade.md
+```
+
+One-shot (same story, prints paths): `npm run trust-loop`  
+(or `npm run trust-loop -- --mvp` to run fixture locate first).
+
+Honest non-claims: localization ≠ exploitability · no AUROC · DIPTYCH grades ·
+ZeroDay emits · sample grade is illustrative (not a live DIPTYCH harness run).
+See [`docs/paired-probes.md`](./docs/paired-probes.md) ·
+[`docs/design-partner-trust.md`](./docs/design-partner-trust.md) ·
+[`SUPPORT.md`](./SUPPORT.md).
+
 ---
 
 ## Start in 2 minutes
