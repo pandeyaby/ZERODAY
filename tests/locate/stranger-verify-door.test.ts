@@ -79,12 +79,17 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(doc, /DIPTYCH grades/i);
     assert.match(doc, /codespaces\.new\/pandeyaby\/ZERODAY/);
     assert.match(doc, /Codespace ≠ live Antares|Codespace.*live Antares/i);
+    assert.match(
+      doc,
+      /uses:\s*pandeyaby\/ZERODAY\/\.github\/workflows\/stranger-verify\.yml@main/,
+    );
 
     const index = fs.readFileSync(path.join(root, "docs/README.md"), "utf8");
     assert.match(index, /stranger-verify\.md/);
 
     const ciTrust = fs.readFileSync(path.join(root, "docs/ci-trust.md"), "utf8");
     assert.match(ciTrust, /stranger:verify|stranger-verify/);
+    assert.match(ciTrust, /stranger-verify\.yml/);
   });
 
   it(".devcontainer is valid JSON + keyless Codespace path (no GPU / HF)", () => {

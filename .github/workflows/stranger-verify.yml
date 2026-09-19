@@ -1,0 +1,82 @@
+# Reusable stranger prove-doors — keyless Door A + Door B citation only.
+#
+# Intended for other orgs / repos:
+#   jobs:
+#     doors:
+#       uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main
+#
+# Pattern: checks out **ZERODAY** (scripts + fixtures), not the caller tree.
+# Proves ZERODAY's public keyless door still PASS — does NOT assess caller source.
+# No GPU / HF / RunPod / live Antares. No invented AUROC / F1 / SLA.
+# Docs: docs/stranger-verify.md · docs/ci-trust.md
+#
+# ZERODAY's own locate CI keeps an inline stranger-verify job (badge job names
+# unchanged). This file is the public `uses:` entry point for strangers.
+
+name: ZERODAY stranger:verify
+
+on:
+  workflow_call:
+    inputs:
+      zeroday_repository:
+        description: "ZERODAY repo to checkout (scripts + fixtures). External callers keep the default."
+        type: string
+        default: pandeyaby/ZERODAY
+      zeroday_ref:
+        description: "ZERODAY ref to verify (prefer the same pin as uses: …@ref)."
+        type: string
+        default: main
+      node_version:
+        description: "Node.js major version"
+        type: string
+        default: "22"
+
+permissions:
+  contents: read
+
+jobs:
+  stranger-verify:
+    name: stranger:verify (Door A keyless + Door B citation)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZERODAY (prove-doors · not the caller tree)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.zeroday_repository }}
+          ref: ${{ inputs.zeroday_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm run stranger:verify (keyless · no GPU)
+        run: |
+          set -euo pipefail
+          npm run stranger:verify
+          test -f zeroday-reports/trust-loop/paired-probe/coverage/matrix.json
+
+      - name: Summarize stranger-verify gate
+        run: |
+          {
+            echo "## ZERODAY stranger:verify (reusable prove-doors)"
+            echo ""
+            echo "- Caller used: \`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml\`"
+            echo "- Checked out: \`${{ inputs.zeroday_repository }}@${{ inputs.zeroday_ref }}\` (ZERODAY — not caller source)"
+            echo "- Ran: \`npm run stranger:verify\` (alias \`npm run doors\`)"
+            echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
+            echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares)"
+            echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
+            echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload stranger-verify artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroday-stranger-verify
+          path: zeroday-reports/trust-loop/
+          if-no-files-found: error

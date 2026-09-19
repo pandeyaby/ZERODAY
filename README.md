@@ -110,6 +110,9 @@ no local Node setup.
 
 Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions or the default Codespace).
 
+**Other repos (reusable workflow):**  
+`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` — checks out ZERODAY fixtures/scripts (not your private tree). Snippet: [`docs/stranger-verify.md`](./docs/stranger-verify.md).
+
 Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · Codespace ≠ live Antares · DIPTYCH grades separately · sample grade illustrative.
 
 ---
