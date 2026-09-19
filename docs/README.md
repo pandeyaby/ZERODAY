@@ -13,7 +13,7 @@
 | [architecture.md](./architecture.md) | Locate desk → SARIF/cassette → DIPTYCH paired probes ([figure](./images/zeroday-diptych-architecture.png)) |
 | [paired-probes.md](./paired-probes.md) | DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY…VARSCALE; CI: paired-probe + gate_axis_mutate; **stranger trust loop** (`npm run trust-loop` / mvp → from-sarif → sample grade); [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
 | [ci-trust.md](./ci-trust.md) | Stranger one-pager — README Actions badge → `ZERODAY locate` / `paired-probe`; what green proves / does not (≠ vuln proof · ≠ live Antares F1 · DIPTYCH grades separately) |
-| [stranger-verify.md](./stranger-verify.md) | Prove-doors — `npm run stranger:verify` / `doors` (keyless trust-loop + Door B citation from gpu-claims; no GPU spend) |
+| [stranger-verify.md](./stranger-verify.md) | Prove-doors — `npm run stranger:verify` / `doors` (keyless trust-loop + Door B citation from gpu-claims; no GPU spend) · clone-free [Codespaces](https://codespaces.new/pandeyaby/ZERODAY) Door A |
 | [diptych-onepager.md](./diptych-onepager.md) | Canonical DIPTYCH ONEPAGER mirror (enums + per-op table) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) |
 | [design-partner-trust.md](./design-partner-trust.md) | Trust pack — public OSS; customer source private; honest dry-run |
 | [agent-operator.md](./agent-operator.md) | Keyless coding-agent handoff |

@@ -2,6 +2,7 @@
 
 [![ZERODAY locate](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml/badge.svg)](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml)
  · [CI trust — `paired-probe` all-8 + `gate_axis_mutate`](./docs/ci-trust.md)
+ · [![Open in GitHub Codespaces](https://img.shields.io/badge/GitHub_Codespaces-Open-darkblue?logo=github)](https://codespaces.new/pandeyaby/ZERODAY)
 
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
@@ -94,14 +95,22 @@ npm run stranger:verify
 # alias: npm run doors
 ```
 
+**Clone-free (GitHub Codespaces):** open this repo in a Codespace (Node LTS +
+`npm install` via [`.devcontainer/`](./.devcontainer/devcontainer.json)) —
+no local Node setup.
+
+1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace)
+2. In the terminal: `npm run stranger:verify` (or `npm run doors`)
+3. See **Door A PASS** + **Door B citation** (no GPU in the default Codespace)
+
 | Door | What happens | Where to read |
 |------|--------------|---------------|
 | **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
 | **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
 
-Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions).
+Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions or the default Codespace).
 
-Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · DIPTYCH grades separately · sample grade illustrative.
+Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · Codespace ≠ live Antares · DIPTYCH grades separately · sample grade illustrative.
 
 ---
 

@@ -1,0 +1,22 @@
+{
+  "name": "ZERODAY (keyless Door A)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "forwardPorts": [3333],
+  "postCreateCommand": "npm install",
+  "postStartCommand": "bash .devcontainer/print-prove-doors-tip.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteUser": "node",
+  "portsAttributes": {
+    "3333": {
+      "label": "ZERODAY Desk (npm run play)",
+      "onAutoForward": "notify"
+    }
+  }
+}
