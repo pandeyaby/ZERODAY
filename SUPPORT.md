@@ -19,6 +19,7 @@ maintainers triage best-effort when available.
 | Design-partner trust pack | [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) |
 | CI trust badge (what green proves / does not) | [`docs/ci-trust.md`](./docs/ci-trust.md) · workflow [`zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml) (`paired-probe` all-8 + `gate_axis_mutate`) |
 | Stranger trust loop (locate → SARIF → paired-probe) | [`docs/paired-probes.md`](./docs/paired-probes.md) · `npm run trust-loop` · sample: [`docs/reports/diptych-sample-grade.md`](./docs/reports/diptych-sample-grade.md) |
+| Prove-doors (keyless + Door B citation) | [`docs/stranger-verify.md`](./docs/stranger-verify.md) · `npm run stranger:verify` (alias `doors`) · GPU cite: [`docs/gpu-claims.md`](./docs/gpu-claims.md) |
 | Full docs index | [`docs/README.md`](./docs/README.md) |
 | Acceptable use / authorization | [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) |
 

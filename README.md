@@ -84,6 +84,23 @@ Proven vs deferred (design-partner table): [`docs/gpu-claims.md`](./docs/gpu-cla
 Paired-eval trust layer (optional, keyless): [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) ·
 [`docs/paired-probes.md`](./docs/paired-probes.md).
 
+### What a stranger can verify today
+
+One keyless command — no GPU spend, no pod create:
+
+```bash
+npm install
+npm run stranger:verify
+# alias: npm run doors
+```
+
+| Door | What happens | Where to read |
+|------|--------------|---------------|
+| **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
+| **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
+
+Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · DIPTYCH grades separately · sample grade illustrative.
+
 ---
 
 ## Start in 2 minutes — Door A (keyless)

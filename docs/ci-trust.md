@@ -59,4 +59,7 @@ npm run paired-probe                # emit all-8 envelopes
 Stranger trust loop (after locate): `npm run trust-loop` · sample grade:
 [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md).
 
+Prove both doors (keyless run + Door B citation): `npm run stranger:verify`
+(alias `npm run doors`) · [`stranger-verify.md`](./stranger-verify.md).
+
 Help: [`SUPPORT.md`](../SUPPORT.md).
