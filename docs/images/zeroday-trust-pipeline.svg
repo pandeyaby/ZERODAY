@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-labelledby="title desc">
+  <title id="title">ZERODAY trust pipeline</title>
+  <desc id="desc">Desk to locate to SARIF and evidence, then optional DIPTYCH paired probes with FREEZEDRY through VARSCALE and gate_axis_mutate. Core locate works without DIPTYCH.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="280" rx="12" fill="url(#bg)"/>
+  <text x="28" y="36" fill="#e2e8f0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">ZERODAY: Desk to locate to evidence to (optional) DIPTYCH</text>
+  <text x="28" y="56" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">Core locate / Desk / SARIF run without DIPTYCH. Paired probes grade calibration - not exploitability.</text>
+
+  <!-- Core path -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="28" y="88" width="150" height="72" rx="8" fill="#0ea5e9" fill-opacity="0.18" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="103" y="118" text-anchor="middle" fill="#e0f2fe" font-size="14" font-weight="700">Desk</text>
+    <text x="103" y="138" text-anchor="middle" fill="#bae6fd" font-size="11">play / inventory</text>
+
+    <line x1="178" y1="124" x2="212" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="214" y="88" width="150" height="72" rx="8" fill="#22c55e" fill-opacity="0.16" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="289" y="118" text-anchor="middle" fill="#dcfce7" font-size="14" font-weight="700">locate</text>
+    <text x="289" y="138" text-anchor="middle" fill="#bbf7d0" font-size="11">CWE / CVE / GHSA</text>
+
+    <line x1="364" y1="124" x2="398" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="400" y="88" width="190" height="72" rx="8" fill="#a78bfa" fill-opacity="0.16" stroke="#c4b5fd" stroke-width="1.5"/>
+    <text x="495" y="114" text-anchor="middle" fill="#ede9fe" font-size="14" font-weight="700">SARIF + evidence</text>
+    <text x="495" y="134" text-anchor="middle" fill="#ddd6fe" font-size="11">hashed vault / needs_human</text>
+    <text x="495" y="150" text-anchor="middle" fill="#c4b5fd" font-size="10">localization != exploitability</text>
+  </g>
+
+  <!-- Optional DIPTYCH branch -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <line x1="590" y1="124" x2="628" y2="124" stroke="#64748b" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+    <text x="609" y="112" text-anchor="middle" fill="#94a3b8" font-size="10">optional</text>
+
+    <rect x="630" y="72" width="302" height="168" rx="10" fill="#f59e0b" fill-opacity="0.08" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text x="781" y="96" text-anchor="middle" fill="#fde68a" font-size="13" font-weight="700">DIPTYCH paired probes</text>
+    <text x="781" y="114" text-anchor="middle" fill="#fcd34d" font-size="10">trust layer - not a runtime dependency</text>
+
+    <rect x="648" y="128" width="266" height="48" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1"/>
+    <text x="781" y="148" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600">FREEZEDRY ... VARSCALE</text>
+    <text x="781" y="164" text-anchor="middle" fill="#94a3b8" font-size="10">all-8 green + gate_axis_mutate</text>
+
+    <text x="781" y="202" text-anchor="middle" fill="#cbd5e1" font-size="10">CI: paired-probe job / keyless / offline / no GPU</text>
+    <text x="781" y="220" text-anchor="middle" fill="#94a3b8" font-size="10">Greens != vulnerability proof</text>
+  </g>
+
+  <text x="28" y="256" fill="#64748b" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10">Public OSS / Apache-2.0 / not a Cisco product / no PoC or exploit theater / no AUROC-as-product-grade</text>
+</svg>

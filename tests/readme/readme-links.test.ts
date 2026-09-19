@@ -70,10 +70,15 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /docs\/runpod-antares\.md/);
     assert.match(readme, /docs\/paths\.md/);
     // World-ready: DIPTYCH paired-trace layer + required CI gates
-    assert.match(readme, /github\.com\/pandeyaby\/DIPTYCH/);
+    assert.match(readme, /DIPTYCH/);
     assert.match(readme, /paired-probe/);
     assert.match(readme, /gate_axis_mutate/);
+    assert.match(readme, /docs\/images\/zeroday-trust-pipeline\.svg/);
     assert.match(readme, /docs\/images\/zeroday-diptych-architecture\.png/);
+    assert.match(readme, /github\.com\/pandeyaby\/DIPTYCH/);
+    assert.match(readme, /AUROC|auroc/i);
+    assert.match(readme, /SUPPORT\.md/);
+    assert.match(readme, /docs\/design-partner-trust\.md/);
     assert.match(readme, /never exploit theater|No PoCs, exploits/i);
   });
 
@@ -150,6 +155,7 @@ describe("README adoption path sanity", () => {
       "docs/images/zeroday-sarif-findings.png",
       "docs/images/zeroday-live-path.png",
       "docs/images/zeroday-diptych-architecture.png",
+      "docs/images/zeroday-trust-pipeline.svg",
     ]) {
       assert.ok(fs.existsSync(path.join(root, img)), `missing ${img}`);
     }
