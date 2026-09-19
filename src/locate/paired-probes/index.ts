@@ -26,6 +26,12 @@ export {
 
 export { runAllPairedProbes, JUSTIFICATIONS } from "./run-all";
 export { gateEnvelopes, buildMatrix, loadEnvelope } from "./gate";
+export {
+  gateAxisMutate,
+  gateAxisMutateOne,
+  gateAxisMutateAllEight,
+} from "./gate-axis-mutate";
+export type { AxisMutateProof, AxisMutateFailure } from "./gate-axis-mutate";
 export { ALL_REQUIRED_SCHEMA_KEYS } from "./schema-keys";
 export {
   freezePacket,

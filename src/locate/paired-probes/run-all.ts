@@ -13,6 +13,7 @@ import { runSignflip } from "./operators/signflip";
 import { runTrajswap } from "./operators/trajswap";
 import { runVarscale } from "./operators/varscale";
 import { buildMatrix, gateEnvelopes, writeMatrix } from "./gate";
+import { gateAxisMutate } from "./gate-axis-mutate";
 import type { DiptychOperator, ZerodayCoverageMatrix } from "./types";
 
 export const JUSTIFICATIONS: Record<
@@ -85,5 +86,25 @@ export async function runAllPairedProbes(outputRoot: string): Promise<{
       .join("\n");
     throw new Error(`Paired-probe GATING failed:\n${msg}`);
   }
+
+  // DIPTYCH gate_axis_mutate: every claimed-green cell must flip pass→fail
+  // when only that operator's axis is mutated on the conforming state.
+  const greenOps = (
+    Object.entries(JUSTIFICATIONS) as Array<
+      [DiptychOperator, { status: "green" | "deferred" }]
+    >
+  )
+    .filter(([, v]) => v.status === "green")
+    .map(([op]) => op);
+  const axis = gateAxisMutate(greenOps);
+  if (axis.failures.length > 0) {
+    const msg = axis.failures
+      .map((f) => `- ${f.op} [${f.axis}]: ${f.message}`)
+      .join("\n");
+    throw new Error(
+      `Paired-probe gate_axis_mutate failed (prefer deferred over thin green):\n${msg}`,
+    );
+  }
+
   return { matrix, matrixPath };
 }

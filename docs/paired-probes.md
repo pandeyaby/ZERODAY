@@ -76,6 +76,12 @@ extra SARIF props.
 - TODO / stub / NotImplemented / hardcoded pass / empty traces
 - Identical twins with no axis contrast on a claimed-green cell
 - Green cell without conforming→pass AND violating→fail
+- **gate_axis_mutate**: for every claimed-green cell, mutate only that
+  operator’s axis on the conforming state and regrade — MUST fail
+  (FREEZEDRY freeze mask · RESEED seed policy · SCHEMAX key set ·
+  SIGNFLIP score_margin polarity · SATEXTEND sat clip · HISTSWAP splice ·
+  TRAJSWAP traj_swap_at residual · VARSCALE var_scale). Prefer deferred
+  over thin green if mutate-power cannot be proven.
 - TRAJSWAP/VARSCALE without `crn_closed_loop`
 - SIGNFLIP green without `score_margin` channel
 - TRAJSWAP green with empty `closed_loop_residual`

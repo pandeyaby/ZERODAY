@@ -12,6 +12,7 @@ import {
   JUSTIFICATIONS,
   decisionFingerprintFromSarif,
   gateEnvelopes,
+  gateAxisMutateAllEight,
   loadEnvelope,
   OPERATORS,
   ALL_REQUIRED_SCHEMA_KEYS,
@@ -137,6 +138,23 @@ describe("paired-probes DIPTYCH v0.2", () => {
     const badProposed = pathsMentionedInStep(badSubmit!);
     const badR = closedLoopResidual(badProposed, verified);
     assert.ok(badR > 0.25);
+  });
+
+  it("gate_axis_mutate: every green op fails after axis-only mutate", () => {
+    const { proofs, failures } = gateAxisMutateAllEight();
+    assert.deepEqual(failures, []);
+    assert.equal(proofs.length, 8);
+    const byOp = Object.fromEntries(proofs.map((p) => [p.op, p]));
+    for (const op of OPERATORS) {
+      assert.ok(byOp[op], `missing axis-mutate proof for ${op}`);
+      assert.equal(byOp[op].conforming_pass, true);
+      assert.equal(byOp[op].mutated_fail, true);
+      assert.ok(byOp[op].axis.length > 0);
+    }
+    // WITNESSES aliases
+    assert.match(byOp.SIGNFLIP.axis, /score_margin/);
+    assert.match(byOp.TRAJSWAP.axis, /traj_swap|residual/i);
+    assert.match(byOp.VARSCALE.axis, /var_scale/);
   });
 
   it("runAllPairedProbes emits 8×2 envelopes + matrix; gating passes; all green", async () => {
