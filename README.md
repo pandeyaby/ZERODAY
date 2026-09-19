@@ -73,7 +73,20 @@ See [`docs/paired-probes.md`](./docs/paired-probes.md) ·
 
 ---
 
-## Start in 2 minutes
+## Two doors (honest labels)
+
+| Door | What it is | Spend / CI |
+|------|------------|------------|
+| **A — Keyless CPU / fixture** (default) | `npm run mvp` · fixture / rules / SARIF ingest / recordings | **$0** · required CI gate — no GPU, no HF, no RunPod |
+| **B — Opt-in live GPU brain** | You host Antares-1B on CUDA/vLLM (`POST /v1/completions`); RunPod Secure A40 recommended | **You** provision + terminate · **not** in CI |
+
+Proven vs deferred (design-partner table): [`docs/gpu-claims.md`](./docs/gpu-claims.md).
+Paired-eval trust layer (optional, keyless): [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) ·
+[`docs/paired-probes.md`](./docs/paired-probes.md).
+
+---
+
+## Start in 2 minutes — Door A (keyless)
 
 Clone, install, run the fixture smoke. Offline. No GPU. No HF token. No spend.
 
@@ -191,6 +204,7 @@ One trust surface for strangers and design partners — same story as
 | Product hard limits + reporting a ZERODAY defect | [`SECURITY.md`](./SECURITY.md) |
 | How to get help (no SLA; not Cisco support) | [`SUPPORT.md`](./SUPPORT.md) |
 | Honest dry-run checklist | [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) |
+| Honest GPU claims (proven vs deferred) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) |
 | Optional DIPTYCH paired probes | [`docs/paired-probes.md`](./docs/paired-probes.md) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) |
 
 Public OSS · customer source stays private · localization ≠ exploitability ·
@@ -198,17 +212,18 @@ no PoC / exploit theater · DIPTYCH greens ≠ vuln proof.
 
 ---
 
-## When you want live Antares
+## When you want live Antares (Door B — opt-in GPU brain)
 
 Not the default. You accept HF gated terms for `fdtn-ai/antares-1b`, serve
 `POST /v1/completions` (CUDA / vLLM — see
 [`docs/runpod-antares.md`](./docs/runpod-antares.md)), then point ZERODAY at it.
 ZERODAY never downloads `model.safetensors`, never scrapes HF, and **never
 creates paid RunPod pods**. Non-loopback needs `--remote-inference`. **No silent
-fixture fallback** if the endpoint is down.
+fixture fallback** if the endpoint is down. Honest claim boundary:
+[`docs/gpu-claims.md`](./docs/gpu-claims.md).
 
 ```bash
-# Print-only checklist ($0 — no spend)
+# Print-only checklist ($0 — no spend; no pod create)
 npm run zeroday -- antares doctor
 
 # Or any local completions host you already run (Keyless K4; ≠ Antares File F1):
@@ -218,7 +233,8 @@ npm run zeroday -- doctor
 
 **Validate live in under a minute** (Desk CTA from Live brain): with a healthy
 completions endpoint already running (loopback `http://127.0.0.1:8000/v1` or
-last-good Antares):
+last-good Antares). Unreachable endpoints **fail closed** (unit-tested; no live
+GPU required in CI):
 
 ```bash
 npm run play
@@ -227,19 +243,22 @@ npm run play
 #    → doctor → spend banner → one click locate on fixtures/locate/rules-sample + CWE-89
 
 # CLI mirror (green doctor only; add --spend-ack for one explicit live locate):
-npm run zeroday -- live validate
+npm run zeroday -- live validate --endpoint http://127.0.0.1:8000/v1
 ```
 
 Hard limits unchanged: spend banner + remote-inference ACK for non-loopback;
+terminate pod after one-shot locate (~$0.49/hr Secure A40 class — quote console);
 localization ≠ exploitability; no PoC; no auto-merge.
 
 ```bash
 npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
   --endpoint http://127.0.0.1:8000/v1 --model fdtn-ai/antares-1b
 # or: bash scripts/quickstart-live.sh /path/to/repo CWE-89
+# Then stop/terminate the pod — do not leave it RUNNING.
 ```
 
 Install Antares CLI, HF accept, RunPod / MPS caveats, incomplete-run classes:
+[`docs/gpu-claims.md`](./docs/gpu-claims.md) ·
 [`docs/paths.md`](./docs/paths.md#live-antares-opt-in) ·
 [`docs/runpod-antares.md`](./docs/runpod-antares.md) ·
 [Antares site](https://cisco-foundation-ai.github.io/antares/) ·
@@ -286,7 +305,8 @@ Sample: [`examples/sample-live-sarif/report.sarif`](./examples/sample-live-sarif
 
 Full Q&A: [`docs/faq.md`](./docs/faq.md) · play UI FAQ tab (`npm run play`).
 Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
-(honest dry-run; no fake F1 marketing claims).
+(honest dry-run; no fake F1 marketing claims). GPU boundary:
+[`docs/gpu-claims.md`](./docs/gpu-claims.md).
 
 ---
 
@@ -299,6 +319,7 @@ Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 | Org forever path (Action + spend gates) | [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md) |
 | Architecture (locate → SARIF/cassette → DIPTYCH) | [`docs/architecture.md`](./docs/architecture.md) · [figure](./docs/images/zeroday-diptych-architecture.png) |
 | DIPTYCH paired probes (schema 0.2) | [`docs/paired-probes.md`](./docs/paired-probes.md) · [DIPTYCH repo](https://github.com/pandeyaby/DIPTYCH) |
+| Honest GPU claims (proven vs deferred) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) |
 | Docs index | [`docs/README.md`](./docs/README.md) |
 | Get help | [`SUPPORT.md`](./SUPPORT.md) |
 

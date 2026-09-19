@@ -45,7 +45,9 @@ prefilled with `fixtures/locate/rules-sample` + `CWE-89`. CLI mirror:
 
 Person / org habits: [`howto.md`](./howto.md)
 
-## 3. When you want live Antares (opt-in, costs $)
+## 3. When you want live Antares (opt-in, costs $) — Door B
+
+Honest proven vs deferred: [`gpu-claims.md`](./gpu-claims.md).
 
 ```bash
 npm run zeroday -- antares doctor   # print-only — no spend
@@ -59,7 +61,8 @@ npm run zeroday -- locate --repo /path/to/authorized/repo --cwe CWE-89 \
 ```
 
 Live path **refuses** silent fixture fallback when `--endpoint` / `--live` is
-set. Remote endpoints need `--remote-inference` /
+set (fails closed if unreachable — see `tests/locate/live-guard.test.ts`).
+Remote endpoints need `--remote-inference` /
 `ZERODAY_REMOTE_INFERENCE_ACK=1`.
 
 Any local completions host without Antares weights (Keyless K4):
@@ -71,6 +74,7 @@ npm run zeroday -- doctor   # $0 checklist
 
 Install steps, MPS caveats, incomplete-run classes, Desk chain, Action, cheat
 sheet: [`paths.md`](./paths.md) · RunPod: [`runpod-antares.md`](./runpod-antares.md)
+· claims: [`gpu-claims.md`](./gpu-claims.md)
 
 Read [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) before
 assessing any repo you do not own.

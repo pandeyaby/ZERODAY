@@ -3,6 +3,7 @@
 | Doc | Purpose |
 |-----|---------|
 | [defense-factory.md](./defense-factory.md) | Localization & Evidence Defense Factory north star |
+| [gpu-claims.md](./gpu-claims.md) | Honest GPU-claim pack — proven vs deferred + dated **live GPU** Secure A40 re-proof (2026-09-19; no invented AUROC / File-F1 / latency SLAs; keyless CI separate) |
 | [runpod-antares.md](./runpod-antares.md) | Recommended remote CUDA path (RunPod + vLLM) |
 | [remote-antares-vllm.md](./remote-antares-vllm.md) | Host-agnostic remote completions contract |
 | [paths.md](./paths.md) | Every locate door · Desk chain · live install · Action · cheat sheet (deep README spill) |

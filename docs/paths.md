@@ -164,7 +164,8 @@ One-pager: [`local-brain.md`](./local-brain.md) · recommended Antares path:
 Not the default. Requires a human to accept HF gated terms for
 `fdtn-ai/antares-1b`, serve completions (CUDA / vLLM), and **terminate the pod
 after use**. ZERODAY never scrapes HF terms, never downloads `model.safetensors`
-in CI, and **never creates paid RunPod pods**.
+in CI, and **never creates paid RunPod pods**. Proven vs deferred:
+[`gpu-claims.md`](./gpu-claims.md).
 
 ```bash
 # Print-only checklist (no spend) — Secure A40 recipe + HF gate + terminate-after-use
@@ -181,7 +182,7 @@ npm run zeroday -- locate --cwe CWE-89 --repo <authorized-repo> \
 
 Full one-pager: [`runpod-antares.md`](./runpod-antares.md) · host-agnostic:
 [`remote-antares-vllm.md`](./remote-antares-vllm.md) · local any-completions:
-[`local-brain.md`](./local-brain.md)
+[`local-brain.md`](./local-brain.md) · claim pack: [`gpu-claims.md`](./gpu-claims.md)
 
 ### Live brain from Desk Console
 

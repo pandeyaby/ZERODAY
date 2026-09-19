@@ -68,10 +68,20 @@ npm run zeroday -- operate --cwe CWE-89 --fixture  # keyless agent path
 
 `--fixture` + `--live`/`--endpoint` together is **refused**.
 
+Live path **fails closed** when `--endpoint` is unreachable (no silent fixture
+fallback). Keyless unit coverage: `tests/locate/live-guard.test.ts` · Desk:
+`tests/desk/live-endpoint.test.ts`. Print-only doctors (no spend):
+`npm run zeroday -- doctor` · `npm run zeroday -- antares doctor`.
+
+Honest GPU claim pack (proven vs deferred): [`gpu-claims.md`](./gpu-claims.md).
+
 ## Models
 
-| Model | File F1 | Context |
-|-------|---------|---------|
+Upstream Antares **model-card** File F1 (Cisco-published) — **not** a ZERODAY
+public marketing claim for fixture / rules / recording / arbitrary local models:
+
+| Model | File F1 (upstream) | Context |
+|-------|--------------------|---------|
 | `fdtn-ai/antares-1b` | 0.209 | 128K |
 | `fdtn-ai/antares-350m` | 0.135 | 32K |
 | Antares-3B | — | Cisco-internal; never claimed |
@@ -88,6 +98,7 @@ never auto-downloads): [`antares-350m-ollama.md`](./antares-350m-ollama.md).
 
 ## Sister pieces
 
+- [`gpu-claims.md`](./gpu-claims.md) · [`runpod-antares.md`](./runpod-antares.md) · [`remote-antares-vllm.md`](./remote-antares-vllm.md)
 - [Antares site](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
 - [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — Detector-lane **candidates** only; human triage for true-positive
 - [Project CodeGuard](https://project-codeguard.org/) — patch DRAFT rule map (`--i-asked-for-a-fix`)
