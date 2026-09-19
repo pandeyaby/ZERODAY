@@ -635,7 +635,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Unit tests (fingerprint + gating + Wave A power)
+      - name: Unit tests (fingerprint + gating + gate_axis_mutate all 8)
         run: |
           set -euo pipefail
           npm run test:paired-probes
@@ -653,26 +653,28 @@ jobs:
             if (m.diptych_schema !== "0.2") process.exit(2);
             const ops = Object.keys(m.operators);
             if (ops.length !== 8) process.exit(3);
-            for (const op of ["FREEZEDRY","RESEED","SCHEMAX","SATEXTEND","HISTSWAP"]) {
+            // All 8 claimed green under WITNESSES_ZERODAY uplift — conforming→pass, violating→fail
+            for (const op of ops) {
               if (m.operators[op].status !== "green") process.exit(4);
               const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
               const v = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/violating.json","utf8"));
               if (c.expected_verdict !== "pass" || v.expected_verdict !== "fail") process.exit(5);
               if (c.traces.length < 2 || v.traces.length < 2) process.exit(6);
             }
-            for (const op of ["SIGNFLIP","TRAJSWAP","VARSCALE"]) {
-              if (m.operators[op].status !== "deferred") process.exit(7);
-              const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
-              if (c.expected_verdict !== "inconclusive") process.exit(8);
-              if (!c.traces[0].meta.inconclusive_reason) process.exit(9);
-            }
             for (const op of ["TRAJSWAP","VARSCALE"]) {
               const c = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/"+op+"/conforming.json","utf8"));
               if (c.coupling !== "crn_closed_loop") process.exit(10);
             }
+            // Shape checks for uplift witnesses
+            const sf = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/SIGNFLIP/conforming.json","utf8"));
+            if (sf.traces[0].meta.signflip_channel !== "score_margin") process.exit(7);
+            const ts = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/TRAJSWAP/conforming.json","utf8"));
+            if (!ts.traces[0].channels.closed_loop_residual?.values?.length) process.exit(8);
+            const vs = JSON.parse(fs.readFileSync("zeroday-reports/paired-probe/VARSCALE/conforming.json","utf8"));
+            if (typeof vs.traces[0].meta.var_scale !== "number") process.exit(9);
             const blob = JSON.stringify(m);
             if (/"auroc"\s*:/i.test(blob)) process.exit(11);
-            console.log("paired-probe OK", ops.join(","));
+            console.log("paired-probe OK all-8 green", ops.join(","));
           '
 
       - name: Summarize paired-probe gate
@@ -681,9 +683,9 @@ jobs:
             echo "## ZERODAY paired-probe / FREEZEDRY (DIPTYCH diptych_schema 0.2)"
             echo ""
             echo "- Emits 8×{conforming,violating} under \`zeroday-reports/paired-probe/\`"
-            echo "- Green (power-on-axis): FREEZEDRY · RESEED · SCHEMAX · SATEXTEND · HISTSWAP"
-            echo "- Deferred (honest inconclusive): SIGNFLIP · TRAJSWAP · VARSCALE"
+            echo "- Green (power-on-axis + gate_axis_mutate): all 8 — FREEZEDRY · RESEED · SCHEMAX · SIGNFLIP · SATEXTEND · HISTSWAP · TRAJSWAP · VARSCALE"
             echo "- TRAJSWAP/VARSCALE coupling: \`crn_closed_loop\`"
+            echo "- gate_axis_mutate: mutate conforming axis only → regrade MUST fail (enforced in \`npm run test:paired-probes\` + emit path)"
             echo "- Posture: keyless · localization only · not exploit proof · no PoC · no AUROC · no auto-merge"
             echo "- Docs: \`docs/paired-probes.md\` · \`docs/diptych-onepager.md\`"
           } >> "$GITHUB_STEP_SUMMARY"

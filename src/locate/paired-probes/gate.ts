@@ -162,6 +162,70 @@ export function gateEnvelopes(
           message: "Conforming and violating traces identical — no axis power",
         });
       }
+
+      // WITNESSES_ZERODAY shape — reject thin/empty channels on claimed green
+      if (op === "SIGNFLIP") {
+        for (const env of [conf, viol]) {
+          const ch = env.traces[0]?.meta?.signflip_channel;
+          const vals = (
+            env.traces[0]?.channels?.score_margin as
+              | { values?: number[] }
+              | undefined
+          )?.values;
+          if (ch !== "score_margin" || !vals || vals.length < 1) {
+            failures.push({
+              op,
+              role: env.control_role,
+              message:
+                "SIGNFLIP green requires meta.signflip_channel=score_margin + channels.score_margin.values",
+            });
+          }
+        }
+      }
+      if (op === "TRAJSWAP") {
+        for (const env of [conf, viol]) {
+          const residual = env.traces[0]?.channels?.closed_loop_residual?.values;
+          const swapAt = env.traces[0]?.meta?.traj_swap_at;
+          if (!residual || residual.length < 1) {
+            failures.push({
+              op,
+              role: env.control_role,
+              message:
+                "TRAJSWAP green requires non-empty channels.closed_loop_residual.values",
+            });
+          }
+          if (typeof swapAt !== "number") {
+            failures.push({
+              op,
+              role: env.control_role,
+              message: "TRAJSWAP green requires meta.traj_swap_at",
+            });
+          }
+        }
+      }
+      if (op === "VARSCALE") {
+        for (const env of [conf, viol]) {
+          const scale = env.traces[0]?.meta?.var_scale;
+          const proxy = env.traces[0]?.channels?.variance_proxy?.values;
+          const mean = env.traces[0]?.meta?.mean_finding_count;
+          if (typeof scale !== "number" || !proxy || proxy.length < 1) {
+            failures.push({
+              op,
+              role: env.control_role,
+              message:
+                "VARSCALE green requires meta.var_scale + channels.variance_proxy.values",
+            });
+          }
+          if (typeof mean !== "number") {
+            failures.push({
+              op,
+              role: env.control_role,
+              message:
+                "VARSCALE green requires meta.mean_finding_count (mean-matched)",
+            });
+          }
+        }
+      }
     } else if (cell.status === "deferred") {
       if (
         conf.expected_verdict !== "inconclusive" ||

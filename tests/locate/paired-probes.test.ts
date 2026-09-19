@@ -1,5 +1,5 @@
 /**
- * DIPTYCH paired probes (diptych_schema 0.2) — FREEZEDRY/RESEED/SCHEMAX power + gating.
+ * DIPTYCH paired probes (diptych_schema 0.2) — full-8 power + gating.
  */
 
 import assert from "node:assert/strict";
@@ -12,6 +12,7 @@ import {
   JUSTIFICATIONS,
   decisionFingerprintFromSarif,
   gateEnvelopes,
+  gateAxisMutateAllEight,
   loadEnvelope,
   OPERATORS,
   ALL_REQUIRED_SCHEMA_KEYS,
@@ -24,6 +25,17 @@ import { loadRecordingResult } from "../../src/locate/paired-probes/fixtures.ts"
 import { FIXTURE_CASSETTE_MULTI } from "../../src/locate/paired-probes/fixtures.ts";
 import { leakClockRngIntoSarif } from "../../src/locate/paired-probes/fingerprint.ts";
 import { gradeFromResult } from "../../src/locate/paired-probes/packet.ts";
+import {
+  flipAndResort,
+  scoreMargin,
+  scoredFromResult,
+  signNormalizedInvariant,
+} from "../../src/locate/paired-probes/score-margin.ts";
+import {
+  closedLoopResidual,
+  pathsMentionedInStep,
+  swapTrajectorySegment,
+} from "../../src/locate/paired-probes/crn.ts";
 
 describe("paired-probes DIPTYCH v0.2", () => {
   it("FREEZEDRY fingerprint: freeze identical; leak diverges", () => {
@@ -44,7 +56,108 @@ describe("paired-probes DIPTYCH v0.2", () => {
     assert.notEqual(leak1.fingerprint, leak2.fingerprint);
   });
 
-  it("runAllPairedProbes emits 8×2 envelopes + matrix; gating passes", async () => {
+  it("SIGNFLIP score_margin: flip+resort preserves; flip-without-reorder breaks", () => {
+    const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+    const ordered = scoredFromResult(base);
+    const m = scoreMargin(ordered);
+    assert.ok(m > 0);
+    const paths = ordered.map((f) => f.filePath);
+    const inv = signNormalizedInvariant(paths, m);
+    const flipped = flipAndResort(ordered);
+    const mB = scoreMargin(flipped);
+    assert.ok(mB < 0);
+    assert.equal(
+      signNormalizedInvariant(
+        flipped.map((f) => f.filePath),
+        mB,
+      ),
+      inv,
+    );
+    assert.notEqual(
+      signNormalizedInvariant(paths, -m),
+      inv,
+      "flip without reorder must break odd-symmetric invariant",
+    );
+  });
+
+  it("TRAJSWAP residual: 1−Jaccard nonempty; poison swap exceeds eps", () => {
+    const base = loadRecordingResult(FIXTURE_CASSETTE_MULTI);
+    const verified = base.rankedFiles.map((f) => f.filePath);
+    const submit = base.explorationTrace.find((s) => s.tool === "submit");
+    assert.ok(submit);
+    const proposed = pathsMentionedInStep(submit!);
+    assert.ok(proposed.length >= 1);
+    const finalR = closedLoopResidual(proposed, verified);
+    assert.ok(finalR <= 0.25);
+    const poisonFull = [
+      {
+        step: 1,
+        tool: "find" as const,
+        command: "find . -name harmless.js",
+        summary: "Listed fixtures/decoy/notes.md",
+      },
+      {
+        step: 2,
+        tool: "grep" as const,
+        command: "grep NOTE fixtures/",
+        summary: "Found fixtures/decoy/notes.md",
+      },
+      {
+        step: 3,
+        tool: "cat" as const,
+        command: "cat lib/unrelated.js",
+        summary: "Read lib/unrelated.js",
+      },
+      {
+        step: 4,
+        tool: "cat" as const,
+        command: "cat fixtures/decoy/notes.md",
+        summary: "Read fixtures/decoy/notes.md",
+      },
+      {
+        step: 5,
+        tool: "other" as const,
+        command: "rank-files",
+        summary: "Ranked lib/unrelated.js",
+      },
+      {
+        step: 6,
+        tool: "submit" as const,
+        command: "submit_vulnerable_files",
+        summary: "Submitted lib/unrelated.js",
+      },
+    ];
+    const swapped = swapTrajectorySegment(
+      base.explorationTrace,
+      poisonFull,
+      base.explorationTrace.length - 2,
+      2,
+    );
+    const badSubmit = swapped.a.find((s) => s.tool === "submit");
+    assert.ok(badSubmit);
+    const badProposed = pathsMentionedInStep(badSubmit!);
+    const badR = closedLoopResidual(badProposed, verified);
+    assert.ok(badR > 0.25);
+  });
+
+  it("gate_axis_mutate: every green op fails after axis-only mutate", () => {
+    const { proofs, failures } = gateAxisMutateAllEight();
+    assert.deepEqual(failures, []);
+    assert.equal(proofs.length, 8);
+    const byOp = Object.fromEntries(proofs.map((p) => [p.op, p]));
+    for (const op of OPERATORS) {
+      assert.ok(byOp[op], `missing axis-mutate proof for ${op}`);
+      assert.equal(byOp[op].conforming_pass, true);
+      assert.equal(byOp[op].mutated_fail, true);
+      assert.ok(byOp[op].axis.length > 0);
+    }
+    // WITNESSES aliases
+    assert.match(byOp.SIGNFLIP.axis, /score_margin/);
+    assert.match(byOp.TRAJSWAP.axis, /traj_swap|residual/i);
+    assert.match(byOp.VARSCALE.axis, /var_scale/);
+  });
+
+  it("runAllPairedProbes emits 8×2 envelopes + matrix; gating passes; all green", async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-pp-"));
     const { matrix, matrixPath } = await runAllPairedProbes(tmp);
     assert.ok(fs.existsSync(matrixPath));
@@ -73,23 +186,32 @@ describe("paired-probes DIPTYCH v0.2", () => {
 
       const cell = JUSTIFICATIONS[op];
       assert.equal(matrix.operators[op].status, cell.status);
-      if (cell.status === "green") {
-        assert.equal(conf.expected_verdict, "pass");
-        assert.equal(viol.expected_verdict, "fail");
-      } else {
-        assert.equal(conf.expected_verdict, "inconclusive");
-        assert.equal(viol.expected_verdict, "inconclusive");
-        assert.ok(conf.traces[0].meta.inconclusive_reason);
-      }
+      assert.equal(cell.status, "green");
+      assert.equal(conf.expected_verdict, "pass");
+      assert.equal(viol.expected_verdict, "fail");
     }
+
+    // Uplift witnesses
+    const sf = loadEnvelope(tmp, "SIGNFLIP", "conforming");
+    assert.equal(sf.traces[0].meta.signflip_channel, "score_margin");
+    assert.ok(
+      (sf.traces[0].channels.score_margin as { values: number[] }).values[0] >
+        0,
+    );
+    const ts = loadEnvelope(tmp, "TRAJSWAP", "conforming");
+    assert.ok(
+      (ts.traces[0].channels.closed_loop_residual?.values?.length ?? 0) >= 1,
+    );
+    assert.equal(typeof ts.traces[0].meta.traj_swap_at, "number");
+    const vs = loadEnvelope(tmp, "VARSCALE", "conforming");
+    assert.equal(typeof vs.traces[0].meta.var_scale, "number");
+    assert.ok(
+      (vs.traces[0].channels.variance_proxy?.values?.length ?? 0) >= 1,
+    );
+    assert.equal(vs.traces[0].meta.mean_finding_count, 2);
 
     const failures = gateEnvelopes(tmp, matrix);
     assert.deepEqual(failures, []);
-
-    // Wave A must be green
-    for (const op of ["FREEZEDRY", "RESEED", "SCHEMAX"] as const) {
-      assert.equal(matrix.operators[op].status, "green");
-    }
 
     fs.rmSync(tmp, { recursive: true, force: true });
   });

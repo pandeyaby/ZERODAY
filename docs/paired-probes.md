@@ -7,6 +7,9 @@ probe pairs; DIPTYCH grades.
 Canonical enums + per-op table: [`diptych-onepager.md`](./diptych-onepager.md)
 (mirrored from DIPTYCH ONEPAGER; **0.1 rejected**).
 
+Witness recipes (SIGNFLIP / TRAJSWAP / VARSCALE): DIPTYCH
+`WITNESSES_ZERODAY.md` (GRAX uplift off #41).
+
 ## What a single `/play` Desk session does **NOT** prove
 
 - **Not exploitability** — localization candidates ≠ proof a vuln is exploitable
@@ -26,11 +29,12 @@ Canonical enums + per-op table: [`diptych-onepager.md`](./diptych-onepager.md)
 | **SCHEMAX** | green | Required schema key sets equal vs rename/drop | Documented `result.*` / `sarif.*` keys on rules vs recording fixtures — not cosmetic renames |
 | **SATEXTEND** | green | `sat_lo`/`sat_hi` clip holds vs unsaturated leak | Real Antares/ZERODAY `--tool-budget` clip via `resolveLiveToolBudget` **[1, 50]** — saturation bound, not result-count |
 | **HISTSWAP** | green | History splice integrity vs corruption | `explorationTrace` is the localize history delay-line; `hist_splice_at` + alt-history cassette |
-| **SIGNFLIP** | deferred | — | No signed continuous polarity channel (levels categorical; ranks positive ordinals). `deferred_without_semantic_witness` |
-| **TRAJSWAP** | deferred | — | No `closed_loop_residual` / CRN trajectory on open-loop locate. Coupling tagged `crn_closed_loop` but inconclusive |
-| **VARSCALE** | deferred | — | No `variance_proxy`; rank scale ≠ variance; AUROC hard-omitted |
+| **SIGNFLIP** | green | Odd-symmetric order under `score_margin` sign flip | `meta.signflip_channel=score_margin`; `channels.score_margin.values=score(top1)−score(top2)` from evidence weights (can be negative); flip+re-sort preserves sign-normalized fp; flip-without-reorder fails. Rejected thin: SARIF level rename, negate ranks only |
+| **TRAJSWAP** | green | Mid-horizon traj swap; residual ≤ε vs >ε | `coupling=crn_closed_loop`; trajectory from `explorationTrace`; nonempty `closed_loop_residual=1−Jaccard(proposed,verified)`; `meta.traj_swap_at`. Rejected thin: empty residual, rankedFiles-only permute, open_loop |
+| **VARSCALE** | green | `var_scale` on exploration noise; mean-matched dispersion | `meta.var_scale` jitters evidence weights; `variance_proxy` + `mean_finding_count` matched; ≤`var_eps` vs break. Rejected thin: AUROC, rank/count scaling as variance |
 
 `deferred` / `inconclusive` **≠ green**. Prefer honest deferral over cosmetic greens.
+All 8 cells are green under the WITNESSES_ZERODAY recipes above.
 
 ## Run (keyless / offline)
 
@@ -72,7 +76,16 @@ extra SARIF props.
 - TODO / stub / NotImplemented / hardcoded pass / empty traces
 - Identical twins with no axis contrast on a claimed-green cell
 - Green cell without conforming→pass AND violating→fail
+- **gate_axis_mutate**: for every claimed-green cell, mutate only that
+  operator’s axis on the conforming state and regrade — MUST fail
+  (FREEZEDRY freeze mask · RESEED seed policy · SCHEMAX key set ·
+  SIGNFLIP score_margin polarity · SATEXTEND sat clip · HISTSWAP splice ·
+  TRAJSWAP traj_swap_at residual · VARSCALE var_scale). Prefer deferred
+  over thin green if mutate-power cannot be proven.
 - TRAJSWAP/VARSCALE without `crn_closed_loop`
+- SIGNFLIP green without `score_margin` channel
+- TRAJSWAP green with empty `closed_loop_residual`
+- VARSCALE green without `var_scale` / `variance_proxy` / `mean_finding_count`
 - AUROC / exploit-payload fields
 
 ## Design-partner posture

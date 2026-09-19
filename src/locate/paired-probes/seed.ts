@@ -9,7 +9,8 @@ import { toSarif } from "../sarif";
 import type { SarifLikeLog } from "./fingerprint";
 import { decisionFingerprintFromSarif } from "./fingerprint";
 
-function mulberry32(seed: number): () => number {
+/** Deterministic PRNG for RESEED / VARSCALE exploration noise (not a product RNG stack). */
+export function mulberry32(seed: number): () => number {
   let t = seed >>> 0;
   return () => {
     t += 0x6d2b79f5;
@@ -19,7 +20,7 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-function hashSeed(seed: string): number {
+export function hashSeed(seed: string): number {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
     h ^= seed.charCodeAt(i);
