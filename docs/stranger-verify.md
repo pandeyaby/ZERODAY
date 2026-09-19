@@ -30,6 +30,35 @@ Antares (Door B stays citation-only; no GPU / no HF gated weights by default).
 Dev container: [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json).
 `postStartCommand` only prints a tip card — it does **not** auto-run GPU or pull weights.
 
+### Reusable Actions workflow (other repos)
+
+Another org can prove Door A without inventing metrics or provisioning GPU by
+calling ZERODAY’s reusable workflow. It **checks out ZERODAY** (scripts +
+fixtures), not your app tree — public product door only, not a scan of caller
+source.
+
+```yaml
+# .github/workflows/zeroday-doors.yml  (in YOUR repo)
+name: Prove ZERODAY doors
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 12 * * 1"
+
+jobs:
+  stranger-verify:
+    uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main
+    # Optional pin (prefer same ref as uses:):
+    # with:
+    #   zeroday_ref: main
+    #   zeroday_repository: pandeyaby/ZERODAY
+```
+
+Workflow file:
+[`.github/workflows/stranger-verify.yml`](../.github/workflows/stranger-verify.yml)
+(`on: workflow_call`). ZERODAY’s own locate badge keeps its inline job (names
+unchanged); strangers use this `uses:` entry point.
+
 Browser: `npm run play` → http://localhost:3333/play → **Prove doors** tab
 (same honesty card; copy-paste the command — Desk does not shell out to npm).
 

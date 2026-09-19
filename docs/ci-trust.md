@@ -12,6 +12,7 @@ the [README](../README.md) and want the honest story without reading CI YAML.
 | Workflow `name:` (badge label) | `ZERODAY locate` |
 | Required paired-probe job | `paired-probe` — all 8 operators + `gate_axis_mutate` |
 | Stranger prove-doors job | `stranger-verify` — runs `npm run stranger:verify` (Door A keyless + Door B citation-only; no GPU) |
+| Reusable workflow (other repos) | [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) — `uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` (checks out ZERODAY, not caller source; see [`stranger-verify.md`](./stranger-verify.md)) |
 | Posture | Keyless · fixture / offline adapters · **no GPU** · no HF pull · never auto-merge |
 
 Deep paired-probe detail: [`paired-probes.md`](./paired-probes.md).
@@ -63,5 +64,9 @@ Stranger trust loop (after locate): `npm run trust-loop` · sample grade:
 
 Prove both doors (keyless run + Door B citation): `npm run stranger:verify`
 (alias `npm run doors`) · [`stranger-verify.md`](./stranger-verify.md).
+
+From another repo (Actions, no GPU):  
+`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` — snippet in
+[`stranger-verify.md`](./stranger-verify.md).
 
 Help: [`SUPPORT.md`](../SUPPORT.md).
