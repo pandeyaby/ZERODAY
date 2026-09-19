@@ -67,6 +67,28 @@ zeroday-reports/diptych-probes/<OP>/{conforming,violating}/cassette.json|.bin
 zeroday-reports/paired-probe/coverage/matrix.json
 ```
 
+### Design-partner door — sample DIPTYCH-shaped grade (no DIPTYCH clone)
+
+Strangers should see the **emit → grade-report** story without cloning
+[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) first:
+
+```bash
+npm run paired-probe                 # emit envelopes under zeroday-reports/paired-probe/
+npm run paired-probe:sample-report   # regenerate checked-in sample grade
+```
+
+Checked-in sample (always labeled **sample / illustrative**):
+
+- [`docs/reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md)
+- [`docs/reports/diptych-sample-grade.json`](./reports/diptych-sample-grade.json)
+
+**Honest non-claims:** the sample mirrors DIPTYCH’s `GradeResult` shape from
+local emit envelopes + ZeroDay `gate_axis_mutate` proofs. It is **not** a live
+DIPTYCH harness invocation unless you clone DIPTYCH and point it at
+`zeroday-reports/paired-probe/`. Greens are hyperproperty adapter cells
+(FREEZEDRY…VARSCALE) — localization ≠ exploitability. DIPTYCH grades; ZeroDay
+emits. No PoC / AUROC theater.
+
 Envelope hard keys: `diptych_schema`, `source="zeroday"`, `operator`, `coupling`,
 `probe_id`, `control_role`, `traces` (≥2), `expected_verdict` ∈ {pass,fail,inconclusive}.
 

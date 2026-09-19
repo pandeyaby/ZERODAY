@@ -38,6 +38,12 @@ honestly deferred — never cosmetic greens). Details:
 [`docs/paired-probes.md`](./docs/paired-probes.md) ·
 [`docs/architecture.md`](./docs/architecture.md).
 
+**Design-partner door (no DIPTYCH clone):** `npm run paired-probe` then
+`npm run paired-probe:sample-report` → checked-in sample grade under
+[`docs/reports/diptych-sample-grade.md`](./docs/reports/diptych-sample-grade.md)
+(illustrative DIPTYCH-shaped mirror — not a live harness claim; greens =
+hyperproperty adapters; localization ≠ exploitability).
+
 ---
 
 ## Start in 2 minutes
