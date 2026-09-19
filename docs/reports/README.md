@@ -1,5 +1,24 @@
 # Desk reports (fixture / static)
 
+## DIPTYCH sample grade (design-partner door)
+
+Checked-in **sample / illustrative** DIPTYCH-shaped grade report regenerated from
+local `paired-probe` emit envelopes (no DIPTYCH clone, no GPU):
+
+```bash
+npm run paired-probe
+npm run paired-probe:sample-report
+```
+
+| File | Role |
+|------|------|
+| [`diptych-sample-grade.md`](./diptych-sample-grade.md) | Human-readable sample grade (FREEZEDRY…VARSCALE all-green story) |
+| [`diptych-sample-grade.json`](./diptych-sample-grade.json) | Machine-readable mirror (`zeroday.diptych_sample_grade/v1`) |
+
+**Posture:** sample ≠ live DIPTYCH harness run · greens = hyperproperty adapter
+cells · localization ≠ exploitability · DIPTYCH grades · ZeroDay emits · no PoC /
+AUROC theater. Details: [`docs/paired-probes.md`](../paired-probes.md).
+
 ## Desk B — inventory
 
 Checked-in **redacted** inventory artifacts from:

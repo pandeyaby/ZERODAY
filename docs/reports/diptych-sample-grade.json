@@ -1,0 +1,521 @@
+{
+  "kind": "zeroday.diptych_sample_grade/v1",
+  "sample": true,
+  "live_diptych_run": false,
+  "label": "sample / illustrative",
+  "diptych_schema": "0.2",
+  "source": "zeroday",
+  "emit_root": "/workspace/zeroday-reports",
+  "emit_content_sha256": "35693114b3bf7898c05d9164e046b7cbc385b06f5fc3ae1974c26f5e60bf58f7",
+  "non_claims": [
+    "Sample ≠ product proof of exploitability",
+    "Greens are hyperproperty adapter cells (FREEZEDRY…VARSCALE), not vuln proof",
+    "DIPTYCH grades; ZeroDay emits — this file is an illustrative DIPTYCH-shaped mirror",
+    "Not a live DIPTYCH harness run unless you clone DIPTYCH and point it at the emit",
+    "No PoC / AUROC / attack-procedure theater",
+    "needs_human stays true; never auto-merge"
+  ],
+  "matrix_summary": [
+    {
+      "operator": "FREEZEDRY",
+      "status": "green",
+      "justification": "Freeze rng+clock via serialize_restore of LocalizationResult → identical decision_fingerprint; unfrozen clock/rng leak diverges. Valid witness: frozen decision packet + SARIF graded keys."
+    },
+    {
+      "operator": "RESEED",
+      "status": "green",
+      "justification": "meta.seed reshuffles multi-finding ranks; seed-independent grade stays ≤ε; seed-leaking policy exceeds ε. Valid witness: mulberry32 seed on rankedFiles + stability.values."
+    },
+    {
+      "operator": "SCHEMAX",
+      "status": "green",
+      "justification": "Documented result.* + sarif.* required key sets equal across rules vs recording fixtures; drop/rename fails. Valid witness: real telemetry/SARIF schema keys (not renamed cosmetics)."
+    },
+    {
+      "operator": "SIGNFLIP",
+      "status": "green",
+      "justification": "Signed score_margin=score(top1)−score(top2) from evidence weights; flip+re-sort preserves odd-symmetric invariant; flip-without-reorder breaks it. Not SARIF level rename / rank negate."
+    },
+    {
+      "operator": "SATEXTEND",
+      "status": "green",
+      "justification": "Antares/ZERODAY tool-budget clip [1,50] via resolveLiveToolBudget is a real saturation bound; unsaturated leak (999) enters violation region. Valid witness: sat_lo/sat_hi on tool_budget channel."
+    },
+    {
+      "operator": "HISTSWAP",
+      "status": "green",
+      "justification": "explorationTrace is the real history delay-line; clean self-splice preserves digest; alt-history corrupt splice diverges. Valid witness: channels.history + hist_splice_at."
+    },
+    {
+      "operator": "TRAJSWAP",
+      "status": "green",
+      "justification": "crn_closed_loop: explorationTrace trajectory + nonempty closed_loop_residual=1−Jaccard(proposed,verified); mid traj_swap_at keeps residual≤eps vs poison swap >eps."
+    },
+    {
+      "operator": "VARSCALE",
+      "status": "green",
+      "justification": "crn_closed_loop: meta.var_scale jitters evidence weights; variance_proxy mean-matched on mean_finding_count; ≤var_eps vs break. Not AUROC / rank-scale-as-variance."
+    }
+  ],
+  "results": [
+    {
+      "operator": "FREEZEDRY",
+      "probe_id": "zeroday.freezedry.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "sarif_fingerprint"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "rng",
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:8bf6628bb6920ccc71402e1ebc6da1c910d0d6c3436e08e157f4c8e567114571"
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "FREEZEDRY",
+      "probe_id": "zeroday.freezedry.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "sarif_fingerprint"
+        ],
+        "meta_subset": {
+          "freeze_channels": [],
+          "decision_fingerprint": "sha256:f202bb7037ebfaf5a760490adbf2087f406068523d42e294db9ab26240b6de1d"
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "RESEED",
+      "probe_id": "zeroday.reseed.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "sarif_fingerprint",
+          "stability"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:41186d40b7aa904e9b42b3a129cd39ee98cbccd665f96d1296dfb7241120c5f3",
+          "seed": "seed-alpha",
+          "epsilon": 0
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "RESEED",
+      "probe_id": "zeroday.reseed.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "stability"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:18b7919134176b899a6b7665cf0dba562f1e3c20bf966b2ca57d7f4639c80552",
+          "seed": "seed-alpha",
+          "epsilon": 0
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SCHEMAX",
+      "probe_id": "zeroday.schemax.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "schema"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:0dd439b252b7a923c3ad3cd27995672268eea2c24ad318f852129ee33542d96b",
+          "required_schema_keys": [
+            "result.mode",
+            "result.advisory",
+            "result.targetRepo",
+            "result.model",
+            "result.generatedAt",
+            "result.rankedFiles",
+            "result.explorationTrace",
+            "result.warnings",
+            "result.posture",
+            "result.summary",
+            "result.posture.localizationOnly",
+            "result.posture.notExploitProof",
+            "result.posture.noAutoMerge",
+            "result.posture.noPoC",
+            "sarif.$schema",
+            "sarif.version",
+            "sarif.runs",
+            "sarif.runs.tool.driver.name",
+            "sarif.runs.results",
+            "sarif.runs.properties.mode",
+            "sarif.runs.properties.posture"
+          ]
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SCHEMAX",
+      "probe_id": "zeroday.schemax.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "schema"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:0dd439b252b7a923c3ad3cd27995672268eea2c24ad318f852129ee33542d96b",
+          "required_schema_keys": [
+            "result.mode",
+            "result.advisory",
+            "result.targetRepo",
+            "result.model",
+            "result.generatedAt",
+            "result.rankedFiles",
+            "result.explorationTrace",
+            "result.warnings",
+            "result.posture",
+            "result.summary",
+            "result.posture.localizationOnly",
+            "result.posture.notExploitProof",
+            "result.posture.noAutoMerge",
+            "result.posture.noPoC",
+            "sarif.$schema",
+            "sarif.version",
+            "sarif.runs",
+            "sarif.runs.tool.driver.name",
+            "sarif.runs.results",
+            "sarif.runs.properties.mode",
+            "sarif.runs.properties.posture"
+          ]
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SIGNFLIP",
+      "probe_id": "zeroday.signflip.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "sarif_fingerprint",
+          "score_margin"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:c05ce65ce6eef354816615d12b9a73b9da2cc66d66aa32f7b3d559f2b9b3da22",
+          "signflip_channel": "score_margin"
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SIGNFLIP",
+      "probe_id": "zeroday.signflip.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "score_margin"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:c05ce65ce6eef354816615d12b9a73b9da2cc66d66aa32f7b3d559f2b9b3da22",
+          "signflip_channel": "score_margin"
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SATEXTEND",
+      "probe_id": "zeroday.satextend.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "tool_budget"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:3b0b9373ff5696e77df201e93c06218c704daaca3d04650311846bdbbcb71142",
+          "sat_lo": 1,
+          "sat_hi": 50
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SATEXTEND",
+      "probe_id": "zeroday.satextend.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "decisions",
+          "tool_budget"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:736ab43159d10fd2f97e51b134b7f0de7c59cb6677210eb8d9d386741184e464",
+          "sat_lo": 1,
+          "sat_hi": 50
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "HISTSWAP",
+      "probe_id": "zeroday.histswap.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "history",
+          "sarif_fingerprint"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:8bf6628bb6920ccc71402e1ebc6da1c910d0d6c3436e08e157f4c8e567114571",
+          "hist_splice_at": 2
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "HISTSWAP",
+      "probe_id": "zeroday.histswap.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "open_loop",
+        "channel_keys": [
+          "history"
+        ],
+        "meta_subset": {
+          "decision_fingerprint": "sha256:8bf6628bb6920ccc71402e1ebc6da1c910d0d6c3436e08e157f4c8e567114571",
+          "hist_splice_at": 2
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "TRAJSWAP",
+      "probe_id": "zeroday.trajswap.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "crn_closed_loop",
+        "channel_keys": [
+          "closed_loop_residual",
+          "trajectory"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "rng",
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:88b261ba46f7cec62f4ecb1a958f7e9e7c869eac290e9410fe7669688a2f8b66",
+          "traj_swap_at": 2,
+          "residual_eps": 0.25
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "TRAJSWAP",
+      "probe_id": "zeroday.trajswap.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "crn_closed_loop",
+        "channel_keys": [
+          "closed_loop_residual",
+          "trajectory"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "rng",
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:6fe2a60a6a0f6ae7164e8e0a8be19389c43411fd678ef7770400b587aef3c9db",
+          "traj_swap_at": 4,
+          "residual_eps": 0.25
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "VARSCALE",
+      "probe_id": "zeroday.varscale.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "illustrative: conforming emit expects pass (hyperproperty holds on axis); ZeroDay CI gated twin shape",
+      "evidence": {
+        "coupling": "crn_closed_loop",
+        "channel_keys": [
+          "closed_loop_residual",
+          "stability",
+          "variance_proxy"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:44db6d5a54f4ea987c8077d0e7472cead5ce3caa9ff99e274d5dac88336eb6a4",
+          "var_scale": 0.05,
+          "var_eps": 0.15,
+          "mean_finding_count": 2,
+          "stability_floor": 0.85
+        }
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "VARSCALE",
+      "probe_id": "zeroday.varscale.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "illustrative: violating emit expects fail (axis broken); ZeroDay CI gated twin contrast",
+      "evidence": {
+        "coupling": "crn_closed_loop",
+        "channel_keys": [
+          "closed_loop_residual",
+          "stability",
+          "variance_proxy"
+        ],
+        "meta_subset": {
+          "freeze_channels": [
+            "clock"
+          ],
+          "decision_fingerprint": "sha256:9381433980e850307fff9f0b71c9115c935a266da1433d165a055e1e8de73277",
+          "var_scale": 80,
+          "var_eps": 0.15,
+          "mean_finding_count": 2,
+          "stability_floor": 0.85
+        }
+      },
+      "matches_expected": true
+    }
+  ],
+  "axis_power": [
+    {
+      "operator": "FREEZEDRY",
+      "axis": "freeze_channels",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "freeze→identical; unfreeze+clock/rng leak→diverge"
+    },
+    {
+      "operator": "RESEED",
+      "axis": "meta.seed / grade policy",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "seed-independent≤ε; seed-leak>ε"
+    },
+    {
+      "operator": "SCHEMAX",
+      "axis": "required_schema_keys",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "required keys equal; drop/rename → unequal"
+    },
+    {
+      "operator": "SIGNFLIP",
+      "axis": "score_margin polarity",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "flip+re-sort preserves; flip-without-reorder fails"
+    },
+    {
+      "operator": "SATEXTEND",
+      "axis": "sat_lo/sat_hi clip",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "clip holds in [1,50]; unsaturated leak enters violation"
+    },
+    {
+      "operator": "HISTSWAP",
+      "axis": "hist_splice_at integrity",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "clean splice preserves; corrupt splice diverges"
+    },
+    {
+      "operator": "TRAJSWAP",
+      "axis": "traj_swap_at / closed_loop_residual",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "valid mid-swap residual≤eps; poison submit swap >eps"
+    },
+    {
+      "operator": "VARSCALE",
+      "axis": "meta.var_scale",
+      "conforming_pass": true,
+      "mutated_fail": true,
+      "detail": "low var_scale ≤var_eps; raised var_scale breaks bound (mean-matched)"
+    }
+  ],
+  "story": "FREEZEDRY…VARSCALE all-green story — emit twins + gate_axis_mutate power on every claimed-green cell."
+}
