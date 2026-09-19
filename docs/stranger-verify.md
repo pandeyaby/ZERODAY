@@ -92,6 +92,7 @@ No auto-provision. No GPU spend from `stranger:verify`. To re-run yourself:
 
 | Doc | Role |
 |-----|------|
+| [`design-partner-day1.md`](./design-partner-day1.md) | Day-1 water-flow checklist (clone → mvp → trust-loop → this door → optional Door B cite) |
 | [`ci-trust.md`](./ci-trust.md) | What the Actions badge proves / does not |
 | [`gpu-claims.md`](./gpu-claims.md) | Proven vs deferred + dated live GPU re-proof |
 | [`paired-probes.md`](./paired-probes.md) | Trust-loop / from-sarif detail |

@@ -9,6 +9,9 @@ are authorized to touch.
 [Cisco Antares](https://cisco-foundation-ai.github.io/antares/).
 **Not a Cisco product.** Not an official Cisco partnership.
 
+**Day-1 water-flow** (clone → mvp → trust-loop → stranger:verify → optional
+Door B cite): [`design-partner-day1.md`](./design-partner-day1.md).
+
 **Privacy split (honest):**
 
 | Surface | Visibility |

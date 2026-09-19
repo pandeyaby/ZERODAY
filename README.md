@@ -115,6 +115,9 @@ Same keyless command is a CI job (`stranger-verify`) on the locate workflow badg
 
 Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · Codespace ≠ live Antares · DIPTYCH grades separately · sample grade illustrative.
 
+**Day-1 water-flow (clone → mvp → trust-loop → stranger:verify → optional Door B cite):**
+[`docs/design-partner-day1.md`](./docs/design-partner-day1.md).
+
 ---
 
 ## Start in 2 minutes — Door A (keyless)
@@ -237,6 +240,7 @@ One trust surface for strangers and design partners — same story as
 | Acceptable use / authorization | [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) |
 | Product hard limits + reporting a ZERODAY defect | [`SECURITY.md`](./SECURITY.md) |
 | How to get help (no SLA; not Cisco support) | [`SUPPORT.md`](./SUPPORT.md) |
+| Day-1 checklist (water-flow) | [`docs/design-partner-day1.md`](./docs/design-partner-day1.md) |
 | Honest dry-run checklist | [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) |
 | Honest GPU claims (proven vs deferred) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) |
 | Optional DIPTYCH paired probes | [`docs/paired-probes.md`](./docs/paired-probes.md) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) |
