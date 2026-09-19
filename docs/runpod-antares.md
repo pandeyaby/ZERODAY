@@ -170,6 +170,12 @@ This is **not** proof of exploitability, not a PoC, and not a partnership claim.
 Always set `needs_human: true` and keep CI fixture-safe. Claim boundary:
 [`gpu-claims.md`](./gpu-claims.md).
 
+**Dated live GPU re-proof (2026-09-19 PT):** pod `d65ny3xqf7bwza`, Secure A40,
+estimated **~$0.034** under ≤$0.50 ceiling, doctor/completions 200s, live
+locate CWE-89 → `src/users.js` — measured facts only in
+[`gpu-claims.md`](./gpu-claims.md#live-re-proof-2026-09-19-pt) (not a checked-in
+cassette; not an AUROC / latency SLA).
+
 ## Honesty
 
 1. HF gated accept still required for weights.
