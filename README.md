@@ -1,22 +1,25 @@
 # ZERODAY
 
+[![ZERODAY locate](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml/badge.svg)](https://github.com/pandeyaby/ZERODAY/actions/workflows/zeroday-locate.yml)
+
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
 **Public OSS · Apache-2.0 · not a Cisco product.** ZERODAY is a local-first
 defensive **localization** desk around
 [Antares](https://cisco-foundation-ai.github.io/antares/): given a CWE / CVE /
-GHSA, it helps you rank which files matter, then writes **SARIF** + hashed
-evidence for a human to review.
+GHSA, it ranks which files matter and writes **SARIF** + hashed evidence for a
+human to review — not a Cisco product, not exploit theater.
 
 > **Hard limits** (unchanged product rules)
 >
-> - No PoCs, exploits, payloads, or attack procedures — ever
+> - No PoCs, exploits, payloads, or attack procedures — ever (no exploit theater)
 > - Localization ≠ proof of exploitability · `needs_human` always · never auto-merge
 > - Default is keyless (`npm run mvp`) — no GPU, no HF token, no spend
 > - Live Antares is **opt-in** and **costs $** — you accept HF terms and host
 >   completions yourself; ZERODAY never auto-provisions pods
 > - This repo is public; **customer source stays private** unless you explicitly
 >   ACK remote inference (`--remote-inference`)
+> - No AUROC-as-product-grade claims · DIPTYCH greens ≠ vulnerability proof
 > - Scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) ·
 >   disclosure: [`SECURITY.md`](./SECURITY.md) · help: [`SUPPORT.md`](./SUPPORT.md)
 
@@ -86,6 +89,8 @@ Keyless = `$0` fixture path; live clip = opt-in completions host you run (not Ci
 
 CWE / CVE / GHSA → explore → ranked files + hashed evidence → SARIF / `report.md`
 
+![ZERODAY trust pipeline — Desk → locate → SARIF/evidence → optional DIPTYCH paired probes](./docs/images/zeroday-trust-pipeline.svg)
+
 | | Antares (brain) | ZERODAY (desk) |
 |--|-----------------|----------------|
 | Job | “Which files?” for a CWE / advisory | Workstation + CI habit around that answer |
@@ -97,6 +102,45 @@ Keyless does not invent a second product — only the localization brain swaps
 (fixture · rules · SARIF ingest · live · org recording). Full door map:
 [`docs/paths.md`](./docs/paths.md). Honesty Q&A: [`docs/faq.md`](./docs/faq.md)
 (also a tab in `npm run play`).
+
+---
+
+## DIPTYCH (optional paired-eval / trust layer)
+
+[**DIPTYCH**](https://github.com/pandeyaby/DIPTYCH) grades calibration as
+**2-safety hyperproperties** on ZERODAY locate artifacts (FREEZEDRY…VARSCALE +
+`gate_axis_mutate`).
+
+**DIPTYCH is optional.** It is paired-probe / trust tooling — not a runtime
+dependency. Core `locate`, Desk, and SARIF work without it.
+
+- Emit locally (keyless / offline, no GPU): `npm run paired-probe`
+- Docs: [`docs/paired-probes.md`](./docs/paired-probes.md)
+- Required on `main`: the `paired-probe` job in
+  [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
+  (badge above) keeps all-8 green + `gate_axis_mutate` after #41/#42. CI is
+  keyless / offline — **no GPU** in this gate.
+
+**Honest non-claim:** DIPTYCH greens grade probe calibration. They are **not**
+vulnerability proof, exploit confirmation, or AUROC-as-product-grade marketing.
+
+---
+
+## Design partners / trust
+
+One trust surface for strangers and design partners — same story as
+[`docs/design-partner-trust.md`](./docs/design-partner-trust.md):
+
+| Need | Where |
+|------|--------|
+| Acceptable use / authorization | [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) |
+| Product hard limits + reporting a ZERODAY defect | [`SECURITY.md`](./SECURITY.md) |
+| How to get help (no SLA; not Cisco support) | [`SUPPORT.md`](./SUPPORT.md) |
+| Honest dry-run checklist | [`docs/design-partner-trust.md`](./docs/design-partner-trust.md) |
+| Optional DIPTYCH paired probes | [`docs/paired-probes.md`](./docs/paired-probes.md) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) |
+
+Public OSS · customer source stays private · localization ≠ exploitability ·
+no PoC / exploit theater · DIPTYCH greens ≠ vuln proof.
 
 ---
 
@@ -180,6 +224,9 @@ Sample: [`examples/sample-live-sarif/report.sarif`](./examples/sample-live-sarif
 - **No silent fixture fallback** on the live path
 - **No silent spend** — print-only `doctor` / `antares doctor`; you provision and terminate
 - **Local brain honesty** — arbitrary local models ≠ Antares File F1
+- **No AUROC-as-product-grade** — fixture / rules / recording metrics are not F1 marketing
+- **DIPTYCH greens ≠ vuln proof** — calibration grading only; optional trust layer
+- **No exploit theater** — localization candidates, not PoC / exploit demos
 
 Full Q&A: [`docs/faq.md`](./docs/faq.md) · play UI FAQ tab (`npm run play`).
 Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
@@ -198,10 +245,12 @@ Trust pack: [`docs/design-partner-trust.md`](./docs/design-partner-trust.md)
 | Docs index | [`docs/README.md`](./docs/README.md) |
 | Get help | [`SUPPORT.md`](./SUPPORT.md) |
 
-CI on `pull_request`: keyless locate → upload SARIF → reviewable comment
-(fail-closed). Never pulls weights. Never auto-merge. Live Antares is **not**
-wired into CI. Workflow:
+CI on `pull_request` / `main`: keyless locate → upload SARIF → reviewable comment
++ required `paired-probe` job (all-8 green + `gate_axis_mutate`). Fail-closed.
+Never pulls weights. Never auto-merge. No GPU in this gate. Live Antares is
+**not** wired into CI. Workflow:
 [`.github/workflows/zeroday-locate.yml`](./.github/workflows/zeroday-locate.yml)
+· badge above.
 
 ---
 
@@ -216,4 +265,6 @@ No warranty.
   [Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) ·
   [HF `fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) ·
   [`cisco-antares-cli`](https://pypi.org/project/cisco-antares-cli/)
+- **DIPTYCH** (optional paired-eval / trust) —
+  [github.com/pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Foundry Security Spec · Project CodeGuard — compose, don’t replace

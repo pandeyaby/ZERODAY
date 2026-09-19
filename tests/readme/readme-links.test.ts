@@ -69,6 +69,14 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /--fixture/);
     assert.match(readme, /docs\/runpod-antares\.md/);
     assert.match(readme, /docs\/paths\.md/);
+    assert.match(readme, /DIPTYCH/);
+    assert.match(readme, /paired-probe/);
+    assert.match(readme, /gate_axis_mutate/);
+    assert.match(readme, /docs\/images\/zeroday-trust-pipeline\.svg/);
+    assert.match(readme, /github\.com\/pandeyaby\/DIPTYCH/);
+    assert.match(readme, /AUROC|auroc/i);
+    assert.match(readme, /SUPPORT\.md/);
+    assert.match(readme, /docs\/design-partner-trust\.md/);
   });
 
   it("quickstart-live.sh refuses fixture fallback and probes endpoint", () => {

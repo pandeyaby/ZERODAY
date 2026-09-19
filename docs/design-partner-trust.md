@@ -26,9 +26,10 @@ are authorized to touch.
 | **Desk** | Keyless loop on *your* tree: `inventory` → `packet` → `harden` → `classify` → `craft` (config / packet / recommend-only / classify / craft — **not** vuln discovery) |
 | **Evidence** | Offline vault + `verify` hashes; exporters write **local files only** |
 | **CI default** | Fixture / keyless smoke → SARIF → human-reviewed PR comment |
+| **DIPTYCH (optional)** | Paired-probe / trust layer that grades calibration on locate artifacts — **not** required for `locate` / Desk / SARIF ([DIPTYCH](https://github.com/pandeyaby/DIPTYCH) · [`paired-probes.md`](./paired-probes.md)) |
 
 Localization is detector-lane **candidates**. Always `needs_human: true`.
-Localization ≠ exploitability.
+Localization ≠ exploitability. DIPTYCH greens ≠ vulnerability proof.
 
 ---
 
@@ -40,6 +41,8 @@ Localization ≠ exploitability.
 - No auto GPU / RunPod spend — print-only doctors; **you** provision and terminate
 - No silent fixture fallback on the live `--endpoint` path
 - No claim that public OSS means customer source is fair game — **assessed trees stay private**
+- No claim that DIPTYCH greens / AUROC-style scores prove exploitability — calibration ≠ vuln proof
+- No exploit theater (PoC / payload / attack-procedure demos)
 
 ---
 
@@ -91,7 +94,7 @@ Also: root [`README.md`](../README.md) (MVP / Desk / Honesty) and
 |------|--------|
 | Acceptable use / authorization | [`SCOPE_AND_AUTHORIZATION.md`](../SCOPE_AND_AUTHORIZATION.md) |
 | Product hard limits + reporting a bug **in ZERODAY** | [`SECURITY.md`](../SECURITY.md) |
-| Product / docs questions | GitHub Issues or Discussions on this public repo |
+| Product / docs questions | [`SUPPORT.md`](../SUPPORT.md) · GitHub Issues or Discussions on this public repo |
 | Responsible disclosure of a ZERODAY defect | Prefer GitHub private vulnerability reporting; else contact [`@pandeyaby`](https://github.com/pandeyaby) privately — impact summary, no weaponized PoC required |
 
 **Do not** open public issues with exploit details against assessed third-party code.

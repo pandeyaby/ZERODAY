@@ -1,8 +1,13 @@
 # Paired probes — ZERODAY → DIPTYCH (diptych_schema 0.2)
 
-Emit-only adapter for DIPTYCH hyperproperty grading. **ZERODAY does not
-implement DIPTYCH’s operator orchestration** — we emit conforming + violating
-probe pairs; DIPTYCH grades.
+Emit-only adapter for [DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
+hyperproperty grading. **ZERODAY does not implement DIPTYCH’s operator
+orchestration** — we emit conforming + violating probe pairs; DIPTYCH grades.
+
+**DIPTYCH is optional.** Core `locate` / Desk / SARIF work without it. This
+adapter is paired-probe / trust tooling, not a runtime dependency.
+
+![ZERODAY trust pipeline — Desk → locate → SARIF/evidence → optional DIPTYCH](./images/zeroday-trust-pipeline.svg)
 
 Canonical enums + per-op table: [`diptych-onepager.md`](./diptych-onepager.md)
 (mirrored from DIPTYCH ONEPAGER; **0.1 rejected**).
@@ -21,6 +26,11 @@ Witness recipes (SIGNFLIP / TRAJSWAP / VARSCALE): DIPTYCH
 - **Not a Cisco product**
 
 ## What CI **does** prove (this repo)
+
+Required on `main` / `pull_request` via the `paired-probe` job in
+[`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
+([badge on README](../README.md)). After #41/#42: **all-8 green** +
+`gate_axis_mutate`. Keyless / offline — **no GPU**, no HF, no spend in this gate.
 
 | Operator | Cell | Hyperproperty (DIPTYCH) | Why the ZeroDay channel is a valid witness |
 |----------|------|-------------------------|--------------------------------------------|
@@ -90,8 +100,14 @@ extra SARIF props.
 
 ## Design-partner posture
 
-Localization ≠ exploitability. No auto-merge. No spend in this CI job.
-Not a Cisco product. DIPTYCH consumers: start at
+Localization ≠ exploitability. No auto-merge. No spend / no GPU in this CI job.
+Not a Cisco product. **DIPTYCH greens ≠ vulnerability proof** — they grade
+probe calibration as 2-safety hyperproperties, not exploitability. No exploit
+theater. No AUROC-as-product-grade claims.
+
+DIPTYCH consumers: start at
 `zeroday-reports/paired-probe/coverage/matrix.json`, then per-op envelopes.
+Repo: [github.com/pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
 
 Related: [`cassette-runbook.md`](./cassette-runbook.md) · [`paths.md`](./paths.md)
+· [`design-partner-trust.md`](./design-partner-trust.md) · root [`README.md`](../README.md)
