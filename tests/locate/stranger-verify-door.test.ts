@@ -60,6 +60,9 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(readme, /localization ≠ exploitability|localization != exploitability/i);
     assert.match(readme, /CI badge ≠ vuln|CI badge.*vuln/i);
     assert.match(readme, /no AUROC|AUROC/i);
+    // Clone-free Door A via Codespaces (no local Node)
+    assert.match(readme, /codespaces\.new\/pandeyaby\/ZERODAY/);
+    assert.match(readme, /Codespace ≠ live Antares|Codespace.*live Antares/i);
   });
 
   it("docs/stranger-verify.md + docs index + ci-trust cross-link", () => {
@@ -74,12 +77,54 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(doc, /2026-09-19/);
     assert.match(doc, /no AUROC|AUROC/i);
     assert.match(doc, /DIPTYCH grades/i);
+    assert.match(doc, /codespaces\.new\/pandeyaby\/ZERODAY/);
+    assert.match(doc, /Codespace ≠ live Antares|Codespace.*live Antares/i);
 
     const index = fs.readFileSync(path.join(root, "docs/README.md"), "utf8");
     assert.match(index, /stranger-verify\.md/);
 
     const ciTrust = fs.readFileSync(path.join(root, "docs/ci-trust.md"), "utf8");
     assert.match(ciTrust, /stranger:verify|stranger-verify/);
+  });
+
+  it(".devcontainer is valid JSON + keyless Codespace path (no GPU / HF)", () => {
+    const dcPath = path.join(root, ".devcontainer/devcontainer.json");
+    assert.ok(fs.existsSync(dcPath), "missing .devcontainer/devcontainer.json");
+    const raw = fs.readFileSync(dcPath, "utf8");
+    const dc = JSON.parse(raw) as {
+      image?: string;
+      postCreateCommand?: string;
+      postStartCommand?: string;
+      forwardPorts?: number[];
+    };
+    assert.ok(dc.image, "devcontainer needs an image (Node LTS)");
+    assert.match(String(dc.image), /node|javascript-node/i);
+    assert.equal(dc.postCreateCommand, "npm install");
+    assert.ok(dc.postStartCommand, "expected tip-only postStartCommand");
+    assert.doesNotMatch(
+      JSON.stringify(dc),
+      /HF_TOKEN|huggingface\.co\/.*download|create-pod|runpod create|--endpoint|--live/i,
+    );
+    const tip = fs.readFileSync(
+      path.join(root, ".devcontainer/print-prove-doors-tip.sh"),
+      "utf8",
+    );
+    assert.match(tip, /stranger:verify/);
+    assert.match(tip, /Door A/);
+    assert.match(tip, /Codespace ≠ live Antares|no HF gated|citation/i);
+    assert.match(tip, /no RunPod auto-provision|no.*auto-provision/i);
+    assert.doesNotMatch(tip, /create-pod|runpod create|HF_TOKEN/i);
+
+    const tasksPath = path.join(root, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const prove = tasks.tasks.find((t) =>
+      /prove-doors|stranger:verify/i.test(String(t.label ?? "")),
+    );
+    assert.ok(prove, "missing VS Code prove-doors task");
+    assert.match(String(prove.command), /stranger:verify/);
   });
 
   it("npm run stranger:verify exits 0 on keyless path", () => {

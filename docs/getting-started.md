@@ -14,6 +14,10 @@ npm run mvp
 Expect **PASS** and SARIF under `zeroday-reports/mvp/`. No GPU. No HF token. No
 spend. Same door as `locate --fixture`.
 
+**Clone-free:** [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY)
+→ `npm run stranger:verify` (Door A PASS + Door B citation). Codespace ≠ live
+Antares. Detail: [`stranger-verify.md`](./stranger-verify.md).
+
 Checklist mirror: [`first-time-users.md`](./first-time-users.md)
 
 ## 2. Desk Console (optional UI)

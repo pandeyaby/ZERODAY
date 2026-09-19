@@ -18,6 +18,18 @@ run fixture locate first. CI runs the same keyless command in the
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
 (badge ≠ vuln proof — see [`ci-trust.md`](./ci-trust.md)).
 
+### Clone-free — GitHub Codespaces (Door A)
+
+No local Node install. Default Codespace is CPU / keyless only — **not** live
+Antares (Door B stays citation-only; no GPU / no HF gated weights by default).
+
+1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace; waits for `postCreateCommand`: `npm install`)
+2. Terminal: `npm run stranger:verify` (or `npm run doors`) — or VS Code task **ZERODAY: prove-doors (stranger:verify)**
+3. Expect **Door A PASS** + **Door B citation**
+
+Dev container: [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json).
+`postStartCommand` only prints a tip card — it does **not** auto-run GPU or pull weights.
+
 Browser: `npm run play` → http://localhost:3333/play → **Prove doors** tab
 (same honesty card; copy-paste the command — Desk does not shell out to npm).
 
@@ -42,6 +54,7 @@ No auto-provision. No GPU spend from `stranger:verify`. To re-run yourself:
 
 - Localization ≠ exploitability · `needs_human` always
 - CI badge ≠ vuln proof — [`ci-trust.md`](./ci-trust.md)
+- Codespace ≠ live Antares (default Codespace has no GPU brain)
 - No AUROC / File-F1 / org-scale latency SLAs
 - DIPTYCH grades separately · ZeroDay emits
 - Sample grade is illustrative (not a live DIPTYCH harness run)
