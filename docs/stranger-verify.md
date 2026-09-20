@@ -39,8 +39,10 @@ see [`ci-trust.md`](./ci-trust.md)). The reusable
 same artifact for external `workflow_call` callers.
 
 Desk **Prove doors** tab: **Run** calls local `POST /api/stranger-verify`
-(in-process; same JSON). Optional body `{ "liveUrl": "https://…/v1" }` probes
-`GET /v1/models` only (`provisioned: false`). CLI copy-paste remains secondary.
+(in-process; same JSON). **Run cassette:replay** calls `POST /api/cassette-replay`
+(pinned mode/findings/ranked file/SARIF/exit; fail-closed). Optional body
+`{ "liveUrl": "https://…/v1" }` probes `GET /v1/models` only (`provisioned: false`).
+CLI copy-paste remains secondary.
 
 ### Opt-in Door B probe (`--live-url`) — operator endpoint only
 
