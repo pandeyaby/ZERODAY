@@ -41,6 +41,17 @@ import {
   PROVE_DOORS_DOWNLOAD_FILENAME,
   serializeProveDoorsJson,
 } from "@/desk/prove-doors-download";
+import {
+  downloadReportFiles,
+  downloadReportJson,
+  downloadReportMarkdown,
+  REPORT_DOWNLOAD_FILENAMES,
+  REPORT_JSON_DOWNLOAD_FILENAME,
+  REPORT_MD_DOWNLOAD_FILENAME,
+  serializeReportJson,
+  serializeReportMarkdown,
+  type ReportDownloadPayload,
+} from "@/desk/report-download";
 
 const VERIFY_CMD = "npm run stranger:verify";
 const VERIFY_ALIAS = "npm run doors";
@@ -53,12 +64,14 @@ const PROVE_ALL_API_PATH = "/api/prove-doors";
 const GPU_EVIDENCE_API_PATH = "/api/gpu-evidence";
 const EVIDENCE_PACK_API_PATH = "/api/evidence-pack";
 const DOCTOR_API_PATH = "/api/doctor";
+const REPORT_API_PATH = "/api/report";
 const UPLOAD_SARIF_API_PATH = "/api/upload-sarif";
 const CASSETTE_CMD = "npm run cassette:replay";
 const UPLOAD_SARIF_DRY_CMD =
   "npm run upload-sarif -- --sarif <path> --dry-run";
 const EVIDENCE_PACK_CMD = "npm run evidence-pack -- --out out/evidence";
 const DOCTOR_CMD = "npm run doctor -- --out out/doctor.json";
+const REPORT_CMD = "npm run report -- --from fixtures/locate/report-sample/prove-doors.json --out out/report.md";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
 const DOOR_B_FACTS = [
@@ -98,6 +111,11 @@ const DOC_LINKS = [
     href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md",
     label: "docs/stranger-verify.md § doctor",
     hint: "Workstation readiness — Desk POST /api/doctor → doctor.json (no RunPod)",
+  },
+  {
+    href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md",
+    label: "docs/stranger-verify.md § report",
+    hint: "CISO localization summary — Desk POST /api/report → report.json + report.md (no RunPod)",
   },
 ] as const;
 
@@ -256,6 +274,11 @@ type DoctorJson = DoctorDownloadPayload & {
   checks?: Array<{ id?: string; ok?: boolean; detail?: string }>;
 };
 
+type ReportJson = ReportDownloadPayload & {
+  code?: string;
+  findings?: Array<{ path?: string; rank?: number; cweIds?: string[] }>;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
@@ -263,7 +286,8 @@ type DoctorJson = DoctorDownloadPayload & {
  * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence + Door E upload-sarif dry-run) +
  * Code Scanning upload dry-run (POST /api/upload-sarif — never GitHub from Desk) +
  * Evidence pack download (POST /api/evidence-pack — CLI out/evidence/ shape; no RunPod) +
- * Workstation doctor (POST /api/doctor — in-process runDoctor; download doctor.json; no RunPod).
+ * Workstation doctor (POST /api/doctor — in-process runDoctor; download doctor.json; no RunPod) +
+ * CISO report (POST /api/report — in-process runReport; download report.json + report.md; no RunPod).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
@@ -298,6 +322,9 @@ export function ProveDoorsPanel() {
   const [doctorBusy, setDoctorBusy] = useState(false);
   const [doctorError, setDoctorError] = useState<string | null>(null);
   const [doctorResult, setDoctorResult] = useState<DoctorJson | null>(null);
+  const [reportBusy, setReportBusy] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportResult, setReportResult] = useState<ReportJson | null>(null);
 
   const anyBusy =
     busy ||
@@ -306,7 +333,8 @@ export function ProveDoorsPanel() {
     allBusy ||
     uploadBusy ||
     packBusy ||
-    doctorBusy;
+    doctorBusy ||
+    reportBusy;
 
   useEffect(() => {
     let cancelled = false;
@@ -529,6 +557,37 @@ export function ProveDoorsPanel() {
       setDoctorBusy(false);
     }
   }, []);
+
+  const runReportGenerate = useCallback(async () => {
+    setReportBusy(true);
+    setReportError(null);
+    setReportResult(null);
+    try {
+      // Prefer last Run-all prove-doors JSON; else keyless fixture default.
+      const body =
+        allResult && allResult.schemaVersion
+          ? { proveDoors: allResult }
+          : { from: "prove-doors" };
+      const res = await fetch(REPORT_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as ReportJson;
+      if (!res.ok || json.ok === false) {
+        setReportError(json.error || `HTTP ${res.status}`);
+        setReportResult(null);
+        return;
+      }
+      setReportResult(json);
+      downloadReportFiles(json);
+    } catch (e) {
+      setReportError((e as Error).message);
+      setReportResult(null);
+    } finally {
+      setReportBusy(false);
+    }
+  }, [allResult]);
 
   return (
     <div className="space-y-4 animate-fade-up" data-testid="prove-doors-panel">
@@ -1477,6 +1536,177 @@ export function ProveDoorsPanel() {
         ) : null}
       </div>
 
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-report-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <FileJson size={14} /> Generate report
+          </span>
+          <Badge tone="ok">POST {REPORT_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          CISO localization summary via existing{" "}
+          <code className="text-[var(--accent)]">runReport</code> (
+          <code className="text-[var(--accent)]">zeroday.report/v1</code>) —
+          same shape as CLI{" "}
+          <code className="text-[var(--accent)]">out/report.json</code> /{" "}
+          <code className="text-[var(--accent)]">out/report.md</code>. Uses last
+          Run-all prove-doors JSON when present; otherwise keyless fixture.
+          Fail-closed · never invents findings ·{" "}
+          <strong className="text-[var(--text)]/85 font-medium">
+            does not start RunPod
+          </strong>
+          .
+        </p>
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <Button
+            type="button"
+            size="md"
+            disabled={anyBusy}
+            onClick={() => void runReportGenerate()}
+            data-testid="prove-doors-report-run"
+            aria-label="Generate localization report and download report.json + report.md via Desk API"
+          >
+            {reportBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <FileJson size={14} />
+            )}
+            {reportBusy ? "Generating…" : "Generate report"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            Downloads {REPORT_DOWNLOAD_FILENAMES.join(" · ")}
+            {allResult ? " · from last Run-all" : " · fixture sample"}
+          </span>
+        </div>
+        {reportError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-report-error"
+            role="alert"
+          >
+            {reportError}
+          </p>
+        ) : null}
+        {reportResult ? (
+          <div className="mt-3" data-testid="prove-doors-report-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone="ok">
+                {String(reportResult.schemaVersion ?? "report")}
+              </Badge>
+              <Badge tone="muted">
+                findings:{" "}
+                {Array.isArray(reportResult.findings)
+                  ? reportResult.findings.length
+                  : 0}
+              </Badge>
+              <Badge tone="muted">
+                runpod: {String(reportResult.runpod ?? false)}
+              </Badge>
+              <Badge tone="warn">localization only</Badge>
+            </div>
+            {Array.isArray(reportResult.findings) &&
+            reportResult.findings.length > 0 ? (
+              <ul
+                className="text-[11px] font-mono space-y-1.5 text-[var(--muted)] mb-3"
+                data-testid="prove-doors-report-findings"
+              >
+                {reportResult.findings.map((f, i) => (
+                  <li key={`${f.path ?? "f"}-${i}`}>
+                    <span className="text-[var(--text)]/80">
+                      {typeof f.rank === "number" ? `#${f.rank} ` : ""}
+                      {f.path ?? "—"}
+                    </span>
+                    {f.cweIds?.length ? ` · ${f.cweIds.join(", ")}` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[11px] text-[var(--muted)] mb-3">
+                No ranked files in inputs — empty is not a clean claim.
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  downloadReportJson(reportResult, {
+                    filename: REPORT_JSON_DOWNLOAD_FILENAME,
+                  });
+                }}
+                data-testid="prove-doors-report-download-json"
+                aria-label={`Download ${REPORT_JSON_DOWNLOAD_FILENAME}`}
+              >
+                <Download size={14} />
+                Download {REPORT_JSON_DOWNLOAD_FILENAME}
+              </Button>
+              {typeof reportResult.markdown === "string" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    downloadReportMarkdown(reportResult, {
+                      filename: REPORT_MD_DOWNLOAD_FILENAME,
+                    });
+                  }}
+                  data-testid="prove-doors-report-download-md"
+                  aria-label={`Download ${REPORT_MD_DOWNLOAD_FILENAME}`}
+                >
+                  <Download size={14} />
+                  Download {REPORT_MD_DOWNLOAD_FILENAME}
+                </Button>
+              ) : null}
+              <CopyJsonButton
+                value={serializeReportJson(reportResult)}
+                ariaLabel={`Copy ${REPORT_JSON_DOWNLOAD_FILENAME} JSON`}
+                testId="prove-doors-report-copy"
+              />
+              {typeof reportResult.markdown === "string" ? (
+                <CopyMarkdownButton
+                  value={serializeReportMarkdown(reportResult)}
+                  ariaLabel={`Copy ${REPORT_MD_DOWNLOAD_FILENAME}`}
+                  testId="prove-doors-report-copy-md"
+                />
+              ) : null}
+              <span className="text-[11px] text-[var(--muted)]">
+                Same shape as CLI{" "}
+                <code className="text-[var(--accent)]">{REPORT_CMD}</code>
+                {" · "}
+                does not start RunPod
+              </span>
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-report-json"
+            >
+              {JSON.stringify(
+                (() => {
+                  const {
+                    markdown: _m,
+                    ok: _o,
+                    source: _s,
+                    startsRunPod: _sr,
+                    ...rest
+                  } = reportResult;
+                  return rest;
+                })(),
+                null,
+                2,
+              )}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
       <div className="panel rounded-lg p-4">
         <div className="panel-header !px-0 !pt-0 !border-0">
           <span className="text-sm font-display tracking-wide flex items-center gap-2">
@@ -1668,6 +1898,37 @@ function CopyJsonButton({
     >
       {copied ? <Check size={14} /> : <ClipboardCopy size={14} />}
       {copied ? "Copied" : "Copy JSON"}
+    </Button>
+  );
+}
+
+function CopyMarkdownButton({
+  value,
+  ariaLabel,
+  testId,
+}: {
+  value: string;
+  ariaLabel: string;
+  testId: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      type="button"
+      className="shrink-0"
+      onClick={() => {
+        void navigator.clipboard.writeText(value).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        });
+      }}
+      aria-label={ariaLabel}
+      data-testid={testId}
+    >
+      {copied ? <Check size={14} /> : <ClipboardCopy size={14} />}
+      {copied ? "Copied" : "Copy MD"}
     </Button>
   );
 }
