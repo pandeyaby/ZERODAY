@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Opt-in pre-commit gate: keyless `npm run prove-doors` (Door A + cassette).
+# Opt-in pre-commit gate: keyless `npm run prove-doors` (Door A + cassette + Door D).
 # No --live-url / GPU / HF / live Antares / RunPod.
 #
 # Install (opt-in — not auto via prepare):
@@ -16,7 +16,7 @@ usage() {
 Usage: pre-commit-prove-doors.sh [--help] [--dry-run]
 
   Opt-in git pre-commit hook for ZERODAY keyless prove-doors
-  (Door A stranger:verify + cassette:replay; Door B skipped).
+  (Door A stranger:verify + cassette:replay + Door D historical A40 evidence; Door B skipped).
 
   Options:
     --help, -h   Show this help and exit 0

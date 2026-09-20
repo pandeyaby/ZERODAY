@@ -16,7 +16,7 @@
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
- *   zeroday prove-doors      # Door A + cassette (+ optional --live-url Door B)
+ *   zeroday prove-doors      # Door A + cassette + Door D (+ optional --live-url Door B)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / draft-fix / classify / demo / play
  */
@@ -1681,7 +1681,7 @@ program
 function formatProveDoorsBanner(result: ProveDoorsResult): string {
   const lines: string[] = [
     "",
-    "ZERODAY prove-doors (Door A + cassette · optional Door B)",
+    "ZERODAY prove-doors (Door A + cassette + Door D · optional Door B)",
     "─────────────────────────────────────────────────────────",
     `schema  : ${result.schemaVersion}`,
     `ok      : ${result.ok}`,
@@ -1694,6 +1694,11 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
           ? ` — ${result.doors.b.error}`
           : ""
     }`,
+    `Door D  : ${result.doors.d.status}${
+      result.doors.d.status === "failed"
+        ? ` — ${result.doors.d.error}`
+        : " — historical measured A40 evidence (not live GPU)"
+    }`,
     "",
     "Posture: localization only · needs human · fail-closed · no RunPod create · no invented spend",
     "",
@@ -1704,7 +1709,7 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
 program
   .command("prove-doors")
   .description(
-    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay; optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · no GPU.",
+    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay + Door D (Measured A40 evidence, historical); optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · Door D does not start GPU.",
   )
   .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
   .option(
@@ -1762,7 +1767,7 @@ program
           process.stdout.write(formatProveDoorsBanner(result));
         }
 
-        // Fail-closed: exit 0 only when overall ok (A + cassette; B ok|skipped).
+        // Fail-closed: exit 0 only when overall ok (A + cassette + D; B ok|skipped).
         if (!result.ok) process.exitCode = 1;
       } catch (e) {
         const msg = (e as Error).message;

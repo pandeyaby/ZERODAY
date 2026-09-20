@@ -36,12 +36,12 @@ and uploads artifact **`stranger-verify-json`** (`stranger-verify.json`) — Doo
 proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof —
 see [`ci-trust.md`](./ci-trust.md)). Same job also runs
 `npm run prove-doors -- --json` → artifact **`prove-doors-json`**
-(`prove-doors.json`; A + cassette, B skipped). The reusable
+(`prove-doors.json`; A + cassette + Door D historical A40 evidence, B skipped). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifacts for external `workflow_call` callers.
 
 Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
-(aggregates Door A + cassette:replay + optional Door B; Door B
+(aggregates Door A + cassette:replay + Door D Measured A40 evidence + optional Door B; Door B
 `status: "skipped"` when `liveUrl` omitted — not failed). CLI one-command:
 `npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
 `--live-url` for Door B). Individual:

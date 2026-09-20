@@ -111,6 +111,7 @@ describe("CLI prove-doors", () => {
         a: { status: string };
         cassette: { status: string };
         b: { status: string; reason?: string };
+        d: { status: string; historical?: boolean; startsRunPod?: boolean };
       };
     };
     assert.equal(json.schemaVersion, PROVE_DOORS_SCHEMA);
@@ -119,6 +120,9 @@ describe("CLI prove-doors", () => {
     assert.equal(json.doors.cassette.status, "ok");
     assert.equal(json.doors.b.status, "skipped");
     assert.equal(json.doors.b.reason, "liveUrl omitted");
+    assert.equal(json.doors.d.status, "ok");
+    assert.equal(json.doors.d.historical, true);
+    assert.equal(json.doors.d.startsRunPod, false);
   });
 
   it("cassette fail: --expect-file mismatch exits 1 · ok false", () => {
@@ -194,6 +198,7 @@ describe("CLI prove-doors", () => {
     assert.match(r.stdout, /Door A\s*:\s*ok/i);
     assert.match(r.stdout, /cassette:\s*ok/i);
     assert.match(r.stdout, /Door B\s*:\s*skipped/i);
+    assert.match(r.stdout, /Door D\s*:\s*ok/i);
     assert.match(r.stdout, /fail-closed|needs human/i);
   });
 });

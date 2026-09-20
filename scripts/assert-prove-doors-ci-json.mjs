@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * Fail-closed CI assert for `npm run prove-doors -- --json` output.
- * Keyless Door A + cassette only — Door B must be skipped (no --live-url).
+ * Keyless Door A + cassette + Door D (Measured A40 evidence) — Door B must be
+ * skipped (no --live-url). Door D = historical checked-in evidence, not live GPU.
  *
  * Usage: node scripts/assert-prove-doors-ci-json.mjs [path]
  * Default path: ./prove-doors.json
  *
- * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–6 door status
+ * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–7 door status
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -62,6 +63,21 @@ if (j.doors?.b?.status !== "skipped") {
     `assert-prove-doors-ci-json: doors.b.status want skipped got ${j.doors?.b?.status}`,
   );
   process.exit(6);
+}
+if (j.doors?.d?.status !== "ok") {
+  console.error(
+    `assert-prove-doors-ci-json: doors.d.status want ok got ${j.doors?.d?.status}`,
+  );
+  process.exit(7);
+}
+if (j.doors?.d?.schemaVersion !== "zeroday-gpu-evidence/v1" &&
+    j.doors?.d?.result?.schemaVersion !== "zeroday-gpu-evidence/v1") {
+  // Accept either door-level schemaVersion or nested result.schemaVersion.
+  const got = j.doors?.d?.schemaVersion ?? j.doors?.d?.result?.schemaVersion;
+  console.error(
+    `assert-prove-doors-ci-json: doors.d schema want zeroday-gpu-evidence/v1 got ${got}`,
+  );
+  process.exit(7);
 }
 
 process.stdout.write(`assert-prove-doors-ci-json: ok ${file}\n`);
