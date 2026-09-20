@@ -279,6 +279,9 @@ npm run zeroday -- antares doctor
 # Local workstation readiness (Day-1; fail-closed; no RunPod):
 npm run doctor
 
+# CISO summary from existing prove-doors / SARIF (localization only; runpod:false):
+# npm run report -- --from prove-doors.json
+
 # Or any local completions host you already run (Keyless K4; ≠ Antares File F1):
 npm run zeroday -- doctor --local-brain
 # → docs/local-brain.md

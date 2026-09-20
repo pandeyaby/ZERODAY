@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "zeroday-prove-doors/v1",
+  "ok": true,
+  "generatedAt": "2026-09-20T00:00:00.000Z",
+  "doors": {
+    "a": {
+      "status": "ok",
+      "label": "a",
+      "door": "Door A — stranger:verify",
+      "schemaVersion": "zeroday-stranger-verify/v1"
+    },
+    "cassette": {
+      "status": "ok",
+      "label": "cassette",
+      "door": "cassette:replay",
+      "schemaVersion": "zeroday-cassette-replay/v1",
+      "result": {
+        "schemaVersion": "zeroday-cassette-replay/v1",
+        "ok": true,
+        "exit": 0,
+        "mode": "recording",
+        "findingCount": 1,
+        "rankedFile": "src/search.js",
+        "cweId": "CWE-89",
+        "sarifResultCount": 1,
+        "recording": "fixtures/locate/org-recordings/rules-cwe-89.cassette.json",
+        "outputDir": "zeroday-reports/cassette-replay",
+        "reportPath": "zeroday-reports/cassette-replay/report.json",
+        "sarifPath": "zeroday-reports/cassette-replay/report.sarif",
+        "command": "zeroday cassette:replay (fixture)",
+        "nonClaims": {
+          "localizationNotExploitability": true,
+          "needsHuman": true,
+          "cassetteNotExploitProof": true,
+          "replayOnlyNoRecord": true,
+          "noGpuNoRunPod": true,
+          "ciBadgeNotVulnProof": true
+        }
+      }
+    },
+    "b": {
+      "status": "skipped",
+      "label": "b",
+      "door": "Door B — live-url probe",
+      "schemaVersion": "zeroday-live-url-probe/v1",
+      "reason": "liveUrl omitted",
+      "note": "Door B skipped (fixture) — not failed.",
+      "provisioned": false,
+      "spendUsd": null
+    },
+    "d": {
+      "status": "ok",
+      "label": "d",
+      "door": "Door D — Measured A40 evidence",
+      "schemaVersion": "zeroday-gpu-evidence/v1",
+      "gpuEvidence": true,
+      "historical": true,
+      "startsRunPod": false
+    },
+    "e": {
+      "status": "ok",
+      "label": "e",
+      "door": "Door E — upload-sarif dry-run",
+      "schemaVersion": "zeroday-upload-sarif-desk/v1",
+      "uploadSarif": true,
+      "dryRun": true,
+      "neverCallsGitHub": true
+    }
+  },
+  "nonClaims": {
+    "localizationNotExploitability": true,
+    "needsHuman": true,
+    "noAurocFileF1OrgLatencySla": true,
+    "ciBadgeNotVulnProof": true,
+    "probeNotMeasuredA40ReProof": true,
+    "doorDHistoricalMeasuredOnly": true,
+    "doorEDryRunCodeScanningOnly": true,
+    "noLiveGitHubUploadFromProveDoors": true,
+    "noRunPodCreateFromProveDoors": true,
+    "noSpendClaimsInvented": true,
+    "failClosedPerDoor": true
+  }
+}
