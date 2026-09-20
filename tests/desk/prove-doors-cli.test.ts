@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { PROVE_DOORS_SCHEMA } from "../../src/desk/prove-doors.ts";
@@ -15,7 +15,7 @@ import { PROVE_DOORS_SCHEMA } from "../../src/desk/prove-doors.ts";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const cli = path.join(root, "cli/index.ts");
 
-function runProveDoorsCli(
+function runProveDoorsCliSync(
   args: string[],
   timeoutMs = 180_000,
 ): { status: number | null; stdout: string; stderr: string } {
@@ -30,6 +30,41 @@ function runProveDoorsCli(
     stdout: r.stdout ?? "",
     stderr: r.stderr ?? "",
   };
+}
+
+/** Async spawn so a parent-process mock HTTP server can accept connections. */
+function runProveDoorsCliAsync(
+  args: string[],
+  timeoutMs = 180_000,
+): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn("npx", ["tsx", cli, "prove-doors", ...args], {
+      cwd: root,
+      env: { ...process.env, FORCE_COLOR: "0" },
+    });
+    let stdout = "";
+    let stderr = "";
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new Error(`prove-doors timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk: string) => {
+      stdout += chunk;
+    });
+    child.stderr.on("data", (chunk: string) => {
+      stderr += chunk;
+    });
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ status: code, stdout, stderr });
+    });
+  });
 }
 
 async function withMockModelsServer(
@@ -63,7 +98,7 @@ describe("CLI prove-doors", () => {
   });
 
   it("pass + B skip: --json exits 0 without --live-url", () => {
-    const r = runProveDoorsCli(["--json"]);
+    const r = runProveDoorsCliSync(["--json"]);
     assert.equal(
       r.status,
       0,
@@ -87,7 +122,7 @@ describe("CLI prove-doors", () => {
   });
 
   it("cassette fail: --expect-file mismatch exits 1 · ok false", () => {
-    const r = runProveDoorsCli([
+    const r = runProveDoorsCliSync([
       "--json",
       "--expect-file",
       "src/definitely-not-this.js",
@@ -124,7 +159,7 @@ describe("CLI prove-doors", () => {
         res.end();
       },
       async (liveUrl) => {
-        const r = runProveDoorsCli(["--json", "--live-url", liveUrl]);
+        const r = await runProveDoorsCliAsync(["--json", "--live-url", liveUrl]);
         assert.equal(
           r.status,
           1,
@@ -149,7 +184,7 @@ describe("CLI prove-doors", () => {
   });
 
   it("human banner mentions doors when not --json", () => {
-    const r = runProveDoorsCli([]);
+    const r = runProveDoorsCliSync([]);
     assert.equal(
       r.status,
       0,
