@@ -38,8 +38,9 @@ see [`ci-trust.md`](./ci-trust.md)). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifact for external `workflow_call` callers.
 
-Desk **Prove doors** tab shows a static example shape + copy-paste for this
-command (no shell-out / no live Antares from the browser).
+Desk **Prove doors** tab: **Run** calls local `POST /api/stranger-verify`
+(in-process; same JSON). Optional body `{ "liveUrl": "https://…/v1" }` probes
+`GET /v1/models` only (`provisioned: false`). CLI copy-paste remains secondary.
 
 ### Opt-in Door B probe (`--live-url`) — operator endpoint only
 

@@ -2,7 +2,8 @@
  * Desk shared helpers — path resolution (real-first; --fixture for smoke)
  * + Desk Console in-process runners for the local Operator /play UI
  * + Reports browser + org cassette record/replay (UI-2)
- * + Live brain endpoint wizard (UI-3).
+ * + Live brain endpoint wizard (UI-3)
+ * + Prove-doors stranger:verify (POST /api/stranger-verify).
  */
 
 export {
@@ -87,3 +88,17 @@ export {
   type LastGoodAntares,
   type ValidateTarget,
 } from "./live-endpoint.ts";
+
+export {
+  STRANGER_VERIFY_SCHEMA,
+  STRANGER_VERIFY_REPO_ROOT,
+  runStrangerVerify,
+  probeOperatorEndpoint,
+  modelsUrlFromLiveUrl,
+  strangerVerifyCatalog,
+  StrangerVerifyError,
+  type StrangerVerifyOptions,
+  type StrangerVerifyResult,
+  type StrangerVerifyDoorB,
+  type StrangerVerifyProbe,
+} from "./stranger-verify.ts";
