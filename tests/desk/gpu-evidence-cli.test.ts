@@ -47,6 +47,24 @@ describe("CLI gpu-evidence", () => {
     assert.match(pkg.scripts["gpu-evidence"], /gpu-evidence/);
   });
 
+  it("VS Code / Codespaces task wires gpu-evidence --json", () => {
+    const tasksPath = path.join(root, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const gpuTask = tasks.tasks.find((t) =>
+      /^ZERODAY:\s*gpu-evidence$/i.test(String(t.label ?? "").trim()),
+    );
+    assert.ok(gpuTask, 'missing VS Code task "ZERODAY: gpu-evidence"');
+    assert.match(String(gpuTask.command), /npm run gpu-evidence/);
+    assert.match(String(gpuTask.command), /--json/);
+    assert.doesNotMatch(
+      String(gpuTask.command),
+      /create-pod|runpod|--endpoint|--live/i,
+    );
+  });
+
   it("valid checked-in fixture: --json exits 0 with zeroday-gpu-evidence/v1", () => {
     const r = runGpuEvidenceCli(["--json"]);
     assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
