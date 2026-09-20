@@ -2,6 +2,9 @@
 # ZERODAY pre-commit — fixture-safe localize gate (no GPU, no weights).
 # Install: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
 # Or: git config core.hooksPath hooks
+#
+# Prefer Door A prove-doors for strangers/daily-drivers:
+#   npm run hooks:install  → scripts/git-hooks/pre-commit-stranger-verify.sh
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
