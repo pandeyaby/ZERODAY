@@ -8,11 +8,16 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  GPU_LIVE_LOCATE_EVIDENCE_KIND,
+  GPU_EVIDENCE_REL,
+  loadGpuEvidence,
+} from "../../src/desk/gpu-evidence.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-const EVIDENCE_KIND = "zeroday.gpu_live_locate_evidence/v1" as const;
-const EVIDENCE_REL = "docs/reports/a40-live-locate-20260920.json";
+const EVIDENCE_KIND = GPU_LIVE_LOCATE_EVIDENCE_KIND;
+const EVIDENCE_REL = GPU_EVIDENCE_REL;
 
 interface A40LiveLocateEvidence {
   kind: string;
@@ -71,6 +76,11 @@ interface A40LiveLocateEvidence {
 
 describe("a40 live locate evidence (keyless parse)", () => {
   it("checked-in evidence JSON parses and matches measured facts only", () => {
+    const loaded = loadGpuEvidence({ cwd: root });
+    assert.equal(loaded.ok, true);
+    assert.equal(loaded.evidence.kind, EVIDENCE_KIND);
+    assert.equal(loaded.startsRunPod, false);
+
     const file = path.join(root, EVIDENCE_REL);
     assert.ok(fs.existsSync(file), `missing ${EVIDENCE_REL}`);
     const raw = fs.readFileSync(file, "utf8");

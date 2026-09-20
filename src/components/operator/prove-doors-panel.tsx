@@ -10,12 +10,13 @@ import {
   DoorClosed,
   DoorOpen,
   ExternalLink,
+  FileJson,
   Loader2,
   Play,
   ShieldAlert,
   Terminal,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const VERIFY_CMD = "npm run stranger:verify";
 const VERIFY_ALIAS = "npm run doors";
@@ -25,6 +26,7 @@ const API_PATH = "/api/stranger-verify";
 const LIVE_URL_PROBE_API_PATH = "/api/live-url-probe";
 const CASSETTE_API_PATH = "/api/cassette-replay";
 const PROVE_ALL_API_PATH = "/api/prove-doors";
+const GPU_EVIDENCE_API_PATH = "/api/gpu-evidence";
 const CASSETTE_CMD = "npm run cassette:replay";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
@@ -50,6 +52,11 @@ const DOC_LINKS = [
     href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/gpu-claims.md#live-re-proof-2026-09-19-pt",
     label: "docs/gpu-claims.md § Live re-proof (2026-09-19)",
     hint: "Dated Door B citation — no GPU spend from this panel",
+  },
+  {
+    href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/gpu-claims.md#live-locate-2026-09-1920-pt",
+    label: "docs/gpu-claims.md § Live locate (2026-09-19/20)",
+    hint: "Measured A40 evidence JSON — historical only; Desk GET /api/gpu-evidence",
   },
 ] as const;
 
@@ -130,9 +137,49 @@ type ProveAllJson = {
   error?: string;
 };
 
+type GpuEvidenceJson = {
+  schemaVersion?: string;
+  ok?: boolean;
+  source?: string;
+  historical?: boolean;
+  startsRunPod?: boolean;
+  evidence?: {
+    kind?: string;
+    label?: string;
+    session?: string;
+    measured?: boolean;
+    pod?: {
+      id?: string;
+      tier?: string;
+      gpu?: string;
+      dataCenter?: string;
+      rateUsdPerHourAtCreate?: number;
+    };
+    spend?: {
+      estimatedUsd?: number;
+      formula?: string;
+      billingApiSettled?: boolean;
+      label?: string;
+    };
+    liveLocate?: {
+      rankedFile?: string;
+      rank?: number;
+      terminalCallsUsed?: number;
+      toolBudget?: number;
+      sarifResults?: number;
+      cwe?: string;
+    };
+    non_claims?: string[];
+  };
+  nonClaims?: unknown;
+  error?: string;
+  code?: string;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
+ * Measured A40 evidence (GET /api/gpu-evidence, historical read-only) +
  * Run all doors orchestrator (POST /api/prove-doors).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
@@ -153,8 +200,40 @@ export function ProveDoorsPanel() {
   const [allBusy, setAllBusy] = useState(false);
   const [allError, setAllError] = useState<string | null>(null);
   const [allResult, setAllResult] = useState<ProveAllJson | null>(null);
+  const [evidenceBusy, setEvidenceBusy] = useState(true);
+  const [evidenceError, setEvidenceError] = useState<string | null>(null);
+  const [evidence, setEvidence] = useState<GpuEvidenceJson | null>(null);
 
   const anyBusy = busy || probeBusy || cassetteBusy || allBusy;
+
+  useEffect(() => {
+    let cancelled = false;
+    setEvidenceBusy(true);
+    setEvidenceError(null);
+    void (async () => {
+      try {
+        const res = await fetch(GPU_EVIDENCE_API_PATH);
+        const json = (await res.json()) as GpuEvidenceJson;
+        if (cancelled) return;
+        if (!res.ok) {
+          setEvidenceError(json.error || `HTTP ${res.status}`);
+          setEvidence(null);
+        } else {
+          setEvidence(json);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setEvidenceError((e as Error).message);
+          setEvidence(null);
+        }
+      } finally {
+        if (!cancelled) setEvidenceBusy(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const runVerify = useCallback(async () => {
     setBusy(true);
@@ -683,6 +762,139 @@ export function ProveDoorsPanel() {
         ) : null}
       </div>
 
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-a40-evidence-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <FileJson size={14} /> Measured A40 evidence
+          </span>
+          <Badge tone="muted">GET {GPU_EVIDENCE_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Historical measured session from checked-in{" "}
+          <code className="text-[var(--accent)]">
+            docs/reports/a40-live-locate-20260920.json
+          </code>
+          . Read-only · not a live probe · not an SLA ·{" "}
+          <strong className="text-[var(--text)]/85 font-medium">
+            this card does not start RunPod
+          </strong>
+          . Cite only fields in the JSON — no AUROC / File-F1 invented.
+        </p>
+        {evidenceBusy ? (
+          <p
+            className="text-sm text-[var(--muted)] flex items-center gap-2"
+            data-testid="prove-doors-a40-evidence-loading"
+          >
+            <Loader2 size={14} className="animate-spin" /> Loading evidence…
+          </p>
+        ) : null}
+        {evidenceError ? (
+          <p
+            className="mt-1 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-a40-evidence-error"
+            role="alert"
+          >
+            {evidenceError}
+          </p>
+        ) : null}
+        {evidence?.evidence ? (
+          <div className="mt-1" data-testid="prove-doors-a40-evidence-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone="ok">
+                {String(evidence.schemaVersion ?? "evidence")}
+              </Badge>
+              <Badge tone="warn">historical measured</Badge>
+              <Badge tone="muted">
+                startsRunPod: {String(evidence.startsRunPod ?? false)}
+              </Badge>
+            </div>
+            <ul
+              className="text-[11px] font-mono space-y-1.5 text-[var(--muted)] mb-3"
+              data-testid="prove-doors-a40-evidence-fields"
+            >
+              <li>
+                <span className="text-[var(--text)]/80">pod id</span>
+                {" — "}
+                {evidence.evidence.pod?.id ?? "—"}
+                {evidence.evidence.pod?.gpu
+                  ? ` · ${evidence.evidence.pod.gpu}`
+                  : ""}
+              </li>
+              <li>
+                <span className="text-[var(--text)]/80">est USD</span>
+                {" — "}
+                {typeof evidence.evidence.spend?.estimatedUsd === "number"
+                  ? `$${evidence.evidence.spend.estimatedUsd}`
+                  : "—"}
+                {evidence.evidence.spend?.formula
+                  ? ` (${evidence.evidence.spend.formula})`
+                  : ""}
+              </li>
+              <li>
+                <span className="text-[var(--text)]/80">ranked file</span>
+                {" — "}
+                {evidence.evidence.liveLocate?.rankedFile ?? "—"}
+                {typeof evidence.evidence.liveLocate?.rank === "number"
+                  ? ` · rank ${evidence.evidence.liveLocate.rank}`
+                  : ""}
+              </li>
+              <li>
+                <span className="text-[var(--text)]/80">tool calls</span>
+                {" — "}
+                {typeof evidence.evidence.liveLocate?.terminalCallsUsed ===
+                "number"
+                  ? evidence.evidence.liveLocate.terminalCallsUsed
+                  : "—"}
+                {typeof evidence.evidence.liveLocate?.toolBudget === "number"
+                  ? ` / budget ${evidence.evidence.liveLocate.toolBudget}`
+                  : ""}
+              </li>
+              <li>
+                <span className="text-[var(--text)]/80">SARIF count</span>
+                {" — "}
+                {typeof evidence.evidence.liveLocate?.sarifResults === "number"
+                  ? evidence.evidence.liveLocate.sarifResults
+                  : "—"}
+              </li>
+            </ul>
+            {Array.isArray(evidence.evidence.non_claims) &&
+            evidence.evidence.non_claims.length > 0 ? (
+              <ul
+                className="text-[11px] text-[var(--muted)] space-y-1 list-disc pl-4 mb-3"
+                data-testid="prove-doors-a40-evidence-non-claims"
+              >
+                {evidence.evidence.non_claims.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--muted)]">
+                Raw JSON
+              </span>
+              <CopyJsonButton
+                value={JSON.stringify(evidence, null, 2)}
+                ariaLabel="Copy Measured A40 evidence JSON"
+                testId="prove-doors-a40-evidence-copy"
+              />
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-a40-evidence-json"
+            >
+              {JSON.stringify(evidence, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
       <div className="panel rounded-lg p-4">
         <div className="panel-header !px-0 !pt-0 !border-0">
           <span className="text-sm font-display tracking-wide flex items-center gap-2">
@@ -844,5 +1056,36 @@ function CopyCommand({
         {copied ? "Copied" : "Copy"}
       </Button>
     </div>
+  );
+}
+
+function CopyJsonButton({
+  value,
+  ariaLabel,
+  testId,
+}: {
+  value: string;
+  ariaLabel: string;
+  testId: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      type="button"
+      className="shrink-0"
+      onClick={() => {
+        void navigator.clipboard.writeText(value).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        });
+      }}
+      aria-label={ariaLabel}
+      data-testid={testId}
+    >
+      {copied ? <Check size={14} /> : <ClipboardCopy size={14} />}
+      {copied ? "Copied" : "Copy JSON"}
+    </Button>
   );
 }

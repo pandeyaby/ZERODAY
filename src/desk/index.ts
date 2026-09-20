@@ -6,6 +6,7 @@
  * + Prove-doors stranger:verify (POST /api/stranger-verify)
  * + Prove-doors Door B live-url probe (POST /api/live-url-probe)
  * + Prove-doors cassette:replay (POST /api/cassette-replay)
+ * + Prove-doors Measured A40 evidence (GET /api/gpu-evidence)
  * + Prove Run-all-doors orchestrator (POST /api/prove-doors).
  */
 
@@ -126,6 +127,21 @@ export {
   type CassetteReplayResult,
   type CassetteReplayNonClaims,
 } from "./cassette-replay.ts";
+
+export {
+  GPU_EVIDENCE_SCHEMA,
+  GPU_EVIDENCE_REL,
+  GPU_EVIDENCE_REPO_ROOT,
+  GPU_LIVE_LOCATE_EVIDENCE_KIND,
+  loadGpuEvidence,
+  parseGpuLiveLocateEvidence,
+  gpuEvidenceCatalog,
+  GpuEvidenceError,
+  type A40LiveLocateEvidence,
+  type GpuEvidenceOk,
+  type GpuEvidenceNonClaims,
+  type LoadGpuEvidenceOptions,
+} from "./gpu-evidence.ts";
 
 export {
   PROVE_DOORS_SCHEMA,
