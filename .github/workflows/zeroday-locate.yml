@@ -786,11 +786,15 @@ jobs:
           # Fail-closed design-partner folder from existing doors (reuse evidence-pack).
           # --json --out → out/evidence/ (uploaded below on success).
           # Historical gpu-evidence only — does not start RunPod / not live GPU.
+          # Pack must include report.json + report.md (zeroday.report/v1 · runpod:false).
           npm run --silent evidence-pack -- --json --out out/evidence
           test -s out/evidence/manifest.json
           test -s out/evidence/prove-doors.json
           test -s out/evidence/gpu-evidence.json
+          test -s out/evidence/report.json
+          test -s out/evidence/report.md
           node scripts/assert-evidence-pack-ci-json.mjs out/evidence
+          node scripts/assert-evidence-pack-report.mjs out/evidence
 
       - name: npm run doctor (keyless · workstation readiness · no RunPod)
         run: |
@@ -830,7 +834,7 @@ jobs:
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
             echo "- Artifact \`prove-doors-json\`: aggregated A + cassette (+ B skipped) — **not** vuln / AUROC proof"
             echo "- Artifact \`gpu-evidence-json\`: checked-in Measured A40 evidence — **not** live GPU / AUROC proof"
-            echo "- Artifact \`evidence-pack\`: \`out/evidence/\` (prove-doors + gpu-evidence + manifest) — **not** live GPU / AUROC proof"
+            echo "- Artifact \`evidence-pack\`: \`out/evidence/\` (prove-doors + gpu-evidence + report.json/md + manifest) — **not** live GPU / AUROC proof"
             echo "- Artifact \`doctor\`: \`out/doctor.json\` (zeroday.doctor/v1 workstation readiness) — **not** live GPU / AUROC proof"
             echo "- Artifact \`report\`: \`out/report.json\` + \`out/report.md\` (zeroday.report/v1 localization summary) — **not** vuln / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
@@ -865,7 +869,7 @@ jobs:
           path: gpu-evidence.json
           if-no-files-found: error
 
-      - name: Upload evidence-pack (prove-doors + gpu-evidence + manifest)
+      - name: Upload evidence-pack (prove-doors + gpu-evidence + report + manifest)
         uses: actions/upload-artifact@v4
         with:
           name: evidence-pack

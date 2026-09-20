@@ -77,8 +77,23 @@ function assertWorkflowEvidencePack(wf: string, label: string): void {
   );
   assert.match(
     wf,
+    /test -s out\/evidence\/report\.json/,
+    `${label}: must require packed report.json`,
+  );
+  assert.match(
+    wf,
+    /test -s out\/evidence\/report\.md/,
+    `${label}: must require packed report.md`,
+  );
+  assert.match(
+    wf,
     /node scripts\/assert-evidence-pack-ci-json\.mjs out\/evidence/,
     `${label}: must run shared CI JSON shape assert`,
+  );
+  assert.match(
+    wf,
+    /node scripts\/assert-evidence-pack-report\.mjs out\/evidence/,
+    `${label}: must run pack report assert (zeroday.report/v1)`,
   );
   assert.match(
     wf,
