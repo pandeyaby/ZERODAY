@@ -29,10 +29,14 @@ describe("reusable stranger-verify workflow", () => {
     );
     assert.match(wf, /stranger-verify\.json/);
     assert.match(wf, /prove-doors\.json/);
+    assert.match(wf, /gpu-evidence/);
+    assert.match(wf, /gpu-evidence\.json/);
     assert.match(wf, /upload-artifact/);
     assert.match(wf, /stranger-verify-json/);
     assert.match(wf, /prove-doors-json/);
+    assert.match(wf, /gpu-evidence-json/);
     assert.match(wf, /assert-prove-doors-ci-json\.mjs/);
+    assert.match(wf, /assert-gpu-evidence-ci-json\.mjs/);
     assert.doesNotMatch(wf, /--endpoint|--live|HF_TOKEN|HF_HUB|create-pod/i);
     assert.match(wf, /no GPU|keyless/i);
   });

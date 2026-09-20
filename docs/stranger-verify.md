@@ -36,7 +36,8 @@ and uploads artifact **`stranger-verify-json`** (`stranger-verify.json`) — Doo
 proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof —
 see [`ci-trust.md`](./ci-trust.md)). Same job also runs
 `npm run prove-doors -- --json --out prove-doors.json` → artifact **`prove-doors-json`**
-(`prove-doors.json`; A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run, B skipped). The reusable
+(`prove-doors.json`; A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run, B skipped) and
+`npm run gpu-evidence -- --json` → artifact **`gpu-evidence-json`** (CI validates historical evidence JSON; does not start RunPod). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifacts for external `workflow_call` callers.
 
