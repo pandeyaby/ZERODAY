@@ -34,9 +34,11 @@ CI runs the same keyless `--json` command in the
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
 and uploads artifact **`stranger-verify-json`** (`stranger-verify.json`) — Door A
 proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof —
-see [`ci-trust.md`](./ci-trust.md)). The reusable
+see [`ci-trust.md`](./ci-trust.md)). Same job also runs
+`npm run prove-doors -- --json` → artifact **`prove-doors-json`**
+(`prove-doors.json`; A + cassette, B skipped). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
-same artifact for external `workflow_call` callers.
+same artifacts for external `workflow_call` callers.
 
 Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
 (aggregates Door A + cassette:replay + optional Door B; Door B

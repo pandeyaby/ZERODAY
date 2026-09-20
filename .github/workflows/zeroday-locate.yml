@@ -741,16 +741,10 @@ jobs:
         run: |
           set -euo pipefail
           # In-process Door A + cassette:replay; Door B skipped in CI (no opt-in URL).
+          # Redirect --json stdout → workspace prove-doors.json (uploaded below on success).
           npm run --silent prove-doors -- --json > prove-doors.json
           test -s prove-doors.json
-          node -e '
-            const j = require("./prove-doors.json");
-            if (j.schemaVersion !== "zeroday-prove-doors/v1") process.exit(2);
-            if (j.ok !== true) process.exit(3);
-            if (j.doors?.a?.status !== "ok") process.exit(4);
-            if (j.doors?.cassette?.status !== "ok") process.exit(5);
-            if (j.doors?.b?.status !== "skipped") process.exit(6);
-          '
+          node scripts/assert-prove-doors-ci-json.mjs prove-doors.json
 
       - name: Summarize stranger-verify gate
         run: |
