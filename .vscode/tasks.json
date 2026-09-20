@@ -45,6 +45,21 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "ZERODAY: gpu-evidence",
+      "type": "shell",
+      "command": "npm run gpu-evidence -- --json",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }
