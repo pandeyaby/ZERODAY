@@ -47,7 +47,7 @@ describe("CLI gpu-evidence", () => {
     assert.match(pkg.scripts["gpu-evidence"], /gpu-evidence/);
   });
 
-  it("VS Code / Codespaces task wires gpu-evidence --json", () => {
+  it("VS Code / Codespaces task wires gpu-evidence --json --out gpu-evidence.json", () => {
     const tasksPath = path.join(root, ".vscode/tasks.json");
     assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
     const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
@@ -59,6 +59,7 @@ describe("CLI gpu-evidence", () => {
     assert.ok(gpuTask, 'missing VS Code task "ZERODAY: gpu-evidence"');
     assert.match(String(gpuTask.command), /npm run gpu-evidence/);
     assert.match(String(gpuTask.command), /--json/);
+    assert.match(String(gpuTask.command), /--out gpu-evidence\.json/);
     assert.doesNotMatch(
       String(gpuTask.command),
       /create-pod|runpod|--endpoint|--live/i,
@@ -155,5 +156,76 @@ describe("CLI gpu-evidence", () => {
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
+  });
+
+  it("--out writes full gpu-evidence JSON · still prints --json", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gpu-evidence-out-"));
+    const outFile = path.join(tmp, "gpu-evidence.json");
+    const r = runGpuEvidenceCli(["--json", "--out", outFile]);
+    assert.equal(
+      r.status,
+      0,
+      `gpu-evidence --out failed (status=${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.ok(fs.existsSync(outFile), "expected --out file to exist");
+    const fromFile = JSON.parse(fs.readFileSync(outFile, "utf8")) as {
+      schemaVersion: string;
+      ok: boolean;
+      historical: boolean;
+      startsRunPod: boolean;
+      source: string;
+    };
+    const fromStdout = JSON.parse(r.stdout) as typeof fromFile;
+    assert.equal(fromFile.schemaVersion, GPU_EVIDENCE_SCHEMA);
+    assert.equal(fromFile.ok, true);
+    assert.equal(fromFile.historical, true);
+    assert.equal(fromFile.startsRunPod, false);
+    assert.equal(fromFile.source, GPU_EVIDENCE_REL);
+    assert.deepEqual(fromFile, fromStdout);
+  });
+
+  it("--out-file alias writes JSON · banner mode still prints human card", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gpu-evidence-out-file-"));
+    const outFile = path.join(tmp, "nested", "gpu-evidence.json");
+    const r = runGpuEvidenceCli(["--out-file", outFile]);
+    assert.equal(
+      r.status,
+      0,
+      `gpu-evidence --out-file failed (status=${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.match(r.stdout, /ZERODAY gpu-evidence/);
+    assert.match(r.stdout, /Wrote\s*:\s*/i);
+    const json = JSON.parse(fs.readFileSync(outFile, "utf8")) as {
+      ok: boolean;
+      schemaVersion: string;
+      startsRunPod: boolean;
+    };
+    assert.equal(json.ok, true);
+    assert.equal(json.schemaVersion, GPU_EVIDENCE_SCHEMA);
+    assert.equal(json.startsRunPod, false);
+  });
+
+  it("--out fails closed when path is not writable", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gpu-evidence-out-deny-"));
+    const blocker = path.join(tmp, "not-a-dir");
+    fs.writeFileSync(blocker, "x");
+    const outFile = path.join(blocker, "gpu-evidence.json");
+    const r = runGpuEvidenceCli(["--json", "--out", outFile]);
+    assert.equal(
+      r.status,
+      2,
+      `expected exit 2 on unwritable --out (got ${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.equal(fs.existsSync(outFile), false);
+    const json = JSON.parse(r.stdout) as {
+      schemaVersion: string;
+      ok: boolean;
+      error?: string;
+      startsRunPod?: boolean;
+    };
+    assert.equal(json.schemaVersion, GPU_EVIDENCE_SCHEMA);
+    assert.equal(json.ok, false);
+    assert.equal(json.startsRunPod, false);
+    assert.match(String(json.error ?? ""), /--out write failed/i);
   });
 });

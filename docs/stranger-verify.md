@@ -37,7 +37,7 @@ proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof �
 see [`ci-trust.md`](./ci-trust.md)). Same job also runs
 `npm run prove-doors -- --json --out prove-doors.json` → artifact **`prove-doors-json`**
 (`prove-doors.json`; A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run, B skipped) and
-`npm run gpu-evidence -- --json` → artifact **`gpu-evidence-json`** (CI validates historical evidence JSON; does not start RunPod). The reusable
+`npm run gpu-evidence -- --json --out gpu-evidence.json` → artifact **`gpu-evidence-json`** (CI validates historical evidence JSON; does not start RunPod). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifacts for external `workflow_call` callers.
 
@@ -85,7 +85,7 @@ Antares (Door B stays citation-only; no GPU / no HF gated weights by default).
 1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace; waits for `postCreateCommand`: `npm install`)
 2. Terminal → Run Task → **ZERODAY: prove-doors (keyless)** (`npm run prove-doors -- --json --out prove-doors.json` — writes local `prove-doors.json`; Door A + cassette + Door D + Door E; no `--live-url`) — or `npm run stranger:verify` / task **ZERODAY: prove-doors (stranger:verify)**
 3. Optional: Run Task → **ZERODAY: upload-sarif (dry-run)** (fixture SARIF only; live upload stays CLI with `security_events: write`)
-4. Optional: Run Task → **ZERODAY: gpu-evidence** (`npm run gpu-evidence -- --json` — historical Measured A40 only; does not start RunPod)
+4. Optional: Run Task → **ZERODAY: gpu-evidence** (`npm run gpu-evidence -- --json --out gpu-evidence.json` — historical Measured A40 only; does not start RunPod)
 5. Expect **Door A PASS** + **Door B citation**
 
 Dev container: [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json).

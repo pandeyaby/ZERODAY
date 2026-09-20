@@ -774,8 +774,9 @@ jobs:
         run: |
           set -euo pipefail
           # Fail-closed load of checked-in Measured A40 evidence JSON.
+          # --json --out → workspace gpu-evidence.json (uploaded below on success).
           # Validates historical evidence only — does not start RunPod / not live GPU.
-          npm run --silent gpu-evidence -- --json > gpu-evidence.json
+          npm run --silent gpu-evidence -- --json --out gpu-evidence.json
           test -s gpu-evidence.json
           node scripts/assert-gpu-evidence-ci-json.mjs gpu-evidence.json
 
@@ -786,7 +787,7 @@ jobs:
             echo ""
             echo "- Ran: \`npm run --silent stranger:verify -- --json\` → \`stranger-verify.json\` artifact"
             echo "- Ran: \`npm run --silent prove-doors -- --json --out prove-doors.json\` (Door A + cassette; Door B skipped)"
-            echo "- Ran: \`npm run --silent gpu-evidence -- --json\` → \`gpu-evidence.json\` artifact (historical Measured A40; does not start RunPod)"
+            echo "- Ran: \`npm run --silent gpu-evidence -- --json --out gpu-evidence.json\` (historical Measured A40; does not start RunPod)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares in CI)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"

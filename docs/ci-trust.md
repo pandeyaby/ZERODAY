@@ -11,7 +11,7 @@ the [README](../README.md) and want the honest story without reading CI YAML.
 | Workflow file | [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 | Workflow `name:` (badge label) | `ZERODAY locate` |
 | Required paired-probe job | `paired-probe` — all 8 operators + `gate_axis_mutate` |
-| Stranger prove-doors job | `stranger-verify` — runs `npm run --silent stranger:verify -- --json` (Door A keyless + Door B citation-only; no GPU) **and** `npm run --silent prove-doors -- --json --out prove-doors.json` (Door A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run; Door B skipped) **and** `npm run --silent gpu-evidence -- --json` (CI validates historical evidence JSON; does not start RunPod); uploads artifacts `stranger-verify-json` + `prove-doors-json` + `gpu-evidence-json` (**not** vuln / AUROC proof) |
+| Stranger prove-doors job | `stranger-verify` — runs `npm run --silent stranger:verify -- --json` (Door A keyless + Door B citation-only; no GPU) **and** `npm run --silent prove-doors -- --json --out prove-doors.json` (Door A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run; Door B skipped) **and** `npm run --silent gpu-evidence -- --json --out gpu-evidence.json` (CI validates historical evidence JSON; does not start RunPod); uploads artifacts `stranger-verify-json` + `prove-doors-json` + `gpu-evidence-json` (**not** vuln / AUROC proof) |
 | Reusable workflow (other repos) | [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) — `uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` (checks out ZERODAY, not caller source; same JSON artifact; see [`stranger-verify.md`](./stranger-verify.md)) |
 | Posture | Keyless · fixture / offline adapters · **no GPU** · no HF pull · never auto-merge |
 
@@ -32,7 +32,7 @@ keyless locate gate **and** the `paired-probe` job:
 | **`gate_axis_mutate`** (inside `npm run test:paired-probes`) | Every claimed-green cell fails when only its hyperproperty axis is mutated |
 | **`stranger-verify`** (`npm run stranger:verify -- --json`) | Door A keyless trust-loop PASS + Door B citation card; CI uploads `stranger-verify-json` (not vuln / AUROC proof; no RunPod / HF / live Antares in CI) |
 | **`prove-doors`** (`npm run prove-doors -- --json --out prove-doors.json`) | In-process Door A + cassette:replay + Door D (historical Measured A40 evidence, not live GPU) + Door E (dry-run Code Scanning check, not live upload); Door B skipped without `--live-url`; CI uploads `prove-doors-json` (not vuln / AUROC proof) |
-| **`gpu-evidence`** (`npm run gpu-evidence -- --json`) | CI validates checked-in historical Measured A40 evidence JSON; does not start RunPod; uploads `gpu-evidence-json` (not live GPU / AUROC proof) |
+| **`gpu-evidence`** (`npm run gpu-evidence -- --json --out gpu-evidence.json`) | CI validates checked-in historical Measured A40 evidence JSON; does not start RunPod; uploads `gpu-evidence-json` (not live GPU / AUROC proof) |
 
 Operators covered when claimed green: FREEZEDRY · RESEED · SCHEMAX · SIGNFLIP ·
 SATEXTEND · HISTSWAP · TRAJSWAP · VARSCALE. Prefer honest `deferred` over
