@@ -23,6 +23,7 @@
     "stranger:verify": "bash scripts/stranger-verify.sh",
     "doors": "bash scripts/stranger-verify.sh",
     "prove-doors": "tsx cli/index.ts prove-doors",
+    "gpu-evidence": "tsx cli/index.ts gpu-evidence",
     "hooks:install": "bash scripts/git-hooks/install-stranger-verify-hook.sh",
     "hooks:install-prove-doors": "bash scripts/git-hooks/install-prove-doors-hook.sh",
     "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\" \"tests/locate/paired-probe-from-sarif.test.ts\" \"tests/locate/paired-probe-sample-report.test.ts\" \"tests/locate/trust-loop-door.test.ts\" \"tests/locate/stranger-verify-door.test.ts\" \"tests/locate/design-partner-day1-door.test.ts\" \"tests/locate/stranger-precommit-hook.test.ts\" \"tests/locate/prove-doors-precommit-hook.test.ts\"",

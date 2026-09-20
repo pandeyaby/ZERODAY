@@ -137,6 +137,7 @@ export {
   loadGpuEvidence,
   parseGpuLiveLocateEvidence,
   gpuEvidenceCatalog,
+  formatGpuEvidenceBanner,
   GpuEvidenceError,
   type A40LiveLocateEvidence,
   type GpuEvidenceOk,
