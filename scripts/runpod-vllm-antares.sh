@@ -58,6 +58,11 @@ print_checklist() {
    Honest proof note: Secure A40 live locate returned CWE-89 on fixture
    src/users.js under zeroday-reports/antares-live-proof/. Localization ≠
    exploitability; no PoC / exploit / auto-merge.
+7) Dated measured evidence (cite only; no invented AUROC/File-F1/SLA):
+     docs/gpu-claims.md § Live locate (2026-09-19/20 PT)
+     docs/reports/a40-live-locate-20260920.json
+   Prior A40 smoke: docs/gpu-claims.md § Live re-proof (2026-09-19 PT).
+   Keyless CI never pulls weights or calls RunPod.
 
 Mac MPS is unsupported for schema-faithful live locate — prefer this CUDA path.
 CI must stay fixture-only (never call this --serve from GitHub Actions).

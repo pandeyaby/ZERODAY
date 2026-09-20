@@ -735,10 +735,19 @@ antares
     );
     console.log("Full recipe: docs/runpod-antares.md");
     console.log(
+      "Measured live locate (cite only): docs/gpu-claims.md § Live locate (2026-09-19/20 PT)",
+    );
+    console.log(
+      "Evidence JSON: docs/reports/a40-live-locate-20260920.json (not a CI cassette)",
+    );
+    console.log(
       "Local OpenAI-compatible brain (no Antares weights): npm run zeroday -- doctor · docs/local-brain.md",
     );
     console.log(
       "Honesty: arbitrary local models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available.",
+    );
+    console.log(
+      "Non-claims: localization ≠ exploitability · not AUROC/File-F1/SLA · keyless CI stays $0 GPU.",
     );
     console.log("");
 

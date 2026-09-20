@@ -1,0 +1,71 @@
+{
+  "kind": "zeroday.gpu_live_locate_evidence/v1",
+  "label": "Live locate (2026-09-19/20 PT)",
+  "session": "a40-live-locate-20260920",
+  "measured": true,
+  "checked_in_cassette": false,
+  "ci_live_gpu": false,
+  "pod": {
+    "id": "1trf1rks3h40vs",
+    "tier": "RunPod Secure Cloud",
+    "gpu": "NVIDIA A40",
+    "dataCenter": "EU-RO-1",
+    "image": "vllm/vllm-openai:latest",
+    "model": "fdtn-ai/antares-1b",
+    "maxModelLen": 8192,
+    "rateUsdPerHourAtCreate": 0.49
+  },
+  "timelineUtc": {
+    "startedAt": "2026-09-20T02:21:56Z",
+    "modelsGet200Approx": "2026-09-20T02:24:18Z",
+    "locateFinishedApprox": "2026-09-20T02:24:48Z",
+    "terminateDeletePod204Approx": "2026-09-20T02:24:56Z",
+    "wallStartToTerminateMinutesApprox": 3.0
+  },
+  "spend": {
+    "estimatedUsd": 0.0245,
+    "formula": "3.0/60 × $0.49",
+    "billingApiSettled": false,
+    "label": "estimate — Billing API had no settled records yet; do not invent a different number"
+  },
+  "smoke": {
+    "modelsGetHttp": 200,
+    "completionsPostHttp": 200
+  },
+  "liveLocate": {
+    "tree": "ZERODAY-mac-verify",
+    "commandShape": "npm run locate -- --cwe CWE-89 --repo fixtures/locate/demo-app --live --endpoint https://1trf1rks3h40vs-8000.proxy.runpod.net/v1 --model fdtn-ai/antares-1b --remote-inference --tool-budget 15 --output <dir> --json",
+    "cwe": "CWE-89",
+    "repo": "fixtures/locate/demo-app",
+    "rankedFile": "src/users.js",
+    "rank": 1,
+    "findingCount": 1,
+    "incompleteReason": null,
+    "terminalCallsUsed": 1,
+    "toolBudget": 15,
+    "fullerLocateWithRealToolCalls": true,
+    "sarifResults": 1,
+    "sarifSha256": "b600e95f17720974ca9206abcc69aa30ec54cc2933a3259a02150b8b2cf9997e"
+  },
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noPoC": true,
+    "noAutoMerge": true,
+    "needsHuman": true
+  },
+  "non_claims": [
+    "Localization ≠ exploitability",
+    "Not a public AUROC / File-F1 / marketing-F1 claim",
+    "Not an org-scale latency or spend SLA",
+    "Estimated spend only — Billing API had no settled records yet",
+    "Not a checked-in cassette; keyless CI still never pulls weights or calls RunPod",
+    "needs_human stays true; never auto-merge; no PoC"
+  ],
+  "related": {
+    "gpuClaimsDoc": "docs/gpu-claims.md",
+    "gpuClaimsSection": "Live locate (2026-09-19/20 PT)",
+    "priorA40SmokeSection": "Live re-proof (2026-09-19 PT)",
+    "priorA40SmokePodId": "d65ny3xqf7bwza"
+  }
+}

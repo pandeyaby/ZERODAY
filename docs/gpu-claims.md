@@ -24,8 +24,8 @@ from this doc (print-only doctors; you provision and terminate).
 | OpenAI-compatible **`POST /v1/completions`** on CUDA / vLLM for `fdtn-ai/antares-1b` | **Proven (when operator brings endpoint)** | Contract: [`remote-antares-vllm.md`](./remote-antares-vllm.md); recommended host: [`runpod-antares.md`](./runpod-antares.md); **live GPU** re-proof 2026-09-19 below |
 | RunPod **Secure A40** (or Secure CUDA ≥ 12.8 equivalent), recent vLLM | **Proven path (operator-run)** | [`runpod-antares.md`](./runpod-antares.md) · print-only `npm run zeroday -- antares doctor` · commit `3e6eaec` (earlier notes) · **live GPU** re-proof pod `d65ny3xqf7bwza` (this page) |
 | Desk **Validate live (≤60s)** / `live validate` + doctor against fixture CWE-89-style path | **Proven tooling (fail closed if unreachable)** | Desk CTA + `npm run zeroday -- live validate`; unit: `tests/locate/live-guard.test.ts`, `tests/desk/live-endpoint.test.ts` (**keyless** CI — no live GPU) |
-| Live locate → SARIF on fixture demo-app (**CWE-89** / `src/users.js` candidate) | **Operator-run proof; not a checked-in cassette** | Earlier: [`runpod-antares.md`](./runpod-antares.md) § Honest live proof note · **live GPU** re-proof 2026-09-19 (below) — Mac report dir not shipped in CI |
-| Spend ceiling + **terminate-after** discipline | **Documented + measured (one session)** | Prefer Secure A40 **$0.49/hr** at create (not an SLA). Re-proof estimated **~$0.034** under ≤$0.50 ceiling — see dated section. Recipe: [`runpod-antares.md`](./runpod-antares.md) §5 |
+| Live locate → SARIF on fixture demo-app (**CWE-89** / `src/users.js` candidate) | **Operator-run proof; not a checked-in cassette** | Earlier: [`runpod-antares.md`](./runpod-antares.md) § Honest live proof note · **live GPU** re-proof 2026-09-19 (below) · **fuller live locate** 2026-09-19/20 (below + [`a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json)) — Mac report dirs not shipped as cassettes |
+| Spend ceiling + **terminate-after** discipline | **Documented + measured (dated sessions)** | Prefer Secure A40 **$0.49/hr** at create (not an SLA). Re-proof ~**$0.034**; fuller locate estimate ~**$0.0245** — see dated sections. Recipe: [`runpod-antares.md`](./runpod-antares.md) §5 |
 | Public File-F1 / marketing F1 for fixture · rules · ingest · recording · arbitrary local models | **Deferred / not claimed** | [`design-partner-trust.md`](./design-partner-trust.md) · [`local-brain.md`](./local-brain.md) |
 | Mac MPS / Ollama tool-call reliability as production Antares | **Deferred / not claimed** | MPS unsupported for schema-faithful live locate ([`antares.md`](./antares.md)); Ollama 350M path has **no** File F1 claim ([`antares-350m-ollama.md`](./antares-350m-ollama.md)) |
 | Org-scale latency SLAs | **Deferred / not claimed** | [`SUPPORT.md`](../SUPPORT.md) — no SLA; not Cisco support |
@@ -111,7 +111,9 @@ Wrap overview: [`antares.md`](./antares.md).
   Exact SKUs and prices change; quote the RunPod console at provision time.
 - Discipline: one-shot locate → SARIF → terminate. No auto-spend, no silent
   pod create, no org-scale cost SLA invented here.
-- Dated **live GPU** measurement: see [Live re-proof (2026-09-19 PT)](#live-re-proof-2026-09-19-pt) below.
+- Dated **live GPU** measurements: see [Live re-proof (2026-09-19 PT)](#live-re-proof-2026-09-19-pt)
+  (smoke) and [Live locate (2026-09-19/20 PT)](#live-locate-2026-09-1920-pt)
+  (fuller locate with real tool-calls) below.
 
 ---
 
@@ -168,6 +170,57 @@ zeroday locate --cwe CWE-89 --repo fixtures/locate/demo-app --live \
 
 ---
 
+## Live locate (2026-09-19/20 PT)
+
+**Label: live GPU — fuller locate with real tool-calls** (operator-hosted
+Secure A40). Distinct from the [2026-09-19 smoke](#live-re-proof-2026-09-19-pt)
+above and from **keyless** fixture/CI (Door A). Machine-readable mirror:
+[`docs/reports/a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json)
+(`zeroday.gpu_live_locate_evidence/v1`). **Not** a checked-in cassette.
+Invent nothing beyond the facts below.
+
+| Field | Measured |
+|-------|----------|
+| Pod id | `1trf1rks3h40vs` |
+| Tier / GPU / DC | RunPod Secure Cloud · `NVIDIA A40` · `EU-RO-1` |
+| Image | `vllm/vllm-openai:latest` |
+| Model | `fdtn-ai/antares-1b` · `--max-model-len 8192` |
+| Rate at create | **$0.49/hr** |
+| Timeline (UTC) | startedAt `2026-09-20T02:21:56Z` · `GET /v1/models` 200 ~`2026-09-20T02:24:18Z` · locate finished ~`2026-09-20T02:24:48Z` · terminate (delete-pod 204) ~`2026-09-20T02:24:56Z` |
+| Wall start→terminate | **~3.0 minutes** |
+| Estimated spend | **~$0.0245** (= 3.0/60 × $0.49). Billing API had no settled records yet — **estimate** only; do not invent a different number. |
+| Completions smoke | `POST /v1/completions` → **200** |
+
+### Live locate (ZERODAY-mac-verify — real tool-calls)
+
+```bash
+npm run locate -- --cwe CWE-89 --repo fixtures/locate/demo-app --live \
+  --endpoint https://1trf1rks3h40vs-8000.proxy.runpod.net/v1 \
+  --model fdtn-ai/antares-1b --remote-inference --tool-budget 15 \
+  --output <dir> --json
+```
+
+| Field | Measured |
+|-------|----------|
+| Ranked file | **`src/users.js`** rank 1 |
+| findingCount | 1 |
+| incompleteReason | `null` |
+| terminalCallsUsed | **1** / budget 15 |
+| SARIF results | **1** · sha256 `b600e95f17720974ca9206abcc69aa30ec54cc2933a3259a02150b8b2cf9997e` |
+| Posture | localizationOnly · notExploitProof · noPoC · noAutoMerge |
+
+### Honest non-claims (this live locate)
+
+- Localization ≠ exploitability · `needs_human` · no PoC · no auto-merge
+- **Not** a public AUROC / File-F1 / marketing-F1 claim
+- **Not** an org-scale latency or spend SLA (wall ~3.0 min and ~$0.0245 are
+  **this session only**)
+- **Not** a CI cassette; **keyless** CI still never pulls weights or calls RunPod
+- Fuller locate with real tool-calls — does not replace or retract the prior
+  A40 smoke section; cite both when comparing sessions
+
+---
+
 ## Smoke / fail-closed (**keyless** CI — no live GPU)
 
 | Check | What it does | Live GPU? |
@@ -185,6 +238,9 @@ Keyless unit coverage (mocked / unreachable — **not** a live GPU cassette):
 - `tests/desk/live-endpoint.test.ts` — validate returns empty-state when doctor
   cannot reach endpoint; spend ACK still required before locate
 - `tests/doctor/local-brain.test.ts` — `doctor` / `antares doctor` print-only, $0
+- `tests/doctor/a40-live-locate-evidence.test.ts` — parses checked-in
+  [`a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json)
+  (schema + measured fields only; **not** a live GPU call)
 
 CI never pulls `model.safetensors` and never calls RunPod.
 
