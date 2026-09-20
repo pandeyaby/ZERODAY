@@ -118,6 +118,13 @@ export interface LocateOptions {
   outputDir?: string;
   /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
+  /**
+   * CI / test: drive live locate via in-process mock Antares that POSTs to
+   * `--endpoint` and parses Antares-shaped `<tool_call>` text. No GPU, no
+   * cisco-antares-cli, no RunPod. Still requires a healthy completions probe.
+   * Env alias: ZERODAY_MOCK_ANTARES=1.
+   */
+  mockAntares?: boolean;
   /** Served model id (live). Defaults to fdtn-ai/antares-1b when endpoint/live is set. */
   model?: string;
   /** Antares --tool-budget (1–50) for live query; default 30 when unset */

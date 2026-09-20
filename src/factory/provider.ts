@@ -86,6 +86,7 @@ export function resolveInferenceProvider(
 
   const endpoint =
     opts?.endpoint?.trim() ||
+    env.LOCATE_BASE_URL?.trim() ||
     env.ZERODAY_ANTARES_BASE_URL?.trim() ||
     env.ANTARES_ENDPOINT?.trim() ||
     undefined;

@@ -1220,6 +1220,11 @@ program
     "Local or opt-in remote OpenAI-compatible completions URL (implies live; refuses --fixture/--rules/--from-sarif/--recording). Completions only — not chat. Any local host (Ollama/vLLM/LM Studio) ok; Antares-1B recommended. See: zeroday doctor · docs/local-brain.md",
   )
   .option(
+    "--mock-antares",
+    "CI/test: drive live path via in-process mock Antares against --endpoint (tool_call parse; no GPU / no cisco-antares-cli). Env: ZERODAY_MOCK_ANTARES=1",
+    false,
+  )
+  .option(
     "--remote-inference",
     "ACK: non-loopback endpoint may receive prompts/repo-derived context (RunPod/remote)",
     false,
@@ -1262,6 +1267,7 @@ program
     offline: boolean;
     output?: string;
     endpoint?: string;
+    mockAntares: boolean;
     remoteInference: boolean;
     model?: string;
     toolBudget?: string;
@@ -1306,11 +1312,12 @@ program
 
     const endpoint =
       opts.endpoint ||
+      process.env.LOCATE_BASE_URL ||
       process.env.ZERODAY_ANTARES_BASE_URL ||
       process.env.ANTARES_ENDPOINT ||
       undefined;
 
-    const liveRequested = Boolean(opts.live || endpoint);
+    const liveRequested = Boolean(opts.live || endpoint || opts.mockAntares);
     const model = liveRequested
       ? resolveLiveModel(opts.model)
       : opts.model || process.env.ANTARES_MODEL;
@@ -1335,13 +1342,15 @@ program
         rules: opts.rules,
         fromSarif,
         recording,
-        live: opts.live,
+        live: opts.live || opts.mockAntares,
         offline: opts.offline,
         explicitCwe: opts.mapCwe || (opts.cwe && opts.cve ? opts.cwe : undefined),
         outputDir: opts.output,
         endpoint: endpoint
           ? normalizeCompletionsEndpoint(endpoint)
           : undefined,
+        mockAntares:
+          opts.mockAntares || process.env.ZERODAY_MOCK_ANTARES === "1",
         model,
         toolBudget,
         failOnIncomplete,

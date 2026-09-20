@@ -68,6 +68,11 @@ npm run zeroday -- operate --cwe CWE-89 --fixture  # keyless agent path
 
 `--fixture` + `--live`/`--endpoint` together is **refused**.
 
+Executable live **tool-call** path without GPU: mock `POST /v1/completions` +
+`locate --mock-antares --endpoint …` (or `ZERODAY_MOCK_ANTARES=1` /
+`LOCATE_BASE_URL`) — covered by `tests/locate/live-tool-calls.test.ts`. Not
+Antares File F1; not a substitute for `cisco-antares-cli` on a real host.
+
 Live path **fails closed** when `--endpoint` is unreachable (no silent fixture
 fallback). Keyless unit coverage: `tests/locate/live-guard.test.ts` · Desk:
 `tests/desk/live-endpoint.test.ts`. Print-only doctors (no spend):
