@@ -53,6 +53,25 @@ describe("workstation doctor (zeroday.doctor/v1)", () => {
     }
   });
 
+  it("VS Code / Codespaces task wires doctor --out out/doctor.json", () => {
+    const tasksPath = path.join(root, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const doctorTask = tasks.tasks.find((t) =>
+      /^ZERODAY:\s*doctor$/i.test(String(t.label ?? "").trim()),
+    );
+    assert.ok(doctorTask, 'missing VS Code task "ZERODAY: doctor"');
+    assert.equal(doctorTask.label, "ZERODAY: doctor");
+    assert.match(String(doctorTask.command), /npm run doctor/);
+    assert.match(String(doctorTask.command), /--out out\/doctor\.json/);
+    assert.doesNotMatch(
+      String(doctorTask.command),
+      /create-pod|runpod|--endpoint|--live/i,
+    );
+  });
+
   it("happy path on repo checkout: all checks pass", () => {
     const result = runDoctor({ cwd: root });
     assert.equal(result.schemaVersion, DOCTOR_SCHEMA);

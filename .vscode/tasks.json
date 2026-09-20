@@ -75,6 +75,21 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "ZERODAY: doctor",
+      "type": "shell",
+      "command": "npm run doctor -- --json --out out/doctor.json",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }
