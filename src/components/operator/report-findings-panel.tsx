@@ -1,12 +1,15 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
+  findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
   type ReportFindingView,
 } from "@/desk/report-findings-view";
-import { ShieldAlert } from "lucide-react";
+import { Check, ClipboardCopy, ShieldAlert } from "lucide-react";
+import { useState } from "react";
 
 export type ReportFindingsPanelProps = {
   /** Last successful zeroday.report/v1 (or Desk envelope) response. */
@@ -97,6 +100,7 @@ function FindingRow({
 }) {
   const rankLabel =
     typeof finding.rank === "number" ? `#${finding.rank}` : `#${index + 1}`;
+  const copyPath = findingPathForClipboard(finding.path);
 
   return (
     <li
@@ -107,7 +111,7 @@ function FindingRow({
         <span className="text-[11px] font-mono text-[var(--accent)] shrink-0">
           {rankLabel}
         </span>
-        <code className="text-[12px] font-mono text-[var(--text)]/90 break-all">
+        <code className="text-[12px] font-mono text-[var(--text)]/90 break-all min-w-0 flex-1">
           {finding.path}
         </code>
         {typeof finding.score === "number" ? (
@@ -119,6 +123,9 @@ function FindingRow({
         {finding.source ? (
           <Badge tone="muted">{finding.source}</Badge>
         ) : null}
+        {copyPath ? (
+          <CopyFindingPathButton path={copyPath} />
+        ) : null}
       </div>
       {finding.evidenceSnippet ? (
         <p
@@ -129,5 +136,32 @@ function FindingRow({
         </p>
       ) : null}
     </li>
+  );
+}
+
+/**
+ * Per-row Copy path — same clipboard pattern as Desk Copy JSON.
+ * Copies the exact report finding path; never invents paths.
+ */
+function CopyFindingPathButton({ path }: { path: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      type="button"
+      className="shrink-0"
+      onClick={() => {
+        void navigator.clipboard.writeText(path).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        });
+      }}
+      aria-label={`Copy path ${path}`}
+      data-testid="prove-doors-report-finding-copy-path"
+    >
+      {copied ? <Check size={12} /> : <ClipboardCopy size={12} />}
+      {copied ? "Copied" : "Copy path"}
+    </Button>
   );
 }

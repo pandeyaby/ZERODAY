@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   evidenceSnippetFromFinding,
+  findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
   viewFromReportFinding,
@@ -25,6 +26,13 @@ const FIXTURE_PROVE = path.join(
   root,
   "fixtures/locate/report-sample/prove-doors.json",
 );
+
+/** Simulate Copy path click payload — exact path only; never invent. */
+function clipboardPayloadOnCopyPathClick(
+  findingPath: string | null | undefined,
+): string | null {
+  return findingPathForClipboard(findingPath);
+}
 
 describe("report-findings-view (from fixture report JSON)", () => {
   it("renders ranked rows from runReport fixture (path · rank · evidence · no invent)", () => {
@@ -120,6 +128,25 @@ describe("report-findings-view (from fixture report JSON)", () => {
     assert.match(REPORT_FINDINGS_NON_CLAIM, /Localization\s*≠\s*exploitability/i);
     assert.match(REPORT_FINDINGS_NON_CLAIM, /not proof of exploitability/i);
   });
+
+  it("Copy path clipboard payload is exact fixture finding path (no invent)", () => {
+    const report = runReport({ from: FIXTURE_PROVE, cwd: root });
+    const view = findingsViewFromReport(report);
+    assert.ok(view.findings.length >= 1);
+    const expected = "src/search.js";
+    assert.equal(view.findings[0]?.path, expected);
+
+    const payload = clipboardPayloadOnCopyPathClick(view.findings[0]?.path);
+    assert.equal(payload, expected);
+    assert.equal(findingPathForClipboard(expected), expected);
+
+    // Fail-closed: blank / missing → no clipboard string (hide/disable copy).
+    assert.equal(findingPathForClipboard(""), null);
+    assert.equal(findingPathForClipboard("   "), null);
+    assert.equal(findingPathForClipboard(undefined), null);
+    assert.equal(findingPathForClipboard(null), null);
+    assert.equal(clipboardPayloadOnCopyPathClick(""), null);
+  });
 });
 
 describe("ReportFindingsPanel + Prove-doors wiring", () => {
@@ -147,6 +174,16 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(panel, /runpod/);
     assert.doesNotMatch(panel, /create-pod|auto-provision|AUROC\s*=/i);
 
+    // Per-row Copy path: clipboard helper + a11y + fail-closed hide when no path.
+    assert.match(panel, /CopyFindingPathButton/);
+    assert.match(panel, /data-testid="prove-doors-report-finding-copy-path"/);
+    assert.match(panel, /aria-label=\{`Copy path \$\{path\}`\}/);
+    assert.match(panel, /navigator\.clipboard\.writeText\(path\)/);
+    assert.match(panel, /findingPathForClipboard/);
+    assert.match(panel, /\{copyPath \? \([\s\S]*CopyFindingPathButton/);
+    assert.match(panel, /Copied.*Copy path|Copy path[\s\S]*Copied/);
+    assert.doesNotMatch(panel, /create-pod|exploit PoC|payload/i);
+
     assert.match(prove, /ReportFindingsPanel/);
     assert.match(prove, /report-findings-panel/);
     assert.match(prove, /data-testid="prove-doors-report-card"/);
@@ -159,6 +196,7 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(view, /does not re-rank|Does not re-sort/i);
     assert.match(view, /fail-closed/i);
     assert.match(view, /Localization\s*≠\s*exploitability/);
+    assert.match(view, /findingPathForClipboard/);
     assert.doesNotMatch(view, /create-pod|runpod\.com|exploit PoC/i);
   });
 });

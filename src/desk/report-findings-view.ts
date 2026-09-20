@@ -51,6 +51,18 @@ export function evidenceSnippetFromFinding(
 }
 
 /**
+ * Path string for clipboard "Copy path" — exact report path only.
+ * Fail-closed: missing/blank → null (do not invent a path).
+ */
+export function findingPathForClipboard(
+  path: string | null | undefined,
+): string | null {
+  if (typeof path !== "string") return null;
+  const trimmed = path.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
  * Normalize one zeroday.report/v1 finding for display.
  * Fail-closed: missing/invalid path → null (do not invent a row).
  */
@@ -58,9 +70,12 @@ export function viewFromReportFinding(
   raw: unknown,
 ): ReportFindingView | null {
   if (!isPlainObject(raw)) return null;
-  if (typeof raw.path !== "string" || !raw.path.trim()) return null;
+  const path = findingPathForClipboard(
+    typeof raw.path === "string" ? raw.path : null,
+  );
+  if (!path) return null;
 
-  const view: ReportFindingView = { path: raw.path.trim() };
+  const view: ReportFindingView = { path };
 
   if (typeof raw.rank === "number" && Number.isFinite(raw.rank)) {
     view.rank = raw.rank;
