@@ -214,6 +214,29 @@ export async function runEvidencePack(
   }
 }
 
+/** Desk / API catalog — honesty + fail-closed; no RunPod. */
+export function evidencePackCatalog() {
+  return {
+    kind: "evidence-pack-catalog" as const,
+    schemaVersion: EVIDENCE_PACK_SCHEMA,
+    endpoint: "POST /api/evidence-pack",
+    cli: "zeroday evidence-pack · npm run evidence-pack",
+    defaultOut: EVIDENCE_PACK_DEFAULT_OUT,
+    files: [
+      EVIDENCE_PACK_PROVE_DOORS_FILE,
+      EVIDENCE_PACK_GPU_EVIDENCE_FILE,
+      EVIDENCE_PACK_MANIFEST_FILE,
+    ] as const,
+    honesty: [
+      "Reuses runProveDoors + loadGpuEvidence — does not reimplement doors",
+      "Historical gpu-evidence only — does not start RunPod / no GPU spend",
+      "Fail-closed: prove-doors or gpu-evidence failure → no partial pack claim",
+      "Desk returns pack JSON for browser download (CLI shape: out/evidence/)",
+      "Localization ≠ exploitability · needs_human · no invented metrics · no PoC",
+    ],
+  };
+}
+
 /** Human summary for `zeroday evidence-pack` (not `--json`). */
 export function formatEvidencePackBanner(result: EvidencePackResult): string {
   const lines: string[] = [
