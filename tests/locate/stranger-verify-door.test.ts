@@ -150,11 +150,11 @@ describe("stranger prove-doors (stranger:verify)", () => {
     const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
       tasks: Array<{ label?: string; command?: string }>;
     };
-    const prove = tasks.tasks.find((t) =>
-      /prove-doors|stranger:verify/i.test(String(t.label ?? "")),
+    const strangerTask = tasks.tasks.find((t) =>
+      /stranger:verify/i.test(String(t.label ?? "")),
     );
-    assert.ok(prove, "missing VS Code prove-doors task");
-    assert.match(String(prove.command), /stranger:verify/);
+    assert.ok(strangerTask, "missing VS Code prove-doors (stranger:verify) task");
+    assert.match(String(strangerTask.command), /stranger:verify/);
   });
 
   it("npm run stranger:verify exits 0 on keyless path", () => {

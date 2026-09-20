@@ -82,7 +82,7 @@ No local Node install. Default Codespace is CPU / keyless only — **not** live
 Antares (Door B stays citation-only; no GPU / no HF gated weights by default).
 
 1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace; waits for `postCreateCommand`: `npm install`)
-2. Terminal: `npm run stranger:verify` (or `npm run doors`) — or VS Code task **ZERODAY: prove-doors (stranger:verify)**
+2. Terminal → Run Task → **ZERODAY: prove-doors (keyless)** (`npm run prove-doors -- --json` — Door A + cassette + Door D; no `--live-url`) — or `npm run stranger:verify` / task **ZERODAY: prove-doors (stranger:verify)**
 3. Expect **Door A PASS** + **Door B citation**
 
 Dev container: [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json).
