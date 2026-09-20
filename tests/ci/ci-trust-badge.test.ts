@@ -63,6 +63,7 @@ describe("CI trust badge + ci-trust one-pager", () => {
     assert.match(wf, /upload-artifact@/);
     assert.match(wf, /name:\s*stranger-verify-json/);
     assert.match(wf, /name:\s*prove-doors-json/);
+    assert.match(wf, /assert-prove-doors-ci-json\.mjs/);
     // Isolate job body until the next top-level job key (e.g. `packet:`).
     // Do not use `\z` — in JS that is the letter `z`, which truncates at `zeroday-…`.
     const strangerJob = wf.match(
