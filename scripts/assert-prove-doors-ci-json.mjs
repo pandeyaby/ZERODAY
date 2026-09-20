@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /**
  * Fail-closed CI assert for `npm run prove-doors -- --json` output.
- * Keyless Door A + cassette + Door D (Measured A40 evidence) — Door B must be
- * skipped (no --live-url). Door D = historical checked-in evidence, not live GPU.
+ * Keyless Door A + cassette + Door D (Measured A40 evidence) + Door E
+ * (upload-sarif dry-run) — Door B must be skipped (no --live-url).
+ * Door D = historical checked-in evidence, not live GPU.
+ * Door E = dry-run Code Scanning check, not live upload.
  *
  * Usage: node scripts/assert-prove-doors-ci-json.mjs [path]
  * Default path: ./prove-doors.json
  *
- * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–7 door status
+ * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–8 door status
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -78,6 +80,26 @@ if (j.doors?.d?.schemaVersion !== "zeroday-gpu-evidence/v1" &&
     `assert-prove-doors-ci-json: doors.d schema want zeroday-gpu-evidence/v1 got ${got}`,
   );
   process.exit(7);
+}
+if (j.doors?.e?.status !== "ok") {
+  console.error(
+    `assert-prove-doors-ci-json: doors.e.status want ok got ${j.doors?.e?.status}`,
+  );
+  process.exit(8);
+}
+if (j.doors?.e?.dryRun !== true && j.doors?.e?.result?.dryRun !== true) {
+  console.error(
+    `assert-prove-doors-ci-json: doors.e.dryRun want true got ${j.doors?.e?.dryRun ?? j.doors?.e?.result?.dryRun}`,
+  );
+  process.exit(8);
+}
+if (j.doors?.e?.schemaVersion !== "zeroday-upload-sarif-desk/v1" &&
+    j.doors?.e?.result?.schemaVersion !== "zeroday-upload-sarif-desk/v1") {
+  const got = j.doors?.e?.schemaVersion ?? j.doors?.e?.result?.schemaVersion;
+  console.error(
+    `assert-prove-doors-ci-json: doors.e schema want zeroday-upload-sarif-desk/v1 got ${got}`,
+  );
+  process.exit(8);
 }
 
 process.stdout.write(`assert-prove-doors-ci-json: ok ${file}\n`);

@@ -71,6 +71,11 @@ describe("prove-doors.json CI artifact contract", () => {
           cassette: { status: "ok" },
           b: { status: "skipped" },
           d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
+          e: {
+            status: "ok",
+            dryRun: true,
+            schemaVersion: "zeroday-upload-sarif-desk/v1",
+          },
         },
       }),
     );
@@ -88,6 +93,11 @@ describe("prove-doors.json CI artifact contract", () => {
           cassette: { status: "ok" },
           b: { status: "ok" },
           d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
+          e: {
+            status: "ok",
+            dryRun: true,
+            schemaVersion: "zeroday-upload-sarif-desk/v1",
+          },
         },
       }),
     );
@@ -105,11 +115,34 @@ describe("prove-doors.json CI artifact contract", () => {
           cassette: { status: "ok" },
           b: { status: "skipped" },
           d: { status: "failed" },
+          e: {
+            status: "ok",
+            dryRun: true,
+            schemaVersion: "zeroday-upload-sarif-desk/v1",
+          },
         },
       }),
     );
     const failD = spawnSync("node", [ASSERT, badD], { encoding: "utf8" });
     assert.equal(failD.status, 7, "Door D not ok must exit 7");
+
+    const badE = path.join(tmp, "bad-e.json");
+    fs.writeFileSync(
+      badE,
+      JSON.stringify({
+        schemaVersion: "zeroday-prove-doors/v1",
+        ok: true,
+        doors: {
+          a: { status: "ok" },
+          cassette: { status: "ok" },
+          b: { status: "skipped" },
+          d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
+          e: { status: "failed", dryRun: true },
+        },
+      }),
+    );
+    const failE = spawnSync("node", [ASSERT, badE], { encoding: "utf8" });
+    assert.equal(failE.status, 8, "Door E not ok must exit 8");
   });
 
   it("locate + reusable stranger-verify upload prove-doors-json on success", () => {

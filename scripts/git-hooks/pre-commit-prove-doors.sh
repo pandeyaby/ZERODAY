@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Opt-in pre-commit gate: keyless `npm run prove-doors` (Door A + cassette + Door D).
+# Opt-in pre-commit gate: keyless `npm run prove-doors` (Door A + cassette + Door D + Door E).
 # No --live-url / GPU / HF / live Antares / RunPod.
 #
 # Install (opt-in — not auto via prepare):

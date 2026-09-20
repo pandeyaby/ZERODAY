@@ -16,7 +16,7 @@
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
- *   zeroday prove-doors      # Door A + cassette + Door D (+ optional --live-url Door B)
+ *   zeroday prove-doors      # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -1686,7 +1686,7 @@ program
 function formatProveDoorsBanner(result: ProveDoorsResult): string {
   const lines: string[] = [
     "",
-    "ZERODAY prove-doors (Door A + cassette + Door D · optional Door B)",
+    "ZERODAY prove-doors (Door A + cassette + D + E · optional Door B)",
     "─────────────────────────────────────────────────────────",
     `schema  : ${result.schemaVersion}`,
     `ok      : ${result.ok}`,
@@ -1704,8 +1704,13 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
         ? ` — ${result.doors.d.error}`
         : " — historical measured A40 evidence (not live GPU)"
     }`,
+    `Door E  : ${result.doors.e.status}${
+      result.doors.e.status === "failed"
+        ? ` — ${result.doors.e.error}`
+        : " — dry-run Code Scanning check (not live upload)"
+    }`,
     "",
-    "Posture: localization only · needs human · fail-closed · no RunPod create · no invented spend",
+    "Posture: localization only · needs human · fail-closed · no RunPod create · no live GitHub upload · no invented spend",
     "",
   ];
   return lines.join("\n");
@@ -1714,7 +1719,7 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
 program
   .command("prove-doors")
   .description(
-    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay + Door D (Measured A40 evidence, historical); optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · Door D does not start GPU.",
+    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay + Door D (Measured A40 evidence, historical) + Door E (upload-sarif dry-run); optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · Door D does not start GPU · Door E never live-uploads.",
   )
   .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
   .option(
@@ -1772,7 +1777,7 @@ program
           process.stdout.write(formatProveDoorsBanner(result));
         }
 
-        // Fail-closed: exit 0 only when overall ok (A + cassette + D; B ok|skipped).
+        // Fail-closed: exit 0 only when overall ok (A + cassette + D + E; B ok|skipped).
         if (!result.ok) process.exitCode = 1;
       } catch (e) {
         const msg = (e as Error).message;

@@ -23,6 +23,14 @@ import { STRANGER_VERIFY_SCHEMA } from "../../src/desk/stranger-verify.ts";
 import { CASSETTE_REPLAY_SCHEMA } from "../../src/desk/cassette-replay.ts";
 import { LIVE_URL_PROBE_SCHEMA } from "../../src/desk/live-url-probe.ts";
 import { GPU_EVIDENCE_SCHEMA } from "../../src/desk/gpu-evidence.ts";
+import {
+  UPLOAD_SARIF_DESK_SCHEMA,
+  UPLOAD_SARIF_DESK_DEFAULT_FIXTURE,
+} from "../../src/desk/upload-sarif.ts";
+import type {
+  UploadSarifPayload,
+  UploadSarifResult,
+} from "../../src/locate/upload-sarif.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -60,10 +68,15 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(c.doors.b.skippedWhen, "liveUrl omitted");
     assert.equal(c.doors.d.label, "Door D — Measured A40 evidence");
     assert.equal(c.doors.d.requiredForKeylessOk, true);
+    assert.equal(c.doors.e.label, "Door E — upload-sarif dry-run");
+    assert.equal(c.doors.e.requiredForKeylessOk, true);
+    assert.match(c.doors.e.note, /dry-run Code Scanning|not live upload/i);
+    assert.equal(c.doors.e.source, UPLOAD_SARIF_DESK_DEFAULT_FIXTURE);
     assert.ok(c.honesty.some((h) => /fail-closed/i.test(h)));
     assert.ok(c.honesty.some((h) => /skipped/i.test(h)));
     assert.ok(c.honesty.some((h) => /no RunPod|spend/i.test(h)));
     assert.ok(c.honesty.some((h) => /Door D|historical measured/i.test(h)));
+    assert.ok(c.honesty.some((h) => /Door E|dry-run Code Scanning/i.test(h)));
   });
 
   it("all-pass: Door A + cassette + Door B (mock /v1/models)", async () => {
@@ -119,10 +132,22 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
           assert.equal(payload.doors.d.result.historical, true);
           assert.equal(payload.doors.d.result.startsRunPod, false);
         }
+        assert.equal(payload.doors.e.status, "ok");
+        assert.equal(payload.doors.e.schemaVersion, UPLOAD_SARIF_DESK_SCHEMA);
+        assert.equal(payload.doors.e.dryRun, true);
+        assert.equal(payload.doors.e.neverCallsGitHub, true);
+        if (payload.doors.e.status === "ok") {
+          assert.equal(payload.doors.e.result.ok, true);
+          assert.equal(payload.doors.e.result.dryRun, true);
+          assert.equal(payload.doors.e.result.source, "fixture");
+          assert.equal(payload.doors.e.result.payload.dryRun, true);
+        }
         assert.equal(payload.nonClaims.needsHuman, true);
         assert.equal(payload.nonClaims.failClosedPerDoor, true);
         assert.equal(payload.nonClaims.noSpendClaimsInvented, true);
         assert.equal(payload.nonClaims.doorDHistoricalMeasuredOnly, true);
+        assert.equal(payload.nonClaims.doorEDryRunCodeScanningOnly, true);
+        assert.equal(payload.nonClaims.noLiveGitHubUploadFromProveDoors, true);
         assert.doesNotMatch(
           JSON.stringify(payload),
           /create-pod|auto-provision|"provisioned"\s*:\s*true/i,
@@ -174,6 +199,8 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(payload.doors.cassette.status, "ok");
     assert.equal(payload.doors.b.status, "skipped");
     assert.equal(payload.doors.d.status, "ok");
+    assert.equal(payload.doors.e.status, "ok");
+    assert.equal(payload.doors.e.dryRun, true);
     if (payload.doors.b.status === "skipped") {
       assert.equal(payload.doors.b.reason, "liveUrl omitted");
       assert.match(payload.doors.b.note, /skipped/i);
@@ -273,6 +300,108 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     }
   });
 
+  it("Door E fixture pass: dryRun true · neverCallsGitHub · no transport", async () => {
+    const strangerOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-eok-a-"),
+    );
+    const cassetteOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-eok-c-"),
+    );
+    let transportCalls = 0;
+    const payload = await runProveDoors({
+      cwd: root,
+      strangerOutputDir: strangerOut,
+      cassetteOutputDir: cassetteOut,
+      uploadSarifTransport: (p: UploadSarifPayload): UploadSarifResult => {
+        transportCalls += 1;
+        return {
+          ok: true,
+          dryRun: false,
+          payload: p,
+          message: "should never run",
+        };
+      },
+    });
+    assert.equal(payload.ok, true);
+    assert.equal(payload.doors.e.status, "ok");
+    assert.equal(payload.doors.e.dryRun, true);
+    assert.equal(payload.doors.e.neverCallsGitHub, true);
+    assert.equal(transportCalls, 0, "Door E must not invoke network transport");
+    if (payload.doors.e.status === "ok") {
+      assert.equal(payload.doors.e.result.dryRun, true);
+      assert.equal(payload.doors.e.result.payload.dryRun, true);
+      assert.equal(payload.doors.e.result.source, "fixture");
+      assert.match(payload.doors.e.result.sarifPath, /sample\.sarif$/);
+    }
+    assert.doesNotMatch(
+      JSON.stringify(payload.doors.e),
+      /"dryRun"\s*:\s*false/,
+    );
+  });
+
+  it("Door E fail-closed on invalid SARIF · overall ok false", async () => {
+    const base = path.join(root, "zeroday-reports");
+    fs.mkdirSync(base, { recursive: true });
+    const dir = fs.mkdtempSync(path.join(base, ".tmp-prove-e-"));
+    const bad = path.join(dir, "bad.sarif");
+    fs.writeFileSync(
+      bad,
+      JSON.stringify({ version: "2.1.0", runs: [] }),
+      "utf8",
+    );
+    const strangerOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-efail-a-"),
+    );
+    const cassetteOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-efail-c-"),
+    );
+    try {
+      const payload = await runProveDoors({
+        cwd: root,
+        strangerOutputDir: strangerOut,
+        cassetteOutputDir: cassetteOut,
+        uploadSarifPath: bad,
+      });
+      assert.equal(payload.ok, false);
+      assert.equal(payload.doors.a.status, "ok");
+      assert.equal(payload.doors.cassette.status, "ok");
+      assert.equal(payload.doors.b.status, "skipped");
+      assert.equal(payload.doors.d.status, "ok");
+      assert.equal(payload.doors.e.status, "failed");
+      if (payload.doors.e.status === "failed") {
+        assert.equal(payload.doors.e.code, "invalid_sarif");
+        assert.equal(payload.doors.e.dryRun, true);
+        assert.equal(payload.doors.e.neverCallsGitHub, true);
+      }
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("Door E fail-closed on missing SARIF · overall ok false", async () => {
+    const strangerOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-emiss-a-"),
+    );
+    const cassetteOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-emiss-c-"),
+    );
+    const payload = await runProveDoors({
+      cwd: root,
+      strangerOutputDir: strangerOut,
+      cassetteOutputDir: cassetteOut,
+      uploadSarifPath: path.join(root, "does-not-exist-door-e.sarif"),
+    });
+    assert.equal(payload.ok, false);
+    assert.equal(payload.doors.e.status, "failed");
+    if (payload.doors.e.status === "failed") {
+      assert.ok(
+        payload.doors.e.code === "missing_sarif" ||
+          payload.doors.e.code === "PATH_POLICY",
+      );
+      assert.equal(payload.doors.e.dryRun, true);
+    }
+  });
+
     it("GET /api/prove-doors returns catalog", async () => {
     const res = await proveDoorsGet();
     assert.equal(res.status, 200);
@@ -305,6 +434,8 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(json.ok, true);
     assert.equal(json.doors.b.status, "skipped");
     assert.equal(json.doors.d.status, "ok");
+    assert.equal(json.doors.e.status, "ok");
+    assert.equal(json.doors.e.dryRun, true);
     assert.ok(json.doors.a.status === "ok" || json.doors.a.status === "failed");
   });
 

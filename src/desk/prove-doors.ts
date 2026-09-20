@@ -1,12 +1,14 @@
 /**
  * Desk Prove Run-all-doors orchestrator — Door A + cassette:replay + optional Door B
- * + Door D (Measured A40 evidence, historical read-only).
+ * + Door D (Measured A40 evidence, historical read-only)
+ * + Door E (upload-sarif dry-run against checked-in fixture — never live GitHub).
  *
  * Reuses in-process runners (no HTTP fan-out). Fail-closed per door: one failure
  * does not invent success for others; overall `ok` is true only when every
  * non-skipped door succeeded. Door B is `skipped` (not failed) when liveUrl omitted.
- * Door D is required for keyless ok (like A + cassette). Never invents spend /
- * AUROC / provision. No RunPod create — Door D loads checked-in evidence only.
+ * Door D + Door E are required for keyless ok (like A + cassette). Never invents
+ * spend / AUROC / provision. No RunPod create — Door D loads checked-in evidence
+ * only. Door E is dry-run Code Scanning check, not live upload.
  */
 
 import path from "node:path";
@@ -40,6 +42,14 @@ import {
   type GpuEvidenceOk,
   type LoadGpuEvidenceOptions,
 } from "./gpu-evidence";
+import {
+  runUploadSarifDryRun,
+  UploadSarifDeskError,
+  UPLOAD_SARIF_DESK_SCHEMA,
+  UPLOAD_SARIF_DESK_DEFAULT_FIXTURE,
+  type UploadSarifDeskResult,
+} from "./upload-sarif";
+import type { UploadSarifPayload, UploadSarifResult } from "../locate/upload-sarif";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const PROVE_DOORS_REPO_ROOT = path.resolve(HERE, "../..");
@@ -132,6 +142,33 @@ export interface ProveDoorDFailed {
 
 export type ProveDoorDEntry = ProveDoorDOk | ProveDoorDFailed;
 
+export interface ProveDoorEOk {
+  status: "ok";
+  label: "e";
+  door: "Door E — upload-sarif dry-run";
+  schemaVersion: typeof UPLOAD_SARIF_DESK_SCHEMA;
+  /** Alias marker — Door E is the upload-sarif dry-run payload. */
+  uploadSarif: true;
+  dryRun: true;
+  neverCallsGitHub: true;
+  result: UploadSarifDeskResult;
+}
+
+export interface ProveDoorEFailed {
+  status: "failed";
+  label: "e";
+  door: "Door E — upload-sarif dry-run";
+  schemaVersion: typeof UPLOAD_SARIF_DESK_SCHEMA;
+  uploadSarif: true;
+  dryRun: true;
+  neverCallsGitHub: true;
+  error: string;
+  code?: string;
+  source?: string;
+}
+
+export type ProveDoorEEntry = ProveDoorEOk | ProveDoorEFailed;
+
 export interface ProveDoorsNonClaims {
   localizationNotExploitability: true;
   needsHuman: true;
@@ -139,6 +176,8 @@ export interface ProveDoorsNonClaims {
   ciBadgeNotVulnProof: true;
   probeNotMeasuredA40ReProof: true;
   doorDHistoricalMeasuredOnly: true;
+  doorEDryRunCodeScanningOnly: true;
+  noLiveGitHubUploadFromProveDoors: true;
   noRunPodCreateFromProveDoors: true;
   noSpendClaimsInvented: true;
   failClosedPerDoor: true;
@@ -154,6 +193,8 @@ export interface ProveDoorsResult {
     b: ProveDoorBEntry;
     /** Door D — validated Measured A40 evidence (required for keyless ok). */
     d: ProveDoorDEntry;
+    /** Door E — upload-sarif dry-run on fixture (required for keyless ok). */
+    e: ProveDoorEEntry;
   };
   nonClaims: ProveDoorsNonClaims;
 }
@@ -178,6 +219,16 @@ export interface ProveDoorsOptions {
    * Default: docs/reports/a40-live-locate-20260920.json
    */
   gpuEvidenceRelativePath?: string;
+  /**
+   * Door E SARIF path override (tests). Relative to cwd or absolute.
+   * Default: fixtures/locate/ingest-sample/sample.sarif (fixture dry-run).
+   */
+  uploadSarifPath?: string;
+  /**
+   * Injectable transport for Door E tests — must never be invoked (dry-run).
+   * Default guard throws if called.
+   */
+  uploadSarifTransport?: (payload: UploadSarifPayload) => UploadSarifResult;
 }
 
 const NON_CLAIMS: ProveDoorsNonClaims = {
@@ -187,10 +238,15 @@ const NON_CLAIMS: ProveDoorsNonClaims = {
   ciBadgeNotVulnProof: true,
   probeNotMeasuredA40ReProof: true,
   doorDHistoricalMeasuredOnly: true,
+  doorEDryRunCodeScanningOnly: true,
+  noLiveGitHubUploadFromProveDoors: true,
   noRunPodCreateFromProveDoors: true,
   noSpendClaimsInvented: true,
   failClosedPerDoor: true,
 };
+
+/** Stable dry-run owner/repo so Door E never needs live `gh` / network. */
+const DOOR_E_DRY_RUN_REPO = "pandeyaby/ZERODAY";
 
 async function runDoorA(
   opts: ProveDoorsOptions,
@@ -343,9 +399,78 @@ function runDoorD(opts: ProveDoorsOptions, cwd: string): ProveDoorDEntry {
 }
 
 /**
+ * Door E — upload-sarif dry-run against checked-in fixture (or path override).
+ * Required for keyless ok. Never calls GitHub / transport. Not live upload.
+ */
+function runDoorE(opts: ProveDoorsOptions, cwd: string): ProveDoorEEntry {
+  const base = {
+    label: "e" as const,
+    door: "Door E — upload-sarif dry-run" as const,
+    schemaVersion: UPLOAD_SARIF_DESK_SCHEMA,
+    uploadSarif: true as const,
+    dryRun: true as const,
+    neverCallsGitHub: true as const,
+  };
+  const override = opts.uploadSarifPath?.trim();
+  const sourceLabel = override || UPLOAD_SARIF_DESK_DEFAULT_FIXTURE;
+  let transportCalls = 0;
+  const guardTransport = (
+    payload: UploadSarifPayload,
+  ): UploadSarifResult => {
+    transportCalls += 1;
+    if (opts.uploadSarifTransport) {
+      return opts.uploadSarifTransport(payload);
+    }
+    throw new UploadSarifDeskError(
+      "Internal error: transport invoked during Door E dry-run",
+      "dry_run_transport",
+    );
+  };
+  try {
+    const result = runUploadSarifDryRun({
+      cwd,
+      fixture: !override,
+      ...(override ? { sarifPath: override } : {}),
+      repository: DOOR_E_DRY_RUN_REPO,
+      transport: guardTransport,
+    });
+    if (transportCalls !== 0) {
+      return {
+        ...base,
+        status: "failed",
+        error:
+          "Door E dry-run invoked network transport — fail-closed (no live upload)",
+        code: "dry_run_transport",
+        source: sourceLabel,
+      };
+    }
+    if (!result.dryRun || !result.ok) {
+      return {
+        ...base,
+        status: "failed",
+        error: "Door E must remain dry-run (no live GitHub upload)",
+        code: "LIVE_REFUSED",
+        source: sourceLabel,
+      };
+    }
+    return { ...base, status: "ok", result };
+  } catch (e) {
+    const err = e as Error;
+    const isDesk = err instanceof UploadSarifDeskError;
+    return {
+      ...base,
+      status: "failed",
+      error: err.message,
+      code: isDesk ? (err as UploadSarifDeskError).code : undefined,
+      source: sourceLabel,
+    };
+  }
+}
+
+/**
  * Run all Desk Prove doors in-process. Per-door fail-closed; Door B skipped
- * without liveUrl. Door D required (historical evidence). overall ok iff every
- * non-skipped door has status "ok".
+ * without liveUrl. Door D + Door E required (historical evidence + SARIF
+ * dry-run). overall ok iff every non-skipped door has status "ok".
  */
 export async function runProveDoors(
   opts: ProveDoorsOptions = {},
@@ -357,13 +482,15 @@ export async function runProveDoors(
   const cassette = await runDoorCassette(opts, cwd);
   const b = await runDoorB(opts);
   const d = runDoorD(opts, cwd);
+  const e = runDoorE(opts, cwd);
 
-  const doors = { a, cassette, b, d };
+  const doors = { a, cassette, b, d, e };
   const ok =
     a.status === "ok" &&
     cassette.status === "ok" &&
     (b.status === "ok" || b.status === "skipped") &&
-    d.status === "ok";
+    d.status === "ok" &&
+    e.status === "ok";
 
   return {
     schemaVersion: PROVE_DOORS_SCHEMA,
@@ -405,6 +532,14 @@ export function proveDoorsCatalog() {
         note: "Historical measured session only — does not start RunPod",
         requiredForKeylessOk: true,
       },
+      e: {
+        label: "Door E — upload-sarif dry-run",
+        via: "runUploadSarifDryRun",
+        api: "POST /api/upload-sarif",
+        source: UPLOAD_SARIF_DESK_DEFAULT_FIXTURE,
+        note: "Door E = dry-run Code Scanning check, not live upload",
+        requiredForKeylessOk: true,
+      },
     },
     body: {
       liveUrl: {
@@ -422,9 +557,9 @@ export function proveDoorsCatalog() {
       liveUrl: "--live-url <url> (omit → Door B skipped)",
     },
     returns: {
-      ok: "true iff every non-skipped door ok (A + cassette + D required; B ok|skipped)",
+      ok: "true iff every non-skipped door ok (A + cassette + D + E required; B ok|skipped)",
       generatedAt: "ISO-8601",
-      doors: "{ a, cassette, b, d }",
+      doors: "{ a, cassette, b, d, e }",
       exit: "0 only when ok; 1 when a required door fails; 2 on unexpected error",
     },
     honesty: [
@@ -432,8 +567,9 @@ export function proveDoorsCatalog() {
       "fail-closed per door · never invent spend / AUROC",
       "Door B skipped (not failed) when liveUrl omitted",
       "Door D = historical measured A40 evidence — not live GPU · does not start RunPod",
+      "Door E = dry-run Code Scanning check, not live upload",
       "probe ≠ measured Secure A40 re-proof · provisioned: false",
-      "no RunPod create / no HF pull from prove-doors",
+      "no RunPod create / no HF pull / no live GitHub upload from prove-doors",
     ],
   };
 }
