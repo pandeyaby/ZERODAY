@@ -780,6 +780,18 @@ jobs:
           test -s gpu-evidence.json
           node scripts/assert-gpu-evidence-ci-json.mjs gpu-evidence.json
 
+      - name: npm run evidence-pack (keyless · design-partner pack · no RunPod)
+        run: |
+          set -euo pipefail
+          # Fail-closed design-partner folder from existing doors (reuse evidence-pack).
+          # --json --out → out/evidence/ (uploaded below on success).
+          # Historical gpu-evidence only — does not start RunPod / not live GPU.
+          npm run --silent evidence-pack -- --json --out out/evidence
+          test -s out/evidence/manifest.json
+          test -s out/evidence/prove-doors.json
+          test -s out/evidence/gpu-evidence.json
+          node scripts/assert-evidence-pack-ci-json.mjs out/evidence
+
       - name: Summarize stranger-verify gate
         run: |
           {
@@ -788,11 +800,13 @@ jobs:
             echo "- Ran: \`npm run --silent stranger:verify -- --json\` → \`stranger-verify.json\` artifact"
             echo "- Ran: \`npm run --silent prove-doors -- --json --out prove-doors.json\` (Door A + cassette; Door B skipped)"
             echo "- Ran: \`npm run --silent gpu-evidence -- --json --out gpu-evidence.json\` (historical Measured A40; does not start RunPod)"
+            echo "- Ran: \`npm run --silent evidence-pack -- --json --out out/evidence\` (design-partner pack; does not start RunPod)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares in CI)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
             echo "- Artifact \`prove-doors-json\`: aggregated A + cassette (+ B skipped) — **not** vuln / AUROC proof"
             echo "- Artifact \`gpu-evidence-json\`: checked-in Measured A40 evidence — **not** live GPU / AUROC proof"
+            echo "- Artifact \`evidence-pack\`: \`out/evidence/\` (prove-doors + gpu-evidence + manifest) — **not** live GPU / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
             echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -823,6 +837,13 @@ jobs:
         with:
           name: gpu-evidence-json
           path: gpu-evidence.json
+          if-no-files-found: error
+
+      - name: Upload evidence-pack (prove-doors + gpu-evidence + manifest)
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-pack
+          path: out/evidence/
           if-no-files-found: error
 
   packet:
