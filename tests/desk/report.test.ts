@@ -243,6 +243,7 @@ describe("Prove doors report wiring", () => {
     assert.match(prove, /data-testid="prove-doors-report-run"/);
     assert.match(prove, /data-testid="prove-doors-report-download-json"/);
     assert.match(prove, /prove-doors-report-copy/);
+    assert.match(prove, /ReportFindingsPanel/);
     assert.match(prove, /\/api\/report/);
     assert.match(prove, /downloadReportFiles|downloadReportJson/);
     assert.match(prove, /REPORT_JSON_DOWNLOAD_FILENAME/);
