@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import http from "node:http";
+import os from "node:os";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
@@ -221,5 +222,79 @@ describe("CLI prove-doors", () => {
     assert.match(r.stdout, /Door E\s*:\s*ok/i);
     assert.match(r.stdout, /dry-run Code Scanning|not live upload/i);
     assert.match(r.stdout, /fail-closed|needs human/i);
+  });
+
+  it("--out writes full prove-doors JSON with expected doors · still prints --json", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prove-doors-out-"));
+    const outFile = path.join(tmp, "prove-doors.json");
+    const r = runProveDoorsCliSync(["--json", "--out", outFile]);
+    assert.equal(
+      r.status,
+      0,
+      `prove-doors --out failed (status=${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.ok(fs.existsSync(outFile), "expected --out file to exist");
+    const fromFile = JSON.parse(fs.readFileSync(outFile, "utf8")) as {
+      schemaVersion: string;
+      ok: boolean;
+      doors: {
+        a: { status: string };
+        cassette: { status: string };
+        b: { status: string };
+        d: { status: string };
+        e: { status: string };
+      };
+    };
+    const fromStdout = JSON.parse(r.stdout) as typeof fromFile;
+    assert.equal(fromFile.schemaVersion, PROVE_DOORS_SCHEMA);
+    assert.equal(fromFile.ok, true);
+    assert.equal(fromFile.doors.a.status, "ok");
+    assert.equal(fromFile.doors.cassette.status, "ok");
+    assert.equal(fromFile.doors.b.status, "skipped");
+    assert.equal(fromFile.doors.d.status, "ok");
+    assert.equal(fromFile.doors.e.status, "ok");
+    assert.deepEqual(fromFile, fromStdout);
+  });
+
+  it("--out-file alias writes JSON · banner mode still prints human card", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prove-doors-out-file-"));
+    const outFile = path.join(tmp, "nested", "prove-doors.json");
+    const r = runProveDoorsCliSync(["--out-file", outFile]);
+    assert.equal(
+      r.status,
+      0,
+      `prove-doors --out-file failed (status=${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.match(r.stdout, /Door A\s*:\s*ok/i);
+    assert.match(r.stdout, /Wrote\s*:\s*/i);
+    const json = JSON.parse(fs.readFileSync(outFile, "utf8")) as {
+      ok: boolean;
+      doors: { a: { status: string }; e: { status: string } };
+    };
+    assert.equal(json.ok, true);
+    assert.equal(json.doors.a.status, "ok");
+    assert.equal(json.doors.e.status, "ok");
+  });
+
+  it("--out fails closed when path is not writable", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prove-doors-out-deny-"));
+    const blocker = path.join(tmp, "not-a-dir");
+    fs.writeFileSync(blocker, "x");
+    const outFile = path.join(blocker, "prove-doors.json");
+    const r = runProveDoorsCliSync(["--json", "--out", outFile]);
+    assert.equal(
+      r.status,
+      2,
+      `expected exit 2 on unwritable --out (got ${r.status})\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
+    );
+    assert.equal(fs.existsSync(outFile), false);
+    const json = JSON.parse(r.stdout) as {
+      schemaVersion: string;
+      ok: boolean;
+      error?: string;
+    };
+    assert.equal(json.schemaVersion, PROVE_DOORS_SCHEMA);
+    assert.equal(json.ok, false);
+    assert.match(String(json.error ?? ""), /--out write failed/i);
   });
 });
