@@ -44,7 +44,8 @@ Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
 (aggregates Door A + cassette:replay + Door D Measured A40 evidence + Door E upload-sarif dry-run + optional Door B; Door B
 `status: "skipped"` when `liveUrl` omitted — not failed). Door E = dry-run Code Scanning check, not live upload. CLI one-command:
 `npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
-`--live-url` for Door B). Individual:
+`--live-url` for Door B; local/Codespaces `--out prove-doors.json` —
+CI already redirects stdout). Individual:
 **Run Door A** → `POST /api/stranger-verify`
 (in-process; citation Door B). **Run Door B live-url probe** →
 `POST /api/live-url-probe` with `{ "liveUrl": "https://…/v1" }`

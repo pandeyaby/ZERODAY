@@ -16,7 +16,7 @@
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
- *   zeroday prove-doors      # Door A + cassette + D + E (+ optional --live-url Door B)
+ *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -1723,6 +1723,11 @@ program
   )
   .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
   .option(
+    "--out <path>",
+    "Write full zeroday-prove-doors/v1 JSON to this file (local/Codespaces; CI still redirects stdout). Fail-closed on write errors.",
+  )
+  .option("--out-file <path>", "Alias for --out")
+  .option(
     "--live-url <url>",
     "Opt-in Door B: OpenAI-compatible /v1 base (GET /v1/models). Omit → Door B skipped (not failed).",
   )
@@ -1745,6 +1750,8 @@ program
   .action(
     async (opts: {
       json: boolean;
+      out?: string;
+      outFile?: string;
       liveUrl?: string;
       expectFile?: string;
       expectFindings?: string;
@@ -1771,10 +1778,47 @@ program
           recording: opts.recording?.trim() || undefined,
         });
 
+        const outRaw = (opts.out ?? opts.outFile)?.trim();
+        let outAbs: string | undefined;
+        if (outRaw) {
+          try {
+            outAbs = path.resolve(outRaw);
+            fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+            fs.writeFileSync(
+              outAbs,
+              JSON.stringify(result, null, 2) + "\n",
+              "utf8",
+            );
+          } catch (writeErr) {
+            const wmsg = (writeErr as Error).message;
+            const errMsg = `prove-doors --out write failed: ${wmsg}`;
+            if (opts.json) {
+              console.log(
+                JSON.stringify(
+                  {
+                    schemaVersion: PROVE_DOORS_SCHEMA,
+                    ok: false,
+                    error: errMsg,
+                  },
+                  null,
+                  2,
+                ),
+              );
+            } else {
+              console.error(errMsg);
+            }
+            process.exitCode = 2;
+            return;
+          }
+        }
+
         if (opts.json) {
           console.log(JSON.stringify(result, null, 2));
         } else {
           process.stdout.write(formatProveDoorsBanner(result));
+          if (outAbs) {
+            process.stdout.write(`Wrote    : ${outAbs}\n\n`);
+          }
         }
 
         // Fail-closed: exit 0 only when overall ok (A + cassette + D + E; B ok|skipped).
