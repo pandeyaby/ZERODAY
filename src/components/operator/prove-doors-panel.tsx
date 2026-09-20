@@ -52,6 +52,7 @@ import {
   serializeReportMarkdown,
   type ReportDownloadPayload,
 } from "@/desk/report-download";
+import { ReportFindingsPanel } from "@/components/operator/report-findings-panel";
 
 const VERIFY_CMD = "npm run stranger:verify";
 const VERIFY_ALIAS = "npm run doors";
@@ -276,7 +277,15 @@ type DoctorJson = DoctorDownloadPayload & {
 
 type ReportJson = ReportDownloadPayload & {
   code?: string;
-  findings?: Array<{ path?: string; rank?: number; cweIds?: string[] }>;
+  findings?: Array<{
+    path?: string;
+    rank?: number;
+    score?: number;
+    cweIds?: string[];
+    evidence?: string[];
+    source?: string;
+  }>;
+  disclaimers?: string[];
 };
 
 /**
@@ -1607,27 +1616,7 @@ export function ProveDoorsPanel() {
               </Badge>
               <Badge tone="warn">localization only</Badge>
             </div>
-            {Array.isArray(reportResult.findings) &&
-            reportResult.findings.length > 0 ? (
-              <ul
-                className="text-[11px] font-mono space-y-1.5 text-[var(--muted)] mb-3"
-                data-testid="prove-doors-report-findings"
-              >
-                {reportResult.findings.map((f, i) => (
-                  <li key={`${f.path ?? "f"}-${i}`}>
-                    <span className="text-[var(--text)]/80">
-                      {typeof f.rank === "number" ? `#${f.rank} ` : ""}
-                      {f.path ?? "—"}
-                    </span>
-                    {f.cweIds?.length ? ` · ${f.cweIds.join(", ")}` : ""}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[11px] text-[var(--muted)] mb-3">
-                No ranked files in inputs — empty is not a clean claim.
-              </p>
-            )}
+            <ReportFindingsPanel report={reportResult} />
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <Button
                 type="button"
