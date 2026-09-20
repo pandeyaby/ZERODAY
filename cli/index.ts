@@ -18,6 +18,7 @@
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
+ *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + manifest (no RunPod)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -97,6 +98,13 @@ import {
   GPU_EVIDENCE_SCHEMA,
   type ProveDoorsResult,
 } from "../src/desk/index.ts";
+import {
+  runEvidencePack,
+  formatEvidencePackBanner,
+  EvidencePackError,
+  EVIDENCE_PACK_SCHEMA,
+  EVIDENCE_PACK_DEFAULT_OUT,
+} from "../src/locate/evidence-pack.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -1720,6 +1728,80 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
   ];
   return lines.join("\n");
 }
+
+program
+  .command("evidence-pack")
+  .description(
+    "Build a local design-partner evidence folder from existing keyless doors: prove-doors.json + gpu-evidence.json + manifest.json (zeroday.evidence_pack/v1). Default out/evidence/. Fail-closed. Historical gpu-evidence only — does not start RunPod / not live GPU.",
+  )
+  .option(
+    "--out <dir>",
+    "Output directory for the evidence pack",
+    EVIDENCE_PACK_DEFAULT_OUT,
+  )
+  .option(
+    "--json",
+    "Print zeroday.evidence_pack/v1 manifest JSON to stdout (CI summary)",
+    false,
+  )
+  .option(
+    "--from <path>",
+    "gpu-evidence path override (default: docs/reports/a40-live-locate-20260920.json)",
+  )
+  .action(async (opts: { out: string; json: boolean; from?: string }) => {
+    try {
+      const from = opts.from?.trim();
+      const result = await runEvidencePack({
+        out: opts.out,
+        cwd: REPO_ROOT,
+        ...(from ? { gpuEvidenceFrom: path.resolve(from) } : {}),
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result.manifest, null, 2));
+      } else {
+        process.stdout.write(formatEvidencePackBanner(result));
+        process.stdout.write(
+          [
+            `Wrote prove-doors : ${result.proveDoorsPath}`,
+            `Wrote gpu-evidence: ${result.gpuEvidencePath}`,
+            `Wrote manifest    : ${result.manifestPath}`,
+            "",
+          ].join("\n"),
+        );
+      }
+    } catch (e) {
+      const err = e as Error;
+      const isEp = err instanceof EvidencePackError;
+      const code = isEp ? (err as EvidencePackError).code : undefined;
+      const msg = err.message;
+      if (opts.json) {
+        console.log(
+          JSON.stringify(
+            {
+              schemaVersion: EVIDENCE_PACK_SCHEMA,
+              ok: false,
+              error: msg,
+              code,
+              historicalGpuEvidenceOnly: true,
+              startsRunPod: false,
+            },
+            null,
+            2,
+          ),
+        );
+      } else {
+        console.error(
+          isEp
+            ? `evidence-pack failed (${code}): ${msg}`
+            : `evidence-pack failed: ${msg}`,
+        );
+        console.error(
+          "Historical gpu-evidence only — does not start RunPod / not live GPU.",
+        );
+      }
+      process.exitCode = isEp && code === "WRITE_FAILED" ? 2 : 1;
+    }
+  });
 
 program
   .command("gpu-evidence")

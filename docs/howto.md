@@ -37,7 +37,7 @@ Buttons run existing fixture paths: locate CWE-89, classify each scenario, mixed
 **Prove doors tab** — **Run all doors** → `POST /api/prove-doors` (Door A +
 cassette:replay + Door D historical A40 evidence + Door E upload-sarif dry-run + optional Door B; B `skipped` without liveUrl). Download **prove-doors.json** from the last Run-all response (same as CLI `--out`). Measured A40 card: download **gpu-evidence.json** from loaded evidence (same as CLI `--out`; historical; does not start RunPod). Door E = dry-run Code Scanning check, not live upload. CLI:
 `npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
-`--live-url`). Individual:
+`--live-url`). Design-partner folder: `npm run evidence-pack` → `out/evidence/` (prove-doors + historical gpu-evidence + manifest; no RunPod). Individual:
 **Run Door A** → `POST /api/stranger-verify` (same JSON as
 `stranger:verify --json`); **Door B live-url probe** → `POST /api/live-url-probe`
 (`GET /v1/models`, fail-closed; status / latencyMs / modelCount;
