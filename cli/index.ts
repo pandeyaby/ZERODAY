@@ -20,6 +20,7 @@
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
  *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + manifest (no RunPod)
+ *   zeroday report --from prove-doors.json | --sarif path.sarif  # CISO localization summary (zeroday.report/v1)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -109,6 +110,13 @@ import {
   EVIDENCE_PACK_SCHEMA,
   EVIDENCE_PACK_DEFAULT_OUT,
 } from "../src/locate/evidence-pack.ts";
+import {
+  runReport,
+  formatReportMarkdown,
+  writeReportArtifacts,
+  ReportError,
+  REPORT_SCHEMA,
+} from "../src/locate/report-summary.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -1826,6 +1834,109 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
   ];
   return lines.join("\n");
 }
+
+program
+  .command("report")
+  .description(
+    "CISO-readable localization summary from existing prove-doors JSON and/or SARIF (zeroday.report/v1). Optional historical gpu-evidence footnote. Fail-closed. Localization ≠ exploitability · no PoC · runpod:false · does not start RunPod.",
+  )
+  .option(
+    "--from <path>",
+    "prove-doors.json (zeroday-prove-doors/v1) or evidence-pack directory",
+  )
+  .option(
+    "--sarif <path>",
+    "SARIF 2.1 from locate / upload-sarif / fixture (local file only)",
+  )
+  .option(
+    "--gpu-evidence <path>",
+    "Optional historical gpu-evidence JSON footnote (checked-in only; does not start RunPod)",
+  )
+  .option("--json", "Print zeroday.report/v1 JSON to stdout", false)
+  .option(
+    "--out <path>",
+    "Write markdown (default) or JSON (with --json) to this file",
+  )
+  .action((opts: {
+    from?: string;
+    sarif?: string;
+    gpuEvidence?: string;
+    json: boolean;
+    out?: string;
+  }) => {
+    try {
+      const report = runReport({
+        from: opts.from,
+        sarif: opts.sarif,
+        gpuEvidence: opts.gpuEvidence,
+        cwd: REPO_ROOT,
+      });
+
+      const outRaw = opts.out?.trim();
+      if (outRaw) {
+        const written = writeReportArtifacts(
+          report,
+          outRaw,
+          opts.json ? "json" : "markdown",
+        );
+        if (!opts.json) {
+          process.stdout.write(`Wrote    : ${written}\n\n`);
+        }
+      }
+
+      if (opts.json) {
+        console.log(JSON.stringify(report, null, 2));
+      } else if (!outRaw) {
+        process.stdout.write(formatReportMarkdown(report));
+      } else {
+        // --out without --json: still echo a short banner after write
+        process.stdout.write(
+          [
+            `schema   : ${report.schemaVersion}`,
+            `findings : ${report.findings.length}`,
+            `runpod   : false`,
+            `sources  : ${report.sources.map((s) => s.kind).join(", ")}`,
+            "",
+            "Posture: localization ≠ exploitability · needs_human · no PoC · no auto-merge",
+            "",
+          ].join("\n"),
+        );
+      }
+    } catch (e) {
+      const err = e as Error;
+      const isR = err instanceof ReportError;
+      const code = isR ? (err as ReportError).code : undefined;
+      const msg = err.message;
+      if (opts.json) {
+        console.log(
+          JSON.stringify(
+            {
+              schemaVersion: REPORT_SCHEMA,
+              ok: false,
+              error: msg,
+              code,
+              runpod: false,
+            },
+            null,
+            2,
+          ),
+        );
+      } else {
+        console.error(
+          isR ? `report failed (${code}): ${msg}` : `report failed: ${msg}`,
+        );
+        console.error(
+          "Localization only · fail-closed · does not start RunPod / no PoC.",
+        );
+      }
+      process.exitCode =
+        isR && (code === "WRITE_FAILED" || code === "INPUT_MISSING")
+          ? code === "WRITE_FAILED"
+            ? 2
+            : 1
+          : 1;
+    }
+  });
 
 program
   .command("evidence-pack")
