@@ -8,3 +8,14 @@ export {
   formatLocalBrainDoctorChecklist,
   type LocalBrainEndpointCheck,
 } from "./local-brain";
+
+export {
+  DOCTOR_SCHEMA,
+  DOCTOR_REPO_ROOT,
+  DOCTOR_REQUIRED_SCRIPTS,
+  runDoctor,
+  formatDoctorBanner,
+  type DoctorCheck,
+  type DoctorResult,
+  type RunDoctorOptions,
+} from "./workstation";

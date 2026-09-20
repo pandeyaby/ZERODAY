@@ -4,10 +4,10 @@ Point `zeroday locate --endpoint` at **any** local OpenAI-compatible host that
 exposes **`POST /v1/completions`** — without gated Antares weights — and keep
 the same live SARIF / evidence pipeline.
 
-> **Print-only first:** `npm run zeroday -- doctor`  
+> **Print-only first:** `npm run zeroday -- doctor --local-brain`  
 > (or `bash scripts/local-brain-doctor.sh --print-only`)  
 > Never downloads models, never auto-starts Ollama/vLLM/LM Studio, never
-> provisions RunPod. **$0** in CI.
+> provisions RunPod. **$0** in CI. (Workstation readiness: `npm run doctor`.)
 
 ## Honesty (read this)
 
@@ -46,9 +46,9 @@ Antares path (recommended when available): [`antares.md`](./antares.md) ·
 ## Doctor checklist
 
 ```bash
-npm run zeroday -- doctor
+npm run zeroday -- doctor --local-brain
 # optional shape-only check (no network):
-npm run zeroday -- doctor --endpoint http://127.0.0.1:8000/v1
+npm run zeroday -- doctor --local-brain --endpoint http://127.0.0.1:8000/v1
 # chat-only URLs fail closed:
 npm run zeroday -- doctor --endpoint http://127.0.0.1:8000/v1/chat/completions
 # → exit 2

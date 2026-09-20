@@ -7,6 +7,7 @@ Keyless only. Defensive localization — no PoC / exploit theater.
 
 ```bash
 npm install
+npm run doctor          # local workstation readiness (fail-closed; no RunPod / no network)
 npm run stranger:verify
 # alias: npm run doors
 ```

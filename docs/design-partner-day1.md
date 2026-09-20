@@ -26,6 +26,7 @@ is CPU / keyless — **not** live Antares.
 
 ```bash
 npm install
+npm run doctor          # local workstation readiness (fail-closed; no RunPod)
 npm run mvp
 ```
 

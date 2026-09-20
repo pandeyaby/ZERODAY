@@ -8,7 +8,8 @@
  *   zeroday harden                     # Desk C from real reports dir (--fixture smoke)
  *   zeroday craft                      # Desk D from real reports dir (--fixture smoke)
  *   zeroday classify                   # Desk E from real reports / --from (--fixture smoke)
- *   zeroday doctor                     # print-only local-brain checklist (Keyless K4, $0)
+ *   zeroday doctor [--json] [--out]    # fail-closed local workstation readiness (Day-1, $0)
+ *   zeroday doctor --local-brain       # print-only local-brain checklist (Keyless K4, $0)
  *   zeroday antares doctor             # print-only Antares/RunPod checklist (no spend)
  *   zeroday factory run …              # inventory→locate→classify→own→verify
  *   zeroday operate --cwe CWE-89 --fixture
@@ -64,6 +65,9 @@ import {
   formatLocalBrainDoctorChecklist,
   checkLocalBrainEndpointShape,
   LOCAL_BRAIN_DOCS,
+  runDoctor,
+  formatDoctorBanner,
+  DOCTOR_SCHEMA,
 } from "../src/doctor/index.ts";
 import {
   formatIncompleteCliBlock,
@@ -688,38 +692,132 @@ program
 program
   .command("doctor")
   .description(
-    "Print-only local OpenAI-compatible brain checklist (Keyless K4) — Ollama/vLLM/LM Studio completions; $0; no model download / auto-start. See docs/local-brain.md. Antares path: antares doctor.",
+    "Fail-closed local workstation readiness (Day-1): Node, package scripts, historical gpu-evidence, cassette fixture, prove-doors entrypoints. No RunPod / no live GPU / no network. Keyless local-brain checklist: --local-brain. Antares path: antares doctor.",
+  )
+  .option("--json", "Print zeroday.doctor/v1 JSON to stdout", false)
+  .option(
+    "--out <path>",
+    "Write full zeroday.doctor/v1 JSON to this file. Fail-closed on write errors.",
+  )
+  .option(
+    "--local-brain",
+    "Print-only Keyless K4 local OpenAI-compatible brain checklist (Ollama/vLLM/LM Studio) — no workstation checks",
+    false,
   )
   .option(
     "--endpoint <url>",
-    "Optional shape-only check (no network): refuse chat-only URLs; note loopback vs --remote-inference",
+    "With --local-brain: shape-only check (no network); refuse chat-only URLs; note loopback vs --remote-inference",
   )
   .option(
     "--print-only",
-    "Explicit print-only (default; kept for CI clarity — never probes network)",
+    "With --local-brain: explicit print-only (default; never probes network)",
     true,
   )
-  .action((opts: { endpoint?: string; printOnly: boolean }) => {
-    // Print-only / $0 — never probes network, never starts servers, never downloads.
-    void opts.printOnly;
-    process.stdout.write(formatLocalBrainDoctorChecklist());
+  .action((opts: {
+    json: boolean;
+    out?: string;
+    localBrain: boolean;
+    endpoint?: string;
+    printOnly: boolean;
+  }) => {
+    // Keyless K4 local-brain path (print-only) — preserved behind --local-brain / --endpoint.
+    if (opts.localBrain || opts.endpoint?.trim()) {
+      void opts.printOnly;
+      process.stdout.write(formatLocalBrainDoctorChecklist());
 
-    if (opts.endpoint?.trim()) {
-      console.log("Endpoint shape check (no network)");
-      console.log("─────────────────────────────────");
-      const check = checkLocalBrainEndpointShape(opts.endpoint);
-      console.log(check.detail);
-      if (!check.ok) {
-        process.exitCode = 2;
-        return;
+      if (opts.endpoint?.trim()) {
+        console.log("Endpoint shape check (no network)");
+        console.log("─────────────────────────────────");
+        const check = checkLocalBrainEndpointShape(opts.endpoint);
+        console.log(check.detail);
+        if (!check.ok) {
+          process.exitCode = 2;
+          return;
+        }
+        if (check.remoteAckRequired) {
+          console.log(
+            "Reminder: non-loopback needs --remote-inference or ZERODAY_REMOTE_INFERENCE_ACK=1.",
+          );
+        }
+        console.log(`Docs: ${LOCAL_BRAIN_DOCS}`);
+        console.log("");
       }
-      if (check.remoteAckRequired) {
+      return;
+    }
+
+    // Default: fail-closed workstation readiness (Day-1). No RunPod / network.
+    try {
+      const result = runDoctor({ cwd: REPO_ROOT });
+
+      const outRaw = opts.out?.trim();
+      if (outRaw) {
+        try {
+          const outAbs = path.resolve(outRaw);
+          fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+          fs.writeFileSync(
+            outAbs,
+            JSON.stringify(result, null, 2) + "\n",
+            "utf8",
+          );
+          if (!opts.json) {
+            process.stdout.write(`Wrote    : ${outAbs}\n`);
+          }
+        } catch (writeErr) {
+          const wmsg = (writeErr as Error).message;
+          const errMsg = `doctor --out write failed: ${wmsg}`;
+          if (opts.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  schemaVersion: DOCTOR_SCHEMA,
+                  ok: false,
+                  error: errMsg,
+                  runpod: false,
+                  startsRunPod: false,
+                  networkRequired: false,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.error(errMsg);
+          }
+          process.exitCode = 2;
+          return;
+        }
+      }
+
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        process.stdout.write(formatDoctorBanner(result));
+      }
+
+      if (!result.ok) {
+        process.exitCode = 1;
+      }
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (opts.json) {
         console.log(
-          "Reminder: non-loopback needs --remote-inference or ZERODAY_REMOTE_INFERENCE_ACK=1.",
+          JSON.stringify(
+            {
+              schemaVersion: DOCTOR_SCHEMA,
+              ok: false,
+              error: msg,
+              runpod: false,
+              startsRunPod: false,
+              networkRequired: false,
+            },
+            null,
+            2,
+          ),
         );
+      } else {
+        console.error(`doctor failed: ${msg}`);
       }
-      console.log(`Docs: ${LOCAL_BRAIN_DOCS}`);
-      console.log("");
+      process.exitCode = 1;
     }
   });
 
@@ -732,7 +830,7 @@ const antares = program
 antares
   .command("doctor")
   .description(
-    "Print Secure A40 / HF / terminate-after-use checklist (wraps scripts/runpod-vllm-antares.sh --print-only; no spend). For any local completions host without Antares weights: zeroday doctor · docs/local-brain.md",
+    "Print Secure A40 / HF / terminate-after-use checklist (wraps scripts/runpod-vllm-antares.sh --print-only; no spend). For any local completions host without Antares weights: zeroday doctor --local-brain · docs/local-brain.md. Workstation readiness: zeroday doctor.",
   )
   .option(
     "--smoke-env",
@@ -763,7 +861,7 @@ antares
       "Evidence JSON: docs/reports/a40-live-locate-20260920.json (not a CI cassette)",
     );
     console.log(
-      "Local OpenAI-compatible brain (no Antares weights): npm run zeroday -- doctor · docs/local-brain.md",
+      "Local OpenAI-compatible brain (no Antares weights): npm run zeroday -- doctor --local-brain · docs/local-brain.md",
     );
     console.log(
       "Honesty: arbitrary local models ≠ Antares File F1; Antares-1B remains recommended when HF+CUDA available.",
