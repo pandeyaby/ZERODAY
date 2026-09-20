@@ -248,6 +248,25 @@ export function runDoctor(opts: RunDoctorOptions = {}): DoctorResult {
   };
 }
 
+/** Honesty catalog for Desk GET /api/doctor (no RunPod). */
+export function doctorCatalog() {
+  return {
+    kind: "doctor-catalog" as const,
+    schemaVersion: DOCTOR_SCHEMA,
+    endpoint: "POST /api/doctor",
+    getEndpoint: "GET /api/doctor",
+    cli: "zeroday doctor · npm run doctor",
+    defaultOut: "out/doctor.json",
+    honesty: [
+      "Reuses runDoctor (workstation) — does not reimplement checks",
+      "Historical / local only — does not start RunPod / no GPU spend / no network",
+      "Fail-closed: overall ok only when every check passes",
+      "Desk returns zeroday.doctor/v1 JSON for browser download (CLI --out shape)",
+      "Localization ≠ exploitability · needs_human · no invented metrics · no PoC",
+    ],
+  };
+}
+
 /** Human summary for `zeroday doctor` (not `--json`). */
 export function formatDoctorBanner(result: DoctorResult): string {
   const lines: string[] = [

@@ -14,6 +14,7 @@ export {
   DOCTOR_REPO_ROOT,
   DOCTOR_REQUIRED_SCRIPTS,
   runDoctor,
+  doctorCatalog,
   formatDoctorBanner,
   type DoctorCheck,
   type DoctorResult,

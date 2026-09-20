@@ -9,6 +9,7 @@
  * + Prove-doors Measured A40 evidence (GET /api/gpu-evidence)
  * + Prove Run-all-doors orchestrator (POST /api/prove-doors)
  * + Desk upload-sarif dry-run (POST /api/upload-sarif — never GitHub from Desk).
+ * + Workstation doctor download helpers live in doctor-download.ts (client-safe).
  */
 
 export {
