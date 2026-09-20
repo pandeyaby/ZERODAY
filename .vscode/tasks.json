@@ -4,7 +4,7 @@
     {
       "label": "ZERODAY: prove-doors (keyless)",
       "type": "shell",
-      "command": "npm run prove-doors -- --json",
+      "command": "npm run prove-doors -- --json --out prove-doors.json",
       "group": {
         "kind": "test",
         "isDefault": false

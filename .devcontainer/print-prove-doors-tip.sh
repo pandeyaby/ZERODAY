@@ -11,8 +11,8 @@ ZERODAY Codespace — clone-free Door A
 
   1. Wait for postCreate (`npm install`) if still running
   2. Run Task → “ZERODAY: prove-doors (keyless)”
-     (or: npm run prove-doors -- --json)
-     Door A + cassette + Door D + Door E · no --live-url
+     (or: npm run prove-doors -- --json --out prove-doors.json)
+     writes prove-doors.json · Door A + cassette + Door D + Door E · no --live-url
   3. Or: npm run stranger:verify  (alias: npm run doors)
   4. Optional: Run Task → “ZERODAY: upload-sarif (dry-run)” (fixture only; no live upload)
   5. Expect Door A PASS + Door B citation (no GPU here)

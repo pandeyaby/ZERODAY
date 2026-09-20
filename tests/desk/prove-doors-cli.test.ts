@@ -98,7 +98,7 @@ describe("CLI prove-doors", () => {
     assert.match(pkg.scripts["prove-doors"], /prove-doors/);
   });
 
-  it("VS Code / Codespaces task wires prove-doors --json (keyless)", () => {
+  it("VS Code / Codespaces task wires prove-doors --json --out prove-doors.json (keyless)", () => {
     const tasksPath = path.join(root, ".vscode/tasks.json");
     assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
     const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
@@ -108,8 +108,10 @@ describe("CLI prove-doors", () => {
       /prove-doors \(keyless\)/i.test(String(t.label ?? "")),
     );
     assert.ok(keyless, 'missing VS Code task "ZERODAY: prove-doors (keyless)"');
+    assert.equal(keyless.label, "ZERODAY: prove-doors (keyless)");
     assert.match(String(keyless.command), /npm run prove-doors/);
     assert.match(String(keyless.command), /--json/);
+    assert.match(String(keyless.command), /--out prove-doors\.json/);
     assert.doesNotMatch(String(keyless.command), /--live-url/);
   });
 
