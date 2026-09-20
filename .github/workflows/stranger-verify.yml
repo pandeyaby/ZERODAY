@@ -54,11 +54,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: npm run stranger:verify (keyless · no GPU)
+      - name: npm run stranger:verify (keyless · no GPU · JSON)
         run: |
           set -euo pipefail
-          npm run stranger:verify
+          # Machine-readable Door A proof card + Door B citation (not vuln/AUROC proof).
+          npm run --silent stranger:verify -- --json > stranger-verify.json
           test -f zeroday-reports/trust-loop/paired-probe/coverage/matrix.json
+          test -s stranger-verify.json
+          node -e '
+            const j = require("./stranger-verify.json");
+            if (j.schemaVersion !== "zeroday-stranger-verify/v1") process.exit(2);
+            if (j.doorA?.status !== "pass" || j.doorA?.ran !== true) process.exit(3);
+            if (j.doorB?.mode !== "citation" || j.doorB?.ran !== false) process.exit(4);
+          '
 
       - name: Summarize stranger-verify gate
         run: |
@@ -67,9 +75,10 @@ jobs:
             echo ""
             echo "- Caller used: \`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml\`"
             echo "- Checked out: \`${{ inputs.zeroday_repository }}@${{ inputs.zeroday_ref }}\` (ZERODAY — not caller source)"
-            echo "- Ran: \`npm run stranger:verify\` (alias \`npm run doors\`)"
+            echo "- Ran: \`npm run --silent stranger:verify -- --json\` → \`stranger-verify.json\` artifact"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares)"
+            echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
             echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -79,4 +88,11 @@ jobs:
         with:
           name: zeroday-stranger-verify
           path: zeroday-reports/trust-loop/
+          if-no-files-found: error
+
+      - name: Upload stranger-verify JSON (Door A proof card)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stranger-verify-json
+          path: stranger-verify.json
           if-no-files-found: error

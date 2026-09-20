@@ -52,13 +52,24 @@ describe("CI trust badge + ci-trust one-pager", () => {
     // Stranger prove-doors visible next to locate CI (keyless; Door B citation-only)
     assert.match(wf, /^ {2}stranger-verify:\s*$/m);
     assert.match(wf, /npm run stranger:verify/);
+    assert.match(
+      wf,
+      /--json|ZERODAY_STRANGER_JSON/,
+      "locate stranger-verify job should emit machine-readable JSON",
+    );
+    assert.match(wf, /stranger-verify\.json/);
+    assert.match(wf, /upload-artifact@/);
+    assert.match(wf, /name:\s*stranger-verify-json/);
+    // Isolate job body until the next top-level job key (e.g. `packet:`).
+    // Do not use `\z` — in JS that is the letter `z`, which truncates at `zeroday-…`.
     const strangerJob = wf.match(
-      /^ {2}stranger-verify:\n([\s\S]*?)(?=^ {2}[a-z]|\z)/m,
+      /^ {2}stranger-verify:\n([\s\S]*?)(?=^ {2}[a-z][a-z0-9-]*:\s*$)/m,
     );
     assert.ok(strangerJob, "could not isolate stranger-verify job block");
+    // Denial prose may say "no RunPod"; forbid live flags / tokens / pod creates only.
     assert.doesNotMatch(
       strangerJob[1],
-      /--endpoint|--live|runpod|HF_TOKEN|HF_HUB/i,
+      /--endpoint|--live\b|HF_TOKEN|HF_HUB|create-pod|runpodctl|api\.runpod/i,
     );
   });
 
