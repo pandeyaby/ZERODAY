@@ -55,6 +55,25 @@ describe("evidence-pack module + CLI", () => {
     assert.match(pkg.scripts["evidence-pack"], /evidence-pack/);
   });
 
+  it("VS Code / Codespaces task wires evidence-pack --out out/evidence", () => {
+    const tasksPath = path.join(root, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const packTask = tasks.tasks.find((t) =>
+      /^ZERODAY:\s*evidence-pack$/i.test(String(t.label ?? "").trim()),
+    );
+    assert.ok(packTask, 'missing VS Code task "ZERODAY: evidence-pack"');
+    assert.equal(packTask.label, "ZERODAY: evidence-pack");
+    assert.match(String(packTask.command), /npm run evidence-pack/);
+    assert.match(String(packTask.command), /--out out\/evidence/);
+    assert.doesNotMatch(
+      String(packTask.command),
+      /create-pod|runpod|--endpoint|--live/i,
+    );
+  });
+
   it("happy path: writes three files with correct schemas + sha256", async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-ok-"));
     try {

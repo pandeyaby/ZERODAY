@@ -60,6 +60,21 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "ZERODAY: evidence-pack",
+      "type": "shell",
+      "command": "npm run evidence-pack -- --json --out out/evidence",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }
