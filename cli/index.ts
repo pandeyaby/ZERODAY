@@ -18,7 +18,7 @@
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors      # Door A + cassette + Door D (+ optional --live-url Door B)
  *   zeroday verify  --from zeroday-reports/<run>
- *   zeroday export / draft-fix / classify / demo / play
+ *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
 
 import { Command } from "commander";
@@ -44,6 +44,11 @@ import {
   defaultExportFilename,
   type ExportFormat,
 } from "../src/locate/export/index.ts";
+import {
+  uploadSarif,
+  formatDryRunSummary,
+  UploadSarifError,
+} from "../src/locate/upload-sarif.ts";
 import {
   draftFix,
   DRAFT_FIX_FLAG,
@@ -1943,6 +1948,74 @@ program
       console.log("Local file only — no vendor API push.");
     } catch (e) {
       console.error(`export failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("upload-sarif")
+  .description(
+    "Upload locate SARIF to GitHub Code Scanning (gzip+base64 via gh api). Localization only — not exploit proof. --dry-run never hits the network.",
+  )
+  .requiredOption("--sarif <path>", "Path to locate SARIF 2.1 file")
+  .option(
+    "--repository <owner/repo>",
+    "GitHub repository (default: GITHUB_REPOSITORY or gh repo view)",
+  )
+  .option(
+    "--ref <ref>",
+    "Git ref (e.g. refs/heads/main or refs/pull/1/head; default: GITHUB_REF / current branch)",
+  )
+  .option(
+    "--commit <sha>",
+    "Full commit SHA (default: GITHUB_SHA / HEAD)",
+  )
+  .option("--tool-name <name>", "Optional tool_name for the Code Scanning API body")
+  .option(
+    "--dry-run",
+    "Validate SARIF + print/write request shape; exit 0 without calling GitHub",
+  )
+  .option(
+    "--write-request <path>",
+    "Write the built request JSON (useful with --dry-run)",
+  )
+  .action((opts: {
+    sarif: string;
+    repository?: string;
+    ref?: string;
+    commit?: string;
+    toolName?: string;
+    dryRun?: boolean;
+    writeRequest?: string;
+  }) => {
+    try {
+      const result = uploadSarif({
+        sarifPath: opts.sarif,
+        repository: opts.repository,
+        ref: opts.ref,
+        commit: opts.commit,
+        toolName: opts.toolName,
+        dryRun: opts.dryRun === true,
+        writeRequest: opts.writeRequest,
+      });
+      if (result.dryRun) {
+        console.log(formatDryRunSummary(result.payload));
+        if (opts.writeRequest) {
+          console.log(`Wrote request → ${path.resolve(opts.writeRequest)}`);
+        }
+        console.log(result.message);
+        return;
+      }
+      console.log(result.message);
+      console.log(
+        "Localization SARIF only — not exploit proof. Requires security_events: write.",
+      );
+    } catch (e) {
+      if (e instanceof UploadSarifError) {
+        console.error(`upload-sarif failed (${e.code}): ${e.message}`);
+      } else {
+        console.error(`upload-sarif failed: ${(e as Error).message}`);
+      }
       process.exitCode = 2;
     }
   });

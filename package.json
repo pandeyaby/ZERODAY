@@ -47,6 +47,7 @@
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "export": "tsx cli/index.ts export",
+    "upload-sarif": "tsx cli/index.ts upload-sarif",
     "draft-fix": "tsx cli/index.ts draft-fix",
     "classify": "tsx cli/index.ts classify",
     "demo": "tsx cli/index.ts demo"

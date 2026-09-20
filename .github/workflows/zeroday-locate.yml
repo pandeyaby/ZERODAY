@@ -479,6 +479,30 @@ jobs:
             echo "- File path only · no GitHub alerts API · mvp/fixture/rules unchanged"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: upload-sarif --dry-run (assert script; no GitHub upload / no token)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          # Dry-run only — validates SARIF + request shape; never calls code-scanning/sarifs.
+          # Live upload needs security_events: write; CI does not require that token here.
+          npm run upload-sarif -- \
+            --sarif zeroday-reports/ci-locate-ingest/report.sarif \
+            --repository "${{ github.repository }}" \
+            --ref "refs/pull/${{ github.event.pull_request.number }}/head" \
+            --commit "${{ github.event.pull_request.head.sha }}" \
+            --dry-run \
+            --write-request zeroday-reports/ci-locate-ingest/upload-sarif.dry-run.json
+          test -f zeroday-reports/ci-locate-ingest/upload-sarif.dry-run.json
+          node -e '
+            const j = require("./zeroday-reports/ci-locate-ingest/upload-sarif.dry-run.json");
+            if (j.dryRun !== true) process.exit(2);
+            if (j.method !== "POST") process.exit(3);
+            if (!String(j.endpoint || "").endsWith("/code-scanning/sarifs")) process.exit(4);
+            if (!j.body?.sarif || !j.body?.commit_sha || !j.body?.ref) process.exit(5);
+            if (!j.posture?.localizationOnly || !j.posture?.notExploitProof) process.exit(6);
+            console.log("upload-sarif dry-run OK", j.endpoint);
+          '
+
       - name: Upload locate-ingest artifacts
         uses: actions/upload-artifact@v4
         with:
