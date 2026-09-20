@@ -7,7 +7,8 @@
  * + Prove-doors Door B live-url probe (POST /api/live-url-probe)
  * + Prove-doors cassette:replay (POST /api/cassette-replay)
  * + Prove-doors Measured A40 evidence (GET /api/gpu-evidence)
- * + Prove Run-all-doors orchestrator (POST /api/prove-doors).
+ * + Prove Run-all-doors orchestrator (POST /api/prove-doors)
+ * + Desk upload-sarif dry-run (POST /api/upload-sarif — never GitHub from Desk).
  */
 
 export {
@@ -157,3 +158,16 @@ export {
   type ProveDoorsNonClaims,
   type ProveDoorStatus,
 } from "./prove-doors.ts";
+
+export {
+  UPLOAD_SARIF_DESK_SCHEMA,
+  UPLOAD_SARIF_DESK_REPO_ROOT,
+  UPLOAD_SARIF_DESK_DEFAULT_FIXTURE,
+  runUploadSarifDryRun,
+  resolveDeskSarifPath,
+  uploadSarifDeskCatalog,
+  UploadSarifDeskError,
+  type UploadSarifDeskOptions,
+  type UploadSarifDeskResult,
+  type UploadSarifDeskNonClaims,
+} from "./upload-sarif.ts";
