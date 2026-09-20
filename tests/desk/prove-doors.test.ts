@@ -170,6 +170,10 @@ describe("Desk Prove doors panel", () => {
     assert.match(prove, /doors\?\.e\?\.status|e: \{allResult\.doors\.e/);
     assert.match(prove, /historical|does not start RunPod/i);
     assert.match(prove, /dry-run Code Scanning|not live upload/i);
+    assert.match(prove, /data-testid="prove-doors-run-all-download"/);
+    assert.match(prove, /testId="prove-doors-run-all-copy"/);
+    assert.match(prove, /downloadProveDoorsJson/);
+    assert.match(prove, /PROVE_DOORS_DOWNLOAD_FILENAME/);
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 

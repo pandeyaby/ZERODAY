@@ -42,7 +42,7 @@ same artifacts for external `workflow_call` callers.
 
 Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
 (aggregates Door A + cassette:replay + Door D Measured A40 evidence + Door E upload-sarif dry-run + optional Door B; Door B
-`status: "skipped"` when `liveUrl` omitted — not failed). Door E = dry-run Code Scanning check, not live upload. CLI one-command:
+`status: "skipped"` when `liveUrl` omitted — not failed). After a successful Run-all, **Download prove-doors.json** (client-side from the last response; same shape as CLI `--out` / CI artifact). Door E = dry-run Code Scanning check, not live upload. CLI one-command:
 `npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
 `--live-url` for Door B; `--out prove-doors.json` for CI / local file write). Individual:
 **Run Door A** → `POST /api/stranger-verify`

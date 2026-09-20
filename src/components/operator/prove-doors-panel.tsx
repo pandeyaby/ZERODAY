@@ -9,6 +9,7 @@ import {
   Code2,
   DoorClosed,
   DoorOpen,
+  Download,
   ExternalLink,
   FileJson,
   Loader2,
@@ -17,6 +18,11 @@ import {
   Terminal,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import {
+  downloadProveDoorsJson,
+  PROVE_DOORS_DOWNLOAD_FILENAME,
+  serializeProveDoorsJson,
+} from "@/desk/prove-doors-download";
 
 const VERIFY_CMD = "npm run stranger:verify";
 const VERIFY_ALIAS = "npm run doors";
@@ -571,6 +577,33 @@ export function ProveDoorsPanel() {
               {allResult.doors?.e?.status ? (
                 <Badge tone="muted">e: {allResult.doors.e.status}</Badge>
               ) : null}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  downloadProveDoorsJson(allResult, {
+                    filename: PROVE_DOORS_DOWNLOAD_FILENAME,
+                  });
+                }}
+                data-testid="prove-doors-run-all-download"
+                aria-label={`Download ${PROVE_DOORS_DOWNLOAD_FILENAME}`}
+              >
+                <Download size={14} />
+                Download {PROVE_DOORS_DOWNLOAD_FILENAME}
+              </Button>
+              <CopyJsonButton
+                value={serializeProveDoorsJson(allResult)}
+                ariaLabel={`Copy ${PROVE_DOORS_DOWNLOAD_FILENAME} JSON`}
+                testId="prove-doors-run-all-copy"
+              />
+              <span className="text-[11px] text-[var(--muted)]">
+                Same shape as CLI{" "}
+                <code className="text-[var(--accent)]">--out</code> / CI
+                artifact
+              </span>
             </div>
             <pre
               className={cn(
