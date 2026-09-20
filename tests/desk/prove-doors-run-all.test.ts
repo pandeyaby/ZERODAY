@@ -52,6 +52,7 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(c.kind, "prove-doors-catalog");
     assert.equal(c.schemaVersion, PROVE_DOORS_SCHEMA);
     assert.match(c.endpoint, /\/api\/prove-doors/);
+    assert.match(c.cli, /prove-doors/);
     assert.equal(c.doors.a.label, "Door A — stranger:verify");
     assert.equal(c.doors.cassette.label, "cassette:replay");
     assert.equal(c.doors.b.label, "Door B — live-url probe");

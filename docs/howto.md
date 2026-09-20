@@ -35,7 +35,9 @@ npm run play
 Buttons run existing fixture paths: locate CWE-89, classify each scenario, mixed `zeroday demo`. The UI shows a SARIF summary, Splunk-shaped JSON snippet, and CISO markdown. No live telemetry, no simulated attacks, no exploits, no gated weights. Defensive tabs only.
 
 **Prove doors tab** — **Run all doors** → `POST /api/prove-doors` (Door A +
-cassette:replay + optional Door B; B `skipped` without liveUrl). Individual:
+cassette:replay + optional Door B; B `skipped` without liveUrl). CLI:
+`npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
+`--live-url`). Individual:
 **Run Door A** → `POST /api/stranger-verify` (same JSON as
 `stranger:verify --json`); **Door B live-url probe** → `POST /api/live-url-probe`
 (`GET /v1/models`, fail-closed; status / latencyMs / modelCount;

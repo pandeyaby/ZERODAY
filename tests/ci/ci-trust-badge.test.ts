@@ -52,14 +52,17 @@ describe("CI trust badge + ci-trust one-pager", () => {
     // Stranger prove-doors visible next to locate CI (keyless; Door B citation-only)
     assert.match(wf, /^ {2}stranger-verify:\s*$/m);
     assert.match(wf, /npm run stranger:verify/);
+    assert.match(wf, /npm run prove-doors/);
     assert.match(
       wf,
       /--json|ZERODAY_STRANGER_JSON/,
       "locate stranger-verify job should emit machine-readable JSON",
     );
     assert.match(wf, /stranger-verify\.json/);
+    assert.match(wf, /prove-doors\.json/);
     assert.match(wf, /upload-artifact@/);
     assert.match(wf, /name:\s*stranger-verify-json/);
+    assert.match(wf, /name:\s*prove-doors-json/);
     // Isolate job body until the next top-level job key (e.g. `packet:`).
     // Do not use `\z` — in JS that is the letter `z`, which truncates at `zeroday-…`.
     const strangerJob = wf.match(
