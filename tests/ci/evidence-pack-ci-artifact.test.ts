@@ -29,8 +29,18 @@ function writeGoodPack(dir: string): string {
     historical: true,
     startsRunPod: false,
   });
+  const report = JSON.stringify({
+    schemaVersion: "zeroday.report/v1",
+    runpod: false,
+    findings: [],
+    disclaimers: ["Localization ≠ exploitability"],
+  });
+  const reportMd =
+    "# ZERODAY localization summary\n\n> Localization only. Not proof of exploitability. RunPod false.\n";
   fs.writeFileSync(path.join(dir, "prove-doors.json"), prove + "\n");
   fs.writeFileSync(path.join(dir, "gpu-evidence.json"), gpu + "\n");
+  fs.writeFileSync(path.join(dir, "report.json"), report + "\n");
+  fs.writeFileSync(path.join(dir, "report.md"), reportMd);
   const manifest = {
     schemaVersion: "zeroday.evidence_pack/v1",
     created_at: "2026-09-20T00:00:00.000Z",
@@ -38,6 +48,8 @@ function writeGoodPack(dir: string): string {
     files: [
       { name: "prove-doors.json", sha256: sha256Hex(prove + "\n") },
       { name: "gpu-evidence.json", sha256: sha256Hex(gpu + "\n") },
+      { name: "report.json", sha256: sha256Hex(report + "\n") },
+      { name: "report.md", sha256: sha256Hex(reportMd) },
     ],
     notes: ["gpu-evidence is historical Measured A40 only — not live GPU"],
     ok: true,

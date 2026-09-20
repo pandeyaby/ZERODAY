@@ -1,7 +1,7 @@
 /**
  * Contract: zeroday evidence-pack builds out/evidence/ from existing doors.
- * Happy path → prove-doors.json + gpu-evidence.json + manifest.json.
- * Fail-closed when gpu-evidence missing/invalid. No RunPod.
+ * Happy path → prove-doors.json + gpu-evidence.json + report.json + report.md + manifest.json.
+ * Fail-closed when gpu-evidence missing/invalid or report fails. No RunPod.
  */
 
 import assert from "node:assert/strict";
@@ -20,10 +20,16 @@ import {
   EVIDENCE_PACK_DEFAULT_OUT,
   EVIDENCE_PACK_PROVE_DOORS_FILE,
   EVIDENCE_PACK_GPU_EVIDENCE_FILE,
+  EVIDENCE_PACK_REPORT_JSON_FILE,
+  EVIDENCE_PACK_REPORT_MD_FILE,
   EVIDENCE_PACK_MANIFEST_FILE,
 } from "../../src/locate/evidence-pack.ts";
 import { PROVE_DOORS_SCHEMA } from "../../src/desk/prove-doors.ts";
 import { GPU_EVIDENCE_SCHEMA } from "../../src/desk/gpu-evidence.ts";
+import {
+  ReportError,
+  REPORT_SCHEMA,
+} from "../../src/locate/report-summary.ts";
 import { sha256Buffer } from "../../src/evidence/vault.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -74,7 +80,7 @@ describe("evidence-pack module + CLI", () => {
     );
   });
 
-  it("happy path: writes three files with correct schemas + sha256", async () => {
+  it("happy path: writes pack files with report + schemas + sha256", async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-ok-"));
     try {
       const out = path.join(tmp, "evidence");
@@ -89,12 +95,17 @@ describe("evidence-pack module + CLI", () => {
         result.manifest.notes.some((n) => /historical/i.test(n) && /not live GPU/i.test(n)),
       );
       assert.ok(result.manifest.notes.some((n) => /does not start RunPod/i.test(n)));
+      assert.ok(result.manifest.notes.some((n) => /report\.json|runReport|zeroday\.report/i.test(n)));
 
       const provePath = path.join(out, EVIDENCE_PACK_PROVE_DOORS_FILE);
       const gpuPath = path.join(out, EVIDENCE_PACK_GPU_EVIDENCE_FILE);
+      const reportJsonPath = path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE);
+      const reportMdPath = path.join(out, EVIDENCE_PACK_REPORT_MD_FILE);
       const manifestPath = path.join(out, EVIDENCE_PACK_MANIFEST_FILE);
       assert.ok(fs.existsSync(provePath));
       assert.ok(fs.existsSync(gpuPath));
+      assert.ok(fs.existsSync(reportJsonPath));
+      assert.ok(fs.existsSync(reportMdPath));
       assert.ok(fs.existsSync(manifestPath));
 
       const prove = JSON.parse(fs.readFileSync(provePath, "utf8")) as {
@@ -107,6 +118,13 @@ describe("evidence-pack module + CLI", () => {
         historical: boolean;
         startsRunPod: boolean;
       };
+      const report = JSON.parse(fs.readFileSync(reportJsonPath, "utf8")) as {
+        schemaVersion: string;
+        runpod: boolean;
+        findings: unknown[];
+        disclaimers: string[];
+      };
+      const reportMd = fs.readFileSync(reportMdPath, "utf8");
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as {
         schemaVersion: string;
         created_at: string;
@@ -122,10 +140,24 @@ describe("evidence-pack module + CLI", () => {
       assert.equal(gpu.ok, true);
       assert.equal(gpu.historical, true);
       assert.equal(gpu.startsRunPod, false);
+      assert.equal(report.schemaVersion, REPORT_SCHEMA);
+      assert.equal(report.runpod, false);
+      assert.ok(Array.isArray(report.findings));
+      assert.ok(
+        report.disclaimers.some((d) => /exploitability/i.test(d)),
+        "report.json must include non-exploitability disclaimer",
+      );
+      assert.match(reportMd, /localization/i);
+      assert.match(reportMd, /exploitability/i);
+      assert.match(reportMd, /RunPod/i);
+      assert.match(reportMd, /No PoC/i);
+      assert.match(reportMd, /needs_human/i);
+      assert.doesNotMatch(reportMd, /exploit proof of|how to exploit|payload to send/i);
       assert.equal(manifest.schemaVersion, EVIDENCE_PACK_SCHEMA);
       assert.equal(manifest.pack_version, EVIDENCE_PACK_VERSION);
       assert.match(manifest.created_at, /^\d{4}-\d{2}-\d{2}T/);
       assert.equal(manifest.startsRunPod, false);
+      assert.equal(manifest.files.length, 4);
 
       const byName = Object.fromEntries(manifest.files.map((f) => [f.name, f.sha256]));
       assert.equal(
@@ -137,9 +169,19 @@ describe("evidence-pack module + CLI", () => {
         sha256Buffer(fs.readFileSync(gpuPath)),
       );
       assert.equal(
+        byName[EVIDENCE_PACK_REPORT_JSON_FILE],
+        sha256Buffer(fs.readFileSync(reportJsonPath)),
+      );
+      assert.equal(
+        byName[EVIDENCE_PACK_REPORT_MD_FILE],
+        sha256Buffer(fs.readFileSync(reportMdPath)),
+      );
+      assert.equal(
         byName[EVIDENCE_PACK_PROVE_DOORS_FILE],
         createHash("sha256").update(fs.readFileSync(provePath)).digest("hex"),
       );
+      assert.equal(result.report.schemaVersion, REPORT_SCHEMA);
+      assert.equal(result.report.runpod, false);
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
@@ -195,6 +237,34 @@ describe("evidence-pack module + CLI", () => {
     }
   });
 
+  it("fail-closed: report builder failure does not claim ok", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-rpt-"));
+    try {
+      const out = path.join(tmp, "evidence");
+      await assert.rejects(
+        () =>
+          runEvidencePack({
+            out,
+            cwd: root,
+            buildReport: () => {
+              throw new ReportError("injected report failure", "INPUT_CORRUPT");
+            },
+          }),
+        (err: unknown) => {
+          assert.ok(err instanceof EvidencePackError);
+          assert.equal(err.code, "REPORT_FAILED");
+          assert.match(err.message, /report failed/i);
+          return true;
+        },
+      );
+      assert.equal(fs.existsSync(path.join(out, EVIDENCE_PACK_MANIFEST_FILE)), false);
+      assert.equal(fs.existsSync(path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE)), false);
+      assert.equal(fs.existsSync(path.join(out, EVIDENCE_PACK_REPORT_MD_FILE)), false);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   it("CLI: --json --out writes pack and prints manifest only", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-cli-"));
     const out = path.join(tmp, "pack");
@@ -216,8 +286,18 @@ describe("evidence-pack module + CLI", () => {
       assert.equal(manifest.startsRunPod, false);
       assert.ok(fs.existsSync(path.join(out, EVIDENCE_PACK_PROVE_DOORS_FILE)));
       assert.ok(fs.existsSync(path.join(out, EVIDENCE_PACK_GPU_EVIDENCE_FILE)));
+      assert.ok(fs.existsSync(path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE)));
+      assert.ok(fs.existsSync(path.join(out, EVIDENCE_PACK_REPORT_MD_FILE)));
       assert.ok(fs.existsSync(path.join(out, EVIDENCE_PACK_MANIFEST_FILE)));
-      assert.equal(manifest.files.length, 2);
+      assert.equal(manifest.files.length, 4);
+      const names = manifest.files.map((f) => f.name);
+      assert.ok(names.includes(EVIDENCE_PACK_REPORT_JSON_FILE));
+      assert.ok(names.includes(EVIDENCE_PACK_REPORT_MD_FILE));
+      const report = JSON.parse(
+        fs.readFileSync(path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE), "utf8"),
+      ) as { schemaVersion: string; runpod: boolean };
+      assert.equal(report.schemaVersion, REPORT_SCHEMA);
+      assert.equal(report.runpod, false);
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }

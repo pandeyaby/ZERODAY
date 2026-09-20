@@ -17,12 +17,18 @@ import {
   EVIDENCE_PACK_GPU_EVIDENCE_DOWNLOAD_FILENAME,
   EVIDENCE_PACK_MANIFEST_DOWNLOAD_FILENAME,
   EVIDENCE_PACK_PROVE_DOORS_DOWNLOAD_FILENAME,
+  EVIDENCE_PACK_REPORT_JSON_DOWNLOAD_FILENAME,
+  EVIDENCE_PACK_REPORT_MD_DOWNLOAD_FILENAME,
   resolveEvidencePackFiles,
   serializeEvidencePackJson,
+  serializeEvidencePackMarkdown,
 } from "../../src/desk/evidence-pack-download.ts";
 import { EVIDENCE_PACK_SCHEMA } from "../../src/locate/evidence-pack.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+const SAMPLE_REPORT_MD =
+  "# ZERODAY localization summary\n\n> **Localization only.** Not proof of exploitability.\n";
 
 const SAMPLE_MANIFEST = {
   schemaVersion: EVIDENCE_PACK_DOWNLOAD_SCHEMA,
@@ -31,6 +37,8 @@ const SAMPLE_MANIFEST = {
   files: [
     { name: "prove-doors.json", sha256: "abc" },
     { name: "gpu-evidence.json", sha256: "def" },
+    { name: "report.json", sha256: "ghi" },
+    { name: "report.md", sha256: "jkl" },
   ],
   notes: ["does not start RunPod / no GPU spend from evidence-pack"],
   ok: true,
@@ -52,6 +60,13 @@ const SAMPLE_GPU = {
   startsRunPod: false,
 };
 
+const SAMPLE_REPORT = {
+  schemaVersion: "zeroday.report/v1",
+  runpod: false,
+  findings: [],
+  disclaimers: ["Localization ≠ exploitability"],
+};
+
 const SAMPLE_PACK = {
   schemaVersion: EVIDENCE_PACK_DOWNLOAD_SCHEMA,
   ok: true,
@@ -62,15 +77,20 @@ const SAMPLE_PACK = {
     [EVIDENCE_PACK_MANIFEST_DOWNLOAD_FILENAME]: SAMPLE_MANIFEST,
     [EVIDENCE_PACK_PROVE_DOORS_DOWNLOAD_FILENAME]: SAMPLE_PROVE,
     [EVIDENCE_PACK_GPU_EVIDENCE_DOWNLOAD_FILENAME]: SAMPLE_GPU,
+    [EVIDENCE_PACK_REPORT_JSON_DOWNLOAD_FILENAME]: SAMPLE_REPORT,
+    [EVIDENCE_PACK_REPORT_MD_DOWNLOAD_FILENAME]: SAMPLE_REPORT_MD,
   },
   manifest: SAMPLE_MANIFEST,
   proveDoors: SAMPLE_PROVE,
   gpuEvidence: SAMPLE_GPU,
+  report: SAMPLE_REPORT,
+  reportMarkdown: SAMPLE_REPORT_MD,
 };
 
 function fakeDownloadDeps(label: string) {
   const clicks: string[] = [];
   const created: Array<{ download: string; href: string }> = [];
+  const blobTypes: string[] = [];
   let revoked: string | null = null;
   const fakeAnchor = {
     href: "",
@@ -85,12 +105,13 @@ function fakeDownloadDeps(label: string) {
   return {
     clicks,
     created,
+    blobTypes,
     getRevoked: () => revoked,
     fakeAnchor,
     deps: {
       createObjectURL: (blob: Blob) => {
         assert.ok(blob instanceof Blob);
-        assert.match(blob.type, /application\/json/);
+        blobTypes.push(blob.type);
         return `blob:evidence-pack-${label}`;
       },
       revokeObjectURL: (url: string) => {
@@ -140,6 +161,14 @@ describe("evidence-pack download helper", () => {
       resolved[EVIDENCE_PACK_GPU_EVIDENCE_DOWNLOAD_FILENAME],
       SAMPLE_GPU,
     );
+    assert.equal(
+      resolved[EVIDENCE_PACK_REPORT_JSON_DOWNLOAD_FILENAME],
+      SAMPLE_REPORT,
+    );
+    assert.equal(
+      resolved[EVIDENCE_PACK_REPORT_MD_DOWNLOAD_FILENAME],
+      SAMPLE_REPORT_MD,
+    );
   });
 
   it("downloadEvidencePackFile uses filename manifest.json and clicks anchor", () => {
@@ -155,9 +184,10 @@ describe("evidence-pack download helper", () => {
     assert.deepEqual(fake.clicks, ["manifest.json"]);
     assert.equal(fake.fakeAnchor.download, "manifest.json");
     assert.equal(fake.getRevoked(), "blob:evidence-pack-manifest");
+    assert.match(fake.blobTypes[0] ?? "", /application\/json/);
   });
 
-  it("downloadEvidencePackFiles downloads all three CLI filenames", () => {
+  it("downloadEvidencePackFiles downloads all CLI filenames incl. report", () => {
     const fake = fakeDownloadDeps("all");
     const result = downloadEvidencePackFiles(SAMPLE_PACK, { deps: fake.deps });
     assert.equal(result.schemaHint, EVIDENCE_PACK_SCHEMA);
@@ -169,10 +199,15 @@ describe("evidence-pack download helper", () => {
       "manifest.json",
       "prove-doors.json",
       "gpu-evidence.json",
+      "report.json",
+      "report.md",
     ]);
     assert.equal(result.files[0]?.text, serializeEvidencePackJson(SAMPLE_MANIFEST));
     assert.equal(result.files[1]?.text, serializeEvidencePackJson(SAMPLE_PROVE));
     assert.equal(result.files[2]?.text, serializeEvidencePackJson(SAMPLE_GPU));
+    assert.equal(result.files[3]?.text, serializeEvidencePackJson(SAMPLE_REPORT));
+    assert.equal(result.files[4]?.text, serializeEvidencePackMarkdown(SAMPLE_REPORT_MD));
+    assert.match(fake.blobTypes[4] ?? "", /text\/markdown/);
   });
 
   it("panel wires Download evidence-pack + POST /api/evidence-pack", () => {
@@ -185,6 +220,8 @@ describe("evidence-pack download helper", () => {
       "utf8",
     );
     assert.match(helper, /EVIDENCE_PACK_MANIFEST_DOWNLOAD_FILENAME/);
+    assert.match(helper, /EVIDENCE_PACK_REPORT_JSON_DOWNLOAD_FILENAME/);
+    assert.match(helper, /EVIDENCE_PACK_REPORT_MD_DOWNLOAD_FILENAME/);
     assert.match(helper, /serializeEvidencePackJson/);
     assert.match(helper, /downloadEvidencePackFiles/);
     assert.match(helper, /zeroday\.evidence_pack\/v1/);

@@ -18,8 +18,11 @@ const SCHEMA = "zeroday.evidence_pack/v1";
 const PACK_VERSION = "1";
 const PROVE = "prove-doors.json";
 const GPU = "gpu-evidence.json";
+const REPORT_JSON = "report.json";
+const REPORT_MD = "report.md";
 const MANIFEST = "manifest.json";
 const SHA256_RE = /^[a-f0-9]{64}$/i;
+const REPORT_SCHEMA = "zeroday.report/v1";
 
 const arg = process.argv[2] || "out/evidence";
 const resolved = path.resolve(arg);
@@ -73,8 +76,11 @@ if (j.startsRunPod !== false) {
   fail(5, `startsRunPod want false got ${j.startsRunPod}`);
 }
 
-if (!Array.isArray(j.files) || j.files.length < 2) {
-  fail(6, `files[] want ≥2 entries (prove-doors + gpu-evidence)`);
+if (!Array.isArray(j.files) || j.files.length < 4) {
+  fail(
+    6,
+    `files[] want ≥4 entries (prove-doors + gpu-evidence + report.json + report.md)`,
+  );
 }
 
 const byName = new Map();
@@ -88,13 +94,13 @@ for (const entry of j.files) {
   byName.set(entry.name, entry.sha256.toLowerCase());
 }
 
-for (const required of [PROVE, GPU]) {
+for (const required of [PROVE, GPU, REPORT_JSON, REPORT_MD]) {
   if (!byName.has(required)) {
     fail(6, `files[] missing ${required}`);
   }
 }
 
-for (const name of [PROVE, GPU, MANIFEST]) {
+for (const name of [PROVE, GPU, REPORT_JSON, REPORT_MD, MANIFEST]) {
   const p = path.join(outDir, name);
   if (!fs.existsSync(p) || !fs.statSync(p).isFile()) {
     fail(6, `missing pack file ${p}`);
@@ -104,7 +110,7 @@ for (const name of [PROVE, GPU, MANIFEST]) {
   }
 }
 
-for (const name of [PROVE, GPU]) {
+for (const name of [PROVE, GPU, REPORT_JSON, REPORT_MD]) {
   const p = path.join(outDir, name);
   const body = fs.readFileSync(p);
   const got = sha256Hex(body);
@@ -112,6 +118,30 @@ for (const name of [PROVE, GPU]) {
   if (got !== want) {
     fail(6, `sha256 mismatch for ${name}: want ${want} got ${got}`);
   }
+}
+
+let reportRaw;
+try {
+  reportRaw = fs.readFileSync(path.join(outDir, REPORT_JSON), "utf8");
+} catch (err) {
+  fail(6, `cannot read ${REPORT_JSON}: ${err.message}`);
+}
+let report;
+try {
+  report = JSON.parse(reportRaw);
+} catch (err) {
+  fail(6, `${REPORT_JSON} invalid JSON: ${err.message}`);
+}
+if (report.schemaVersion !== REPORT_SCHEMA) {
+  fail(6, `${REPORT_JSON} schemaVersion want ${REPORT_SCHEMA} got ${report.schemaVersion}`);
+}
+if (report.runpod !== false) {
+  fail(6, `${REPORT_JSON} runpod want false got ${report.runpod}`);
+}
+
+const md = fs.readFileSync(path.join(outDir, REPORT_MD), "utf8");
+if (!/localization/i.test(md) || !/exploitability/i.test(md)) {
+  fail(6, `${REPORT_MD} missing localization / non-exploitability non-claims`);
 }
 
 process.stdout.write(`assert-evidence-pack-ci-json: ok ${outDir}\n`);

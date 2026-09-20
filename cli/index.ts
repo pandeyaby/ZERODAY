@@ -19,7 +19,7 @@
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
- *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + manifest (no RunPod)
+ *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + report + manifest (no RunPod)
  *   zeroday report --from prove-doors.json | --sarif path.sarif  # CISO localization summary (zeroday.report/v1)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
@@ -1941,7 +1941,7 @@ program
 program
   .command("evidence-pack")
   .description(
-    "Build a local design-partner evidence folder from existing keyless doors: prove-doors.json + gpu-evidence.json + manifest.json (zeroday.evidence_pack/v1). Default out/evidence/. Fail-closed. Historical gpu-evidence only — does not start RunPod / not live GPU.",
+    "Build a local design-partner evidence folder from existing keyless doors: prove-doors.json + gpu-evidence.json + report.json + report.md + manifest.json (zeroday.evidence_pack/v1). Default out/evidence/. Fail-closed. Historical gpu-evidence only — does not start RunPod / not live GPU.",
   )
   .option(
     "--out <dir>",
@@ -1973,6 +1973,8 @@ program
           [
             `Wrote prove-doors : ${result.proveDoorsPath}`,
             `Wrote gpu-evidence: ${result.gpuEvidencePath}`,
+            `Wrote report.json : ${result.reportJsonPath}`,
+            `Wrote report.md   : ${result.reportMdPath}`,
             `Wrote manifest    : ${result.manifestPath}`,
             "",
           ].join("\n"),
