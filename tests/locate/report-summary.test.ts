@@ -204,6 +204,30 @@ describe("CLI report", () => {
     assert.match(pkg.scripts["report"], /report/);
   });
 
+  it("VS Code / Codespaces task wires report --out out/report.md + out/report.json", () => {
+    const tasksPath = path.join(root, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const reportTask = tasks.tasks.find((t) =>
+      /^ZERODAY:\s*report$/i.test(String(t.label ?? "").trim()),
+    );
+    assert.ok(reportTask, 'missing VS Code task "ZERODAY: report"');
+    assert.equal(reportTask.label, "ZERODAY: report");
+    assert.match(String(reportTask.command), /npm run report/);
+    assert.match(
+      String(reportTask.command),
+      /fixtures\/locate\/report-sample\/prove-doors\.json/,
+    );
+    assert.match(String(reportTask.command), /--out out\/report\.md/);
+    assert.match(String(reportTask.command), /--out out\/report\.json/);
+    assert.doesNotMatch(
+      String(reportTask.command),
+      /create-pod|runpod|--endpoint|--live/i,
+    );
+  });
+
   it("markdown from --from prove-doors fixture", () => {
     const r = runReportCli(["--from", FIXTURE_PROVE]);
     assert.equal(r.status, 0, r.stderr);

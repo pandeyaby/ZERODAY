@@ -91,7 +91,8 @@ Antares (Door B stays citation-only; no GPU / no HF gated weights by default).
 4. Optional: Run Task → **ZERODAY: gpu-evidence** (`npm run gpu-evidence -- --json --out gpu-evidence.json` — historical Measured A40 only; does not start RunPod)
 5. Optional: Run Task → **ZERODAY: evidence-pack** (`npm run evidence-pack -- --json --out out/evidence` — design-partner folder; does not start RunPod)
 6. Optional: Run Task → **ZERODAY: doctor** (`npm run doctor -- --json --out out/doctor.json` — workstation readiness; does not start RunPod)
-7. Expect **Door A PASS** + **Door B citation**
+7. Optional: Run Task → **ZERODAY: report** (`npm run report -- --from fixtures/locate/report-sample/prove-doors.json --out out/report.md` (+ `--json --out out/report.json`) — CISO localization summary; does not start RunPod)
+8. Expect **Door A PASS** + **Door B citation**
 
 Dev container: [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json).
 `postStartCommand` only prints a tip card — it does **not** auto-run GPU or pull weights.
