@@ -30,6 +30,21 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "ZERODAY: upload-sarif (dry-run)",
+      "type": "shell",
+      "command": "npm run upload-sarif -- --sarif fixtures/locate/ingest-sample/sample.sarif --dry-run",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }
