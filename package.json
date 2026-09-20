@@ -34,6 +34,7 @@
     "plugin": "tsx cli/index.ts plugin",
     "mvp": "tsx cli/index.ts mvp",
     "locate": "tsx cli/index.ts locate",
+    "cassette:replay": "tsx cli/index.ts cassette:replay",
     "operate": "tsx cli/index.ts operate",
     "verify": "tsx cli/index.ts verify",
     "factory": "tsx cli/index.ts factory",

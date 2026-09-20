@@ -3,6 +3,7 @@
  *
  *   zeroday record --from <locate-reports-dir> --out <cassette.json>
  *   zeroday locate --recording <cassette.json>
+ *   zeroday cassette:replay   # offline replay + CI-stable assert (replay-only)
  *
  * --redact is default ON and fail-closed. Never auto-commit / network-exfil.
  */
@@ -26,14 +27,29 @@ import {
   ORG_CASSETTE_SCHEMA,
   HUMAN_REVIEW_NOTE,
 } from "./types";
+import {
+  assertRecordingReplayArtifacts,
+  CassetteReplayAssertError,
+  RULES_CWE_89_CASSETTE,
+  type CassetteReplayExpectation,
+  type CassetteReplayAssertResult,
+} from "./assert-replay";
 
 export {
   loadLocateReport,
   assertRecordableReport,
   buildRedactedCassette,
   RecordRefuseError,
+  assertRecordingReplayArtifacts,
+  CassetteReplayAssertError,
+  RULES_CWE_89_CASSETTE,
 };
-export type { OrgCassette, RecordOptions };
+export type {
+  OrgCassette,
+  RecordOptions,
+  CassetteReplayExpectation,
+  CassetteReplayAssertResult,
+};
 export { ORG_CASSETTE_SCHEMA, HUMAN_REVIEW_NOTE };
 
 export interface RecordArtifacts {

@@ -15,6 +15,7 @@
  *   zeroday locate  --cwe CWE-89 --fixture
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
+ *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / draft-fix / classify / demo / play
  */
@@ -29,8 +30,13 @@ import {
   runAntaresPlan,
   runAntaresSweep,
   recordCassette,
+  RULES_CWE_89_CASSETTE,
+  assertRecordingReplayArtifacts,
 } from "../src/locate/index.ts";
-import { RecordRefuseError } from "../src/locate/record/index.ts";
+import {
+  RecordRefuseError,
+  CassetteReplayAssertError,
+} from "../src/locate/record/index.ts";
 import {
   EXPORT_FORMATS,
   writeExport,
@@ -1641,6 +1647,9 @@ program
       console.log(
         `Replay: npm run zeroday -- locate --recording ${artifacts.outPath}`,
       );
+      console.log(
+        "CI assert: npm run cassette:replay (offline replay + pinned finding count / ranked file / SARIF)",
+      );
       console.log("");
       console.log(
         "Posture: localization only · org cassette ≠ mvp fixtures · no PoC · no secrets · needs human",
@@ -1655,6 +1664,109 @@ program
       process.exitCode = 2;
     }
   });
+
+program
+  .command("cassette:replay")
+  .description(
+    "Offline org cassette replay + stable CI assert (Keyless K3). Replay-only — does not record. Defaults to the committed rules-cwe-89 cassette.",
+  )
+  .option(
+    "--recording <cassette.json>",
+    "Org cassette path (zeroday-org-cassette/v1)",
+    RULES_CWE_89_CASSETTE.recording,
+  )
+  .option(
+    "--output <dir>",
+    "Locate output directory for replay artifacts",
+    "zeroday-reports/cassette-replay",
+  )
+  .option(
+    "--expect-findings <n>",
+    "Pinned finding count (SARIF results + rankedFiles)",
+    String(RULES_CWE_89_CASSETTE.findingCount),
+  )
+  .option(
+    "--expect-file <path>",
+    "Pinned top-1 ranked file (repo-relative)",
+    RULES_CWE_89_CASSETTE.rankedFile,
+  )
+  .option(
+    "--expect-cwe <id>",
+    "Pinned advisory CWE id",
+    RULES_CWE_89_CASSETTE.cweId,
+  )
+  .action(
+    async (opts: {
+      recording: string;
+      output: string;
+      expectFindings: string;
+      expectFile: string;
+      expectCwe: string;
+    }) => {
+      try {
+        const recording = path.resolve(opts.recording.trim());
+        const outputDir = path.resolve(opts.output.trim());
+        const findingCount = Number(opts.expectFindings);
+        if (!Number.isFinite(findingCount) || findingCount < 1) {
+          throw new CassetteReplayAssertError(
+            `cassette:replay --expect-findings must be a positive integer (got ${opts.expectFindings})`,
+          );
+        }
+
+        console.log("");
+        console.log("ZERODAY cassette:replay (Keyless K3 · offline)");
+        console.log("─────────────────────────────────────────────");
+        console.log(`Cassette : ${recording}`);
+        console.log(`Output   : ${outputDir}`);
+        console.log(
+          `Expect   : findings=${findingCount} file=${opts.expectFile} cwe=${opts.expectCwe}`,
+        );
+        console.log("Record   : not run (CI is replay-only; use zeroday record locally)");
+        console.log("");
+
+        const located = await locate({
+          advisory: "",
+          recording,
+          outputDir,
+        });
+        if (located.result.mode !== "recording") {
+          throw new CassetteReplayAssertError(
+            `cassette:replay: locate mode want=recording got=${located.result.mode}`,
+          );
+        }
+
+        const asserted = assertRecordingReplayArtifacts(outputDir, {
+          mode: "recording",
+          findingCount,
+          rankedFile: opts.expectFile.trim(),
+          cweId: opts.expectCwe.trim(),
+          sarifResultCount: findingCount,
+        });
+
+        console.log("Assert OK");
+        console.log(`  mode           : ${asserted.mode}`);
+        console.log(`  findingCount   : ${asserted.findingCount}`);
+        console.log(`  rankedFile[0]  : ${asserted.rankedFile}`);
+        console.log(`  cweId          : ${asserted.cweId}`);
+        console.log(`  SARIF results  : ${asserted.sarifResultCount}`);
+        console.log(`  report.json    : ${asserted.reportPath}`);
+        console.log(`  report.sarif   : ${asserted.sarifPath}`);
+        console.log("");
+        console.log(
+          "Posture: localization only · cassette ≠ exploit proof · no GPU · needs human",
+        );
+      } catch (e) {
+        const msg = (e as Error).message;
+        console.error(
+          e instanceof CassetteReplayAssertError ||
+            msg.startsWith("cassette replay assert")
+            ? msg
+            : `cassette:replay failed: ${msg}`,
+        );
+        process.exitCode = 2;
+      }
+    },
+  );
 
 program
   .command("export")
