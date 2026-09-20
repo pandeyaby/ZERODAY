@@ -90,6 +90,21 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "ZERODAY: report",
+      "type": "shell",
+      "command": "npm run report -- --from fixtures/locate/report-sample/prove-doors.json --out out/report.md && npm run report -- --from fixtures/locate/report-sample/prove-doors.json --json --out out/report.json",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }
