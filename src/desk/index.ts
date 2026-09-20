@@ -4,6 +4,7 @@
  * + Reports browser + org cassette record/replay (UI-2)
  * + Live brain endpoint wizard (UI-3)
  * + Prove-doors stranger:verify (POST /api/stranger-verify)
+ * + Prove-doors Door B live-url probe (POST /api/live-url-probe)
  * + Prove-doors cassette:replay (POST /api/cassette-replay).
  */
 
@@ -103,6 +104,16 @@ export {
   type StrangerVerifyDoorB,
   type StrangerVerifyProbe,
 } from "./stranger-verify.ts";
+
+export {
+  LIVE_URL_PROBE_SCHEMA,
+  runLiveUrlProbe,
+  liveUrlProbeCatalog,
+  LiveUrlProbeError,
+  type LiveUrlProbeOptions,
+  type LiveUrlProbeResult,
+  type LiveUrlProbeNonClaims,
+} from "./live-url-probe.ts";
 
 export {
   CASSETTE_REPLAY_SCHEMA,

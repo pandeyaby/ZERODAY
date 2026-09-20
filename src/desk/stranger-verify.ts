@@ -55,6 +55,8 @@ export interface StrangerVerifyProbe {
   ok: boolean;
   httpStatus: number | null;
   latencyMs: number | null;
+  /** Count of `data[]` entries when body parses; null if body absent/unparsed. */
+  modelCount: number | null;
   detail: string;
   provisioned: false;
   spendUsd: null;
@@ -199,6 +201,7 @@ export async function probeOperatorEndpoint(
       ok: res.ok,
       httpStatus: res.status,
       latencyMs,
+      modelCount,
       detail: res.ok
         ? `GET ${modelsUrl} → ${res.status} (${latencyMs}ms${
             modelCount != null ? `; ${modelCount} model(s)` : ""
@@ -215,6 +218,7 @@ export async function probeOperatorEndpoint(
       ok: false,
       httpStatus: null,
       latencyMs: Date.now() - started,
+      modelCount: null,
       detail: `GET ${modelsUrl} failed: ${
         e && (e as Error).message ? (e as Error).message : String(e)
       }`,
