@@ -59,6 +59,11 @@ npm run stranger:verify
 Badge honesty: [`ci-trust.md`](./ci-trust.md) · companion:
 [`stranger-verify.md`](./stranger-verify.md).
 
+Optional local gate (not required): `npm run hooks:install` — pre-commit runs
+Door A `stranger:verify`; skip with `SKIP=stranger-verify` or `--no-verify`.
+CI remains source of truth — see [`stranger-verify.md`](./stranger-verify.md)
+§ Optional local pre-commit.
+
 ### 5 · Optional — reusable `workflow_call` (other repos)
 
 Point another org’s workflow at ZERODAY’s public prove-doors entry (checks out
