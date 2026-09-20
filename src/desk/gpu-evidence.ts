@@ -420,3 +420,26 @@ export function gpuEvidenceCatalog() {
     ],
   };
 }
+
+/** Human summary for `zeroday gpu-evidence` (not `--json`). */
+export function formatGpuEvidenceBanner(result: GpuEvidenceOk): string {
+  const e = result.evidence;
+  const lines: string[] = [
+    "",
+    "ZERODAY gpu-evidence (Measured A40 · historical)",
+    "───────────────────────────────────────────────",
+    `schema   : ${result.schemaVersion}`,
+    `ok       : ${result.ok}`,
+    `source   : ${result.source}`,
+    `session  : ${e.session}`,
+    `pod      : ${e.pod.id} · ${e.pod.gpu} · ${e.pod.dataCenter}`,
+    `locate   : ${e.liveLocate.cwe} → ${e.liveLocate.rankedFile} (rank ${e.liveLocate.rank})`,
+    `spend    : ~$${e.spend.estimatedUsd} (${e.spend.label})`,
+    `historical: ${result.historical} · startsRunPod: ${result.startsRunPod}`,
+    "",
+    "Historical measured session only — does not start RunPod / not live GPU.",
+    "Cite checked-in fields only · no AUROC / File-F1 / SLA · localization ≠ exploitability · needs_human",
+    "",
+  ];
+  return lines.join("\n");
+}

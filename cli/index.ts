@@ -17,6 +17,7 @@
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
+ *   zeroday gpu-evidence [--json]       # load checked-in Measured A40 evidence (historical; no RunPod)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -90,6 +91,10 @@ import {
   LIVE_VALIDATE_DEFAULT_CWE,
   LIVE_VALIDATE_EMPTY_STATE,
   LIVE_VALIDATE_DOCS,
+  loadGpuEvidence,
+  formatGpuEvidenceBanner,
+  GpuEvidenceError,
+  GPU_EVIDENCE_SCHEMA,
   type ProveDoorsResult,
 } from "../src/desk/index.ts";
 import { spawnSync } from "node:child_process";
@@ -1715,6 +1720,62 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
   ];
   return lines.join("\n");
 }
+
+program
+  .command("gpu-evidence")
+  .description(
+    "Load + validate checked-in Measured A40 live-locate evidence JSON (historical session only). Fail-closed on missing/corrupt/schema. Does not start RunPod / not live GPU.",
+  )
+  .option("--json", "Print zeroday-gpu-evidence/v1 JSON to stdout", false)
+  .option(
+    "--from <path>",
+    "Evidence JSON path override (default: docs/reports/a40-live-locate-20260920.json)",
+  )
+  .action((opts: { json: boolean; from?: string }) => {
+    try {
+      const from = opts.from?.trim();
+      const result = loadGpuEvidence({
+        cwd: REPO_ROOT,
+        ...(from ? { relativePath: path.resolve(from) } : {}),
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        process.stdout.write(formatGpuEvidenceBanner(result));
+      }
+    } catch (e) {
+      const err = e as Error;
+      const isGe = err instanceof GpuEvidenceError;
+      const code = isGe ? (err as GpuEvidenceError).code : undefined;
+      const msg = err.message;
+      if (opts.json) {
+        console.log(
+          JSON.stringify(
+            {
+              schemaVersion: GPU_EVIDENCE_SCHEMA,
+              ok: false,
+              error: msg,
+              code,
+              historical: true,
+              startsRunPod: false,
+            },
+            null,
+            2,
+          ),
+        );
+      } else {
+        console.error(
+          isGe
+            ? `gpu-evidence failed (${code}): ${msg}`
+            : `gpu-evidence failed: ${msg}`,
+        );
+        console.error(
+          "Historical evidence only — does not start RunPod / not live GPU.",
+        );
+      }
+      process.exitCode = 1;
+    }
+  });
 
 program
   .command("prove-doors")
