@@ -88,6 +88,36 @@ Quote only what that page already records for the 2026-09-19 Secure A40 session:
 No auto-provision. No GPU spend from `stranger:verify`. To re-run yourself:
 [`runpod-antares.md`](./runpod-antares.md) (you provision + terminate).
 
+## Optional local pre-commit (opt-in)
+
+Local soft gate only — **CI remains source of truth** (Actions
+`stranger-verify` job). Not installed by `npm install` / `prepare`.
+
+```bash
+npm run hooks:install
+# → .git/hooks/pre-commit → scripts/git-hooks/pre-commit-stranger-verify.sh
+```
+
+Runs keyless `npm run stranger:verify` before each commit (no GPU / no live
+Antares). Skip anytime:
+
+```bash
+SKIP=stranger-verify git commit …
+git commit --no-verify
+```
+
+Dry-run / help (no commit required):
+
+```bash
+bash scripts/git-hooks/pre-commit-stranger-verify.sh --help
+bash scripts/git-hooks/pre-commit-stranger-verify.sh --dry-run
+npm run hooks:install -- --dry-run
+```
+
+Repo already ships a separate fixture-locate sample under `hooks/pre-commit`
+(manual `core.hooksPath` / symlink) — prefer this Door A hook for the
+stranger/daily-driver path.
+
 ## Non-claims
 
 - Localization ≠ exploitability · `needs_human` always
