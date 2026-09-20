@@ -19,6 +19,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
+  downloadDoctorJson,
+  DOCTOR_DOWNLOAD_FILENAME,
+  serializeDoctorJson,
+  type DoctorDownloadPayload,
+} from "@/desk/doctor-download";
+import {
   downloadEvidencePackFiles,
   EVIDENCE_PACK_DOWNLOAD_FILENAMES,
   EVIDENCE_PACK_MANIFEST_DOWNLOAD_FILENAME,
@@ -46,11 +52,13 @@ const CASSETTE_API_PATH = "/api/cassette-replay";
 const PROVE_ALL_API_PATH = "/api/prove-doors";
 const GPU_EVIDENCE_API_PATH = "/api/gpu-evidence";
 const EVIDENCE_PACK_API_PATH = "/api/evidence-pack";
+const DOCTOR_API_PATH = "/api/doctor";
 const UPLOAD_SARIF_API_PATH = "/api/upload-sarif";
 const CASSETTE_CMD = "npm run cassette:replay";
 const UPLOAD_SARIF_DRY_CMD =
   "npm run upload-sarif -- --sarif <path> --dry-run";
 const EVIDENCE_PACK_CMD = "npm run evidence-pack -- --out out/evidence";
+const DOCTOR_CMD = "npm run doctor -- --out out/doctor.json";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
 const DOOR_B_FACTS = [
@@ -85,6 +93,11 @@ const DOC_LINKS = [
     href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md",
     label: "docs/stranger-verify.md § evidence-pack",
     hint: "Design-partner out/evidence/ — Desk POST /api/evidence-pack (no RunPod)",
+  },
+  {
+    href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md",
+    label: "docs/stranger-verify.md § doctor",
+    hint: "Workstation readiness — Desk POST /api/doctor → doctor.json (no RunPod)",
   },
 ] as const;
 
@@ -238,13 +251,19 @@ type EvidencePackJson = EvidencePackDownloadPayload & {
   code?: string;
 };
 
+type DoctorJson = DoctorDownloadPayload & {
+  code?: string;
+  checks?: Array<{ id?: string; ok?: boolean; detail?: string }>;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
  * Measured A40 evidence (GET /api/gpu-evidence, historical read-only) +
  * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence + Door E upload-sarif dry-run) +
  * Code Scanning upload dry-run (POST /api/upload-sarif — never GitHub from Desk) +
- * Evidence pack download (POST /api/evidence-pack — CLI out/evidence/ shape; no RunPod).
+ * Evidence pack download (POST /api/evidence-pack — CLI out/evidence/ shape; no RunPod) +
+ * Workstation doctor (POST /api/doctor — in-process runDoctor; download doctor.json; no RunPod).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
@@ -276,9 +295,18 @@ export function ProveDoorsPanel() {
   const [packBusy, setPackBusy] = useState(false);
   const [packError, setPackError] = useState<string | null>(null);
   const [packResult, setPackResult] = useState<EvidencePackJson | null>(null);
+  const [doctorBusy, setDoctorBusy] = useState(false);
+  const [doctorError, setDoctorError] = useState<string | null>(null);
+  const [doctorResult, setDoctorResult] = useState<DoctorJson | null>(null);
 
   const anyBusy =
-    busy || probeBusy || cassetteBusy || allBusy || uploadBusy || packBusy;
+    busy ||
+    probeBusy ||
+    cassetteBusy ||
+    allBusy ||
+    uploadBusy ||
+    packBusy ||
+    doctorBusy;
 
   useEffect(() => {
     let cancelled = false;
@@ -472,6 +500,33 @@ export function ProveDoorsPanel() {
       setPackResult(null);
     } finally {
       setPackBusy(false);
+    }
+  }, []);
+
+  const runDoctorDownload = useCallback(async () => {
+    setDoctorBusy(true);
+    setDoctorError(null);
+    setDoctorResult(null);
+    try {
+      const res = await fetch(DOCTOR_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      const json = (await res.json()) as DoctorJson;
+      if (!res.ok) {
+        setDoctorError(json.error || `HTTP ${res.status}`);
+        setDoctorResult(null);
+        return;
+      }
+      // Keep result even when ok:false — honest fail-closed report for download.
+      setDoctorResult(json);
+      downloadDoctorJson(json, { filename: DOCTOR_DOWNLOAD_FILENAME });
+    } catch (e) {
+      setDoctorError((e as Error).message);
+      setDoctorResult(null);
+    } finally {
+      setDoctorBusy(false);
     }
   }, []);
 
@@ -1286,6 +1341,137 @@ export function ProveDoorsPanel() {
                 null,
                 2,
               )}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-doctor-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <ShieldAlert size={14} /> Run doctor
+          </span>
+          <Badge tone="ok">POST {DOCTOR_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Local workstation readiness via existing{" "}
+          <code className="text-[var(--accent)]">runDoctor</code> (
+          <code className="text-[var(--accent)]">zeroday.doctor/v1</code>) —
+          same shape as CLI{" "}
+          <code className="text-[var(--accent)]">out/doctor.json</code>.
+          Fail-closed · historical gpu-evidence only ·{" "}
+          <strong className="text-[var(--text)]/85 font-medium">
+            does not start RunPod
+          </strong>
+          .
+        </p>
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <Button
+            type="button"
+            size="md"
+            disabled={anyBusy}
+            onClick={() => void runDoctorDownload()}
+            data-testid="prove-doors-doctor-run"
+            aria-label="Run doctor and download doctor.json via Desk API"
+          >
+            {doctorBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Play size={14} />
+            )}
+            {doctorBusy ? "Running doctor…" : "Run doctor"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            Downloads {DOCTOR_DOWNLOAD_FILENAME}
+          </span>
+        </div>
+        {doctorError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-doctor-error"
+            role="alert"
+          >
+            {doctorError}
+          </p>
+        ) : null}
+        {doctorResult ? (
+          <div className="mt-3" data-testid="prove-doors-doctor-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone="ok">
+                {String(doctorResult.schemaVersion ?? "doctor")}
+              </Badge>
+              <Badge tone={doctorResult.ok ? "ok" : "warn"}>
+                ok: {String(doctorResult.ok)}
+              </Badge>
+              <Badge tone="muted">
+                startsRunPod: {String(doctorResult.startsRunPod ?? false)}
+              </Badge>
+              <Badge tone="warn">local / historical</Badge>
+            </div>
+            {Array.isArray(doctorResult.checks) &&
+            doctorResult.checks.length > 0 ? (
+              <ul
+                className="text-[11px] font-mono space-y-1.5 text-[var(--muted)] mb-3"
+                data-testid="prove-doors-doctor-checks"
+              >
+                {doctorResult.checks.map((c, i) => (
+                  <li key={c.id ?? `check-${i}`}>
+                    <span
+                      className={
+                        c.ok
+                          ? "text-[var(--accent)]"
+                          : "text-[var(--danger)]"
+                      }
+                    >
+                      {c.ok ? "PASS" : "FAIL"}
+                    </span>
+                    {" — "}
+                    <span className="text-[var(--text)]/80">{c.id ?? "?"}</span>
+                    {c.detail ? ` · ${c.detail}` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  downloadDoctorJson(doctorResult, {
+                    filename: DOCTOR_DOWNLOAD_FILENAME,
+                  });
+                }}
+                data-testid="prove-doors-doctor-download"
+                aria-label={`Download ${DOCTOR_DOWNLOAD_FILENAME}`}
+              >
+                <Download size={14} />
+                Download {DOCTOR_DOWNLOAD_FILENAME}
+              </Button>
+              <CopyJsonButton
+                value={serializeDoctorJson(doctorResult)}
+                ariaLabel={`Copy ${DOCTOR_DOWNLOAD_FILENAME} JSON`}
+                testId="prove-doors-doctor-copy"
+              />
+              <span className="text-[11px] text-[var(--muted)]">
+                Same shape as CLI{" "}
+                <code className="text-[var(--accent)]">{DOCTOR_CMD}</code>
+                {" · "}
+                does not start RunPod
+              </span>
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-doctor-json"
+            >
+              {JSON.stringify(doctorResult, null, 2)}
             </pre>
           </div>
         ) : null}
