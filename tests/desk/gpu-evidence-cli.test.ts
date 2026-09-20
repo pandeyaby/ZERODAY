@@ -57,6 +57,7 @@ describe("CLI gpu-evidence", () => {
       /^ZERODAY:\s*gpu-evidence$/i.test(String(t.label ?? "").trim()),
     );
     assert.ok(gpuTask, 'missing VS Code task "ZERODAY: gpu-evidence"');
+    assert.equal(gpuTask.label, "ZERODAY: gpu-evidence");
     assert.match(String(gpuTask.command), /npm run gpu-evidence/);
     assert.match(String(gpuTask.command), /--json/);
     assert.match(String(gpuTask.command), /--out gpu-evidence\.json/);
