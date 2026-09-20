@@ -58,10 +58,25 @@ export const ANTARES_INSTALL_HINT =
   "and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. " +
   "Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI.";
 
-export function detectAntaresCli(): {
+/**
+ * Resolve Antares CLI binary. Honors explicit `binary` / `antaresCliSource`
+ * (file path) before PATH lookup — test seam for mock CLI injection.
+ */
+export function detectAntaresCli(opts?: {
+  binary?: string | null;
+}): {
   binary: string | null;
   sourceHint: string;
 } {
+  const explicit = opts?.binary?.trim();
+  if (explicit) {
+    if (explicit === "in-process-mock") {
+      return { binary: "in-process-mock", sourceHint: ANTARES_INSTALL_HINT };
+    }
+    if (fs.existsSync(explicit)) {
+      return { binary: path.resolve(explicit), sourceHint: ANTARES_INSTALL_HINT };
+    }
+  }
   return {
     binary: which("antares"),
     sourceHint: ANTARES_INSTALL_HINT,
@@ -111,11 +126,17 @@ export function runAntaresPlan(
 export function runLiveAntaresCli(
   params: LiveLocateParams,
 ): LocalizationResult & { _liveMeta?: LiveLocateCliMeta } {
-  const detected = detectAntaresCli();
+  const detected = detectAntaresCli({ binary: params.antaresCliSource });
   if (!detected.binary) {
     throw new Error(
       `Official Antares CLI not found on PATH. ${detected.sourceHint} ` +
         `Or use --fixture for offline recorded localizations.`,
+    );
+  }
+  if (detected.binary === "in-process-mock") {
+    throw new Error(
+      "in-process-mock Antares must run via locate({ mockAntares: true }) " +
+        "(async path) — refuse spawnSync of a sentinel binary.",
     );
   }
 

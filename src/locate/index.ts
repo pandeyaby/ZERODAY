@@ -20,8 +20,10 @@ import {
   runAntaresPlan,
   runAntaresSweep,
   runLiveAntaresCliWithRecovery,
+  adaptAntaresReport,
 } from "./live";
 import { normalizeCompletionsEndpoint } from "./completions";
+import { runMockAntaresQuery } from "./mock-antares";
 import {
   assertLiveEndpointHealthy,
   resolveLocateMode,
@@ -74,6 +76,17 @@ export {
   runRecordingLocalization,
   recordCassette,
 };
+export {
+  parseAntaresToolCalls,
+  extractSubmittedFiles,
+  formatAntaresToolCall,
+  isSubmitToolCall,
+} from "./tool-call";
+export {
+  startMockCompletionsServer,
+  defaultToolCallTurns,
+} from "./mock-completions";
+export { runMockAntaresQuery } from "./mock-antares";
 export type { LocateOptions, LocalizationResult };
 export type { OrgCassette, RecordOptions } from "./record/index";
 export { ORG_CASSETTE_SCHEMA, HUMAN_REVIEW_NOTE } from "./record/index";
@@ -95,15 +108,21 @@ export interface LocateArtifacts {
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
   const endpointRaw =
     options.endpoint ||
+    process.env.LOCATE_BASE_URL ||
     process.env.ZERODAY_ANTARES_BASE_URL ||
     process.env.ANTARES_ENDPOINT ||
     undefined;
+
+  const wantMockAntares =
+    options.mockAntares === true ||
+    process.env.ZERODAY_MOCK_ANTARES === "1" ||
+    options.antaresCliSource === "in-process-mock";
 
   // Live when --live / --endpoint; rules when --rules; ingest when --from-sarif;
   // recording when --recording; fixture when --fixture or default. Mixed doors refuse closed.
   const mode = resolveLocateMode({
     fixture: options.fixture,
-    live: options.live,
+    live: options.live || wantMockAntares,
     rules: options.rules,
     fromSarif: options.fromSarif,
     recording: options.recording,
@@ -272,9 +291,13 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       });
       const probeDetail = `Local completions probe ok: ${probe.detail}`;
 
-      if (!antares.binary) {
+      const antaresResolved = detectAntaresCli({
+        binary: wantMockAntares ? "in-process-mock" : options.antaresCliSource,
+      });
+
+      if (!wantMockAntares && !antaresResolved.binary) {
         throw new Error(
-          `Live locate needs the official Antares CLI on PATH. ${antares.sourceHint} ` +
+          `Live locate needs the official Antares CLI on PATH. ${antaresResolved.sourceHint} ` +
             `Use --fixture only for the separate CI / no-GPU smoke — never as a silent fallback.`,
         );
       }
@@ -284,26 +307,80 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
 
       // Isolated container for exploration surface (network=none). Inference stays on host.
       // Fixture / CI never enter this branch with --fixture.
-      const sb = tryOpenLiveSandbox(snap.snapshotPath);
+      // Mock Antares (CI tool-call path) skips Docker — no GPU, no sandbox required.
+      const sb = wantMockAntares
+        ? {
+            session: null as SandboxSession | null,
+            detail:
+              "Mock Antares tool-call path: sandbox skipped (CI; completions mock only).",
+            preflight: null,
+          }
+        : tryOpenLiveSandbox(snap.snapshotPath);
       sandbox = sb.session;
       if (sb.session && sb.preflight) {
         // Tiny allowlisted exploration sample inside the sandbox (destroy after run).
         sb.session.exec(["find", "/snapshot", "-type", "f"]);
       }
 
-      result = runLiveAntaresCliWithRecovery(
-        {
-          advisory,
-          repo,
+      const liveModel = resolveLiveModel(options.model);
+      const liveBudget = resolveLiveToolBudget(options.toolBudget);
+      const antaresRawDir = path.join(outputDir, "antares-raw");
+
+      if (wantMockAntares) {
+        const mock = await runMockAntaresQuery({
           snapshotPath: snap.snapshotPath,
-          outputDir: path.join(outputDir, "antares-raw"),
+          outputDir: antaresRawDir,
+          cweId: advisory.cweId,
           endpoint,
-          model: resolveLiveModel(options.model),
-          toolBudget: resolveLiveToolBudget(options.toolBudget),
-          antaresCliSource: options.antaresCliSource,
-        },
-        { recovery: options.liveRecovery !== false },
-      );
+          model: liveModel,
+          toolBudget: liveBudget,
+          fetchImpl: options.probeFetch,
+        });
+        const rawReport = JSON.parse(
+          fs.readFileSync(mock.reportPath, "utf8"),
+        ) as Record<string, unknown>;
+        result = adaptAntaresReport(
+          rawReport,
+          {
+            advisory,
+            repo,
+            snapshotPath: snap.snapshotPath,
+            outputDir: antaresRawDir,
+            endpoint,
+            model: liveModel,
+            toolBudget: liveBudget,
+            antaresCliSource: "in-process-mock",
+          },
+          {
+            exitStatus: 0,
+            timedOut: false,
+            cliOutput: `mock-antares: tool_calls=${mock.toolCalls.length} submitted=${mock.submitted}`,
+            toolBudget: liveBudget,
+          },
+        );
+        result.warnings.push(
+          "Live path used ZERODAY mock Antares (CI tool-call driver) against a real HTTP completions endpoint — not cisco-antares-cli, not Antares File F1, no GPU.",
+        );
+        if (mock.toolCalls.length === 0) {
+          throw new Error(
+            "Mock Antares live path produced zero tool_calls from completions — refusing empty mock run.",
+          );
+        }
+      } else {
+        result = runLiveAntaresCliWithRecovery(
+          {
+            advisory,
+            repo,
+            snapshotPath: snap.snapshotPath,
+            outputDir: antaresRawDir,
+            endpoint,
+            model: liveModel,
+            toolBudget: liveBudget,
+            antaresCliSource: options.antaresCliSource,
+          },
+          { recovery: options.liveRecovery !== false },
+        );
+      }
       if (result.mode !== "live") {
         throw new Error(
           `Live locate invariant broken: expected mode=live, got mode=${result.mode}. ` +
@@ -320,9 +397,11 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       result.warnings.push(
         `Resolved ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
       );
-      result.warnings.push(
-        "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights).",
-      );
+      if (!wantMockAntares) {
+        result.warnings.push(
+          "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights).",
+        );
+      }
     } else if (preferRules) {
       // Rules path: thin in-repo heuristics on real --repo (Keyless K1).
       // Container-free; no Semgrep; no Antares weights.
