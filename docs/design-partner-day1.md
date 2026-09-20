@@ -45,14 +45,14 @@ Same story as mvp → `paired-probe:from-sarif` → paths printed. Detail:
 ### 4 · Prove doors + CI trust
 
 ```bash
-npm run stranger:verify
-# alias: npm run doors
-# machine-readable: npm run --silent stranger:verify -- --json
+npm run prove-doors -- --json
+# or: npm run stranger:verify  (alias: npm run doors)
+# Codespace: Run Task → “ZERODAY: prove-doors (keyless)”
 ```
 
 | Surface | What you get |
 |---------|----------------|
-| Local / Codespace | Door A **PASS** + Door B **citation** card (no GPU) · optional `--json` for parsers |
+| Local / Codespace | Door A **PASS** + cassette + Door D · Door B **citation** (no GPU) · optional `--json` · VS Code task **ZERODAY: prove-doors (keyless)** |
 | Desk UI | `npm run play` → **Prove doors** tab (**Run** → `POST /api/stranger-verify`) |
 | This repo’s Actions badge | `stranger-verify` job on [`zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 
