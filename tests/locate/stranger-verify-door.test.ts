@@ -144,6 +144,7 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(tip, /Codespace ≠ live Antares|no HF gated|citation/i);
     assert.match(tip, /no RunPod auto-provision|no.*auto-provision/i);
     assert.match(tip, /--out gpu-evidence\.json/);
+    assert.match(tip, /--out out\/evidence/);
     assert.doesNotMatch(tip, /create-pod|runpod create|HF_TOKEN/i);
 
     const tasksPath = path.join(root, ".vscode/tasks.json");
