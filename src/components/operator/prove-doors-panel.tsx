@@ -136,6 +136,7 @@ type ProveAllJson = {
     cassette?: ProveAllDoorEntry;
     b?: ProveAllDoorEntry;
     d?: ProveAllDoorEntry;
+    e?: ProveAllDoorEntry;
   };
   nonClaims?: unknown;
   error?: string;
@@ -212,7 +213,7 @@ type UploadSarifDryJson = {
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
  * Measured A40 evidence (GET /api/gpu-evidence, historical read-only) +
- * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence) +
+ * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence + Door E upload-sarif dry-run) +
  * Code Scanning upload dry-run (POST /api/upload-sarif — never GitHub from Desk).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
@@ -507,11 +508,13 @@ export function ProveDoorsPanel() {
         <p className="text-xs text-[var(--muted)] mt-2 mb-3">
           Orchestrates Door A (<code className="text-[var(--accent)]">stranger:verify</code>
           ), <code className="text-[var(--accent)]">cassette:replay</code>, Door D
-          (Measured A40 evidence, historical), and optional Door B live-url probe
-          in-process. Aggregated JSON with per-door status. Door B is{" "}
+          (Measured A40 evidence, historical), Door E (upload-sarif dry-run), and
+          optional Door B live-url probe in-process. Aggregated JSON with per-door
+          status. Door B is{" "}
           <code className="text-[var(--accent)]">skipped</code> (not failed)
-          when liveUrl is empty. Door D is required (checked-in evidence — does
-          not start RunPod). Fail-closed per door · no spend invented.
+          when liveUrl is empty. Door D + Door E are required (checked-in evidence
+          — D does not start RunPod; E = dry-run Code Scanning check, not live
+          upload). Fail-closed per door · no spend invented.
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
@@ -564,6 +567,9 @@ export function ProveDoorsPanel() {
               ) : null}
               {allResult.doors?.d?.status ? (
                 <Badge tone="muted">d: {allResult.doors.d.status}</Badge>
+              ) : null}
+              {allResult.doors?.e?.status ? (
+                <Badge tone="muted">e: {allResult.doors.e.status}</Badge>
               ) : null}
             </div>
             <pre

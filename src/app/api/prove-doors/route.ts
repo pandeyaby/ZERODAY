@@ -2,12 +2,13 @@
  * GET/POST /api/prove-doors — Desk Prove Run-all-doors orchestrator.
  *
  * Runs Door A (stranger:verify), cassette:replay, Door D (Measured A40
- * evidence, historical), and optionally Door B (live-url) in-process.
- * Returns aggregated JSON:
- *   { schemaVersion, ok, generatedAt, doors: { a, cassette, b, d }, nonClaims }
- * Door B skipped (not failed) when liveUrl omitted. Door D required for ok.
- * Fail-closed per door. Never invents spend / metrics. No RunPod create —
- * Door D loads checked-in evidence only (not live GPU).
+ * evidence, historical), Door E (upload-sarif dry-run on fixture), and
+ * optionally Door B (live-url) in-process. Returns aggregated JSON:
+ *   { schemaVersion, ok, generatedAt, doors: { a, cassette, b, d, e }, nonClaims }
+ * Door B skipped (not failed) when liveUrl omitted. Door D + Door E required
+ * for ok. Fail-closed per door. Never invents spend / metrics. No RunPod
+ * create — Door D loads checked-in evidence only (not live GPU).
+ * Door E = dry-run Code Scanning check, not live upload.
  */
 
 import { NextResponse } from "next/server";
