@@ -802,6 +802,18 @@ jobs:
           test -s out/doctor.json
           node scripts/assert-doctor-ci-json.mjs out/doctor.json
 
+      - name: npm run report (keyless · CISO localization summary · no RunPod)
+        run: |
+          set -euo pipefail
+          # Fail-closed CISO localization summary from checked-in prove-doors fixture (reuse #96 report CLI).
+          # --json --out → out/report.json; second pass writes out/report.md (uploaded below on success).
+          # Fixture/historical only — does not start RunPod / not live Antares / no PoC.
+          npm run --silent report -- --from fixtures/locate/report-sample/prove-doors.json --json --out out/report.json
+          npm run --silent report -- --from fixtures/locate/report-sample/prove-doors.json --out out/report.md
+          test -s out/report.json
+          test -s out/report.md
+          node scripts/assert-report-ci-json.mjs out/report.json
+
       - name: Summarize stranger-verify gate
         run: |
           {
@@ -812,6 +824,7 @@ jobs:
             echo "- Ran: \`npm run --silent gpu-evidence -- --json --out gpu-evidence.json\` (historical Measured A40; does not start RunPod)"
             echo "- Ran: \`npm run --silent evidence-pack -- --json --out out/evidence\` (design-partner pack; does not start RunPod)"
             echo "- Ran: \`npm run --silent doctor -- --json --out out/doctor.json\` (workstation readiness; does not start RunPod)"
+            echo "- Ran: \`npm run --silent report -- --from fixtures/locate/report-sample/prove-doors.json --json --out out/report.json\` (+ \`--out out/report.md\`; CISO localization summary; does not start RunPod)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares in CI)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
@@ -819,6 +832,7 @@ jobs:
             echo "- Artifact \`gpu-evidence-json\`: checked-in Measured A40 evidence — **not** live GPU / AUROC proof"
             echo "- Artifact \`evidence-pack\`: \`out/evidence/\` (prove-doors + gpu-evidence + manifest) — **not** live GPU / AUROC proof"
             echo "- Artifact \`doctor\`: \`out/doctor.json\` (zeroday.doctor/v1 workstation readiness) — **not** live GPU / AUROC proof"
+            echo "- Artifact \`report\`: \`out/report.json\` + \`out/report.md\` (zeroday.report/v1 localization summary) — **not** vuln / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
             echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -863,6 +877,15 @@ jobs:
         with:
           name: doctor
           path: out/doctor.json
+          if-no-files-found: error
+
+      - name: Upload report (CISO localization summary · no RunPod)
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: |
+            out/report.json
+            out/report.md
           if-no-files-found: error
 
   packet:
