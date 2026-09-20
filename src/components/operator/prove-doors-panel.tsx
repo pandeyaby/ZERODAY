@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import {
   Check,
   ClipboardCopy,
+  Code2,
   DoorClosed,
   DoorOpen,
   ExternalLink,
@@ -16,6 +17,30 @@ import { useState } from "react";
 
 const VERIFY_CMD = "npm run stranger:verify";
 const VERIFY_ALIAS = "npm run doors";
+/** Prefer --silent so npm’s script banner does not precede the JSON. */
+const VERIFY_JSON_CMD = "npm run --silent stranger:verify -- --json";
+
+/** Static shape only — not live output. Desk does not shell out / invent metrics. */
+const JSON_EXAMPLE = `{
+  "schemaVersion": "zeroday-stranger-verify/v1",
+  "doorA": { "status": "pass", "ran": true, "command": "…", "artifacts": { "…": "…" } },
+  "doorB": { "mode": "citation", "ran": false, "citation": { "…": "…" }, "note": "…" },
+  "nonClaims": {
+    "localizationNotExploitability": true,
+    "needsHuman": true,
+    "noAurocFileF1OrgLatencySla": true,
+    "ciBadgeNotVulnProof": true,
+    "diptychGradesSeparately": true,
+    "sampleGradeIllustrative": true
+  }
+}`;
+
+const EXPECTED_KEYS = [
+  { key: "schemaVersion", note: "zeroday-stranger-verify/v1" },
+  { key: "doorA", note: "ran: true · status pass · artifact paths" },
+  { key: "doorB.mode", note: '"citation" · ran: false · no live GPU' },
+  { key: "nonClaims", note: "honest flags — not AUROC / vuln proof" },
+] as const;
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
 const DOOR_B_FACTS = [
@@ -32,9 +57,9 @@ const DOC_LINKS = [
     hint: "What the Actions badge proves / does not",
   },
   {
-    href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md",
-    label: "docs/stranger-verify.md",
-    hint: "Prove-doors one-pager (CLI + non-claims)",
+    href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md#machine-readable-json---json",
+    label: "docs/stranger-verify.md § --json",
+    hint: "Machine-readable Door A card + CI artifact stranger-verify-json",
   },
   {
     href: "https://github.com/pandeyaby/ZERODAY/blob/main/docs/gpu-claims.md#live-re-proof-2026-09-19-pt",
@@ -53,7 +78,8 @@ const NON_CLAIMS = [
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation to gpu-claims Live re-proof). No one-click GPU. No invented metrics.
- * Desk has no shell-out for npm scripts; copy-paste runs the same CLI as CI.
+ * Desk has no shell-out for npm scripts; copy-paste + static `--json` schema
+ * preview (same CLI / CI artifact stranger-verify-json).
  */
 export function ProveDoorsPanel() {
   return (
@@ -144,7 +170,11 @@ export function ProveDoorsPanel() {
           Desk does not shell out to npm scripts (Commands tab wraps in-process
           libs only). Paste this in the repo root — same command as CI:
         </p>
-        <CopyCommand command={VERIFY_CMD} />
+        <CopyCommand
+          command={VERIFY_CMD}
+          ariaLabel="Copy stranger:verify command"
+          testId="prove-doors-copy"
+        />
         <p className="text-[11px] text-[var(--muted)] mt-2">
           Alias:{" "}
           <code className="text-[var(--accent)]">{VERIFY_ALIAS}</code>
@@ -155,6 +185,88 @@ export function ProveDoorsPanel() {
           </code>{" "}
           to run fixture locate first.
         </p>
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-json-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <Code2 size={14} /> Machine-readable Door A card
+          </span>
+          <Badge tone="muted">--json · copy-paste</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Static schema preview only — this panel does not run the CLI, invent
+          metrics, or call live Antares. Paste in the repo root (prefer{" "}
+          <code className="text-[var(--accent)]">--silent</code> so npm’s banner
+          does not precede the JSON). CI uploads the same shape as artifact{" "}
+          <code className="text-[var(--accent)]">stranger-verify-json</code>.
+        </p>
+        <CopyCommand
+          command={VERIFY_JSON_CMD}
+          ariaLabel="Copy stranger:verify --json command"
+          testId="prove-doors-copy-json"
+        />
+        <div className="grid md:grid-cols-2 gap-3 mt-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1.5">
+              Example shape (not live output)
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap",
+              )}
+              data-testid="prove-doors-json-example"
+            >
+              {JSON_EXAMPLE}
+            </pre>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1.5">
+              Expected keys
+            </div>
+            <ul
+              className="text-[11px] font-mono space-y-1.5 text-[var(--muted)]"
+              data-testid="prove-doors-json-keys"
+            >
+              {EXPECTED_KEYS.map((k) => (
+                <li key={k.key}>
+                  <code className="text-[var(--accent)]">{k.key}</code>
+                  <span className="text-[var(--muted)]"> — {k.note}</span>
+                </li>
+              ))}
+            </ul>
+            <div
+              className="mt-3 rounded-md border border-[var(--warn)]/30 bg-[var(--warn)]/5 px-3 py-2"
+              data-testid="prove-doors-json-non-claims"
+            >
+              <div className="text-[10px] uppercase tracking-wider text-[var(--warn)] mb-1 flex items-center gap-1.5">
+                <ShieldAlert size={12} /> Non-claims (next to JSON)
+              </div>
+              <ul className="text-[11px] text-[var(--muted)] space-y-1 list-disc pl-4">
+                {NON_CLAIMS.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-[11px] text-[var(--muted)] mt-2">
+              Detail:{" "}
+              <a
+                href="https://github.com/pandeyaby/ZERODAY/blob/main/docs/stranger-verify.md#machine-readable-json---json"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--accent)] hover:underline font-mono inline-flex items-center gap-1"
+              >
+                docs/stranger-verify.md § --json
+                <ExternalLink size={10} className="opacity-70" />
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="panel rounded-lg p-4">
@@ -202,7 +314,15 @@ export function ProveDoorsPanel() {
   );
 }
 
-function CopyCommand({ command }: { command: string }) {
+function CopyCommand({
+  command,
+  ariaLabel,
+  testId,
+}: {
+  command: string;
+  ariaLabel: string;
+  testId: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <div
@@ -225,8 +345,8 @@ function CopyCommand({ command }: { command: string }) {
             setTimeout(() => setCopied(false), 1200);
           });
         }}
-        aria-label="Copy stranger:verify command"
-        data-testid="prove-doors-copy"
+        aria-label={ariaLabel}
+        data-testid={testId}
       >
         {copied ? <Check size={14} /> : <ClipboardCopy size={14} />}
         {copied ? "Copied" : "Copy"}

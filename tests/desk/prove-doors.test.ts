@@ -56,6 +56,28 @@ describe("Desk Prove doors panel", () => {
     assert.match(prove, /does not shell out|copy-paste/i);
   });
 
+  it("surfaces --json copy + static schema keys (no shell-out / no live Antares)", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-json-card"/);
+    assert.match(prove, /prove-doors-copy-json/);
+    assert.match(prove, /npm run --silent stranger:verify -- --json/);
+    assert.match(prove, /zeroday-stranger-verify\/v1/);
+    assert.match(prove, /schemaVersion/);
+    assert.match(prove, /doorA/);
+    assert.match(prove, /doorB\.mode|"citation"/);
+    assert.match(prove, /nonClaims/);
+    assert.match(prove, /stranger-verify-json/);
+    assert.match(prove, /machine-readable-json---json/);
+    assert.match(prove, /Static schema preview|not live output/i);
+    assert.match(prove, /data-testid="prove-doors-json-non-claims"/);
+    // Still no unsafe one-click runner / GPU
+    assert.doesNotMatch(prove, /\/api\/desk.*stranger|child_process|spawn\(|exec\(/i);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|live Antares from/i);
+  });
+
   it("README + howto point at Desk Prove doors tab", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const howto = fs.readFileSync(path.join(root, "docs/howto.md"), "utf8");
@@ -65,9 +87,13 @@ describe("Desk Prove doors panel", () => {
     );
     assert.match(readme, /Prove doors/);
     assert.match(readme, /stranger:verify/);
+    assert.match(readme, /--json|machine-readable-json/i);
     assert.match(howto, /Prove doors/);
     assert.match(howto, /stranger:verify/);
+    assert.match(howto, /stranger-verify-json|--json/);
     assert.match(stranger, /Prove doors/);
     assert.match(stranger, /localhost:3333\/play/);
+    assert.match(stranger, /### Machine-readable JSON \(--json\)/);
+    assert.match(stranger, /stranger-verify-json/);
   });
 });
