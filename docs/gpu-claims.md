@@ -176,7 +176,7 @@ zeroday locate --cwe CWE-89 --repo fixtures/locate/demo-app --live \
 Secure A40). Distinct from the [2026-09-19 smoke](#live-re-proof-2026-09-19-pt)
 above and from **keyless** fixture/CI (Door A). Machine-readable mirror:
 [`docs/reports/a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json)
-(`zeroday.gpu_live_locate_evidence/v1`). Desk Prove doors: `GET /api/gpu-evidence` (historical read-only; does not start RunPod). Door D in `prove-doors` loads the same checked-in evidence (not live GPU). CLI: `npm run gpu-evidence` / `zeroday gpu-evidence` (historical evidence only; does not start RunPod; `--out gpu-evidence.json` for CI / local file write). CI validates historical evidence JSON via `npm run gpu-evidence -- --json --out gpu-evidence.json` (does not start RunPod). **Not** a checked-in cassette.
+(`zeroday.gpu_live_locate_evidence/v1`). Desk Prove doors: `GET /api/gpu-evidence` (historical read-only; does not start RunPod; **Download gpu-evidence.json** client-side from loaded evidence, same shape as CLI `--out` / CI). Door D in `prove-doors` loads the same checked-in evidence (not live GPU). CLI: `npm run gpu-evidence` / `zeroday gpu-evidence` (historical evidence only; does not start RunPod; `--out gpu-evidence.json` for CI / local file write). CI validates historical evidence JSON via `npm run gpu-evidence -- --json --out gpu-evidence.json` (does not start RunPod). **Not** a checked-in cassette.
 Invent nothing beyond the facts below.
 
 | Field | Measured |
