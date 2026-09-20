@@ -22,6 +22,7 @@
     "trust-loop": "bash scripts/trust-loop.sh",
     "stranger:verify": "bash scripts/stranger-verify.sh",
     "doors": "bash scripts/stranger-verify.sh",
+    "prove-doors": "tsx cli/index.ts prove-doors",
     "hooks:install": "bash scripts/git-hooks/install-stranger-verify-hook.sh",
     "test:paired-probes": "tsx --test \"tests/locate/paired-probes.test.ts\" \"tests/locate/paired-probe-from-sarif.test.ts\" \"tests/locate/paired-probe-sample-report.test.ts\" \"tests/locate/trust-loop-door.test.ts\" \"tests/locate/stranger-verify-door.test.ts\" \"tests/locate/design-partner-day1-door.test.ts\" \"tests/locate/stranger-precommit-hook.test.ts\"",
     "cli": "tsx cli/index.ts",

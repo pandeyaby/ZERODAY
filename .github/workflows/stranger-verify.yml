@@ -68,6 +68,21 @@ jobs:
             if (j.doorB?.mode !== "citation" || j.doorB?.ran !== false) process.exit(4);
           '
 
+      - name: npm run prove-doors (keyless · A + cassette · B skipped)
+        run: |
+          set -euo pipefail
+          # In-process Door A + cassette:replay; Door B skipped in CI (no opt-in URL).
+          npm run --silent prove-doors -- --json > prove-doors.json
+          test -s prove-doors.json
+          node -e '
+            const j = require("./prove-doors.json");
+            if (j.schemaVersion !== "zeroday-prove-doors/v1") process.exit(2);
+            if (j.ok !== true) process.exit(3);
+            if (j.doors?.a?.status !== "ok") process.exit(4);
+            if (j.doors?.cassette?.status !== "ok") process.exit(5);
+            if (j.doors?.b?.status !== "skipped") process.exit(6);
+          '
+
       - name: Summarize stranger-verify gate
         run: |
           {
@@ -76,9 +91,11 @@ jobs:
             echo "- Caller used: \`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml\`"
             echo "- Checked out: \`${{ inputs.zeroday_repository }}@${{ inputs.zeroday_ref }}\` (ZERODAY — not caller source)"
             echo "- Ran: \`npm run --silent stranger:verify -- --json\` → \`stranger-verify.json\` artifact"
+            echo "- Ran: \`npm run --silent prove-doors -- --json\` → \`prove-doors.json\` (Door A + cassette; Door B skipped)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
+            echo "- Artifact \`prove-doors-json\`: aggregated A + cassette (+ B skipped) — **not** vuln / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
             echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -95,4 +112,11 @@ jobs:
         with:
           name: stranger-verify-json
           path: stranger-verify.json
+          if-no-files-found: error
+
+      - name: Upload prove-doors JSON (A + cassette aggregate)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prove-doors-json
+          path: prove-doors.json
           if-no-files-found: error

@@ -40,7 +40,9 @@ same artifact for external `workflow_call` callers.
 
 Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
 (aggregates Door A + cassette:replay + optional Door B; Door B
-`status: "skipped"` when `liveUrl` omitted — not failed). Individual:
+`status: "skipped"` when `liveUrl` omitted — not failed). CLI one-command:
+`npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
+`--live-url` for Door B). Individual:
 **Run Door A** → `POST /api/stranger-verify`
 (in-process; citation Door B). **Run Door B live-url probe** →
 `POST /api/live-url-probe` with `{ "liveUrl": "https://…/v1" }`

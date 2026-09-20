@@ -294,6 +294,7 @@ export function proveDoorsCatalog() {
     kind: "prove-doors-catalog" as const,
     schemaVersion: PROVE_DOORS_SCHEMA,
     endpoint: "POST /api/prove-doors",
+    cli: "zeroday prove-doors · npm run prove-doors",
     doors: {
       a: {
         label: "Door A — stranger:verify",
@@ -323,10 +324,15 @@ export function proveDoorsCatalog() {
       expectFile: { optional: true },
       expectCwe: { optional: true },
     },
+    flags: {
+      json: "--json",
+      liveUrl: "--live-url <url> (omit → Door B skipped)",
+    },
     returns: {
       ok: "true iff every non-skipped door ok",
       generatedAt: "ISO-8601",
       doors: "{ a, cassette, b }",
+      exit: "0 only when ok; 1 when a required door fails; 2 on unexpected error",
     },
     honesty: [
       "needs_human · localization ≠ exploitability",

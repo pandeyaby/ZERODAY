@@ -16,6 +16,7 @@
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
+ *   zeroday prove-doors      # Door A + cassette (+ optional --live-url Door B)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / draft-fix / classify / demo / play
  */
@@ -78,10 +79,13 @@ import {
   resolveDeskReportsFrom,
   resolveInventoryTarget,
   runLiveValidate,
+  runProveDoors,
+  PROVE_DOORS_SCHEMA,
   LIVE_VALIDATE_DEFAULT_REPO,
   LIVE_VALIDATE_DEFAULT_CWE,
   LIVE_VALIDATE_EMPTY_STATE,
   LIVE_VALIDATE_DOCS,
+  type ProveDoorsResult,
 } from "../src/desk/index.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -1673,6 +1677,114 @@ program
       process.exitCode = 2;
     }
   });
+
+function formatProveDoorsBanner(result: ProveDoorsResult): string {
+  const lines: string[] = [
+    "",
+    "ZERODAY prove-doors (Door A + cassette · optional Door B)",
+    "─────────────────────────────────────────────────────────",
+    `schema  : ${result.schemaVersion}`,
+    `ok      : ${result.ok}`,
+    `Door A  : ${result.doors.a.status}${result.doors.a.error ? ` — ${result.doors.a.error}` : ""}`,
+    `cassette: ${result.doors.cassette.status}${result.doors.cassette.error ? ` — ${result.doors.cassette.error}` : ""}`,
+    `Door B  : ${result.doors.b.status}${
+      result.doors.b.status === "skipped"
+        ? ` — ${result.doors.b.reason}`
+        : result.doors.b.status === "failed"
+          ? ` — ${result.doors.b.error}`
+          : ""
+    }`,
+    "",
+    "Posture: localization only · needs human · fail-closed · no RunPod create · no invented spend",
+    "",
+  ];
+  return lines.join("\n");
+}
+
+program
+  .command("prove-doors")
+  .description(
+    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay; optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · no GPU.",
+  )
+  .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
+  .option(
+    "--live-url <url>",
+    "Opt-in Door B: OpenAI-compatible /v1 base (GET /v1/models). Omit → Door B skipped (not failed).",
+  )
+  .option(
+    "--expect-file <path>",
+    "Cassette assert override: pinned top-1 ranked file (repo-relative)",
+  )
+  .option(
+    "--expect-findings <n>",
+    "Cassette assert override: pinned finding count",
+  )
+  .option(
+    "--expect-cwe <id>",
+    "Cassette assert override: pinned advisory CWE id",
+  )
+  .option(
+    "--recording <cassette.json>",
+    "Cassette path override (zeroday-org-cassette/v1)",
+  )
+  .action(
+    async (opts: {
+      json: boolean;
+      liveUrl?: string;
+      expectFile?: string;
+      expectFindings?: string;
+      expectCwe?: string;
+      recording?: string;
+    }) => {
+      try {
+        let expectFindings: number | undefined;
+        if (opts.expectFindings !== undefined) {
+          const n = Number(opts.expectFindings);
+          if (!Number.isFinite(n) || n < 1 || !Number.isInteger(n)) {
+            throw new Error(
+              `prove-doors --expect-findings must be a positive integer (got ${opts.expectFindings})`,
+            );
+          }
+          expectFindings = n;
+        }
+
+        const result = await runProveDoors({
+          liveUrl: opts.liveUrl,
+          expectFile: opts.expectFile?.trim() || undefined,
+          expectFindings,
+          expectCwe: opts.expectCwe?.trim() || undefined,
+          recording: opts.recording?.trim() || undefined,
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          process.stdout.write(formatProveDoorsBanner(result));
+        }
+
+        // Fail-closed: exit 0 only when overall ok (A + cassette; B ok|skipped).
+        if (!result.ok) process.exitCode = 1;
+      } catch (e) {
+        const msg = (e as Error).message;
+        if (opts.json) {
+          console.log(
+            JSON.stringify(
+              {
+                schemaVersion: PROVE_DOORS_SCHEMA,
+                ok: false,
+                error: msg,
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          console.error(`prove-doors failed: ${msg}`);
+        }
+        process.exitCode = 2;
+      }
+    },
+  );
 
 program
   .command("cassette:replay")
