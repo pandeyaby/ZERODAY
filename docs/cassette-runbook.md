@@ -29,9 +29,9 @@ npm run zeroday -- record --from zeroday-reports/org-locate \
 #    - rankedFiles non-empty and honest (do not invent findings)?
 
 # 4. Replay offline → same SARIF / evidence writers, mode: "recording"
-npm run zeroday -- locate \
-  --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json \
-  --output zeroday-reports/org-replay
+#    CI door (pinned assert): npm run cassette:replay
+npm run cassette:replay
+# Equivalent: locate --recording … then assert finding count / ranked file / SARIF
 ```
 
 Desk Console: `npm run play` → **Reports & cassettes** — Record (redact always ON;
@@ -43,8 +43,9 @@ UI refuses `--no-redact`) → Replay. Path sandbox matches Desk commands.
 |----------|------|
 | `fixtures/locate/org-recordings/rules-cwe-89.cassette.json` | Sample redacted cassette (from rules-sample) |
 | `fixtures/locate/org-recordings/README.md` | Short pointer |
-| CI job `locate-record` | Live record→replay + committed cassette check |
-| CI job `org-path` | Composite Action `mode=rules` + `mode=recording` → SARIF |
+| `npm run cassette:replay` | Offline replay + pinned CI assert (findings / ranked file / SARIF) |
+| CI job `locate-record` | Live record→replay + committed cassette via `cassette:replay` |
+| CI job `org-path` | Composite Action `mode=rules` + `mode=recording` → SARIF + `cassette:replay` |
 | Action input `mode=recording` | `.github/actions/zeroday-locate-gate` |
 
 ## Hard locks

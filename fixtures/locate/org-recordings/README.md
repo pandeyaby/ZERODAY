@@ -12,6 +12,9 @@ org path: [`docs/org-ops-runbook.md`](../../../docs/org-ops-runbook.md)
 `fixtures/locate/rules-sample` via `locate --rules` → `record --redact`.
 Human-reviewed shape for CI (`org-path` + `locate-record` jobs).
 
+**CI assert (replay-only):** `npm run cassette:replay` — pins findings=1,
+ranked file `src/search.js`, SARIF result count, exit 0. Record stays local.
+
 Paired-probe extras (DIPTYCH):
 - `fixture-cwe-89-multi.cassette.json` — 2 ranked files (FREEZEDRY / RESEED / HISTSWAP)
 - `fixture-cwe-89-alt-history.cassette.json` — same findings, alt `explorationTrace` (HISTSWAP violating)
@@ -23,14 +26,14 @@ Paired-probe extras (DIPTYCH):
 npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/rules-sample --rules \
   --output zeroday-reports/org-locate
 
-# 2. Record with --redact (default ON; fail-closed)
+# 2. Record with --redact (default ON; fail-closed) — local / opt-in
 npm run zeroday -- record --from zeroday-reports/org-locate \
   --out fixtures/locate/org-recordings/rules-cwe-89.cassette.json
 
 # 3. Human reviews the cassette JSON (paths relative? secrets gone?)
 
-# 4. Replay offline
-npm run zeroday -- locate --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json
+# 4. Replay + CI-stable assert (offline; what CI runs)
+npm run cassette:replay
 ```
 
 ## Hard locks

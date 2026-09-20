@@ -287,4 +287,55 @@ describe("record --redact org CI cassettes (Keyless K3)", () => {
     assert.equal(result.summary.findingCount, 1);
     assert.match(result.warnings.join(" "), /mode="recording"/);
   });
+
+  it("assertRecordingReplayArtifacts pins finding count + ranked file + SARIF", async () => {
+    const {
+      assertRecordingReplayArtifacts,
+      CassetteReplayAssertError,
+      RULES_CWE_89_CASSETTE,
+    } = await import("../../src/locate/record/assert-replay.ts");
+
+    const replayOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zeroday-k3-assert-"),
+    );
+    const cassettePath = path.join(root, RULES_CWE_89_CASSETTE.recording);
+    assert.ok(fs.existsSync(cassettePath), "committed org cassette missing");
+
+    const replayed = await locate({
+      advisory: "",
+      recording: cassettePath,
+      outputDir: replayOut,
+    });
+    assert.equal(replayed.result.mode, "recording");
+
+    const ok = assertRecordingReplayArtifacts(replayOut, {
+      mode: "recording",
+      findingCount: RULES_CWE_89_CASSETTE.findingCount,
+      rankedFile: RULES_CWE_89_CASSETTE.rankedFile,
+      cweId: RULES_CWE_89_CASSETTE.cweId,
+      sarifResultCount: RULES_CWE_89_CASSETTE.sarifResultCount,
+    });
+    assert.equal(ok.findingCount, 1);
+    assert.equal(ok.rankedFile, "src/search.js");
+    assert.equal(ok.sarifResultCount, 1);
+
+    assert.throws(
+      () =>
+        assertRecordingReplayArtifacts(replayOut, {
+          findingCount: 99,
+          rankedFile: "src/search.js",
+        }),
+      (e: Error) =>
+        e instanceof CassetteReplayAssertError && /findingCount/.test(e.message),
+    );
+    assert.throws(
+      () =>
+        assertRecordingReplayArtifacts(replayOut, {
+          findingCount: 1,
+          rankedFile: "src/wrong.js",
+        }),
+      (e: Error) =>
+        e instanceof CassetteReplayAssertError && /rankedFile/.test(e.message),
+    );
+  });
 });

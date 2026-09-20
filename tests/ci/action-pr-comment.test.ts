@@ -68,6 +68,8 @@ describe("GitHub Action PR comment (fail-closed)", () => {
     assert.match(wf, /mode:\s*rules/);
     assert.match(wf, /mode:\s*recording/);
     assert.match(wf, /org-recordings\/rules-cwe-89\.cassette\.json/);
+    assert.match(wf, /cassette:replay/);
+    assert.match(wf, /expect-file src\/search\.js/);
   });
 
   it("post-pr-comment.js requires ranked findings and human-review posture", async () => {

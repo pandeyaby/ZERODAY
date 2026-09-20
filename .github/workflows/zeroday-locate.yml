@@ -109,6 +109,19 @@ jobs:
           post-comment: "false"
           sarif-category: zeroday-org-cassette
 
+      - name: Cassette replay CI assert (npm run cassette:replay)
+        run: |
+          set -euo pipefail
+          # Executable replay-only door with pinned outcomes (Action path already
+          # uploaded SARIF; this re-asserts offline deterministically — no record).
+          npm run cassette:replay -- \
+            --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json \
+            --output zeroday-reports/ci-org-cassette-assert \
+            --expect-findings 1 \
+            --expect-file src/search.js \
+            --expect-cwe CWE-89
+          test -f zeroday-reports/ci-org-cassette-assert/report.sarif
+
       - name: Summarize org-path gate
         run: |
           {
@@ -116,6 +129,7 @@ jobs:
             echo ""
             echo "- Rules: \`fixtures/locate/rules-sample\` → \`zeroday-reports/ci-org-rules/\` (\`mode: rules\`)"
             echo "- Cassette: \`fixtures/locate/org-recordings/rules-cwe-89.cassette.json\` → \`zeroday-reports/ci-org-recording/\` (\`mode: recording\`)"
+            echo "- CI assert: \`npm run cassette:replay\` → \`zeroday-reports/ci-org-cassette-assert/\` (findings=1 · src/search.js)"
             echo "- Posture: keyless · localization only · not exploit proof · no auto-merge · no live GPU"
             echo "- Runbook: \`docs/org-ops-runbook.md\` · cassette: \`docs/cassette-runbook.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -127,6 +141,7 @@ jobs:
           path: |
             zeroday-reports/ci-org-rules/
             zeroday-reports/ci-org-recording/
+            zeroday-reports/ci-org-cassette-assert/
           if-no-files-found: error
 
   operate:
@@ -534,29 +549,16 @@ jobs:
       - name: Committed org cassette path (fixtures/locate/org-recordings)
         run: |
           set -euo pipefail
-          CASSETTE=fixtures/locate/org-recordings/rules-cwe-89.cassette.json
-          test -f "$CASSETTE"
-          node -e '
-            const fs = require("fs");
-            const c = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-            if (c.schemaVersion !== "zeroday-org-cassette/v1") process.exit(2);
-            if (c.redacted !== true) process.exit(3);
-            if (!c.rankedFiles?.length) process.exit(4);
-            if (!c.humanReviewNote) process.exit(5);
-            const blob = JSON.stringify(c);
-            if (/\/workspace\//.test(blob)) process.exit(6);
-            if (/\b(sk|ghp|hf)_[A-Za-z0-9_]{8,}\b/.test(blob)) process.exit(7);
-            console.log("committed org cassette OK", c.rankedFiles.length, "findings");
-          ' "$CASSETTE"
-          npm run zeroday -- locate --recording "$CASSETTE" \
-            --output zeroday-reports/ci-locate-record-committed
-          node -e '
-            const fs = require("fs");
-            const j = JSON.parse(fs.readFileSync("zeroday-reports/ci-locate-record-committed/report.json", "utf8"));
-            if (j.mode !== "recording") process.exit(2);
-            if (!j.rankedFiles?.length) process.exit(3);
-            console.log("committed cassette replay OK", j.rankedFiles.length);
-          '
+          # Replay-only CI assert — pinned finding count / ranked file / SARIF.
+          # Record stays opt-in/local (`zeroday record`); never records in CI here.
+          npm run cassette:replay -- \
+            --recording fixtures/locate/org-recordings/rules-cwe-89.cassette.json \
+            --output zeroday-reports/ci-locate-record-committed \
+            --expect-findings 1 \
+            --expect-file src/search.js \
+            --expect-cwe CWE-89
+          test -f zeroday-reports/ci-locate-record-committed/report.json
+          test -f zeroday-reports/ci-locate-record-committed/report.sarif
 
       - name: Mixed flags fail closed (--recording + --rules)
         run: |
@@ -604,6 +606,7 @@ jobs:
             echo ""
             echo "- Flow: \`locate --rules\` → \`record --redact\` → \`locate --recording\`"
             echo "- Committed sample: \`fixtures/locate/org-recordings/rules-cwe-89.cassette.json\`"
+            echo "- CI assert: \`npm run cassette:replay\` (pinned findings=1 · file=src/search.js · SARIF)"
             echo "- Cassette: \`zeroday-org-cassette/v1\` (redacted; human review before commit)"
             echo "- Replay \`mode: \"recording\"\` · not mvp fixtures · no auto-commit / no exfil"
             echo "- Localization ≠ exploitability · no PoC · runbook: \`docs/cassette-runbook.md\`"

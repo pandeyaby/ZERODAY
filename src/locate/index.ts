@@ -88,8 +88,19 @@ export {
 } from "./mock-completions";
 export { runMockAntaresQuery } from "./mock-antares";
 export type { LocateOptions, LocalizationResult };
-export type { OrgCassette, RecordOptions } from "./record/index";
-export { ORG_CASSETTE_SCHEMA, HUMAN_REVIEW_NOTE } from "./record/index";
+export type {
+  OrgCassette,
+  RecordOptions,
+  CassetteReplayExpectation,
+  CassetteReplayAssertResult,
+} from "./record/index";
+export {
+  ORG_CASSETTE_SCHEMA,
+  HUMAN_REVIEW_NOTE,
+  assertRecordingReplayArtifacts,
+  CassetteReplayAssertError,
+  RULES_CWE_89_CASSETTE,
+} from "./record/index";
 
 export interface LocateArtifacts {
   result: LocalizationResult;
