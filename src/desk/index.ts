@@ -5,7 +5,8 @@
  * + Live brain endpoint wizard (UI-3)
  * + Prove-doors stranger:verify (POST /api/stranger-verify)
  * + Prove-doors Door B live-url probe (POST /api/live-url-probe)
- * + Prove-doors cassette:replay (POST /api/cassette-replay).
+ * + Prove-doors cassette:replay (POST /api/cassette-replay)
+ * + Prove Run-all-doors orchestrator (POST /api/prove-doors).
  */
 
 export {
@@ -125,3 +126,17 @@ export {
   type CassetteReplayResult,
   type CassetteReplayNonClaims,
 } from "./cassette-replay.ts";
+
+export {
+  PROVE_DOORS_SCHEMA,
+  PROVE_DOORS_REPO_ROOT,
+  runProveDoors,
+  proveDoorsCatalog,
+  type ProveDoorsOptions,
+  type ProveDoorsResult,
+  type ProveDoorAEntry,
+  type ProveDoorCassetteEntry,
+  type ProveDoorBEntry,
+  type ProveDoorsNonClaims,
+  type ProveDoorStatus,
+} from "./prove-doors.ts";

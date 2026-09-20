@@ -24,6 +24,7 @@ const VERIFY_JSON_CMD = "npm run --silent stranger:verify -- --json";
 const API_PATH = "/api/stranger-verify";
 const LIVE_URL_PROBE_API_PATH = "/api/live-url-probe";
 const CASSETTE_API_PATH = "/api/cassette-replay";
+const PROVE_ALL_API_PATH = "/api/prove-doors";
 const CASSETTE_CMD = "npm run cassette:replay";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
@@ -106,9 +107,33 @@ type LiveUrlProbeJson = {
   code?: string;
 };
 
+type ProveAllDoorEntry = {
+  status?: "ok" | "failed" | "skipped";
+  label?: string;
+  door?: string;
+  error?: string;
+  code?: string;
+  reason?: string;
+  result?: unknown;
+};
+
+type ProveAllJson = {
+  schemaVersion?: string;
+  ok?: boolean;
+  generatedAt?: string;
+  doors?: {
+    a?: ProveAllDoorEntry;
+    cassette?: ProveAllDoorEntry;
+    b?: ProveAllDoorEntry;
+  };
+  nonClaims?: unknown;
+  error?: string;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
- * (citation + dedicated live-url probe) + Keyless K3 cassette:replay.
+ * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
+ * Run all doors orchestrator (POST /api/prove-doors).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
@@ -125,6 +150,11 @@ export function ProveDoorsPanel() {
   const [cassetteError, setCassetteError] = useState<string | null>(null);
   const [cassetteResult, setCassetteResult] =
     useState<CassetteReplayJson | null>(null);
+  const [allBusy, setAllBusy] = useState(false);
+  const [allError, setAllError] = useState<string | null>(null);
+  const [allResult, setAllResult] = useState<ProveAllJson | null>(null);
+
+  const anyBusy = busy || probeBusy || cassetteBusy || allBusy;
 
   const runVerify = useCallback(async () => {
     setBusy(true);
@@ -207,6 +237,36 @@ export function ProveDoorsPanel() {
     }
   }, []);
 
+  const runAllDoors = useCallback(async () => {
+    setAllBusy(true);
+    setAllError(null);
+    setAllResult(null);
+    try {
+      const trimmed = liveUrl.trim();
+      const body = trimmed ? { liveUrl: trimmed } : {};
+      const res = await fetch(PROVE_ALL_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as ProveAllJson;
+      if (!res.ok && json.error && !json.doors) {
+        setAllError(json.error || `HTTP ${res.status}`);
+        setAllResult(null);
+      } else {
+        setAllResult(json);
+        if (json.ok === false) {
+          setAllError(null);
+        }
+      }
+    } catch (e) {
+      setAllError((e as Error).message);
+      setAllResult(null);
+    } finally {
+      setAllBusy(false);
+    }
+  }, [liveUrl]);
+
   return (
     <div className="space-y-4 animate-fade-up" data-testid="prove-doors-panel">
       <div className="panel rounded-lg p-4">
@@ -288,6 +348,88 @@ export function ProveDoorsPanel() {
 
       <div
         className="panel rounded-lg p-4"
+        data-testid="prove-doors-run-all-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <Play size={14} /> Run all doors
+          </span>
+          <Badge tone="ok">POST {PROVE_ALL_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Orchestrates Door A (<code className="text-[var(--accent)]">stranger:verify</code>
+          ), <code className="text-[var(--accent)]">cassette:replay</code>, and
+          optional Door B live-url probe in-process. Aggregated JSON with
+          per-door status. Door B is{" "}
+          <code className="text-[var(--accent)]">skipped</code> (not failed)
+          when liveUrl is empty. Fail-closed per door · no spend invented.
+        </p>
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <Button
+            type="button"
+            size="md"
+            disabled={anyBusy}
+            onClick={() => void runAllDoors()}
+            data-testid="prove-doors-run-all"
+            aria-label="Run all prove doors via Desk API"
+          >
+            {allBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Play size={14} />
+            )}
+            {allBusy ? "Running all…" : "Run all doors"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            Uses liveUrl below when set · otherwise Door B skipped
+          </span>
+        </div>
+        {allError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-run-all-error"
+            role="alert"
+          >
+            {allError}
+          </p>
+        ) : null}
+        {allResult ? (
+          <div className="mt-3" data-testid="prove-doors-run-all-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone={allResult.ok === false ? "warn" : "ok"}>
+                {String(allResult.schemaVersion ?? "prove-doors")}
+              </Badge>
+              <Badge tone={allResult.ok ? "ok" : "warn"}>
+                ok: {String(allResult.ok)}
+              </Badge>
+              {allResult.doors?.a?.status ? (
+                <Badge tone="muted">a: {allResult.doors.a.status}</Badge>
+              ) : null}
+              {allResult.doors?.cassette?.status ? (
+                <Badge tone="muted">
+                  cassette: {allResult.doors.cassette.status}
+                </Badge>
+              ) : null}
+              {allResult.doors?.b?.status ? (
+                <Badge tone="muted">b: {allResult.doors.b.status}</Badge>
+              ) : null}
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-run-all-json"
+            >
+              {JSON.stringify(allResult, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
         data-testid="prove-doors-run-card"
       >
         <div className="panel-header !px-0 !pt-0 !border-0">
@@ -306,7 +448,7 @@ export function ProveDoorsPanel() {
           <Button
             type="button"
             size="md"
-            disabled={busy || probeBusy}
+            disabled={anyBusy}
             onClick={() => void runVerify()}
             data-testid="prove-doors-run"
             aria-label="Run stranger verify via Desk API"
@@ -386,13 +528,13 @@ export function ProveDoorsPanel() {
             "focus:outline-none focus:border-[var(--accent)]",
           )}
           data-testid="prove-doors-live-url"
-          disabled={probeBusy}
+          disabled={probeBusy || allBusy}
         />
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
             type="button"
             size="md"
-            disabled={probeBusy || busy || !liveUrl.trim()}
+            disabled={anyBusy || !liveUrl.trim()}
             onClick={() => void runLiveUrlProbe()}
             data-testid="prove-doors-door-b-run"
             aria-label="Run Door B live-url probe via Desk API"
@@ -481,7 +623,7 @@ export function ProveDoorsPanel() {
           <Button
             type="button"
             size="md"
-            disabled={cassetteBusy || busy || probeBusy}
+            disabled={anyBusy}
             onClick={() => void runCassetteReplay()}
             data-testid="prove-doors-cassette-run"
             aria-label="Run cassette replay via Desk API"
