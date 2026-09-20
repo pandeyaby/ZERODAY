@@ -52,7 +52,7 @@ npm run prove-doors -- --json
 
 | Surface | What you get |
 |---------|----------------|
-| Local / Codespace | Door A **PASS** + cassette + Door D + Door E · Door B **citation** (no GPU) · optional `--json` · VS Code task **ZERODAY: prove-doors (keyless)** |
+| Local / Codespace | Door A **PASS** + cassette + Door D + Door E · Door B **citation** (no GPU) · optional `--json` · VS Code task **ZERODAY: prove-doors (keyless)** · optional **ZERODAY: upload-sarif (dry-run)** (fixture only; live upload stays CLI + `security_events: write`) |
 | Desk UI | `npm run play` → **Prove doors** tab (**Run** → `POST /api/stranger-verify`) |
 | This repo’s Actions badge | `stranger-verify` job on [`zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 

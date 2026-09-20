@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 import {
   uploadSarif,
@@ -18,6 +19,11 @@ import {
   type UploadSarifPayload,
   type UploadSarifResult,
 } from "../../src/locate/upload-sarif.ts";
+
+const REPO_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 
 const FIXTURE_SARIF = path.resolve(
   "fixtures/locate/ingest-sample/sample.sarif",
@@ -198,5 +204,26 @@ describe("upload-sarif", () => {
     assert.equal(transportCalls, 1);
     assert.equal(result.uploadId, "test-id");
     assert.equal(result.dryRun, false);
+  });
+});
+
+describe("VS Code / Codespaces upload-sarif (dry-run) task", () => {
+  it("tasks.json wires ZERODAY: upload-sarif (dry-run) → fixture --dry-run", () => {
+    const tasksPath = path.join(REPO_ROOT, ".vscode/tasks.json");
+    assert.ok(fs.existsSync(tasksPath), "missing .vscode/tasks.json");
+    const tasks = JSON.parse(fs.readFileSync(tasksPath, "utf8")) as {
+      tasks: Array<{ label?: string; command?: string }>;
+    };
+    const dryRun = tasks.tasks.find((t) =>
+      /upload-sarif \(dry-run\)/i.test(String(t.label ?? "")),
+    );
+    assert.ok(dryRun, 'missing VS Code task "ZERODAY: upload-sarif (dry-run)"');
+    assert.match(String(dryRun.command), /npm run upload-sarif/);
+    assert.match(
+      String(dryRun.command),
+      /fixtures\/locate\/ingest-sample\/sample\.sarif/,
+    );
+    assert.match(String(dryRun.command), /--dry-run/);
+    assert.doesNotMatch(String(dryRun.command), /(?<!-)-live\b|--upload\b/);
   });
 });
