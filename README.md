@@ -275,8 +275,11 @@ fixture fallback** if the endpoint is down. Honest claim boundary:
 # Print-only checklist ($0 — no spend; no pod create)
 npm run zeroday -- antares doctor
 
+# Local workstation readiness (Day-1; fail-closed; no RunPod):
+npm run doctor
+
 # Or any local completions host you already run (Keyless K4; ≠ Antares File F1):
-npm run zeroday -- doctor
+npm run zeroday -- doctor --local-brain
 # → docs/local-brain.md
 ```
 

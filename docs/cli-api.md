@@ -32,8 +32,12 @@ npm run zeroday -- harden --fixture
 npm run zeroday -- classify --fixture
 npm run zeroday -- craft --fixture
 
+# Local workstation readiness (Day-1 — fail-closed; no RunPod / no network)
+npm run doctor
+npm run zeroday -- doctor --json
+
 # Print-only local OpenAI-compatible brain checklist (Keyless K4 — $0)
-npm run zeroday -- doctor
+npm run zeroday -- doctor --local-brain
 bash scripts/local-brain-doctor.sh --print-only
 # Shape-only (no network); chat URLs fail closed:
 npm run zeroday -- doctor --endpoint http://127.0.0.1:8000/v1
@@ -72,7 +76,7 @@ Non-loopback endpoints require `--remote-inference` or `ZERODAY_REMOTE_INFERENCE
 Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** exploitability.
 Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discovery; no alerts API fetch.
 `record --redact` (default ON, fail-closed) writes org CI cassettes; `locate --recording` replays them as `mode: "recording"`. Human reviews redaction before commit — never auto-commit / network-exfil. Org cassettes ≠ mvp fixtures.
-`zeroday doctor` is print-only local-brain (Keyless K4): completions-only, no model download / auto-start. Arbitrary local models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
+`zeroday doctor` (default) is fail-closed local workstation readiness (`zeroday.doctor/v1`) — Node, package scripts, historical gpu-evidence, cassette fixture, prove-doors entrypoints; no RunPod / no network. `zeroday doctor --local-brain` is print-only Keyless K4: completions-only, no model download / auto-start. Arbitrary local models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
 
 ## Local UI API (npm run play)
 

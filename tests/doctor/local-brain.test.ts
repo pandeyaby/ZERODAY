@@ -54,10 +54,10 @@ describe("local-brain doctor (Keyless K4)", () => {
     assert.match(CHAT_ONLY_REFUSED, /chat-only|chat\/completions/i);
   });
 
-  it("CLI doctor is print-only and exits 0 without network", () => {
+  it("CLI doctor --local-brain is print-only and exits 0 without network", () => {
     const r = spawnSync(
       "npx",
-      ["tsx", "cli/index.ts", "doctor"],
+      ["tsx", "cli/index.ts", "doctor", "--local-brain"],
       {
         cwd: root,
         encoding: "utf8",
@@ -80,6 +80,7 @@ describe("local-brain doctor (Keyless K4)", () => {
         "tsx",
         "cli/index.ts",
         "doctor",
+        "--local-brain",
         "--endpoint",
         "http://127.0.0.1:11434/v1/chat/completions",
       ],
@@ -100,6 +101,7 @@ describe("local-brain doctor (Keyless K4)", () => {
         "tsx",
         "cli/index.ts",
         "doctor",
+        "--local-brain",
         "--endpoint",
         "http://127.0.0.1:8000/v1",
       ],
@@ -155,7 +157,7 @@ describe("local-brain doctor (Keyless K4)", () => {
     );
     assert.equal(r.status, 0, r.stderr || r.stdout);
     assert.match(r.stdout, /print-only|Print-only/i);
-    assert.match(r.stdout, /docs\/local-brain\.md|zeroday -- doctor/);
+    assert.match(r.stdout, /docs\/local-brain\.md|doctor --local-brain|zeroday -- doctor/);
     assert.match(r.stdout, /≠ Antares|NOT Antares|not Antares/i);
   });
 });
