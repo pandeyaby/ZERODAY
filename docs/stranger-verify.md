@@ -13,11 +13,22 @@ npm run stranger:verify
 
 Runs `npm run trust-loop` (fixture SARIF → `paired-probe:from-sarif`) and prints
 an honest Door A / Door B card. Optional: `npm run stranger:verify -- --mvp` to
-run fixture locate first. Machine-readable (CI/partners):  
-`npm run --silent stranger:verify -- --json` (or `ZERODAY_STRANGER_JSON=1`) —
-single JSON object on stdout (`schemaVersion` `zeroday-stranger-verify/v1`,
+run fixture locate first.
+
+### Machine-readable JSON (--json)
+
+For CI / partners / parsers:
+
+```bash
+npm run --silent stranger:verify -- --json
+# or: ZERODAY_STRANGER_JSON=1 npm run --silent stranger:verify
+```
+
+Single JSON object on stdout (`schemaVersion` `zeroday-stranger-verify/v1`,
 `doorA` / `doorB` / `nonClaims`; Door B `mode: "citation"`, `ran: false` — no
 live GPU). Prefer `--silent` so npm’s script banner does not precede the JSON.
+Expected top-level keys: `schemaVersion`, `doorA`, `doorB`, `nonClaims`.
+
 CI runs the same keyless `--json` command in the
 `stranger-verify` job on
 [`.github/workflows/zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml)
@@ -26,6 +37,9 @@ proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof �
 see [`ci-trust.md`](./ci-trust.md)). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifact for external `workflow_call` callers.
+
+Desk **Prove doors** tab shows a static example shape + copy-paste for this
+command (no shell-out / no live Antares from the browser).
 
 ### Clone-free — GitHub Codespaces (Door A)
 
@@ -69,7 +83,8 @@ Workflow file:
 unchanged); strangers use this `uses:` entry point.
 
 Browser: `npm run play` → http://localhost:3333/play → **Prove doors** tab
-(same honesty card; copy-paste the command — Desk does not shell out to npm).
+(same honesty card; copy-paste `stranger:verify` and `--json` — Desk does not
+shell out to npm; schema preview is static, not live output).
 
 | Door | This command | Evidence |
 |------|--------------|----------|
