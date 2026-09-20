@@ -792,6 +792,16 @@ jobs:
           test -s out/evidence/gpu-evidence.json
           node scripts/assert-evidence-pack-ci-json.mjs out/evidence
 
+      - name: npm run doctor (keyless · workstation readiness · no RunPod)
+        run: |
+          set -euo pipefail
+          # Fail-closed local workstation readiness (reuse zeroday doctor from #92).
+          # --json --out → out/doctor.json (uploaded below on success).
+          # Honest filesystem / package checks only — does not start RunPod / not live GPU.
+          npm run --silent doctor -- --json --out out/doctor.json
+          test -s out/doctor.json
+          node scripts/assert-doctor-ci-json.mjs out/doctor.json
+
       - name: Summarize stranger-verify gate
         run: |
           {
@@ -801,12 +811,14 @@ jobs:
             echo "- Ran: \`npm run --silent prove-doors -- --json --out prove-doors.json\` (Door A + cassette; Door B skipped)"
             echo "- Ran: \`npm run --silent gpu-evidence -- --json --out gpu-evidence.json\` (historical Measured A40; does not start RunPod)"
             echo "- Ran: \`npm run --silent evidence-pack -- --json --out out/evidence\` (design-partner pack; does not start RunPod)"
+            echo "- Ran: \`npm run --silent doctor -- --json --out out/doctor.json\` (workstation readiness; does not start RunPod)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares in CI)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
             echo "- Artifact \`prove-doors-json\`: aggregated A + cassette (+ B skipped) — **not** vuln / AUROC proof"
             echo "- Artifact \`gpu-evidence-json\`: checked-in Measured A40 evidence — **not** live GPU / AUROC proof"
             echo "- Artifact \`evidence-pack\`: \`out/evidence/\` (prove-doors + gpu-evidence + manifest) — **not** live GPU / AUROC proof"
+            echo "- Artifact \`doctor\`: \`out/doctor.json\` (zeroday.doctor/v1 workstation readiness) — **not** live GPU / AUROC proof"
             echo "- Posture: keyless · localization only · not exploit proof · no AUROC · no auto-merge · no GPU"
             echo "- Docs: \`docs/stranger-verify.md\` · \`docs/ci-trust.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -844,6 +856,13 @@ jobs:
         with:
           name: evidence-pack
           path: out/evidence/
+          if-no-files-found: error
+
+      - name: Upload doctor JSON (workstation readiness · no RunPod)
+        uses: actions/upload-artifact@v4
+        with:
+          name: doctor
+          path: out/doctor.json
           if-no-files-found: error
 
   packet:
