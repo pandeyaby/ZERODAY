@@ -33,6 +33,18 @@ export const REPORT_REPO_ROOT = path.resolve(HERE, "../..");
 
 export const REPORT_SCHEMA = "zeroday.report/v1" as const;
 
+/** Checked-in prove-doors sample for Desk / keyless smoke (never invents findings). */
+export const REPORT_DEFAULT_FROM = path.join(
+  "fixtures",
+  "locate",
+  "report-sample",
+  "prove-doors.json",
+);
+
+/** CLI / Desk download filenames (browser helper mirrors these). */
+export const REPORT_DEFAULT_OUT_JSON = "out/report.json" as const;
+export const REPORT_DEFAULT_OUT_MD = "out/report.md" as const;
+
 export type ReportErrorCode =
   | "INPUT_MISSING"
   | "INPUT_CORRUPT"
@@ -641,4 +653,27 @@ export function writeReportArtifacts(
     );
   }
   return abs;
+}
+
+/** Honesty catalog for Desk GET/POST /api/report (no RunPod). */
+export function reportCatalog() {
+  return {
+    kind: "report-catalog" as const,
+    schemaVersion: REPORT_SCHEMA,
+    endpoint: "POST /api/report",
+    getEndpoint: "GET /api/report",
+    cli: "zeroday report · npm run report",
+    defaultFrom: REPORT_DEFAULT_FROM,
+    defaultOutJson: REPORT_DEFAULT_OUT_JSON,
+    defaultOutMd: REPORT_DEFAULT_OUT_MD,
+    honesty: [
+      "Reuses runReport (report-summary) — does not reimplement ranking/parsing",
+      "CISO localization summary only — localization ≠ exploitability · needs_human",
+      "Fail-closed: never invents findings / metrics / AUROC / File F1",
+      "runpod: false — does not start RunPod / no GPU spend / no live Antares",
+      "Inputs: prove-doors JSON path, inline prove-doors, and/or SARIF path on disk",
+      "Desk returns zeroday.report/v1 JSON + markdown for browser download",
+      "No PoC / exploit / payload · no auto-fix · no auto-merge",
+    ],
+  };
 }

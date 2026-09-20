@@ -159,7 +159,8 @@ One screen for fixture smoke, rules / SARIF ingest commands, Desk
 live-url probe** → `POST /api/live-url-probe` fail-closed `GET /v1/models`;
 **cassette:replay** → `POST /api/cassette-replay`; **Measured A40 evidence** →
 `GET /api/gpu-evidence` / `npm run gpu-evidence` (historical; does not start RunPod); **Run doctor** →
-`POST /api/doctor` / download `doctor.json` (local readiness; does not start RunPod); **Run all doors** →
+`POST /api/doctor` / download `doctor.json` (local readiness; does not start RunPod); **Generate report** →
+`POST /api/report` / download `report.json` + `report.md` (CISO localization summary; does not start RunPod); **Run all doors** →
 `POST /api/prove-doors` / CLI `npm run prove-doors`; same `--json` shape as CLI;
 CLI copy secondary + Door B citation to
 [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof — no GPU spend /
