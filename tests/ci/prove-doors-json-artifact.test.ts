@@ -70,6 +70,7 @@ describe("prove-doors.json CI artifact contract", () => {
           a: { status: "ok" },
           cassette: { status: "ok" },
           b: { status: "skipped" },
+          d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
         },
       }),
     );
@@ -86,11 +87,29 @@ describe("prove-doors.json CI artifact contract", () => {
           a: { status: "ok" },
           cassette: { status: "ok" },
           b: { status: "ok" },
+          d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
         },
       }),
     );
     const fail = spawnSync("node", [ASSERT, bad], { encoding: "utf8" });
     assert.equal(fail.status, 6, "Door B not skipped must exit 6");
+
+    const badD = path.join(tmp, "bad-d.json");
+    fs.writeFileSync(
+      badD,
+      JSON.stringify({
+        schemaVersion: "zeroday-prove-doors/v1",
+        ok: true,
+        doors: {
+          a: { status: "ok" },
+          cassette: { status: "ok" },
+          b: { status: "skipped" },
+          d: { status: "failed" },
+        },
+      }),
+    );
+    const failD = spawnSync("node", [ASSERT, badD], { encoding: "utf8" });
+    assert.equal(failD.status, 7, "Door D not ok must exit 7");
   });
 
   it("locate + reusable stranger-verify upload prove-doors-json on success", () => {

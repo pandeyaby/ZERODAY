@@ -1,10 +1,12 @@
 /**
- * Desk Prove Run-all-doors orchestrator — Door A + cassette:replay + optional Door B.
+ * Desk Prove Run-all-doors orchestrator — Door A + cassette:replay + optional Door B
+ * + Door D (Measured A40 evidence, historical read-only).
  *
  * Reuses in-process runners (no HTTP fan-out). Fail-closed per door: one failure
  * does not invent success for others; overall `ok` is true only when every
  * non-skipped door succeeded. Door B is `skipped` (not failed) when liveUrl omitted.
- * Never invents spend / AUROC / provision. No RunPod create.
+ * Door D is required for keyless ok (like A + cassette). Never invents spend /
+ * AUROC / provision. No RunPod create — Door D loads checked-in evidence only.
  */
 
 import path from "node:path";
@@ -30,6 +32,14 @@ import {
   type StrangerVerifyResult,
   type StrangerVerifyProbe,
 } from "./stranger-verify";
+import {
+  loadGpuEvidence,
+  GpuEvidenceError,
+  GPU_EVIDENCE_SCHEMA,
+  GPU_EVIDENCE_REL,
+  type GpuEvidenceOk,
+  type LoadGpuEvidenceOptions,
+} from "./gpu-evidence";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const PROVE_DOORS_REPO_ROOT = path.resolve(HERE, "../..");
@@ -95,12 +105,40 @@ export type ProveDoorBEntry =
   | ProveDoorBFailed
   | ProveDoorBSkipped;
 
+export interface ProveDoorDOk {
+  status: "ok";
+  label: "d";
+  door: "Door D — Measured A40 evidence";
+  schemaVersion: typeof GPU_EVIDENCE_SCHEMA;
+  /** Alias marker — Door D is the gpu-evidence payload. */
+  gpuEvidence: true;
+  historical: true;
+  startsRunPod: false;
+  result: GpuEvidenceOk;
+}
+
+export interface ProveDoorDFailed {
+  status: "failed";
+  label: "d";
+  door: "Door D — Measured A40 evidence";
+  schemaVersion: typeof GPU_EVIDENCE_SCHEMA;
+  gpuEvidence: true;
+  historical: true;
+  startsRunPod: false;
+  error: string;
+  code?: string;
+  source?: string;
+}
+
+export type ProveDoorDEntry = ProveDoorDOk | ProveDoorDFailed;
+
 export interface ProveDoorsNonClaims {
   localizationNotExploitability: true;
   needsHuman: true;
   noAurocFileF1OrgLatencySla: true;
   ciBadgeNotVulnProof: true;
   probeNotMeasuredA40ReProof: true;
+  doorDHistoricalMeasuredOnly: true;
   noRunPodCreateFromProveDoors: true;
   noSpendClaimsInvented: true;
   failClosedPerDoor: true;
@@ -114,6 +152,8 @@ export interface ProveDoorsResult {
     a: ProveDoorAEntry;
     cassette: ProveDoorCassetteEntry;
     b: ProveDoorBEntry;
+    /** Door D — validated Measured A40 evidence (required for keyless ok). */
+    d: ProveDoorDEntry;
   };
   nonClaims: ProveDoorsNonClaims;
 }
@@ -133,6 +173,11 @@ export interface ProveDoorsOptions {
   /** Inject fetch for Door B tests (mock live URL). */
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+  /**
+   * Door D evidence path override (tests). Relative to cwd or absolute.
+   * Default: docs/reports/a40-live-locate-20260920.json
+   */
+  gpuEvidenceRelativePath?: string;
 }
 
 const NON_CLAIMS: ProveDoorsNonClaims = {
@@ -141,6 +186,7 @@ const NON_CLAIMS: ProveDoorsNonClaims = {
   noAurocFileF1OrgLatencySla: true,
   ciBadgeNotVulnProof: true,
   probeNotMeasuredA40ReProof: true,
+  doorDHistoricalMeasuredOnly: true,
   noRunPodCreateFromProveDoors: true,
   noSpendClaimsInvented: true,
   failClosedPerDoor: true,
@@ -260,9 +306,46 @@ async function runDoorB(
   }
 }
 
+
+/**
+ * Door D — read-only load of checked-in Measured A40 evidence via gpu-evidence.
+ * Required for keyless ok. Does not start RunPod / no GPU spend.
+ */
+function runDoorD(opts: ProveDoorsOptions, cwd: string): ProveDoorDEntry {
+  const base = {
+    label: "d" as const,
+    door: "Door D — Measured A40 evidence" as const,
+    schemaVersion: GPU_EVIDENCE_SCHEMA,
+    gpuEvidence: true as const,
+    historical: true as const,
+    startsRunPod: false as const,
+  };
+  const loadOpts: LoadGpuEvidenceOptions = {
+    cwd,
+    ...(opts.gpuEvidenceRelativePath?.trim()
+      ? { relativePath: opts.gpuEvidenceRelativePath.trim() }
+      : {}),
+  };
+  try {
+    const result = loadGpuEvidence(loadOpts);
+    return { ...base, status: "ok", result };
+  } catch (e) {
+    const err = e as Error;
+    const isGe = err instanceof GpuEvidenceError;
+    return {
+      ...base,
+      status: "failed",
+      error: err.message,
+      code: isGe ? (err as GpuEvidenceError).code : undefined,
+      source: opts.gpuEvidenceRelativePath?.trim() || GPU_EVIDENCE_REL,
+    };
+  }
+}
+
 /**
  * Run all Desk Prove doors in-process. Per-door fail-closed; Door B skipped
- * without liveUrl. overall ok iff every non-skipped door has status "ok".
+ * without liveUrl. Door D required (historical evidence). overall ok iff every
+ * non-skipped door has status "ok".
  */
 export async function runProveDoors(
   opts: ProveDoorsOptions = {},
@@ -273,12 +356,14 @@ export async function runProveDoors(
   const a = await runDoorA(opts, cwd);
   const cassette = await runDoorCassette(opts, cwd);
   const b = await runDoorB(opts);
+  const d = runDoorD(opts, cwd);
 
-  const doors = { a, cassette, b };
+  const doors = { a, cassette, b, d };
   const ok =
     a.status === "ok" &&
     cassette.status === "ok" &&
-    (b.status === "ok" || b.status === "skipped");
+    (b.status === "ok" || b.status === "skipped") &&
+    d.status === "ok";
 
   return {
     schemaVersion: PROVE_DOORS_SCHEMA,
@@ -312,6 +397,14 @@ export function proveDoorsCatalog() {
         api: "POST /api/live-url-probe",
         skippedWhen: "liveUrl omitted",
       },
+      d: {
+        label: "Door D — Measured A40 evidence",
+        via: "loadGpuEvidence",
+        api: "GET /api/gpu-evidence",
+        source: GPU_EVIDENCE_REL,
+        note: "Historical measured session only — does not start RunPod",
+        requiredForKeylessOk: true,
+      },
     },
     body: {
       liveUrl: {
@@ -329,15 +422,16 @@ export function proveDoorsCatalog() {
       liveUrl: "--live-url <url> (omit → Door B skipped)",
     },
     returns: {
-      ok: "true iff every non-skipped door ok",
+      ok: "true iff every non-skipped door ok (A + cassette + D required; B ok|skipped)",
       generatedAt: "ISO-8601",
-      doors: "{ a, cassette, b }",
+      doors: "{ a, cassette, b, d }",
       exit: "0 only when ok; 1 when a required door fails; 2 on unexpected error",
     },
     honesty: [
       "needs_human · localization ≠ exploitability",
       "fail-closed per door · never invent spend / AUROC",
       "Door B skipped (not failed) when liveUrl omitted",
+      "Door D = historical measured A40 evidence — not live GPU · does not start RunPod",
       "probe ≠ measured Secure A40 re-proof · provisioned: false",
       "no RunPod create / no HF pull from prove-doors",
     ],

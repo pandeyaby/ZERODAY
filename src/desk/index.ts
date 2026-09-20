@@ -153,6 +153,7 @@ export {
   type ProveDoorAEntry,
   type ProveDoorCassetteEntry,
   type ProveDoorBEntry,
+  type ProveDoorDEntry,
   type ProveDoorsNonClaims,
   type ProveDoorStatus,
 } from "./prove-doors.ts";

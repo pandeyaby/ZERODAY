@@ -132,6 +132,7 @@ type ProveAllJson = {
     a?: ProveAllDoorEntry;
     cassette?: ProveAllDoorEntry;
     b?: ProveAllDoorEntry;
+    d?: ProveAllDoorEntry;
   };
   nonClaims?: unknown;
   error?: string;
@@ -180,7 +181,7 @@ type GpuEvidenceJson = {
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
  * Measured A40 evidence (GET /api/gpu-evidence, historical read-only) +
- * Run all doors orchestrator (POST /api/prove-doors).
+ * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
@@ -437,11 +438,12 @@ export function ProveDoorsPanel() {
         </div>
         <p className="text-xs text-[var(--muted)] mt-2 mb-3">
           Orchestrates Door A (<code className="text-[var(--accent)]">stranger:verify</code>
-          ), <code className="text-[var(--accent)]">cassette:replay</code>, and
-          optional Door B live-url probe in-process. Aggregated JSON with
-          per-door status. Door B is{" "}
+          ), <code className="text-[var(--accent)]">cassette:replay</code>, Door D
+          (Measured A40 evidence, historical), and optional Door B live-url probe
+          in-process. Aggregated JSON with per-door status. Door B is{" "}
           <code className="text-[var(--accent)]">skipped</code> (not failed)
-          when liveUrl is empty. Fail-closed per door · no spend invented.
+          when liveUrl is empty. Door D is required (checked-in evidence — does
+          not start RunPod). Fail-closed per door · no spend invented.
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
@@ -491,6 +493,9 @@ export function ProveDoorsPanel() {
               ) : null}
               {allResult.doors?.b?.status ? (
                 <Badge tone="muted">b: {allResult.doors.b.status}</Badge>
+              ) : null}
+              {allResult.doors?.d?.status ? (
+                <Badge tone="muted">d: {allResult.doors.d.status}</Badge>
               ) : null}
             </div>
             <pre

@@ -164,6 +164,9 @@ describe("Desk Prove doors panel", () => {
     assert.match(desk, /liveUrl omitted/);
     assert.match(desk, /fail-closed|Fail-closed/);
     assert.match(desk, /status:\s*"skipped"/);
+    assert.match(desk, /Door D|doors\.d|Measured A40/);
+    assert.match(prove, /doors\?\.d\?\.status|d: \{allResult\.doors\.d/);
+    assert.match(prove, /historical|does not start RunPod/i);
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 

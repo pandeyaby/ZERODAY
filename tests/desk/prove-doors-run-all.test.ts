@@ -22,6 +22,7 @@ import {
 import { STRANGER_VERIFY_SCHEMA } from "../../src/desk/stranger-verify.ts";
 import { CASSETTE_REPLAY_SCHEMA } from "../../src/desk/cassette-replay.ts";
 import { LIVE_URL_PROBE_SCHEMA } from "../../src/desk/live-url-probe.ts";
+import { GPU_EVIDENCE_SCHEMA } from "../../src/desk/gpu-evidence.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -57,9 +58,12 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(c.doors.cassette.label, "cassette:replay");
     assert.equal(c.doors.b.label, "Door B — live-url probe");
     assert.equal(c.doors.b.skippedWhen, "liveUrl omitted");
+    assert.equal(c.doors.d.label, "Door D — Measured A40 evidence");
+    assert.equal(c.doors.d.requiredForKeylessOk, true);
     assert.ok(c.honesty.some((h) => /fail-closed/i.test(h)));
     assert.ok(c.honesty.some((h) => /skipped/i.test(h)));
     assert.ok(c.honesty.some((h) => /no RunPod|spend/i.test(h)));
+    assert.ok(c.honesty.some((h) => /Door D|historical measured/i.test(h)));
   });
 
   it("all-pass: Door A + cassette + Door B (mock /v1/models)", async () => {
@@ -106,9 +110,19 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
           assert.equal(payload.doors.b.result.spendUsd, null);
           assert.equal(payload.doors.b.result.probe.httpStatus, 200);
         }
+        assert.equal(payload.doors.d.status, "ok");
+        assert.equal(payload.doors.d.schemaVersion, GPU_EVIDENCE_SCHEMA);
+        assert.equal(payload.doors.d.historical, true);
+        assert.equal(payload.doors.d.startsRunPod, false);
+        if (payload.doors.d.status === "ok") {
+          assert.equal(payload.doors.d.result.ok, true);
+          assert.equal(payload.doors.d.result.historical, true);
+          assert.equal(payload.doors.d.result.startsRunPod, false);
+        }
         assert.equal(payload.nonClaims.needsHuman, true);
         assert.equal(payload.nonClaims.failClosedPerDoor, true);
         assert.equal(payload.nonClaims.noSpendClaimsInvented, true);
+        assert.equal(payload.nonClaims.doorDHistoricalMeasuredOnly, true);
         assert.doesNotMatch(
           JSON.stringify(payload),
           /create-pod|auto-provision|"provisioned"\s*:\s*true/i,
@@ -159,6 +173,7 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(payload.doors.a.status, "ok");
     assert.equal(payload.doors.cassette.status, "ok");
     assert.equal(payload.doors.b.status, "skipped");
+    assert.equal(payload.doors.d.status, "ok");
     if (payload.doors.b.status === "skipped") {
       assert.equal(payload.doors.b.reason, "liveUrl omitted");
       assert.match(payload.doors.b.note, /skipped/i);
@@ -207,7 +222,58 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     );
   });
 
-  it("GET /api/prove-doors returns catalog", async () => {
+  it("Door D fail-closed when evidence file missing · overall ok false", async () => {
+    const strangerOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-dmiss-a-"),
+    );
+    const cassetteOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-dmiss-c-"),
+    );
+    const payload = await runProveDoors({
+      cwd: root,
+      strangerOutputDir: strangerOut,
+      cassetteOutputDir: cassetteOut,
+      gpuEvidenceRelativePath: "docs/reports/__missing-a40-evidence__.json",
+    });
+    assert.equal(payload.ok, false);
+    assert.equal(payload.doors.a.status, "ok");
+    assert.equal(payload.doors.cassette.status, "ok");
+    assert.equal(payload.doors.b.status, "skipped");
+    assert.equal(payload.doors.d.status, "failed");
+    if (payload.doors.d.status === "failed") {
+      assert.equal(payload.doors.d.code, "EVIDENCE_MISSING");
+      assert.equal(payload.doors.d.startsRunPod, false);
+      assert.equal(payload.doors.d.historical, true);
+    }
+    assert.doesNotMatch(JSON.stringify(payload), /create-pod|auto-provision/i);
+  });
+
+  it("Door D fail-closed when evidence JSON corrupt · overall ok false", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-prove-dcorr-"));
+    const badRel = "corrupt-a40.json";
+    fs.writeFileSync(path.join(tmp, badRel), "{not-json", "utf8");
+    // Copy nothing else — use repo cwd for A/cassette, override only Door D path via abs.
+    const strangerOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-dcorr-a-"),
+    );
+    const cassetteOut = fs.mkdtempSync(
+      path.join(os.tmpdir(), "zd-prove-dcorr-c-"),
+    );
+    const payload = await runProveDoors({
+      cwd: root,
+      strangerOutputDir: strangerOut,
+      cassetteOutputDir: cassetteOut,
+      gpuEvidenceRelativePath: path.join(tmp, badRel),
+    });
+    assert.equal(payload.ok, false);
+    assert.equal(payload.doors.d.status, "failed");
+    if (payload.doors.d.status === "failed") {
+      assert.equal(payload.doors.d.code, "EVIDENCE_CORRUPT");
+      assert.equal(payload.doors.d.startsRunPod, false);
+    }
+  });
+
+    it("GET /api/prove-doors returns catalog", async () => {
     const res = await proveDoorsGet();
     assert.equal(res.status, 200);
     const json = (await res.json()) as ReturnType<typeof proveDoorsCatalog>;
@@ -238,6 +304,7 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(json.schemaVersion, PROVE_DOORS_SCHEMA);
     assert.equal(json.ok, true);
     assert.equal(json.doors.b.status, "skipped");
+    assert.equal(json.doors.d.status, "ok");
     assert.ok(json.doors.a.status === "ok" || json.doors.a.status === "failed");
   });
 
