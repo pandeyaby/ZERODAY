@@ -8,7 +8,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
 
@@ -45,9 +45,18 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(script, /--json|ZERODAY_STRANGER_JSON/);
     assert.match(script, /zeroday-stranger-verify\/v1/);
     assert.match(script, /mode.*citation|"citation"/);
-    // Must not auto-provision or spend GPU
+    assert.match(script, /--live-url/);
+    assert.match(script, /operator_endpoint/);
+    assert.match(script, /provisioned:\s*false|provisioned.: false/);
+    assert.match(script, /spendUsd/);
+    // Must not auto-provision, create pods, or pull HF weights
     assert.doesNotMatch(script, /create-pod|runpod create|auto-provision/i);
-    assert.match(script, /NOT run|citation only|Do not provision/i);
+    assert.doesNotMatch(
+      script,
+      /huggingface\.co\/.*download|model\.safetensors|hf download/i,
+    );
+    assert.match(script, /NOT run|citation only|Do not provision|Never provisions/i);
+    assert.match(script, /Never invokes RunPod pod-creation|no RunPod pod-creation/i);
   });
 
   it("README links ci-trust + gpu-claims and documents stranger:verify", () => {
@@ -75,6 +84,9 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.match(doc, /stranger:verify/);
     assert.match(doc, /trust-loop/);
     assert.match(doc, /--json|ZERODAY_STRANGER_JSON/);
+    assert.match(doc, /--live-url/);
+    assert.match(doc, /operator_endpoint/);
+    assert.match(doc, /probe ≠ measured|Probe ≠ measured/i);
     assert.match(doc, /ci-trust\.md/);
     assert.match(doc, /gpu-claims\.md/);
     assert.match(doc, /d65ny3xqf7bwza/);
@@ -87,6 +99,15 @@ describe("stranger prove-doors (stranger:verify)", () => {
       doc,
       /uses:\s*pandeyaby\/ZERODAY\/\.github\/workflows\/stranger-verify\.yml@main/,
     );
+
+    const gpuClaims = fs.readFileSync(
+      path.join(root, "docs/gpu-claims.md"),
+      "utf8",
+    );
+    assert.match(gpuClaims, /--live-url/);
+    assert.match(gpuClaims, /operator_endpoint|probe ≠ measured|Probe ≠ measured/i);
+    assert.match(gpuClaims, /provisioned:\s*false|provisioned.: false/);
+    assert.match(gpuClaims, /Live re-proof \(2026-09-19/);
 
     const index = fs.readFileSync(path.join(root, "docs/README.md"), "utf8");
     assert.match(index, /stranger-verify\.md/);
@@ -254,5 +275,167 @@ describe("stranger prove-doors (stranger:verify)", () => {
     assert.ok(payload.nonClaims);
     assert.equal(payload.doorB.mode, "citation");
     assert.equal(payload.doorB.ran, false);
+  });
+
+  it("--live-url probes mocked /v1/models (operator_endpoint · no provision)", async () => {
+    const http = await import("node:http");
+    let hitModels = 0;
+    const server = http.createServer((req, res) => {
+      if (req.method === "GET" && req.url === "/v1/models") {
+        hitModels += 1;
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ data: [{ id: "mock-model" }] }));
+        return;
+      }
+      res.writeHead(404);
+      res.end("nope");
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const addr = server.address();
+    assert.ok(addr && typeof addr === "object");
+    const liveUrl = `http://127.0.0.1:${addr.port}/v1`;
+
+    try {
+      const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-stranger-probe-"));
+      const pathEnv = `${path.join(root, "node_modules", ".bin")}${path.delimiter}${process.env.PATH ?? ""}`;
+      // Use async spawn so this process's mock HTTP server can accept while the
+      // child runs (spawnSync would block the event loop and starve the server).
+      const result = await new Promise<{
+        status: number | null;
+        stdout: string;
+        stderr: string;
+      }>((resolve, reject) => {
+        const child = spawn(
+          "bash",
+          ["scripts/stranger-verify.sh", "--json", "--live-url", liveUrl],
+          {
+            cwd: root,
+            env: {
+              ...process.env,
+              TRUST_LOOP_OUT: out,
+              PATH: pathEnv,
+              // Red herrings — script must not use these to pull weights / create pods
+              HF_TOKEN: "should-not-be-used-for-weights",
+              RUNPOD_API_KEY: "should-not-create-pods",
+            },
+          },
+        );
+        let stdout = "";
+        let stderr = "";
+        const timer = setTimeout(() => {
+          child.kill("SIGKILL");
+          reject(new Error("stranger:verify --live-url timed out"));
+        }, 120_000);
+        child.stdout.setEncoding("utf8");
+        child.stderr.setEncoding("utf8");
+        child.stdout.on("data", (chunk: string) => {
+          stdout += chunk;
+        });
+        child.stderr.on("data", (chunk: string) => {
+          stderr += chunk;
+        });
+        child.on("error", (err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+        child.on("close", (code) => {
+          clearTimeout(timer);
+          resolve({ status: code, stdout, stderr });
+        });
+      });
+
+      assert.equal(
+        result.status,
+        0,
+        `stranger:verify --live-url failed:\n${result.stdout}\n${result.stderr}`,
+      );
+
+      const payload = JSON.parse(result.stdout.trim()) as {
+        schemaVersion: string;
+        doorA: { ran: boolean; status: string };
+        doorB: {
+          mode: string;
+          ran: boolean;
+          provisioned?: boolean;
+          spendUsd?: number | null;
+          probe?: {
+            ok: boolean;
+            httpStatus: number | null;
+            latencyMs: number | null;
+            modelsUrl: string;
+            provisioned?: boolean;
+            spendUsd?: number | null;
+            mode?: string;
+          };
+          citation?: { section: string };
+          note?: string;
+        };
+        nonClaims: Record<string, boolean>;
+      };
+
+      assert.equal(payload.schemaVersion, "zeroday-stranger-verify/v1");
+      assert.equal(payload.doorA.status, "pass");
+      assert.equal(payload.doorA.ran, true);
+
+      assert.equal(payload.doorB.mode, "operator_endpoint");
+      assert.equal(payload.doorB.ran, true);
+      assert.equal(payload.doorB.provisioned, false);
+      assert.equal(payload.doorB.spendUsd, null);
+      assert.ok(payload.doorB.probe, "missing doorB.probe");
+      assert.equal(payload.doorB.probe.ok, true);
+      assert.equal(payload.doorB.probe.httpStatus, 200);
+      assert.equal(typeof payload.doorB.probe.latencyMs, "number");
+      assert.ok(
+        (payload.doorB.probe.latencyMs as number) >= 0,
+        "latencyMs should be non-negative",
+      );
+      assert.match(payload.doorB.probe.modelsUrl, /\/v1\/models$/);
+      assert.equal(payload.doorB.probe.provisioned, false);
+      assert.equal(payload.doorB.probe.spendUsd, null);
+      assert.equal(payload.doorB.probe.mode, "operator_endpoint");
+      assert.match(
+        String(payload.doorB.citation?.section ?? ""),
+        /Live re-proof/,
+      );
+      assert.match(
+        String(payload.doorB.note ?? ""),
+        /not measured|probe only|A40/i,
+      );
+
+      assert.equal(payload.nonClaims.noRunPodCreateFromStrangerVerify, true);
+      assert.equal(payload.nonClaims.probeNotMeasuredA40ReProof, true);
+
+      // No provision / spend / invent language in machine output
+      assert.doesNotMatch(result.stdout, /create-pod|auto-provision|provisioned.: true/i);
+      assert.doesNotMatch(result.stdout, /\bAUROC\s*[:=]\s*0?\.\d+/i);
+      assert.doesNotMatch(result.stdout, /"spendUsd"\s*:\s*[1-9]/);
+      assert.ok(hitModels >= 1, "expected GET /v1/models against mock server");
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      });
+    }
+  });
+
+  it("without --live-url Door B stays citation-only (no probe key)", () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-stranger-cite-"));
+    const pathEnv = `${path.join(root, "node_modules", ".bin")}${path.delimiter}${process.env.PATH ?? ""}`;
+    const result = spawnSync(
+      "bash",
+      ["scripts/stranger-verify.sh", "--json"],
+      {
+        cwd: root,
+        encoding: "utf8",
+        env: { ...process.env, TRUST_LOOP_OUT: out, PATH: pathEnv },
+        timeout: 120_000,
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const payload = JSON.parse(result.stdout.trim()) as {
+      doorB: { mode: string; ran: boolean; probe?: unknown };
+    };
+    assert.equal(payload.doorB.mode, "citation");
+    assert.equal(payload.doorB.ran, false);
+    assert.equal(payload.doorB.probe, undefined);
   });
 });
