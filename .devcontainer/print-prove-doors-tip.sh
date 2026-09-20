@@ -21,7 +21,10 @@ ZERODAY Codespace — clone-free Door A
   6. Optional: Run Task → “ZERODAY: evidence-pack”
      (or: npm run evidence-pack -- --json --out out/evidence)
      writes out/evidence/ (prove-doors.json + gpu-evidence.json + manifest.json); does not start RunPod
-  7. Expect Door A PASS + Door B citation (no GPU here)
+  7. Optional: Run Task → “ZERODAY: doctor”
+     (or: npm run doctor -- --json --out out/doctor.json)
+     writes out/doctor.json · workstation readiness (zeroday.doctor/v1); does not start RunPod
+  8. Expect Door A PASS + Door B citation (no GPU here)
 
 Honest non-claims:
   · localization ≠ exploitability · needs_human always
@@ -30,6 +33,7 @@ Honest non-claims:
   · Door E / upload-sarif task = dry-run Code Scanning check, not live upload
   · gpu-evidence task = --out gpu-evidence.json · historical Measured A40 only; does not start RunPod
   · evidence-pack task = --out out/evidence · historical gpu-evidence only; does not start RunPod
+  · doctor task = --out out/doctor.json · local workstation readiness only; does not start RunPod
   · live upload stays CLI + security_events: write
   · no HF gated weights · no RunPod auto-provision
 
@@ -39,5 +43,6 @@ Tasks: Terminal → Run Task → “ZERODAY: prove-doors (keyless)”
        or “ZERODAY: upload-sarif (dry-run)”
        or “ZERODAY: gpu-evidence”
        or “ZERODAY: evidence-pack”
+       or “ZERODAY: doctor”
 
 EOF
