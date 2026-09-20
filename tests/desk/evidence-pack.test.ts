@@ -14,6 +14,8 @@ import {
   EVIDENCE_PACK_GPU_EVIDENCE_FILE,
   EVIDENCE_PACK_MANIFEST_FILE,
   EVIDENCE_PACK_PROVE_DOORS_FILE,
+  EVIDENCE_PACK_REPORT_JSON_FILE,
+  EVIDENCE_PACK_REPORT_MD_FILE,
   EVIDENCE_PACK_SCHEMA,
   evidencePackCatalog,
 } from "../../src/locate/evidence-pack.ts";
@@ -23,6 +25,7 @@ import {
 } from "../../src/app/api/evidence-pack/route.ts";
 import { GPU_EVIDENCE_SCHEMA } from "../../src/desk/gpu-evidence.ts";
 import { PROVE_DOORS_SCHEMA } from "../../src/desk/prove-doors.ts";
+import { REPORT_SCHEMA } from "../../src/locate/report-summary.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -35,9 +38,12 @@ describe("evidencePackCatalog", () => {
     assert.ok(c.files.includes(EVIDENCE_PACK_MANIFEST_FILE));
     assert.ok(c.files.includes(EVIDENCE_PACK_PROVE_DOORS_FILE));
     assert.ok(c.files.includes(EVIDENCE_PACK_GPU_EVIDENCE_FILE));
+    assert.ok(c.files.includes(EVIDENCE_PACK_REPORT_JSON_FILE));
+    assert.ok(c.files.includes(EVIDENCE_PACK_REPORT_MD_FILE));
     assert.ok(c.honesty.some((h) => /does not start RunPod|no GPU spend/i.test(h)));
     assert.ok(c.honesty.some((h) => /Fail-closed|fail-closed/i.test(h)));
     assert.ok(c.honesty.some((h) => /runProveDoors|loadGpuEvidence/i.test(h)));
+    assert.ok(c.honesty.some((h) => /runReport/i.test(h)));
   });
 });
 
@@ -69,7 +75,7 @@ describe("GET/POST /api/evidence-pack", () => {
       startsRunPod: boolean;
       historicalGpuEvidenceOnly: boolean;
       defaultOut: string;
-      files: Record<string, { schemaVersion?: string; ok?: boolean; startsRunPod?: boolean }>;
+      files: Record<string, { schemaVersion?: string; ok?: boolean; startsRunPod?: boolean } | string>;
       manifest: {
         schemaVersion: string;
         outDir: string;
@@ -83,6 +89,8 @@ describe("GET/POST /api/evidence-pack", () => {
         historical: boolean;
         startsRunPod: boolean;
       };
+      report?: { schemaVersion: string; runpod: boolean };
+      reportMarkdown?: string;
     };
     assert.equal(body.ok, true);
     assert.equal(body.schemaVersion, EVIDENCE_PACK_SCHEMA);
@@ -92,6 +100,8 @@ describe("GET/POST /api/evidence-pack", () => {
     assert.ok(body.files[EVIDENCE_PACK_MANIFEST_FILE]);
     assert.ok(body.files[EVIDENCE_PACK_PROVE_DOORS_FILE]);
     assert.ok(body.files[EVIDENCE_PACK_GPU_EVIDENCE_FILE]);
+    assert.ok(body.files[EVIDENCE_PACK_REPORT_JSON_FILE]);
+    assert.equal(typeof body.files[EVIDENCE_PACK_REPORT_MD_FILE], "string");
     assert.equal(body.manifest.schemaVersion, EVIDENCE_PACK_SCHEMA);
     assert.equal(body.manifest.outDir, "out/evidence");
     assert.equal(body.manifest.startsRunPod, false);
@@ -108,6 +118,20 @@ describe("GET/POST /api/evidence-pack", () => {
     assert.equal(
       body.files[EVIDENCE_PACK_GPU_EVIDENCE_FILE]?.startsRunPod,
       false,
+    );
+    const reportFile = body.files[EVIDENCE_PACK_REPORT_JSON_FILE] as {
+      schemaVersion?: string;
+      runpod?: boolean;
+    };
+    assert.equal(reportFile.schemaVersion, REPORT_SCHEMA);
+    assert.equal(reportFile.runpod, false);
+    assert.match(String(body.files[EVIDENCE_PACK_REPORT_MD_FILE]), /localization/i);
+    assert.match(String(body.files[EVIDENCE_PACK_REPORT_MD_FILE]), /exploitability/i);
+    assert.ok(
+      body.manifest.files.some((f) => f.name === EVIDENCE_PACK_REPORT_JSON_FILE),
+    );
+    assert.ok(
+      body.manifest.files.some((f) => f.name === EVIDENCE_PACK_REPORT_MD_FILE),
     );
   });
 

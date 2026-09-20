@@ -391,7 +391,18 @@ export function loadGpuEvidence(
     );
   }
 
-  const evidence = parseGpuLiveLocateEvidence(parsed);
+  // Accept either the checked-in raw evidence OR a packed GpuEvidenceOk wrapper
+  // (evidence-pack writes zeroday-gpu-evidence/v1 with nested `.evidence`).
+  let evidenceRaw: unknown = parsed;
+  if (
+    isPlainObject(parsed) &&
+    parsed.schemaVersion === GPU_EVIDENCE_SCHEMA &&
+    isPlainObject(parsed.evidence)
+  ) {
+    evidenceRaw = parsed.evidence;
+  }
+
+  const evidence = parseGpuLiveLocateEvidence(evidenceRaw);
 
   return {
     schemaVersion: GPU_EVIDENCE_SCHEMA,

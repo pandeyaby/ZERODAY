@@ -2,7 +2,7 @@
  * GET/POST /api/evidence-pack — Desk design-partner evidence pack.
  *
  * POST runs existing `runEvidencePack` in-process (prove-doors + historical
- * gpu-evidence + manifest). Fail-closed. Historical gpu-evidence only —
+ * gpu-evidence + report + manifest). Fail-closed. Historical gpu-evidence only —
  * never starts RunPod / no GPU spend. Returns pack JSON matching CLI
  * `out/evidence/` file names for browser download (temp write, cleaned up).
  */
@@ -19,6 +19,8 @@ import {
   EVIDENCE_PACK_DEFAULT_OUT,
   EVIDENCE_PACK_PROVE_DOORS_FILE,
   EVIDENCE_PACK_GPU_EVIDENCE_FILE,
+  EVIDENCE_PACK_REPORT_JSON_FILE,
+  EVIDENCE_PACK_REPORT_MD_FILE,
   EVIDENCE_PACK_MANIFEST_FILE,
   type EvidencePackManifest,
 } from "@/locate/evidence-pack";
@@ -139,10 +141,14 @@ export async function POST(req: Request) {
         [EVIDENCE_PACK_MANIFEST_FILE]: manifest,
         [EVIDENCE_PACK_PROVE_DOORS_FILE]: result.proveDoors,
         [EVIDENCE_PACK_GPU_EVIDENCE_FILE]: result.gpuEvidence,
+        [EVIDENCE_PACK_REPORT_JSON_FILE]: result.report,
+        [EVIDENCE_PACK_REPORT_MD_FILE]: result.reportMarkdown,
       },
       manifest,
       proveDoors: result.proveDoors,
       gpuEvidence: result.gpuEvidence,
+      report: result.report,
+      reportMarkdown: result.reportMarkdown,
     });
   } catch (e) {
     const err = e as Error;
@@ -153,9 +159,11 @@ export async function POST(req: Request) {
         ? 422
         : code === "PROVE_DOORS_FAILED"
           ? 422
-          : code === "WRITE_FAILED"
-            ? 500
-            : 500;
+          : code === "REPORT_FAILED"
+            ? 422
+            : code === "WRITE_FAILED"
+              ? 500
+              : 500;
     return NextResponse.json(
       {
         ok: false,
