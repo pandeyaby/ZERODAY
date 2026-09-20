@@ -189,6 +189,19 @@ describe("Desk Prove doors panel", () => {
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 
+  it("wires Dry-run Code Scanning upload → POST /api/upload-sarif", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-upload-sarif-card"/);
+    assert.match(prove, /data-testid="prove-doors-upload-sarif-run"/);
+    assert.match(prove, /\/api\/upload-sarif/);
+    assert.match(prove, /Dry-run Code Scanning upload/);
+    assert.match(prove, /never calls GitHub from Desk/i);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
+  });
+
   it("README + howto point at Desk Prove doors tab", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const howto = fs.readFileSync(path.join(root, "docs/howto.md"), "utf8");

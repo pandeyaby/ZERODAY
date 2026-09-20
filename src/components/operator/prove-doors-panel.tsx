@@ -27,7 +27,10 @@ const LIVE_URL_PROBE_API_PATH = "/api/live-url-probe";
 const CASSETTE_API_PATH = "/api/cassette-replay";
 const PROVE_ALL_API_PATH = "/api/prove-doors";
 const GPU_EVIDENCE_API_PATH = "/api/gpu-evidence";
+const UPLOAD_SARIF_API_PATH = "/api/upload-sarif";
 const CASSETTE_CMD = "npm run cassette:replay";
+const UPLOAD_SARIF_DRY_CMD =
+  "npm run upload-sarif -- --sarif <path> --dry-run";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
 const DOOR_B_FACTS = [
@@ -177,11 +180,40 @@ type GpuEvidenceJson = {
   code?: string;
 };
 
+type UploadSarifDryJson = {
+  schemaVersion?: string;
+  ok?: boolean;
+  dryRun?: boolean;
+  sarifPath?: string;
+  source?: string;
+  message?: string;
+  payload?: {
+    endpoint?: string;
+    method?: string;
+    dryRun?: boolean;
+    body?: {
+      commit_sha?: string;
+      ref?: string;
+      tool_name?: string;
+    };
+    sarifBytes?: number;
+    posture?: {
+      localizationOnly?: boolean;
+      notExploitProof?: boolean;
+      requiresSecurityEventsWrite?: boolean;
+    };
+  };
+  nonClaims?: unknown;
+  error?: string;
+  code?: string;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
  * (citation + dedicated live-url probe) + Keyless K3 cassette:replay +
  * Measured A40 evidence (GET /api/gpu-evidence, historical read-only) +
- * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence).
+ * Run all doors orchestrator (POST /api/prove-doors; includes Door D historical A40 evidence) +
+ * Code Scanning upload dry-run (POST /api/upload-sarif — never GitHub from Desk).
  * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
@@ -204,8 +236,15 @@ export function ProveDoorsPanel() {
   const [evidenceBusy, setEvidenceBusy] = useState(true);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const [evidence, setEvidence] = useState<GpuEvidenceJson | null>(null);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadSarifDryJson | null>(
+    null,
+  );
+  const [sarifPathInput, setSarifPathInput] = useState("");
 
-  const anyBusy = busy || probeBusy || cassetteBusy || allBusy;
+  const anyBusy =
+    busy || probeBusy || cassetteBusy || allBusy || uploadBusy;
 
   useEffect(() => {
     let cancelled = false;
@@ -346,6 +385,35 @@ export function ProveDoorsPanel() {
       setAllBusy(false);
     }
   }, [liveUrl]);
+
+  const runUploadSarifDryRun = useCallback(async () => {
+    setUploadBusy(true);
+    setUploadError(null);
+    setUploadResult(null);
+    try {
+      const trimmed = sarifPathInput.trim();
+      const body = trimmed
+        ? { sarifPath: trimmed }
+        : { fixture: true };
+      const res = await fetch(UPLOAD_SARIF_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as UploadSarifDryJson;
+      if (!res.ok) {
+        setUploadError(json.error || `HTTP ${res.status}`);
+        setUploadResult(null);
+      } else {
+        setUploadResult(json);
+      }
+    } catch (e) {
+      setUploadError((e as Error).message);
+      setUploadResult(null);
+    } finally {
+      setUploadBusy(false);
+    }
+  }, [sarifPathInput]);
 
   return (
     <div className="space-y-4 animate-fade-up" data-testid="prove-doors-panel">
@@ -762,6 +830,105 @@ export function ProveDoorsPanel() {
               data-testid="prove-doors-cassette-json"
             >
               {JSON.stringify(cassetteResult, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-upload-sarif-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <Code2 size={14} /> Dry-run Code Scanning upload
+          </span>
+          <Badge tone="ok">POST {UPLOAD_SARIF_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Validates a SARIF path (or fixture sample) and returns the dry-run
+          request JSON —{" "}
+          <strong className="text-[var(--text)]/85 font-medium">
+            never calls GitHub from Desk
+          </strong>
+          . Live upload stays CLI (
+          <code className="text-[var(--accent)]">{UPLOAD_SARIF_DRY_CMD}</code>
+          ; omit <code className="text-[var(--accent)]">--dry-run</code> +{" "}
+          <code className="text-[var(--accent)]">security_events: write</code>
+          ). Fail-closed on missing/invalid SARIF. Localization only — not
+          exploit proof.
+        </p>
+        <label className="block text-[11px] text-[var(--muted)] mb-1">
+          sarifPath (optional — empty uses fixture sample)
+        </label>
+        <input
+          type="text"
+          value={sarifPathInput}
+          onChange={(e) => setSarifPathInput(e.target.value)}
+          placeholder="fixtures/locate/ingest-sample/sample.sarif"
+          disabled={anyBusy}
+          className={cn(
+            "w-full mb-3 rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+            "px-3 py-2 text-sm font-mono text-[var(--text)] placeholder:text-[var(--muted)]",
+            "focus:outline-none focus:ring-1 focus:ring-[var(--accent)]",
+          )}
+          data-testid="prove-doors-upload-sarif-path"
+          aria-label="SARIF path for Code Scanning dry-run"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="md"
+            disabled={anyBusy}
+            onClick={() => void runUploadSarifDryRun()}
+            data-testid="prove-doors-upload-sarif-run"
+            aria-label="Dry-run Code Scanning SARIF upload via Desk API"
+          >
+            {uploadBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Code2 size={14} />
+            )}
+            {uploadBusy ? "Validating…" : "Dry-run Code Scanning upload"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            Desk dry-run only · no network · no live upload
+          </span>
+        </div>
+        {uploadError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-upload-sarif-error"
+            role="alert"
+          >
+            {uploadError}
+          </p>
+        ) : null}
+        {uploadResult ? (
+          <div className="mt-3" data-testid="prove-doors-upload-sarif-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone={uploadResult.ok === false ? "warn" : "ok"}>
+                {String(uploadResult.schemaVersion ?? "upload-sarif-desk")}
+              </Badge>
+              {uploadResult.dryRun === true ? (
+                <Badge tone="muted">dryRun</Badge>
+              ) : null}
+              {uploadResult.source ? (
+                <Badge tone="muted">source: {uploadResult.source}</Badge>
+              ) : null}
+              {uploadResult.payload?.endpoint ? (
+                <Badge tone="muted">{uploadResult.payload.endpoint}</Badge>
+              ) : null}
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-upload-sarif-json"
+            >
+              {JSON.stringify(uploadResult, null, 2)}
             </pre>
           </div>
         ) : null}
