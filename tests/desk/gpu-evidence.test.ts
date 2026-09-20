@@ -193,7 +193,10 @@ describe("Prove doors Measured A40 evidence wiring", () => {
     assert.match(prove, /data-testid="prove-doors-a40-evidence-card"/);
     assert.match(prove, /data-testid="prove-doors-a40-evidence-fields"/);
     assert.match(prove, /data-testid="prove-doors-a40-evidence-json"/);
+    assert.match(prove, /data-testid="prove-doors-a40-evidence-download"/);
     assert.match(prove, /prove-doors-a40-evidence-copy/);
+    assert.match(prove, /downloadGpuEvidenceJson/);
+    assert.match(prove, /GPU_EVIDENCE_DOWNLOAD_FILENAME/);
     assert.match(prove, /\/api\/gpu-evidence/);
     assert.match(prove, /Measured A40 evidence/);
     assert.match(prove, /historical measured|Historical measured/i);

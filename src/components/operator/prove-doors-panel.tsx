@@ -19,6 +19,11 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
+  downloadGpuEvidenceJson,
+  GPU_EVIDENCE_DOWNLOAD_FILENAME,
+  serializeGpuEvidenceJson,
+} from "@/desk/gpu-evidence-download";
+import {
   downloadProveDoorsJson,
   PROVE_DOORS_DOWNLOAD_FILENAME,
   serializeProveDoorsJson,
@@ -1083,14 +1088,31 @@ export function ProveDoorsPanel() {
               </ul>
             ) : null}
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="text-[11px] uppercase tracking-wider text-[var(--muted)]">
-                Raw JSON
-              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  downloadGpuEvidenceJson(evidence, {
+                    filename: GPU_EVIDENCE_DOWNLOAD_FILENAME,
+                  });
+                }}
+                data-testid="prove-doors-a40-evidence-download"
+                aria-label={`Download ${GPU_EVIDENCE_DOWNLOAD_FILENAME}`}
+              >
+                <Download size={14} />
+                Download {GPU_EVIDENCE_DOWNLOAD_FILENAME}
+              </Button>
               <CopyJsonButton
-                value={JSON.stringify(evidence, null, 2)}
-                ariaLabel="Copy Measured A40 evidence JSON"
+                value={serializeGpuEvidenceJson(evidence)}
+                ariaLabel={`Copy ${GPU_EVIDENCE_DOWNLOAD_FILENAME} JSON`}
                 testId="prove-doors-a40-evidence-copy"
               />
+              <span className="text-[11px] text-[var(--muted)]">
+                Same shape as CLI{" "}
+                <code className="text-[var(--accent)]">--out</code> / CI
+                artifact · historical only · does not start RunPod
+              </span>
             </div>
             <pre
               className={cn(
