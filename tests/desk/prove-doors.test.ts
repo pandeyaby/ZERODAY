@@ -167,6 +167,25 @@ describe("Desk Prove doors panel", () => {
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 
+  it("wires Measured A40 evidence → GET /api/gpu-evidence (historical, no RunPod)", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    const route = fs.readFileSync(
+      path.join(root, "src/app/api/gpu-evidence/route.ts"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-a40-evidence-card"/);
+    assert.match(prove, /Measured A40 evidence/);
+    assert.match(prove, /\/api\/gpu-evidence/);
+    assert.match(prove, /does not start RunPod/i);
+    assert.match(prove, /historical measured|Historical measured/i);
+    assert.match(route, /loadGpuEvidence/);
+    assert.match(route, /EVIDENCE_MISSING/);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
+  });
+
   it("README + howto point at Desk Prove doors tab", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const howto = fs.readFileSync(path.join(root, "docs/howto.md"), "utf8");

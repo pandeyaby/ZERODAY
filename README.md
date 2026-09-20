@@ -157,7 +157,8 @@ One screen for fixture smoke, rules / SARIF ingest commands, Desk
 `inventory → packet → harden → classify → craft`, reports & cassettes, the
 **Prove doors** tab (**Run Door A** → `POST /api/stranger-verify`; **Door B
 live-url probe** → `POST /api/live-url-probe` fail-closed `GET /v1/models`;
-**cassette:replay** → `POST /api/cassette-replay`; **Run all doors** →
+**cassette:replay** → `POST /api/cassette-replay`; **Measured A40 evidence** →
+`GET /api/gpu-evidence` (historical; does not start RunPod); **Run all doors** →
 `POST /api/prove-doors` / CLI `npm run prove-doors`; same `--json` shape as CLI;
 CLI copy secondary + Door B citation to
 [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof — no GPU spend /
