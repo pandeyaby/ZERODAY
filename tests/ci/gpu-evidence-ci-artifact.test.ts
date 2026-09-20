@@ -1,5 +1,5 @@
 /**
- * CI contract: npm run gpu-evidence -- --json in stranger-verify jobs.
+ * CI contract: gpu-evidence --json --out gpu-evidence.json artifact (mirror prove-doors).
  * Fail-closed historical Measured A40 evidence · no RunPod / live GPU.
  */
 
@@ -19,18 +19,13 @@ const REUSABLE_WF = path.join(root, ".github/workflows/stranger-verify.yml");
 function assertWorkflowGpuEvidence(wf: string, label: string): void {
   assert.match(
     wf,
-    /npm run --silent gpu-evidence -- --json > gpu-evidence\.json/,
-    `${label}: must run gpu-evidence --json → gpu-evidence.json`,
+    /npm run --silent gpu-evidence -- --json --out gpu-evidence\.json/,
+    `${label}: must write gpu-evidence --json --out gpu-evidence.json`,
   );
-  assert.match(
+  assert.doesNotMatch(
     wf,
-    /gpu-evidence/,
-    `${label}: must mention gpu-evidence`,
-  );
-  assert.match(
-    wf,
-    /--json/,
-    `${label}: must include --json`,
+    /gpu-evidence -- --json > gpu-evidence\.json/,
+    `${label}: must not redirect gpu-evidence stdout (use --out)`,
   );
   assert.match(
     wf,
@@ -145,7 +140,7 @@ describe("gpu-evidence.json CI artifact contract", () => {
     assert.equal(failPod.status, 5, "startsRunPod≠false must exit 5");
   });
 
-  it("locate + reusable stranger-verify run gpu-evidence --json", () => {
+  it("locate + reusable stranger-verify run gpu-evidence --json --out", () => {
     assertWorkflowGpuEvidence(
       fs.readFileSync(LOCATE_WF, "utf8"),
       "zeroday-locate.yml",

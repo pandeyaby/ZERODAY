@@ -49,7 +49,7 @@
     {
       "label": "ZERODAY: gpu-evidence",
       "type": "shell",
-      "command": "npm run gpu-evidence -- --json",
+      "command": "npm run gpu-evidence -- --json --out gpu-evidence.json",
       "group": {
         "kind": "test",
         "isDefault": false

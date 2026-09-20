@@ -17,7 +17,7 @@
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
- *   zeroday gpu-evidence [--json]       # load checked-in Measured A40 evidence (historical; no RunPod)
+ *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -1728,20 +1728,70 @@ program
   )
   .option("--json", "Print zeroday-gpu-evidence/v1 JSON to stdout", false)
   .option(
+    "--out <path>",
+    "Write full zeroday-gpu-evidence/v1 JSON to this file (CI / local / Codespaces). Fail-closed on write errors.",
+  )
+  .option("--out-file <path>", "Alias for --out")
+  .option(
     "--from <path>",
     "Evidence JSON path override (default: docs/reports/a40-live-locate-20260920.json)",
   )
-  .action((opts: { json: boolean; from?: string }) => {
+  .action((opts: {
+    json: boolean;
+    out?: string;
+    outFile?: string;
+    from?: string;
+  }) => {
     try {
       const from = opts.from?.trim();
       const result = loadGpuEvidence({
         cwd: REPO_ROOT,
         ...(from ? { relativePath: path.resolve(from) } : {}),
       });
+
+      const outRaw = (opts.out ?? opts.outFile)?.trim();
+      let outAbs: string | undefined;
+      if (outRaw) {
+        try {
+          outAbs = path.resolve(outRaw);
+          fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+          fs.writeFileSync(
+            outAbs,
+            JSON.stringify(result, null, 2) + "\n",
+            "utf8",
+          );
+        } catch (writeErr) {
+          const wmsg = (writeErr as Error).message;
+          const errMsg = `gpu-evidence --out write failed: ${wmsg}`;
+          if (opts.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  schemaVersion: GPU_EVIDENCE_SCHEMA,
+                  ok: false,
+                  error: errMsg,
+                  historical: true,
+                  startsRunPod: false,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.error(errMsg);
+          }
+          process.exitCode = 2;
+          return;
+        }
+      }
+
       if (opts.json) {
         console.log(JSON.stringify(result, null, 2));
       } else {
         process.stdout.write(formatGpuEvidenceBanner(result));
+        if (outAbs) {
+          process.stdout.write(`Wrote    : ${outAbs}\n\n`);
+        }
       }
     } catch (e) {
       const err = e as Error;
