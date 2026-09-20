@@ -8,8 +8,10 @@ Thanks for helping keep ZERODAY a **defensive** localization harness.
 2. Read [`SECURITY.md`](./SECURITY.md) — localization ≠ exploitability; no PoC requests.
 3. Run `npm test` and `npm run lint` locally when practical.
 4. Optional local Door A gate: `npm run hooks:install` (runs `stranger:verify`
-   on commit; skip with `SKIP=stranger-verify` or `--no-verify`). CI remains
-   source of truth — [`docs/stranger-verify.md`](./docs/stranger-verify.md).
+   on commit; skip with `SKIP=stranger-verify` or `--no-verify`). Opt-in
+   `npm run hooks:install-prove-doors` runs keyless `prove-doors` (A + cassette,
+   no `--live-url`). CI remains source of truth —
+   [`docs/stranger-verify.md`](./docs/stranger-verify.md).
 
 ## Hard limits (will be rejected)
 

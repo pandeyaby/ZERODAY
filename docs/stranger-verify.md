@@ -152,10 +152,12 @@ npm run hooks:install
 ```
 
 Runs keyless `npm run stranger:verify` before each commit (no GPU / no live
-Antares). Skip anytime:
+Antares). Opt-in alternate: `npm run hooks:install-prove-doors` runs keyless
+`npm run prove-doors` (Door A + cassette, no `--live-url`). Skip anytime:
 
 ```bash
 SKIP=stranger-verify git commit …
+SKIP=prove-doors git commit …   # when using hooks:install-prove-doors
 git commit --no-verify
 ```
 
@@ -165,6 +167,8 @@ Dry-run / help (no commit required):
 bash scripts/git-hooks/pre-commit-stranger-verify.sh --help
 bash scripts/git-hooks/pre-commit-stranger-verify.sh --dry-run
 npm run hooks:install -- --dry-run
+bash scripts/git-hooks/pre-commit-prove-doors.sh --dry-run
+npm run hooks:install-prove-doors -- --dry-run
 ```
 
 Repo already ships a separate fixture-locate sample under `hooks/pre-commit`
