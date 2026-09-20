@@ -35,7 +35,7 @@ CI runs the same keyless `--json` command in the
 and uploads artifact **`stranger-verify-json`** (`stranger-verify.json`) — Door A
 proof card + Door B citation; **not** vuln / AUROC proof (badge ≠ vuln proof —
 see [`ci-trust.md`](./ci-trust.md)). Same job also runs
-`npm run prove-doors -- --json` → artifact **`prove-doors-json`**
+`npm run prove-doors -- --json --out prove-doors.json` → artifact **`prove-doors-json`**
 (`prove-doors.json`; A + cassette + Door D historical A40 evidence + Door E upload-sarif dry-run, B skipped). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifacts for external `workflow_call` callers.
@@ -44,8 +44,7 @@ Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
 (aggregates Door A + cassette:replay + Door D Measured A40 evidence + Door E upload-sarif dry-run + optional Door B; Door B
 `status: "skipped"` when `liveUrl` omitted — not failed). Door E = dry-run Code Scanning check, not live upload. CLI one-command:
 `npm run prove-doors` / `zeroday prove-doors` (`--json`; optional
-`--live-url` for Door B; local/Codespaces `--out prove-doors.json` —
-CI already redirects stdout). Individual:
+`--live-url` for Door B; `--out prove-doors.json` for CI / local file write). Individual:
 **Run Door A** → `POST /api/stranger-verify`
 (in-process; citation Door B). **Run Door B live-url probe** →
 `POST /api/live-url-probe` with `{ "liveUrl": "https://…/v1" }`

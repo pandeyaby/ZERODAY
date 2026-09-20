@@ -1,5 +1,5 @@
 /**
- * CI contract: prove-doors --json → prove-doors.json artifact (mirror stranger-verify-json).
+ * CI contract: prove-doors --json --out prove-doors.json artifact (mirror stranger-verify-json).
  * Keyless only · upload on success (no if: always()) · shared shape assert.
  */
 
@@ -19,8 +19,13 @@ const REUSABLE_WF = path.join(root, ".github/workflows/stranger-verify.yml");
 function assertWorkflowProveDoorsArtifact(wf: string, label: string): void {
   assert.match(
     wf,
-    /npm run --silent prove-doors -- --json > prove-doors\.json/,
-    `${label}: must redirect prove-doors --json to prove-doors.json`,
+    /npm run --silent prove-doors -- --json --out prove-doors\.json/,
+    `${label}: must write prove-doors --json --out prove-doors.json`,
+  );
+  assert.doesNotMatch(
+    wf,
+    /prove-doors -- --json > prove-doors\.json/,
+    `${label}: must not redirect prove-doors stdout (use --out)`,
   );
   assert.match(
     wf,

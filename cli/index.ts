@@ -1724,7 +1724,7 @@ program
   .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
   .option(
     "--out <path>",
-    "Write full zeroday-prove-doors/v1 JSON to this file (local/Codespaces; CI still redirects stdout). Fail-closed on write errors.",
+    "Write full zeroday-prove-doors/v1 JSON to this file (CI / local / Codespaces). Fail-closed on write errors.",
   )
   .option("--out-file <path>", "Alias for --out")
   .option(

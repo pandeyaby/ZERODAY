@@ -72,8 +72,8 @@ jobs:
         run: |
           set -euo pipefail
           # In-process Door A + cassette:replay; Door B skipped in CI (no opt-in URL).
-          # Redirect --json stdout → workspace prove-doors.json (uploaded below on success).
-          npm run --silent prove-doors -- --json > prove-doors.json
+          # --json --out → workspace prove-doors.json (uploaded below on success).
+          npm run --silent prove-doors -- --json --out prove-doors.json
           test -s prove-doors.json
           node scripts/assert-prove-doors-ci-json.mjs prove-doors.json
 
@@ -85,7 +85,7 @@ jobs:
             echo "- Caller used: \`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml\`"
             echo "- Checked out: \`${{ inputs.zeroday_repository }}@${{ inputs.zeroday_ref }}\` (ZERODAY — not caller source)"
             echo "- Ran: \`npm run --silent stranger:verify -- --json\` → \`stranger-verify.json\` artifact"
-            echo "- Ran: \`npm run --silent prove-doors -- --json\` → \`prove-doors.json\` (Door A + cassette; Door B skipped)"
+            echo "- Ran: \`npm run --silent prove-doors -- --json --out prove-doors.json\` (Door A + cassette; Door B skipped)"
             echo "- Door A: keyless \`trust-loop\` → paired-probe:from-sarif (offline fixture SARIF)"
             echo "- Door B: citation only — \`docs/gpu-claims.md\` § Live re-proof (no RunPod / HF / live Antares)"
             echo "- Artifact \`stranger-verify-json\`: Door A proof card + Door B citation — **not** vuln / AUROC proof"
