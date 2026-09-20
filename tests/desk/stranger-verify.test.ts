@@ -117,6 +117,7 @@ describe("Desk stranger-verify (in-process)", () => {
       assert.equal(payload.doorB.probe.httpStatus, 200);
       assert.equal(typeof payload.doorB.probe.latencyMs, "number");
       assert.ok((payload.doorB.probe.latencyMs as number) >= 0);
+      assert.equal(payload.doorB.probe.modelCount, 1);
       assert.match(payload.doorB.probe.modelsUrl, /\/v1\/models$/);
       assert.equal(payload.doorB.probe.provisioned, false);
       assert.equal(payload.doorB.probe.spendUsd, null);
@@ -153,6 +154,7 @@ describe("Desk stranger-verify (in-process)", () => {
     assert.equal(probe.provisioned, false);
     assert.equal(probe.spendUsd, null);
     assert.equal(probe.mode, "operator_endpoint");
+    assert.equal(probe.modelCount, 0);
   });
 });
 

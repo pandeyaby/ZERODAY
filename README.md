@@ -151,11 +151,13 @@ npm run play
 
 One screen for fixture smoke, rules / SARIF ingest commands, Desk
 `inventory → packet → harden → classify → craft`, reports & cassettes, the
-**Prove doors** tab (**Run** → `POST /api/stranger-verify`; **cassette:replay** →
-`POST /api/cassette-replay`; optional `{ "liveUrl" }` probe; same `--json` shape
-as CLI; CLI copy secondary + Door B citation to
+**Prove doors** tab (**Run Door A** → `POST /api/stranger-verify`; **Door B
+live-url probe** → `POST /api/live-url-probe` fail-closed `GET /v1/models`;
+**cassette:replay** → `POST /api/cassette-replay`; same `--json` shape as CLI;
+CLI copy secondary + Door B citation to
 [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof — no GPU spend /
-`provisioned: false`; see [`docs/stranger-verify.md`](./docs/stranger-verify.md)),
+`provisioned: false`; probe ≠ A40 re-proof; see
+[`docs/stranger-verify.md`](./docs/stranger-verify.md)),
 FAQ, and the opt-in **Live brain** tab (including
 **Validate live (≤60s)** when you already have a completions host). Desk runs on
 **your** tree without Antares — it is not vuln discovery. Deeper walkthrough:

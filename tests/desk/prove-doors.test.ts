@@ -66,12 +66,9 @@ describe("Desk Prove doors panel", () => {
     );
     assert.match(prove, /data-testid="prove-doors-run"/);
     assert.match(prove, /data-testid="prove-doors-run-card"/);
-    assert.match(prove, /data-testid="prove-doors-live-url"/);
-    assert.match(prove, /data-testid="prove-doors-json-result"/);
     assert.match(prove, /\/api\/stranger-verify/);
     assert.match(prove, /fetch\(API_PATH|fetch\(["']\/api\/stranger-verify/);
     assert.match(prove, /method:\s*["']POST["']/);
-    assert.match(prove, /liveUrl/);
     assert.match(prove, /prove-doors-copy/);
     assert.match(prove, /CLI \(secondary\)|copy-paste/i);
     assert.match(prove, /zeroday-stranger-verify\/v1/);
@@ -79,11 +76,45 @@ describe("Desk Prove doors panel", () => {
     assert.match(prove, /doorA/);
     assert.match(prove, /doorB/);
     assert.match(prove, /nonClaims/);
-    assert.match(prove, /provisioned:\s*false|provisioned: false/);
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
     assert.match(route, /runStrangerVerify/);
-    assert.match(route, /liveUrl/);
     assert.match(route, /SECRET_FIELD_REFUSED|hfToken/);
+  });
+
+  it("wires Door B live-url probe → POST /api/live-url-probe + real JSON fields", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    const route = fs.readFileSync(
+      path.join(root, "src/app/api/live-url-probe/route.ts"),
+      "utf8",
+    );
+    const desk = fs.readFileSync(
+      path.join(root, "src/desk/live-url-probe.ts"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-door-b-card"/);
+    assert.match(prove, /data-testid="prove-doors-door-b-run"/);
+    assert.match(prove, /data-testid="prove-doors-live-url"/);
+    assert.match(prove, /data-testid="prove-doors-door-b-json"/);
+    assert.match(prove, /\/api\/live-url-probe/);
+    assert.match(prove, /LIVE_URL_PROBE_API_PATH|fetch\(LIVE_URL_PROBE_API_PATH/);
+    assert.match(prove, /liveUrl/);
+    assert.match(prove, /httpStatus|status:/);
+    assert.match(prove, /latencyMs/);
+    assert.match(prove, /modelCount/);
+    assert.match(prove, /Probe ≠ measured A40|not A40 re-proof/i);
+    assert.match(prove, /provisioned:\s*false|provisioned: false/);
+    assert.match(prove, /spendUsd:\s*null|spendUsd: null/);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
+    assert.match(route, /runLiveUrlProbe/);
+    assert.match(route, /liveUrl/);
+    assert.match(route, /PROBE_UNREACHABLE|PROBE_HTTP_FAILED/);
+    assert.match(route, /SECRET_FIELD_REFUSED/);
+    assert.match(desk, /fail-closed|Fail-closed/);
+    assert.match(desk, /probeNotMeasuredA40ReProof/);
+    assert.match(desk, /noSpendClaimsFromDoorBProbe/);
   });
 
   it("wires cassette:replay Run → POST /api/cassette-replay + real JSON result", () => {

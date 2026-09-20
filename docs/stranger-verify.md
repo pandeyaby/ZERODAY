@@ -38,11 +38,13 @@ see [`ci-trust.md`](./ci-trust.md)). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifact for external `workflow_call` callers.
 
-Desk **Prove doors** tab: **Run** calls local `POST /api/stranger-verify`
-(in-process; same JSON). **Run cassette:replay** calls `POST /api/cassette-replay`
-(pinned mode/findings/ranked file/SARIF/exit; fail-closed). Optional body
-`{ "liveUrl": "https://…/v1" }` probes `GET /v1/models` only (`provisioned: false`).
-CLI copy-paste remains secondary.
+Desk **Prove doors** tab: **Run Door A** → `POST /api/stranger-verify`
+(in-process; citation Door B). **Run Door B live-url probe** →
+`POST /api/live-url-probe` with `{ "liveUrl": "https://…/v1" }`
+(`GET /v1/models` only; fail-closed on unreachable / non-200;
+`provisioned: false`; probe ≠ A40 re-proof). **Run cassette:replay** →
+`POST /api/cassette-replay` (pinned mode/findings/ranked file/SARIF/exit;
+fail-closed). CLI copy-paste remains secondary.
 
 ### Opt-in Door B probe (`--live-url`) — operator endpoint only
 

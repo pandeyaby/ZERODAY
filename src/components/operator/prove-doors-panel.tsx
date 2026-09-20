@@ -22,6 +22,7 @@ const VERIFY_ALIAS = "npm run doors";
 /** Prefer --silent so npm’s script banner does not precede the JSON. */
 const VERIFY_JSON_CMD = "npm run --silent stranger:verify -- --json";
 const API_PATH = "/api/stranger-verify";
+const LIVE_URL_PROBE_API_PATH = "/api/live-url-probe";
 const CASSETTE_API_PATH = "/api/cassette-replay";
 const CASSETTE_CMD = "npm run cassette:replay";
 
@@ -87,17 +88,39 @@ type CassetteReplayJson = {
   code?: string;
 };
 
+type LiveUrlProbeJson = {
+  schemaVersion?: string;
+  ok?: boolean;
+  mode?: string;
+  provisioned?: boolean;
+  spendUsd?: number | null;
+  probe?: {
+    ok?: boolean;
+    httpStatus?: number | null;
+    latencyMs?: number | null;
+    modelCount?: number | null;
+    detail?: string;
+    modelsUrl?: string;
+  };
+  error?: string;
+  code?: string;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
- * (citation / optional liveUrl probe) + Keyless K3 cassette:replay.
- * Run calls POST /api/stranger-verify or POST /api/cassette-replay (in-process).
- * No one-click GPU. No invented metrics.
+ * (citation + dedicated live-url probe) + Keyless K3 cassette:replay.
+ * Door B probe → POST /api/live-url-probe (fail-closed). No one-click GPU.
  */
 export function ProveDoorsPanel() {
   const [liveUrl, setLiveUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProveDoorsJson | null>(null);
+  const [probeBusy, setProbeBusy] = useState(false);
+  const [probeError, setProbeError] = useState<string | null>(null);
+  const [probeResult, setProbeResult] = useState<LiveUrlProbeJson | null>(
+    null,
+  );
   const [cassetteBusy, setCassetteBusy] = useState(false);
   const [cassetteError, setCassetteError] = useState<string | null>(null);
   const [cassetteResult, setCassetteResult] =
@@ -108,12 +131,11 @@ export function ProveDoorsPanel() {
     setError(null);
     setResult(null);
     try {
-      const trimmed = liveUrl.trim();
-      const body = trimmed ? { liveUrl: trimmed } : {};
+      // Door A path — citation Door B (live probe has its own card / API).
       const res = await fetch(API_PATH, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: "{}",
       });
       const json = (await res.json()) as ProveDoorsJson;
       if (!res.ok) {
@@ -127,6 +149,36 @@ export function ProveDoorsPanel() {
       setResult(null);
     } finally {
       setBusy(false);
+    }
+  }, []);
+
+  const runLiveUrlProbe = useCallback(async () => {
+    setProbeBusy(true);
+    setProbeError(null);
+    setProbeResult(null);
+    try {
+      const trimmed = liveUrl.trim();
+      if (!trimmed) {
+        setProbeError("liveUrl is required for Door B probe");
+        return;
+      }
+      const res = await fetch(LIVE_URL_PROBE_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liveUrl: trimmed }),
+      });
+      const json = (await res.json()) as LiveUrlProbeJson;
+      if (!res.ok) {
+        setProbeError(json.error || `HTTP ${res.status}`);
+        setProbeResult(json.probe ? json : null);
+      } else {
+        setProbeResult(json);
+      }
+    } catch (e) {
+      setProbeError((e as Error).message);
+      setProbeResult(null);
+    } finally {
+      setProbeBusy(false);
     }
   }, [liveUrl]);
 
@@ -172,10 +224,10 @@ export function ProveDoorsPanel() {
           <span className="text-[var(--text)]/80">
             What a stranger can verify today
           </span>
-          . Door A runs keyless locally ($0). Door B defaults to a citation; an
-          optional operator{" "}
-          <code className="text-[var(--accent)]">liveUrl</code> probes{" "}
-          <code className="text-[var(--accent)]">GET /v1/models</code> only —
+          . Door A runs keyless locally ($0). Door B defaults to a citation; use
+          the live-url probe card for your OpenAI-compatible{" "}
+          <code className="text-[var(--accent)]">/v1</code> (
+          <code className="text-[var(--accent)]">GET /v1/models</code> only) —
           never provisions pods or invents AUROC / F1 / SLAs.
         </p>
       </div>
@@ -216,15 +268,15 @@ export function ProveDoorsPanel() {
             <h3 className="font-display text-sm tracking-wide text-[var(--warn)]">
               Door B — Live GPU
             </h3>
-            <Badge tone="warn">citation · optional probe</Badge>
+            <Badge tone="warn">citation · live-url probe</Badge>
           </div>
           <p className="text-sm text-[var(--muted)] leading-relaxed">
             Default is citation only — invent nothing beyond what{" "}
             <code className="text-[var(--accent)]">docs/gpu-claims.md</code>{" "}
-            already records. Optional{" "}
-            <code className="text-[var(--accent)]">liveUrl</code> validates{" "}
+            already records. Live-url probe validates{" "}
             <em>your</em> endpoint only (
-            <code className="text-[var(--accent)]">provisioned: false</code>).
+            <code className="text-[var(--accent)]">provisioned: false</code> ·
+            fail-closed · not A40 re-proof).
           </p>
           <ul className="mt-3 text-[11px] text-[var(--muted)] space-y-1 list-disc pl-4 font-mono">
             {DOOR_B_FACTS.map((f) => (
@@ -247,40 +299,23 @@ export function ProveDoorsPanel() {
         <p className="text-xs text-[var(--muted)] mt-2 mb-3">
           Executes Door A in-process via the local Desk API (same JSON as{" "}
           <code className="text-[var(--accent)]">stranger:verify --json</code>
-          ). Optional live URL →{" "}
-          <code className="text-[var(--accent)]">GET /v1/models</code> only —
-          never RunPod create / HF weight pull.
+          ). Door B stays citation-only here — use the live-url probe card for
+          operator endpoint checks.
         </p>
-        <label className="block text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1.5">
-          Optional liveUrl (OpenAI-compatible /v1)
-        </label>
-        <input
-          type="url"
-          value={liveUrl}
-          onChange={(e) => setLiveUrl(e.target.value)}
-          placeholder="https://127.0.0.1:8000/v1 (leave empty for citation-only Door B)"
-          className={cn(
-            "w-full rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
-            "px-3 py-2 text-sm font-mono text-[var(--text)] placeholder:text-[var(--muted)]",
-            "focus:outline-none focus:border-[var(--accent)]",
-          )}
-          data-testid="prove-doors-live-url"
-          disabled={busy}
-        />
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button
             type="button"
             size="md"
-            disabled={busy}
+            disabled={busy || probeBusy}
             onClick={() => void runVerify()}
             data-testid="prove-doors-run"
             aria-label="Run stranger verify via Desk API"
           >
             {busy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            {busy ? "Running…" : "Run"}
+            {busy ? "Running…" : "Run Door A"}
           </Button>
           <span className="text-[11px] text-[var(--muted)]">
-            Empty liveUrl → Door B citation · with URL → operator_endpoint probe
+            Door A keyless · Door B citation in returned JSON
           </span>
         </div>
         {error ? (
@@ -298,14 +333,7 @@ export function ProveDoorsPanel() {
               <Badge tone="ok">
                 {String(result.schemaVersion ?? "ok")}
               </Badge>
-              {result.doorB?.mode === "operator_endpoint" ? (
-                <Badge tone="warn">
-                  Door B probe · provisioned:{" "}
-                  {String(result.doorB.provisioned ?? false)}
-                </Badge>
-              ) : (
-                <Badge tone="muted">Door B citation</Badge>
-              )}
+              <Badge tone="muted">Door B citation</Badge>
             </div>
             <pre
               className={cn(
@@ -316,6 +344,118 @@ export function ProveDoorsPanel() {
               data-testid="prove-doors-json-result"
             >
               {JSON.stringify(result, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-door-b-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <Play size={14} /> Run Door B live-url probe
+          </span>
+          <Badge tone="warn">POST {LIVE_URL_PROBE_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Operator-supplied OpenAI-compatible{" "}
+          <code className="text-[var(--accent)]">/v1</code> →{" "}
+          <code className="text-[var(--accent)]">GET /v1/models</code> only.
+          Returns real status / latencyMs / modelCount. Fail-closed on
+          unreachable or non-200.{" "}
+          <strong className="text-[var(--text)]/85 font-medium">
+            Probe ≠ measured A40 re-proof
+          </strong>{" "}
+          · <code className="text-[var(--accent)]">provisioned: false</code> ·{" "}
+          <code className="text-[var(--accent)]">spendUsd: null</code> · no
+          RunPod create.
+        </p>
+        <label className="block text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1.5">
+          liveUrl (required · OpenAI-compatible /v1)
+        </label>
+        <input
+          type="url"
+          value={liveUrl}
+          onChange={(e) => setLiveUrl(e.target.value)}
+          placeholder="http://127.0.0.1:8000/v1"
+          className={cn(
+            "w-full rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+            "px-3 py-2 text-sm font-mono text-[var(--text)] placeholder:text-[var(--muted)]",
+            "focus:outline-none focus:border-[var(--accent)]",
+          )}
+          data-testid="prove-doors-live-url"
+          disabled={probeBusy}
+        />
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <Button
+            type="button"
+            size="md"
+            disabled={probeBusy || busy || !liveUrl.trim()}
+            onClick={() => void runLiveUrlProbe()}
+            data-testid="prove-doors-door-b-run"
+            aria-label="Run Door B live-url probe via Desk API"
+          >
+            {probeBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Play size={14} />
+            )}
+            {probeBusy ? "Probing…" : "Run Door B probe"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            No spend claims · not A40 re-proof
+          </span>
+        </div>
+        {probeError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-door-b-error"
+            role="alert"
+          >
+            {probeError}
+          </p>
+        ) : null}
+        {probeResult ? (
+          <div className="mt-3" data-testid="prove-doors-door-b-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone={probeResult.ok === false ? "warn" : "ok"}>
+                {String(probeResult.schemaVersion ?? "probe")}
+              </Badge>
+              {typeof probeResult.probe?.httpStatus === "number" ? (
+                <Badge tone="muted">
+                  status: {probeResult.probe.httpStatus}
+                </Badge>
+              ) : probeResult.probe?.httpStatus === null ? (
+                <Badge tone="warn">status: unreachable</Badge>
+              ) : null}
+              {typeof probeResult.probe?.latencyMs === "number" ? (
+                <Badge tone="muted">
+                  latencyMs: {probeResult.probe.latencyMs}
+                </Badge>
+              ) : null}
+              {typeof probeResult.probe?.modelCount === "number" ? (
+                <Badge tone="muted">
+                  modelCount: {probeResult.probe.modelCount}
+                </Badge>
+              ) : null}
+              <Badge tone="muted">
+                provisioned: {String(probeResult.provisioned ?? false)}
+              </Badge>
+              <Badge tone="muted">
+                spendUsd: {String(probeResult.spendUsd ?? null)}
+              </Badge>
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-door-b-json"
+            >
+              {JSON.stringify(probeResult, null, 2)}
             </pre>
           </div>
         ) : null}
@@ -341,7 +481,7 @@ export function ProveDoorsPanel() {
           <Button
             type="button"
             size="md"
-            disabled={cassetteBusy || busy}
+            disabled={cassetteBusy || busy || probeBusy}
             onClick={() => void runCassetteReplay()}
             data-testid="prove-doors-cassette-run"
             aria-label="Run cassette replay via Desk API"

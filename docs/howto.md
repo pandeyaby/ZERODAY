@@ -34,7 +34,13 @@ npm run play
 
 Buttons run existing fixture paths: locate CWE-89, classify each scenario, mixed `zeroday demo`. The UI shows a SARIF summary, Splunk-shaped JSON snippet, and CISO markdown. No live telemetry, no simulated attacks, no exploits, no gated weights. Defensive tabs only.
 
-**Prove doors tab** — **Run** → `POST /api/stranger-verify` (in-process Door A + optional `{ "liveUrl" }` Door B `GET /v1/models` probe; same JSON as `stranger:verify --json`). Door B defaults to citation ([`gpu-claims.md`](./gpu-claims.md) § Live re-proof 2026-09-19 — pod `d65ny3xqf7bwza`, ~$0.034; `provisioned: false`). CLI copy-paste secondary. Non-claims visible. Detail: [`stranger-verify.md`](./stranger-verify.md) · [`ci-trust.md`](./ci-trust.md).
+**Prove doors tab** — **Run Door A** → `POST /api/stranger-verify` (same JSON as
+`stranger:verify --json`); **Door B live-url probe** → `POST /api/live-url-probe`
+(`GET /v1/models`, fail-closed; status / latencyMs / modelCount;
+`provisioned: false`; probe ≠ A40 re-proof). Door B citation defaults to
+[`gpu-claims.md`](./gpu-claims.md) § Live re-proof 2026-09-19. CLI copy-paste
+secondary. Non-claims visible. Detail: [`stranger-verify.md`](./stranger-verify.md)
+· [`ci-trust.md`](./ci-trust.md).
 
 **FAQ tab** — same Keyless Strength Q&As as [`docs/faq.md`](./faq.md) (`src/faq/content.ts`).
 
