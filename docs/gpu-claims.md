@@ -59,12 +59,33 @@ npm run zeroday -- antares doctor
 # same: bash scripts/runpod-vllm-antares.sh --print-only
 ```
 
-Then **you** (not CI):
+### Stranger probe vs measured A40 re-proof
+
+`npm run stranger:verify` stays **citation-only** for Door B by default (no GPU).
+Optional GPU-adjacent stranger win — probe a URL **you** already host:
+
+```bash
+npm run stranger:verify -- --live-url http://127.0.0.1:8000/v1
+# --json → doorB.mode "operator_endpoint", doorB.probe { httpStatus, latencyMs },
+#          provisioned: false, spendUsd: null
+```
+
+| Path | What it proves | Spend / provision |
+|------|----------------|-------------------|
+| **Default** `stranger:verify` | Door A keyless + Door B **citation** to § Live re-proof below | **$0** · no RunPod create · no HF pull |
+| **`--live-url`** probe | `GET /v1/models` against *your* endpoint only | **$0 from ZERODAY** · `provisioned: false` · `spendUsd: null` · never creates pods |
+| **Live re-proof (2026-09-19)** | Dated Secure A40 session (pod id, ~$0.034, models/completions 200, locate → `src/users.js`) | Operator-measured; **not** re-run by `--live-url` |
+
+**Probe ≠ measured A40 re-proof.** Cite [Live re-proof (2026-09-19 PT)](#live-re-proof-2026-09-19-pt)
+for historical Secure A40 facts. `--live-url` only validates *your* endpoint.
+See [`stranger-verify.md`](./stranger-verify.md).
+
+Then **you** (not CI) for a full live brain session:
 
 1. Accept HF gated terms for [`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) (never scrape/bypass).
 2. Provision Secure A40 (or Secure CUDA ≥ 12.8) yourself — recipe in [`runpod-antares.md`](./runpod-antares.md).
 3. Serve `vllm serve fdtn-ai/antares-1b …` exposing **`POST /v1/completions`**.
-4. Smoke doctor / Desk **Validate live** against loopback or your proxy `/v1`.
+4. Smoke doctor / Desk **Validate live** / optional `stranger:verify -- --live-url` against loopback or your proxy `/v1`.
 5. One live `locate` (fixture CWE-89-style or authorized repo) → confirm SARIF.
 6. **Stop or terminate** the pod — do not leave it RUNNING.
 
@@ -154,6 +175,7 @@ zeroday locate --cwe CWE-89 --repo fixtures/locate/demo-app --live \
 | `npm run zeroday -- doctor` | Print-only local completions checklist (Ollama/vLLM/LM Studio) | No |
 | `npm run zeroday -- antares doctor` | Print-only Secure A40 / HF / terminate-after checklist | No |
 | `npm run zeroday -- live validate --endpoint <url>` | Doctor ping; **fails closed** if endpoint unreachable; locate only with `--spend-ack` | Only if **you** already have an endpoint |
+| `npm run stranger:verify -- --live-url <url>` | Opt-in `GET /v1/models` only; `doorB.probe` · `provisioned: false` · `spendUsd: null` · **not** A40 re-proof | Only if **you** already have an endpoint |
 | Desk **Validate live (≤60s)** | Same habit in UI | Same |
 
 Keyless unit coverage (mocked / unreachable — **not** a live GPU cassette):

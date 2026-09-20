@@ -41,6 +41,29 @@ same artifact for external `workflow_call` callers.
 Desk **Prove doors** tab shows a static example shape + copy-paste for this
 command (no shell-out / no live Antares from the browser).
 
+### Opt-in Door B probe (`--live-url`) — operator endpoint only
+
+When **you** already host an OpenAI-compatible `/v1` (loopback or remote you
+pay for), you may ask `stranger:verify` to **probe** it — no RunPod create, no
+HF token / weight pull, no auto-spend:
+
+```bash
+npm run stranger:verify -- --live-url http://127.0.0.1:8000/v1
+npm run --silent stranger:verify -- --json --live-url http://127.0.0.1:8000/v1
+```
+
+Behavior:
+
+- `GET <base>/v1/models` (same health convention as live doctor / completions probe)
+- Human card + `--json` record `doorB.mode: "operator_endpoint"`,
+  `doorB.probe` with HTTP status + latencyMs,
+  `provisioned: false`, `spendUsd: null`
+- Without `--live-url`, Door B stays **citation-only** (current default)
+
+**Probe ≠ measured Secure A40 re-proof.** Historical pod / spend / models+completions
+200 facts stay on [`gpu-claims.md`](./gpu-claims.md) § Live re-proof (2026-09-19 PT).
+This flag only validates *your* endpoint reachability.
+
 ### Clone-free — GitHub Codespaces (Door A)
 
 No local Node install. Default Codespace is CPU / keyless only — **not** live
@@ -89,7 +112,8 @@ shell out to npm; schema preview is static, not live output).
 | Door | This command | Evidence |
 |------|--------------|----------|
 | **A — Keyless** | **Runs** locally · $0 · no GPU · no HF | PASS + SARIF / paired-probe paths under `zeroday-reports/trust-loop/` · sample grade [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
-| **B — Live GPU** | **Does not run** · citation only | Dated measured session in [`gpu-claims.md`](./gpu-claims.md) § Live re-proof (2026-09-19 PT) |
+| **B — Live GPU** | **Does not run** · citation only (default) | Dated measured session in [`gpu-claims.md`](./gpu-claims.md) § Live re-proof (2026-09-19 PT) |
+| **B — Opt-in probe** | `--live-url <your /v1>` · GET `/v1/models` only | `doorB.probe` status + latency · `provisioned: false` · `spendUsd: null` · **not** A40 re-proof |
 
 ## Door B facts (already on `gpu-claims.md` — invent nothing)
 
@@ -100,7 +124,9 @@ Quote only what that page already records for the 2026-09-19 Secure A40 session:
 - `GET /v1/models` → 200 · `POST /v1/completions` → 200
 - Live locate ranked `src/users.js` (CWE-89 fixture) · localization-only
 
-No auto-provision. No GPU spend from `stranger:verify`. To re-run yourself:
+No auto-provision. No GPU spend from `stranger:verify`. Opt-in `--live-url`
+probes a URL you already host (`operator_endpoint`) — still no pod create.
+To re-run a full live Door B yourself:
 [`runpod-antares.md`](./runpod-antares.md) (you provision + terminate).
 
 ## Optional local pre-commit (opt-in)
@@ -138,6 +164,7 @@ stranger/daily-driver path.
 - Localization ≠ exploitability · `needs_human` always
 - CI badge ≠ vuln proof — [`ci-trust.md`](./ci-trust.md)
 - Codespace ≠ live Antares (default Codespace has no GPU brain)
+- `--live-url` probe ≠ dated Secure A40 re-proof (see [`gpu-claims.md`](./gpu-claims.md))
 - No AUROC / File-F1 / org-scale latency SLAs
 - DIPTYCH grades separately · ZeroDay emits
 - Sample grade is illustrative (not a live DIPTYCH harness run)
