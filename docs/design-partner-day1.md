@@ -53,7 +53,7 @@ npm run stranger:verify
 | Surface | What you get |
 |---------|----------------|
 | Local / Codespace | Door A **PASS** + Door B **citation** card (no GPU) · optional `--json` for parsers |
-| Desk UI | `npm run play` → **Prove doors** tab (copy-paste only) |
+| Desk UI | `npm run play` → **Prove doors** tab (**Run** → `POST /api/stranger-verify`) |
 | This repo’s Actions badge | `stranger-verify` job on [`zeroday-locate.yml`](../.github/workflows/zeroday-locate.yml) |
 
 Badge honesty: [`ci-trust.md`](./ci-trust.md) · companion:

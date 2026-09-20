@@ -1,5 +1,5 @@
 /**
- * Desk /play Prove doors panel — wiring + honesty (no GPU, no invented AUROC).
+ * Desk /play Prove doors panel — Run wiring + honesty (no GPU, no invented AUROC).
  */
 
 import { describe, it } from "node:test";
@@ -35,7 +35,7 @@ describe("Desk Prove doors panel", () => {
     );
     assert.match(prove, /Door A/);
     assert.match(prove, /Door B/);
-    assert.match(prove, /citation only|Not run here/i);
+    assert.match(prove, /citation|Not run here|optional probe/i);
     assert.match(prove, /d65ny3xqf7bwza/);
     assert.match(prove, /\$0\.034|0\.034/);
     assert.match(prove, /src\/users\.js/);
@@ -53,29 +53,38 @@ describe("Desk Prove doors panel", () => {
     assert.match(prove, /DIPTYCH grades/i);
     // Must not claim one-click GPU or invent metrics
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=|File-F1\s*=/i);
-    assert.match(prove, /does not shell out|copy-paste/i);
   });
 
-  it("surfaces --json copy + static schema keys (no shell-out / no live Antares)", () => {
+  it("wires Run → POST /api/stranger-verify + renders JSON (copy CLI secondary)", () => {
     const prove = fs.readFileSync(
       path.join(root, "src/components/operator/prove-doors-panel.tsx"),
       "utf8",
     );
-    assert.match(prove, /data-testid="prove-doors-json-card"/);
-    assert.match(prove, /prove-doors-copy-json/);
-    assert.match(prove, /npm run --silent stranger:verify -- --json/);
+    const route = fs.readFileSync(
+      path.join(root, "src/app/api/stranger-verify/route.ts"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-run"/);
+    assert.match(prove, /data-testid="prove-doors-run-card"/);
+    assert.match(prove, /data-testid="prove-doors-live-url"/);
+    assert.match(prove, /data-testid="prove-doors-json-result"/);
+    assert.match(prove, /\/api\/stranger-verify/);
+    assert.match(prove, /fetch\(API_PATH|fetch\(["']\/api\/stranger-verify/);
+    assert.match(prove, /method:\s*["']POST["']/);
+    assert.match(prove, /liveUrl/);
+    assert.match(prove, /prove-doors-copy/);
+    assert.match(prove, /CLI \(secondary\)|copy-paste/i);
     assert.match(prove, /zeroday-stranger-verify\/v1/);
     assert.match(prove, /schemaVersion/);
     assert.match(prove, /doorA/);
-    assert.match(prove, /doorB\.mode|"citation"/);
+    assert.match(prove, /doorB/);
     assert.match(prove, /nonClaims/);
-    assert.match(prove, /stranger-verify-json/);
-    assert.match(prove, /machine-readable-json---json/);
-    assert.match(prove, /Static schema preview|not live output/i);
-    assert.match(prove, /data-testid="prove-doors-json-non-claims"/);
-    // Still no unsafe one-click runner / GPU
-    assert.doesNotMatch(prove, /\/api\/desk.*stranger|child_process|spawn\(|exec\(/i);
-    assert.doesNotMatch(prove, /create-pod|auto-provision|live Antares from/i);
+    assert.match(prove, /provisioned:\s*false|provisioned: false/);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
+    // API route exists and runs in-process module
+    assert.match(route, /runStrangerVerify/);
+    assert.match(route, /liveUrl/);
+    assert.match(route, /SECRET_FIELD_REFUSED|hfToken/);
   });
 
   it("README + howto point at Desk Prove doors tab", () => {
