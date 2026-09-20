@@ -139,6 +139,34 @@ describe("Desk Prove doors panel", () => {
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 
+  it("wires Run all doors → POST /api/prove-doors + aggregated JSON", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    const route = fs.readFileSync(
+      path.join(root, "src/app/api/prove-doors/route.ts"),
+      "utf8",
+    );
+    const desk = fs.readFileSync(
+      path.join(root, "src/desk/prove-doors.ts"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-run-all"/);
+    assert.match(prove, /data-testid="prove-doors-run-all-card"/);
+    assert.match(prove, /data-testid="prove-doors-run-all-json"/);
+    assert.match(prove, /Run all doors/);
+    assert.match(prove, /\/api\/prove-doors/);
+    assert.match(prove, /PROVE_ALL_API_PATH|fetch\(PROVE_ALL_API_PATH/);
+    assert.match(prove, /skipped/);
+    assert.match(route, /runProveDoors/);
+    assert.match(route, /SECRET_FIELD_REFUSED/);
+    assert.match(desk, /liveUrl omitted/);
+    assert.match(desk, /fail-closed|Fail-closed/);
+    assert.match(desk, /status:\s*"skipped"/);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
+  });
+
   it("README + howto point at Desk Prove doors tab", () => {
     const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
     const howto = fs.readFileSync(path.join(root, "docs/howto.md"), "utf8");

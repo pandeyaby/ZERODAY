@@ -38,7 +38,10 @@ see [`ci-trust.md`](./ci-trust.md)). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifact for external `workflow_call` callers.
 
-Desk **Prove doors** tab: **Run Door A** → `POST /api/stranger-verify`
+Desk **Prove doors** tab: **Run all doors** → `POST /api/prove-doors`
+(aggregates Door A + cassette:replay + optional Door B; Door B
+`status: "skipped"` when `liveUrl` omitted — not failed). Individual:
+**Run Door A** → `POST /api/stranger-verify`
 (in-process; citation Door B). **Run Door B live-url probe** →
 `POST /api/live-url-probe` with `{ "liveUrl": "https://…/v1" }`
 (`GET /v1/models` only; fail-closed on unreachable / non-200;
