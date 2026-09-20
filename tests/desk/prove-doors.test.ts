@@ -81,10 +81,31 @@ describe("Desk Prove doors panel", () => {
     assert.match(prove, /nonClaims/);
     assert.match(prove, /provisioned:\s*false|provisioned: false/);
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
-    // API route exists and runs in-process module
     assert.match(route, /runStrangerVerify/);
     assert.match(route, /liveUrl/);
     assert.match(route, /SECRET_FIELD_REFUSED|hfToken/);
+  });
+
+  it("wires cassette:replay Run → POST /api/cassette-replay + real JSON result", () => {
+    const prove = fs.readFileSync(
+      path.join(root, "src/components/operator/prove-doors-panel.tsx"),
+      "utf8",
+    );
+    const route = fs.readFileSync(
+      path.join(root, "src/app/api/cassette-replay/route.ts"),
+      "utf8",
+    );
+    assert.match(prove, /data-testid="prove-doors-cassette-card"/);
+    assert.match(prove, /data-testid="prove-doors-cassette-run"/);
+    assert.match(prove, /data-testid="prove-doors-cassette-json"/);
+    assert.match(prove, /\/api\/cassette-replay/);
+    assert.match(prove, /CASSETTE_API_PATH|fetch\(CASSETTE_API_PATH/);
+    assert.match(prove, /cassette:replay/);
+    assert.match(prove, /npm run cassette:replay/);
+    assert.match(route, /runCassetteReplay/);
+    assert.match(route, /ASSERT_MISMATCH/);
+    assert.match(route, /SECRET_FIELD_REFUSED/);
+    assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
   });
 
   it("README + howto point at Desk Prove doors tab", () => {

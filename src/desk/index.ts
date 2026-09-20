@@ -3,7 +3,8 @@
  * + Desk Console in-process runners for the local Operator /play UI
  * + Reports browser + org cassette record/replay (UI-2)
  * + Live brain endpoint wizard (UI-3)
- * + Prove-doors stranger:verify (POST /api/stranger-verify).
+ * + Prove-doors stranger:verify (POST /api/stranger-verify)
+ * + Prove-doors cassette:replay (POST /api/cassette-replay).
  */
 
 export {
@@ -102,3 +103,14 @@ export {
   type StrangerVerifyDoorB,
   type StrangerVerifyProbe,
 } from "./stranger-verify.ts";
+
+export {
+  CASSETTE_REPLAY_SCHEMA,
+  CASSETTE_REPLAY_REPO_ROOT,
+  runCassetteReplay,
+  cassetteReplayCatalog,
+  CassetteReplayError,
+  type CassetteReplayOptions,
+  type CassetteReplayResult,
+  type CassetteReplayNonClaims,
+} from "./cassette-replay.ts";

@@ -22,6 +22,8 @@ const VERIFY_ALIAS = "npm run doors";
 /** Prefer --silent so npm’s script banner does not precede the JSON. */
 const VERIFY_JSON_CMD = "npm run --silent stranger:verify -- --json";
 const API_PATH = "/api/stranger-verify";
+const CASSETTE_API_PATH = "/api/cassette-replay";
+const CASSETTE_CMD = "npm run cassette:replay";
 
 /** Facts already on docs/gpu-claims.md § Live re-proof (2026-09-19) — invent nothing. */
 const DOOR_B_FACTS = [
@@ -71,16 +73,35 @@ type ProveDoorsJson = {
   error?: string;
 };
 
+type CassetteReplayJson = {
+  schemaVersion?: string;
+  ok?: boolean;
+  exit?: number;
+  mode?: string;
+  findingCount?: number;
+  rankedFile?: string;
+  cweId?: string;
+  sarifResultCount?: number;
+  recording?: string;
+  error?: string;
+  code?: string;
+};
+
 /**
  * Prove doors — browser surface for stranger Door A (keyless verify) + Door B
- * (citation / optional liveUrl probe). Run calls POST /api/stranger-verify
- * (in-process). No one-click GPU. No invented metrics.
+ * (citation / optional liveUrl probe) + Keyless K3 cassette:replay.
+ * Run calls POST /api/stranger-verify or POST /api/cassette-replay (in-process).
+ * No one-click GPU. No invented metrics.
  */
 export function ProveDoorsPanel() {
   const [liveUrl, setLiveUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProveDoorsJson | null>(null);
+  const [cassetteBusy, setCassetteBusy] = useState(false);
+  const [cassetteError, setCassetteError] = useState<string | null>(null);
+  const [cassetteResult, setCassetteResult] =
+    useState<CassetteReplayJson | null>(null);
 
   const runVerify = useCallback(async () => {
     setBusy(true);
@@ -108,6 +129,31 @@ export function ProveDoorsPanel() {
       setBusy(false);
     }
   }, [liveUrl]);
+
+  const runCassetteReplay = useCallback(async () => {
+    setCassetteBusy(true);
+    setCassetteError(null);
+    setCassetteResult(null);
+    try {
+      const res = await fetch(CASSETTE_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      const json = (await res.json()) as CassetteReplayJson;
+      if (!res.ok) {
+        setCassetteError(json.error || `HTTP ${res.status}`);
+        setCassetteResult(json.exit != null ? json : null);
+      } else {
+        setCassetteResult(json);
+      }
+    } catch (e) {
+      setCassetteError((e as Error).message);
+      setCassetteResult(null);
+    } finally {
+      setCassetteBusy(false);
+    }
+  }, []);
 
   return (
     <div className="space-y-4 animate-fade-up" data-testid="prove-doors-panel">
@@ -270,6 +316,86 @@ export function ProveDoorsPanel() {
               data-testid="prove-doors-json-result"
             >
               {JSON.stringify(result, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="panel rounded-lg p-4"
+        data-testid="prove-doors-cassette-card"
+      >
+        <div className="panel-header !px-0 !pt-0 !border-0">
+          <span className="text-sm font-display tracking-wide flex items-center gap-2">
+            <Play size={14} /> Run cassette:replay
+          </span>
+          <Badge tone="ok">POST {CASSETTE_API_PATH}</Badge>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-2 mb-3">
+          Keyless K3 — offline org cassette replay + pinned assert (same as{" "}
+          <code className="text-[var(--accent)]">{CASSETTE_CMD}</code>
+          ). Returns mode / findingCount / rankedFile / SARIF count / exit.
+          Fail-closed on mismatch. No GPU / RunPod / record.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="md"
+            disabled={cassetteBusy || busy}
+            onClick={() => void runCassetteReplay()}
+            data-testid="prove-doors-cassette-run"
+            aria-label="Run cassette replay via Desk API"
+          >
+            {cassetteBusy ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Play size={14} />
+            )}
+            {cassetteBusy ? "Replaying…" : "Run cassette:replay"}
+          </Button>
+          <span className="text-[11px] text-[var(--muted)]">
+            Default: rules-cwe-89 cassette · findings=1 · src/search.js
+          </span>
+        </div>
+        {cassetteError ? (
+          <p
+            className="mt-3 text-sm text-[var(--danger)]"
+            data-testid="prove-doors-cassette-error"
+            role="alert"
+          >
+            {cassetteError}
+          </p>
+        ) : null}
+        {cassetteResult ? (
+          <div className="mt-3" data-testid="prove-doors-cassette-result">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <Badge tone={cassetteResult.ok === false ? "warn" : "ok"}>
+                {String(
+                  cassetteResult.schemaVersion ??
+                    `exit ${String(cassetteResult.exit ?? "?")}`,
+                )}
+              </Badge>
+              {cassetteResult.mode ? (
+                <Badge tone="muted">mode: {cassetteResult.mode}</Badge>
+              ) : null}
+              {typeof cassetteResult.findingCount === "number" ? (
+                <Badge tone="muted">
+                  findings: {cassetteResult.findingCount}
+                </Badge>
+              ) : null}
+              {cassetteResult.rankedFile ? (
+                <Badge tone="muted">{cassetteResult.rankedFile}</Badge>
+              ) : null}
+            </div>
+            <pre
+              className={cn(
+                "rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-[11px] font-mono text-[var(--muted)] overflow-x-auto",
+                "leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto",
+              )}
+              data-testid="prove-doors-cassette-json"
+            >
+              {JSON.stringify(cassetteResult, null, 2)}
             </pre>
           </div>
         ) : null}
