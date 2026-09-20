@@ -37,9 +37,12 @@ describe("reusable stranger-verify workflow", () => {
     assert.match(wf, /gpu-evidence-json/);
     assert.match(wf, /evidence-pack/);
     assert.match(wf, /out\/evidence/);
+    assert.match(wf, /doctor/);
+    assert.match(wf, /out\/doctor\.json/);
     assert.match(wf, /assert-prove-doors-ci-json\.mjs/);
     assert.match(wf, /assert-gpu-evidence-ci-json\.mjs/);
     assert.match(wf, /assert-evidence-pack-ci-json\.mjs/);
+    assert.match(wf, /assert-doctor-ci-json\.mjs/);
     assert.doesNotMatch(wf, /--endpoint|--live|HF_TOKEN|HF_HUB|create-pod/i);
     assert.match(wf, /no GPU|keyless/i);
   });
