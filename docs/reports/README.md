@@ -1,5 +1,18 @@
 # Desk reports (fixture / static)
 
+## Live GPU evidence (operator-measured — not a cassette)
+
+Checked-in **measured** Secure A40 live-locate evidence (facts only; no secrets /
+HF tokens). CI never replays this as a live GPU call.
+
+| File | Role |
+|------|------|
+| [`a40-live-locate-20260920.json`](./a40-live-locate-20260920.json) | `zeroday.gpu_live_locate_evidence/v1` — pod `1trf1rks3h40vs`, estimate ~$0.0245, locate → `src/users.js` |
+| Narrative | [`docs/gpu-claims.md`](../gpu-claims.md) § Live locate (2026-09-19/20 PT) |
+
+**Posture:** localization ≠ exploitability · not AUROC/File-F1/SLA · keyless CI
+stays GPU-free · prior A40 smoke kept in gpu-claims § Live re-proof (2026-09-19).
+
 ## DIPTYCH sample grade (design-partner door)
 
 Checked-in **sample / illustrative** DIPTYCH-shaped grade report regenerated from

@@ -176,6 +176,16 @@ locate CWE-89 → `src/users.js` — measured facts only in
 [`gpu-claims.md`](./gpu-claims.md#live-re-proof-2026-09-19-pt) (not a checked-in
 cassette; not an AUROC / latency SLA).
 
+**Dated live locate (2026-09-19/20 PT) — fuller locate with real tool-calls:**
+pod `1trf1rks3h40vs`, Secure A40 EU-RO-1, wall ~3.0 min, estimate **~$0.0245**
+(Billing API unsettled), completions 200, locate → `src/users.js` rank 1,
+`terminalCallsUsed` 1 / budget 15, SARIF sha256
+`b600e95f17720974ca9206abcc69aa30ec54cc2933a3259a02150b8b2cf9997e` —
+[`gpu-claims.md`](./gpu-claims.md#live-locate-2026-09-1920-pt) ·
+[`a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json).
+Prior smoke section kept; localization ≠ exploitability; not AUROC/File-F1/SLA;
+keyless CI stays GPU-free.
+
 ## Honesty
 
 1. HF gated accept still required for weights.
