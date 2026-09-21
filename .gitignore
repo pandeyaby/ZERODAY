@@ -24,6 +24,8 @@ next-env.d.ts
 /node_modules
 npm-debug.log*
 # Optional extracted official Antares CLI (gated HF download)
+# Generated operator artifacts (report / evidence-pack / doctor / prove-doors, etc.)
+# Keep fixtures/ and docs/ historical evidence tracked — only repo-root out/
 /out/
 *.pem
 .pnp.*
