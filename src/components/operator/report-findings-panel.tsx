@@ -2,11 +2,14 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
+  filterFindingsByPathContains,
   findingEvidenceForClipboard,
   findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
+  REPORT_FINDINGS_PATH_FILTER_EMPTY,
   type ReportFindingView,
 } from "@/desk/report-findings-view";
 import { Check, ClipboardCopy, ShieldAlert } from "lucide-react";
@@ -22,13 +25,17 @@ export type ReportFindingsPanelProps = {
 /**
  * Ranked findings panel for Desk Prove-doors after Generate report.
  * Presentational only — displays findings[] from the report response.
- * Localization ≠ exploitability; does not invent rows or start RunPod.
+ * Optional client-side path-contains filter narrows visible rows only
+ * (does not re-rank or invent). Localization ≠ exploitability; no RunPod.
  */
 export function ReportFindingsPanel({
   report,
   className,
 }: ReportFindingsPanelProps) {
   const view = findingsViewFromReport(report);
+  const [pathFilter, setPathFilter] = useState("");
+  const visible = filterFindingsByPathContains(view.findings, pathFilter);
+  const filterActive = pathFilter.trim().length > 0;
   const runpod =
     report &&
     typeof report === "object" &&
@@ -47,7 +54,9 @@ export function ReportFindingsPanel({
           Ranked findings
         </span>
         <Badge tone="muted">
-          {view.findings.length} listed
+          {filterActive
+            ? `${visible.length} of ${view.findings.length} listed`
+            : `${view.findings.length} listed`}
         </Badge>
         <Badge tone="muted">
           runpod: {String(runpod ?? false)}
@@ -56,15 +65,29 @@ export function ReportFindingsPanel({
       </div>
 
       {view.findings.length > 0 ? (
-        <ol
-          className="space-y-2 mb-3"
-          data-testid="prove-doors-report-findings"
-        >
-          {view.findings.map((f, i) => (
-            <FindingRow key={`${f.path}-${i}`} finding={f} index={i} />
-          ))}
-        </ol>
-      ) : (
+        <div className="mb-2">
+          <label
+            className="block text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1.5"
+            htmlFor="prove-doors-report-findings-path-filter"
+          >
+            Path contains
+          </label>
+          <Input
+            id="prove-doors-report-findings-path-filter"
+            type="search"
+            value={pathFilter}
+            onChange={(e) => setPathFilter(e.target.value)}
+            placeholder="Filter by path substring…"
+            className="text-sm font-mono py-1.5"
+            data-testid="prove-doors-report-findings-path-filter"
+            aria-label="Filter ranked findings by path substring (case-insensitive)"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </div>
+      ) : null}
+
+      {view.findings.length === 0 ? (
         <p
           className="text-[11px] text-[var(--muted)] mb-3"
           data-testid="prove-doors-report-findings-empty"
@@ -72,6 +95,23 @@ export function ReportFindingsPanel({
         >
           {view.emptyMessage ??
             "No ranked files in inputs — empty is not a clean claim."}
+        </p>
+      ) : visible.length > 0 ? (
+        <ol
+          className="space-y-2 mb-3"
+          data-testid="prove-doors-report-findings"
+        >
+          {visible.map((f, i) => (
+            <FindingRow key={`${f.path}-${i}`} finding={f} index={i} />
+          ))}
+        </ol>
+      ) : (
+        <p
+          className="text-[11px] text-[var(--muted)] mb-3"
+          data-testid="prove-doors-report-findings-filter-empty"
+          role="status"
+        >
+          {REPORT_FINDINGS_PATH_FILTER_EMPTY}
         </p>
       )}
 

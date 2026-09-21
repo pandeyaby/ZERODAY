@@ -128,6 +128,25 @@ export function viewFromReportFinding(
 }
 
 /**
+ * Client-side path-contains filter for ranked findings.
+ * Case-insensitive substring on `path` only; empty/whitespace query → all rows.
+ * Preserves order — does not re-rank or invent findings.
+ */
+export function filterFindingsByPathContains(
+  findings: readonly ReportFindingView[],
+  query: string | null | undefined,
+): ReportFindingView[] {
+  const needle =
+    typeof query === "string" ? query.trim().toLowerCase() : "";
+  if (!needle) return [...findings];
+  return findings.filter((f) => f.path.toLowerCase().includes(needle));
+}
+
+/** Honest empty when a path filter matches no ranked rows. */
+export const REPORT_FINDINGS_PATH_FILTER_EMPTY =
+  "No ranked findings match this path filter — try a different substring (does not invent rows)." as const;
+
+/**
  * Build ranked findings view from a zeroday.report/v1 payload (or Desk envelope).
  * Does not re-sort or invent metrics — preserves report order after dropping invalids.
  */
