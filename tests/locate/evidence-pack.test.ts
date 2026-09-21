@@ -304,7 +304,7 @@ describe("evidence-pack module + CLI", () => {
   });
 
   it("CLI: fail-closed --from missing exits non-zero", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-cli-miss-"));
+    const tmp = fs.mkdtempSync(path.join(root, "out", "zd-evidence-pack-cli-miss-"));
     try {
       const missing = path.join(tmp, "gone.json");
       const out = path.join(tmp, "pack");

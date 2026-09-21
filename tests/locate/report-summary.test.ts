@@ -281,22 +281,26 @@ describe("CLI report", () => {
   });
 
   it("fail-closed bad schema exits non-zero with --json", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-report-schema-"));
+    const tmp = fs.mkdtempSync(path.join(root, "out", "zd-report-schema-"));
     const bad = path.join(tmp, "bad-prove.json");
-    fs.writeFileSync(
-      bad,
-      JSON.stringify({ schemaVersion: "wrong", ok: true }) + "\n",
-      "utf8",
-    );
-    const r = runReportCli(["--from", bad, "--json"]);
-    assert.notEqual(r.status, 0);
-    const json = JSON.parse(r.stdout) as {
-      ok: boolean;
-      runpod: boolean;
-      code?: string;
-    };
-    assert.equal(json.ok, false);
-    assert.equal(json.runpod, false);
-    assert.equal(json.code, "INPUT_SCHEMA");
+    try {
+      fs.writeFileSync(
+        bad,
+        JSON.stringify({ schemaVersion: "wrong", ok: true }) + "\n",
+        "utf8",
+      );
+      const r = runReportCli(["--from", bad, "--json"]);
+      assert.notEqual(r.status, 0);
+      const json = JSON.parse(r.stdout) as {
+        ok: boolean;
+        runpod: boolean;
+        code?: string;
+      };
+      assert.equal(json.ok, false);
+      assert.equal(json.runpod, false);
+      assert.equal(json.code, "INPUT_SCHEMA");
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });
