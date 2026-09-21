@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   evidenceSnippetFromFinding,
+  findingEvidenceForClipboard,
   findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
@@ -32,6 +33,13 @@ function clipboardPayloadOnCopyPathClick(
   findingPath: string | null | undefined,
 ): string | null {
   return findingPathForClipboard(findingPath);
+}
+
+/** Simulate Copy evidence click payload — exact evidence only; never invent. */
+function clipboardPayloadOnCopyEvidenceClick(
+  evidence: unknown,
+): string | null {
+  return findingEvidenceForClipboard(evidence);
 }
 
 describe("report-findings-view (from fixture report JSON)", () => {
@@ -147,6 +155,42 @@ describe("report-findings-view (from fixture report JSON)", () => {
     assert.equal(findingPathForClipboard(null), null);
     assert.equal(clipboardPayloadOnCopyPathClick(""), null);
   });
+
+  it("Copy evidence clipboard payload is exact fixture evidence (no invent)", () => {
+    const report = runReport({ from: FIXTURE_PROVE, cwd: root });
+    const view = findingsViewFromReport(report);
+    assert.ok(view.findings.length >= 1);
+    const expected = "cassette:replay mode=recording";
+    assert.equal(report.findings[0]?.evidence?.[0], expected);
+    assert.equal(view.findings[0]?.evidenceExact, expected);
+
+    // From report JSON evidence[] and from view.evidenceExact — same exact text.
+    assert.equal(
+      clipboardPayloadOnCopyEvidenceClick(report.findings[0]?.evidence),
+      expected,
+    );
+    assert.equal(
+      clipboardPayloadOnCopyEvidenceClick(view.findings[0]?.evidenceExact),
+      expected,
+    );
+    assert.equal(findingEvidenceForClipboard(expected), expected);
+
+    // Fail-closed: blank / missing → no clipboard string (hide/disable copy).
+    assert.equal(findingEvidenceForClipboard(""), null);
+    assert.equal(findingEvidenceForClipboard("   "), null);
+    assert.equal(findingEvidenceForClipboard(undefined), null);
+    assert.equal(findingEvidenceForClipboard(null), null);
+    assert.equal(findingEvidenceForClipboard([]), null);
+    assert.equal(findingEvidenceForClipboard([42, "  "]), null);
+    assert.equal(clipboardPayloadOnCopyEvidenceClick([]), null);
+    assert.equal(clipboardPayloadOnCopyEvidenceClick(""), null);
+
+    // Finding with path but no evidence → no Copy evidence payload.
+    const noEv = viewFromReportFinding({ path: "ok.js", rank: 1, evidence: [] });
+    assert.equal(noEv?.path, "ok.js");
+    assert.equal(noEv?.evidenceExact, undefined);
+    assert.equal(findingEvidenceForClipboard(noEv?.evidenceExact), null);
+  });
 });
 
 describe("ReportFindingsPanel + Prove-doors wiring", () => {
@@ -184,6 +228,15 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(panel, /Copied.*Copy path|Copy path[\s\S]*Copied/);
     assert.doesNotMatch(panel, /create-pod|exploit PoC|payload/i);
 
+    // Per-row Copy evidence: twin of Copy path — exact report evidence; fail-closed hide.
+    assert.match(panel, /CopyFindingEvidenceButton/);
+    assert.match(panel, /data-testid="prove-doors-report-finding-copy-evidence"/);
+    assert.match(panel, /aria-label=\{`Copy evidence \$\{evidence\}`\}/);
+    assert.match(panel, /navigator\.clipboard\.writeText\(evidence\)/);
+    assert.match(panel, /findingEvidenceForClipboard/);
+    assert.match(panel, /\{copyEvidence \? \([\s\S]*CopyFindingEvidenceButton/);
+    assert.match(panel, /Copied.*Copy evidence|Copy evidence[\s\S]*Copied/);
+
     assert.match(prove, /ReportFindingsPanel/);
     assert.match(prove, /report-findings-panel/);
     assert.match(prove, /data-testid="prove-doors-report-card"/);
@@ -197,6 +250,7 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(view, /fail-closed/i);
     assert.match(view, /Localization\s*≠\s*exploitability/);
     assert.match(view, /findingPathForClipboard/);
+    assert.match(view, /findingEvidenceForClipboard/);
     assert.doesNotMatch(view, /create-pod|runpod\.com|exploit PoC/i);
   });
 });
