@@ -44,6 +44,9 @@ describe("evidencePackCatalog", () => {
     assert.ok(c.honesty.some((h) => /Fail-closed|fail-closed/i.test(h)));
     assert.ok(c.honesty.some((h) => /runProveDoors|loadGpuEvidence/i.test(h)));
     assert.ok(c.honesty.some((h) => /runReport/i.test(h)));
+    assert.ok(
+      c.honesty.some((h) => /Desk body top|parseReportTop|omit/i.test(h)),
+    );
   });
 });
 
@@ -173,6 +176,123 @@ describe("GET/POST /api/evidence-pack", () => {
     assert.equal(body.startsRunPod, false);
     assert.equal(body.historicalGpuEvidenceOnly, true);
   });
+
+  it("POST omit top → full packed report (no top/truncated)", async () => {
+    const req = new Request("http://localhost/api/evidence-pack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const res = await evidencePackPost(req);
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      startsRunPod: boolean;
+      report: {
+        findings: unknown[];
+        top?: number;
+        truncated?: boolean;
+        runpod: boolean;
+      };
+      files: Record<string, unknown>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.startsRunPod, false);
+    assert.equal(body.report.runpod, false);
+    assert.equal(body.report.top, undefined);
+    assert.equal(body.report.truncated, undefined);
+    assert.ok(Array.isArray(body.report.findings));
+    const reportFile = body.files[EVIDENCE_PACK_REPORT_JSON_FILE] as {
+      top?: number;
+      truncated?: boolean;
+      findings: unknown[];
+    };
+    assert.equal(reportFile.top, undefined);
+    assert.equal(reportFile.truncated, undefined);
+    assert.equal(reportFile.findings.length, body.report.findings.length);
+  });
+
+  it("POST top=1 truncates packed report (same as CLI --top)", async () => {
+    const fullReq = new Request("http://localhost/api/evidence-pack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const fullRes = await evidencePackPost(fullReq);
+    assert.equal(fullRes.status, 200);
+    const full = (await fullRes.json()) as {
+      report: { findings: Array<{ path?: string }>; top?: number };
+    };
+
+    const req = new Request("http://localhost/api/evidence-pack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ top: 1 }),
+    });
+    const res = await evidencePackPost(req);
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      startsRunPod: boolean;
+      report: {
+        findings: Array<{ path?: string }>;
+        top?: number;
+        truncated?: boolean;
+        runpod: boolean;
+      };
+      reportMarkdown?: string;
+      files: Record<string, unknown>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.startsRunPod, false);
+    assert.equal(body.report.runpod, false);
+    assert.equal(body.report.top, 1);
+    assert.equal(body.report.truncated, full.report.findings.length > 1);
+    assert.ok(body.report.findings.length <= 1);
+    if (full.report.findings.length > 0) {
+      assert.equal(body.report.findings[0]?.path, full.report.findings[0]?.path);
+    }
+    const reportFile = body.files[EVIDENCE_PACK_REPORT_JSON_FILE] as {
+      findings: unknown[];
+      top?: number;
+      truncated?: boolean;
+    };
+    assert.equal(reportFile.top, 1);
+    assert.equal(reportFile.truncated, full.report.findings.length > 1);
+    assert.ok(reportFile.findings.length <= 1);
+    assert.ok(
+      typeof body.reportMarkdown === "string" &&
+        /Showing top 1/i.test(body.reportMarkdown),
+    );
+  });
+
+  it("POST invalid top fail-closed 400 INPUT_INVALID", async () => {
+    for (const bad of [0, -1, 1.5, "abc", "", "1e2"]) {
+      const req = new Request("http://localhost/api/evidence-pack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ top: bad }),
+      });
+      const res = await evidencePackPost(req);
+      assert.equal(
+        res.status,
+        400,
+        `expected 400 for top=${JSON.stringify(bad)}`,
+      );
+      const body = (await res.json()) as {
+        ok: boolean;
+        code?: string;
+        error?: string;
+        startsRunPod: boolean;
+        historicalGpuEvidenceOnly: boolean;
+      };
+      assert.equal(body.ok, false);
+      assert.equal(body.code, "INPUT_INVALID");
+      assert.equal(body.startsRunPod, false);
+      assert.equal(body.historicalGpuEvidenceOnly, true);
+      assert.match(String(body.error), /top/i);
+    }
+  });
 });
 
 describe("Prove doors evidence-pack wiring", () => {
@@ -188,16 +308,22 @@ describe("Prove doors evidence-pack wiring", () => {
     assert.match(prove, /data-testid="prove-doors-evidence-pack-card"/);
     assert.match(prove, /data-testid="prove-doors-evidence-pack-run"/);
     assert.match(prove, /data-testid="prove-doors-evidence-pack-download"/);
+    assert.match(prove, /data-testid="prove-doors-evidence-pack-top"/);
     assert.match(prove, /\/api\/evidence-pack/);
     assert.match(prove, /downloadEvidencePackFiles/);
     assert.match(prove, /does not start RunPod/i);
     assert.match(prove, /out\/evidence/);
+    assert.match(prove, /body\.top|packTop|topRaw/);
     assert.doesNotMatch(prove, /create-pod|auto-provision|AUROC\s*=/i);
     assert.match(route, /runEvidencePack/);
     assert.match(route, /EvidencePackError/);
+    assert.match(route, /parseReportTop/);
+    assert.match(route, /INPUT_INVALID/);
     assert.match(route, /startsRunPod:\s*false/);
     assert.match(route, /historicalGpuEvidenceOnly:\s*true/);
     assert.doesNotMatch(route, /create-pod|runpod\.com|auto-provision/i);
     assert.doesNotMatch(route, /runProveDoors\s*\(|loadGpuEvidence\s*\(/);
+    // Must reuse CLI truncate helper — not fork ranking.
+    assert.doesNotMatch(route, /findings\.slice\(/);
   });
 });

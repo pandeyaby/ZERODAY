@@ -85,7 +85,7 @@ Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discover
 `record --redact` (default ON, fail-closed) writes org CI cassettes; `locate --recording` replays them as `mode: "recording"`. Human reviews redaction before commit — never auto-commit / network-exfil. Org cassettes ≠ mvp fixtures.
 `zeroday doctor` (default) is fail-closed local workstation readiness (`zeroday.doctor/v1`) — Node, package scripts, historical gpu-evidence, cassette fixture, prove-doors entrypoints; no RunPod / no network. Desk: `POST /api/doctor` → download `doctor.json`. `zeroday doctor --local-brain` is print-only Keyless K4: completions-only, no model download / auto-start. Arbitrary local models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
 `zeroday report` (`zeroday.report/v1`) turns existing prove-doors JSON and/or SARIF into a short CISO summary (optional historical gpu-evidence footnote; optional `--top N` truncates ranked findings); localization ≠ exploitability; `runpod: false`. Desk: `POST /api/report` (optional body/query `top`, same as CLI `--top`) → download `report.json` + `report.md`.
-`zeroday evidence-pack` builds `out/evidence/` (prove-doors + historical gpu-evidence + report + manifest); optional `--top N` uses the same truncate helper as `report --top` (omit → full); does not start RunPod.
+`zeroday evidence-pack` builds `out/evidence/` (prove-doors + historical gpu-evidence + report + manifest); optional `--top N` uses the same truncate helper as `report --top` (omit → full); Desk: `POST /api/evidence-pack` optional body `top` (same helper; omit → full); does not start RunPod.
 
 ## Local UI API (npm run play)
 

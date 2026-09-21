@@ -317,7 +317,7 @@ export function evidencePackCatalog() {
       "Reuses runProveDoors + loadGpuEvidence + runReport — does not reimplement doors/report",
       "Historical gpu-evidence only — does not start RunPod / no GPU spend",
       "report.json / report.md via runReport (zeroday.report/v1) — localization ≠ exploitability",
-      "Optional CLI --top N → same parseReportTop / applyTopFindings as report (omit → full)",
+      "Optional CLI --top N / Desk body top → same parseReportTop / applyTopFindings as report (omit → full)",
       "Fail-closed: prove-doors, gpu-evidence, or report failure → no partial pack claim",
       "Desk returns pack JSON for browser download (CLI shape: out/evidence/)",
       "Localization ≠ exploitability · needs_human · no invented metrics · no PoC",

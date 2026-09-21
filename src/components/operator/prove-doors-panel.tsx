@@ -332,6 +332,8 @@ export function ProveDoorsPanel() {
   const [packBusy, setPackBusy] = useState(false);
   const [packError, setPackError] = useState<string | null>(null);
   const [packResult, setPackResult] = useState<EvidencePackJson | null>(null);
+  /** Optional top-N for packed report (empty = omit → full; same as CLI --top). */
+  const [packTop, setPackTop] = useState("");
   const [doctorBusy, setDoctorBusy] = useState(false);
   const [doctorError, setDoctorError] = useState<string | null>(null);
   const [doctorResult, setDoctorResult] = useState<DoctorJson | null>(null);
@@ -525,10 +527,16 @@ export function ProveDoorsPanel() {
     setPackError(null);
     setPackResult(null);
     try {
+      // Optional top-N — same parseReportTop semantics as CLI --top (API fail-closed).
+      const body: Record<string, unknown> = {};
+      const topRaw = packTop.trim();
+      if (topRaw) {
+        body.top = topRaw;
+      }
       const res = await fetch(EVIDENCE_PACK_API_PATH, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: "{}",
+        body: JSON.stringify(body),
       });
       const json = (await res.json()) as EvidencePackJson;
       if (!res.ok || json.ok === false) {
@@ -544,7 +552,7 @@ export function ProveDoorsPanel() {
     } finally {
       setPackBusy(false);
     }
-  }, []);
+  }, [packTop]);
 
   const runDoctorDownload = useCallback(async () => {
     setDoctorBusy(true);
@@ -1323,14 +1331,46 @@ export function ProveDoorsPanel() {
         <p className="text-xs text-[var(--muted)] mt-2 mb-3">
           Builds the design-partner pack via existing{" "}
           <code className="text-[var(--accent)]">runEvidencePack</code>{" "}
-          (prove-doors + historical gpu-evidence + manifest) — same files as CLI{" "}
-          <code className="text-[var(--accent)]">out/evidence/</code>. Fail-closed ·{" "}
+          (prove-doors + historical gpu-evidence + report + manifest) — same
+          files as CLI{" "}
+          <code className="text-[var(--accent)]">out/evidence/</code>. Optional
+          Top-N matches CLI{" "}
+          <code className="text-[var(--accent)]">--top N</code> for packed{" "}
+          <code className="text-[var(--accent)]">report.json</code> /{" "}
+          <code className="text-[var(--accent)]">report.md</code> (omit = full).
+          Fail-closed ·{" "}
           <strong className="text-[var(--text)]/85 font-medium">
             does not start RunPod
           </strong>
           .
         </p>
-        <div className="flex flex-wrap items-center gap-2 mt-3">
+        <div className="flex flex-wrap items-end gap-3 mt-3">
+          <div className="min-w-[7rem]">
+            <label
+              className="block text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1.5"
+              htmlFor="prove-doors-evidence-pack-top"
+            >
+              Top-N (optional)
+            </label>
+            <input
+              id="prove-doors-evidence-pack-top"
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              value={packTop}
+              onChange={(e) => setPackTop(e.target.value)}
+              placeholder="all"
+              className={cn(
+                "w-full max-w-[8rem] rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-sm font-mono text-[var(--text)] placeholder:text-[var(--muted)]",
+                "focus:outline-none focus:border-[var(--accent)]",
+              )}
+              data-testid="prove-doors-evidence-pack-top"
+              aria-label="Optional top N ranked findings in packed report (positive integer; omit for full report)"
+              disabled={packBusy}
+            />
+          </div>
           <Button
             type="button"
             size="md"
@@ -1348,7 +1388,7 @@ export function ProveDoorsPanel() {
               ? "Building pack…"
               : "Download evidence-pack"}
           </Button>
-          <span className="text-[11px] text-[var(--muted)]">
+          <span className="text-[11px] text-[var(--muted)] pb-2">
             Downloads {EVIDENCE_PACK_DOWNLOAD_FILENAMES.join(" · ")}
           </span>
         </div>
