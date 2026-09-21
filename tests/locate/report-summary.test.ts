@@ -281,6 +281,8 @@ describe("CLI report", () => {
   });
 
   it("fail-closed bad schema exits non-zero with --json", () => {
+    fs.mkdirSync(path.join(root, "out"), { recursive: true });
+
     const tmp = fs.mkdtempSync(path.join(root, "out", "zd-report-schema-"));
     const bad = path.join(tmp, "bad-prove.json");
     try {

@@ -81,6 +81,7 @@ describe("CLI path allowlist (assertAllowedReadPath)", () => {
   it("evidence-pack --from absolute escape → PATH_POLICY", () => {
     const outside = path.join(os.tmpdir(), `zd-cli-ep-escape-${Date.now()}.json`);
     fs.writeFileSync(outside, "{}" + "\n", "utf8");
+    fs.mkdirSync(path.join(root, "out"), { recursive: true });
     const out = path.join(root, "out", `zd-cli-ep-${Date.now()}`);
     try {
       const r = runCli([

@@ -105,6 +105,8 @@ describe("CLI gpu-evidence", () => {
   });
 
   it("fail-closed: missing evidence --json exits non-zero", () => {
+    fs.mkdirSync(path.join(root, "out"), { recursive: true });
+
     const tmp = fs.mkdtempSync(path.join(root, "out", "zd-gpu-cli-missing-"));
     try {
       const missing = path.join(tmp, "no-such-evidence.json");
@@ -126,6 +128,8 @@ describe("CLI gpu-evidence", () => {
   });
 
   it("fail-closed: corrupt JSON --json exits non-zero", () => {
+    fs.mkdirSync(path.join(root, "out"), { recursive: true });
+
     const tmp = fs.mkdtempSync(path.join(root, "out", "zd-gpu-cli-corrupt-"));
     try {
       const bad = path.join(tmp, "broken.json");
@@ -146,6 +150,8 @@ describe("CLI gpu-evidence", () => {
   });
 
   it("fail-closed: schema mismatch --from exits non-zero (human)", () => {
+    fs.mkdirSync(path.join(root, "out"), { recursive: true });
+
     const tmp = fs.mkdtempSync(path.join(root, "out", "zd-gpu-cli-schema-"));
     try {
       const bad = path.join(tmp, "bad-schema.json");
