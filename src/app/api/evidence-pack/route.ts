@@ -5,6 +5,8 @@
  * gpu-evidence + report + manifest). Fail-closed. Historical gpu-evidence only —
  * never starts RunPod / no GPU spend. Returns pack JSON matching CLI
  * `out/evidence/` file names for browser download (temp write, cleaned up).
+ * Optional body `top` — same parseReportTop / applyTopFindings as CLI `--top N`
+ * (omit → full packed report).
  */
 
 import fs from "node:fs";
@@ -25,6 +27,7 @@ import {
   EVIDENCE_PACK_REPO_ROOT,
   type EvidencePackManifest,
 } from "@/locate/evidence-pack";
+import { parseReportTop, ReportError } from "@/locate/report-summary";
 import {
   assertAllowedReadPath,
   PathPolicyError,
@@ -50,6 +53,11 @@ const BANNED_KEYS = [
 
 type EvidencePackBody = {
   gpuEvidenceFrom?: unknown;
+  /**
+   * Optional top-N truncate for packed report (same as CLI `--top N`).
+   * Positive integer; omit for full packed report. Fail-closed via parseReportTop.
+   */
+  top?: unknown;
 };
 
 function optionalString(
@@ -62,6 +70,26 @@ function optionalString(
   }
   const trimmed = value.trim();
   return { ok: true, value: trimmed || undefined };
+}
+
+/**
+ * Optional top-N: omit/null → full packed report; otherwise fail-closed
+ * parseReportTop (same helper as CLI `--top` / POST /api/report).
+ */
+function optionalTop(
+  value: unknown,
+): { ok: true; value: number | undefined } | { ok: false; error: string; code: string } {
+  if (value === undefined || value === null) {
+    return { ok: true, value: undefined };
+  }
+  try {
+    return { ok: true, value: parseReportTop(value) };
+  } catch (e) {
+    const err = e as Error;
+    const code =
+      err instanceof ReportError ? (err as ReportError).code : "INPUT_INVALID";
+    return { ok: false, error: err.message, code };
+  }
 }
 
 export async function GET() {
@@ -77,7 +105,7 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json(
         {
-          error: 'Expected JSON body (optional { "gpuEvidenceFrom" })',
+          error: 'Expected JSON body (optional { "gpuEvidenceFrom", "top" })',
           ok: false,
           schemaVersion: EVIDENCE_PACK_SCHEMA,
           startsRunPod: false,
@@ -110,6 +138,21 @@ export async function POST(req: Request) {
       {
         error: gpuEvidenceFrom.error,
         code: "FIELD_TYPE",
+        ok: false,
+        schemaVersion: EVIDENCE_PACK_SCHEMA,
+        startsRunPod: false,
+        historicalGpuEvidenceOnly: true,
+      },
+      { status: 400 },
+    );
+  }
+
+  const topParsed = optionalTop(body.top);
+  if (!topParsed.ok) {
+    return NextResponse.json(
+      {
+        error: topParsed.error,
+        code: topParsed.code,
         ok: false,
         schemaVersion: EVIDENCE_PACK_SCHEMA,
         startsRunPod: false,
@@ -152,6 +195,7 @@ export async function POST(req: Request) {
     const result = await runEvidencePack({
       out: outDir,
       ...(gatedGpuFrom ? { gpuEvidenceFrom: gatedGpuFrom } : {}),
+      ...(topParsed.value !== undefined ? { top: topParsed.value } : {}),
     });
 
     // Downloadable manifest uses CLI default out path (not server temp).
