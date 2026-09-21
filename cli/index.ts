@@ -20,7 +20,7 @@
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
  *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + report + manifest (no RunPod)
- *   zeroday report --from prove-doors.json | --sarif path.sarif  # CISO localization summary (zeroday.report/v1)
+ *   zeroday report --from prove-doors.json | --sarif path.sarif [--top N]  # CISO localization summary (zeroday.report/v1)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
  */
@@ -116,6 +116,7 @@ import {
   writeReportArtifacts,
   ReportError,
   REPORT_SCHEMA,
+  parseReportTop,
 } from "../src/locate/report-summary.ts";
 import {
   assertAllowedReadPath,
@@ -1872,12 +1873,17 @@ program
     "--out <path>",
     "Write markdown (default) or JSON (with --json) to this file",
   )
+  .option(
+    "--top <N>",
+    "Keep only the top N ranked findings (positive integer; after ranking, before emit)",
+  )
   .action((opts: {
     from?: string;
     sarif?: string;
     gpuEvidence?: string;
     json: boolean;
     out?: string;
+    top?: string;
   }) => {
     try {
       const from = gateCliReadPath(opts.from, "from", {
@@ -1892,10 +1898,14 @@ program
         mustExist: true,
         kind: "file",
       });
+      // Commander may omit --top or pass a string; parseReportTop fails closed.
+      const top =
+        opts.top !== undefined ? parseReportTop(opts.top) : undefined;
       const report = runReport({
         from,
         sarif,
         gpuEvidence,
+        top,
         cwd: REPO_ROOT,
       });
 
@@ -1920,7 +1930,11 @@ program
         process.stdout.write(
           [
             `schema   : ${report.schemaVersion}`,
-            `findings : ${report.findings.length}`,
+            `findings : ${report.findings.length}${
+              typeof report.top === "number"
+                ? ` (top ${report.top}${report.truncated ? ", truncated" : ""})`
+                : ""
+            }`,
             `runpod   : false`,
             `sources  : ${report.sources.map((s) => s.kind).join(", ")}`,
             "",

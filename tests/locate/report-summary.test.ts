@@ -15,6 +15,8 @@ import {
   formatReportMarkdown,
   writeReportArtifacts,
   parseProveDoorsJson,
+  parseReportTop,
+  applyTopFindings,
   ReportError,
   REPORT_SCHEMA,
 } from "../../src/locate/report-summary.ts";
@@ -193,6 +195,75 @@ describe("report-summary module", () => {
     assert.equal(parsed.schemaVersion, REPORT_SCHEMA);
     assert.equal(parsed.runpod, false);
   });
+
+  it("parseReportTop accepts positive integers only (fail-closed)", () => {
+    assert.equal(parseReportTop(1), 1);
+    assert.equal(parseReportTop("3"), 3);
+    assert.equal(parseReportTop(" 12 "), 12);
+    for (const bad of [undefined, null, "", " ", "0", "-1", "1.5", "abc", "1e2", "0x2"]) {
+      assert.throws(
+        () => parseReportTop(bad),
+        (e: unknown) =>
+          e instanceof ReportError && e.code === "INPUT_INVALID",
+      );
+    }
+  });
+
+  it("--top N truncates ranked findings after collection (no re-rank)", () => {
+    const full = runReport({
+      sarif: FIXTURE_SARIF,
+      cwd: root,
+      generatedAt: "2026-09-20T12:00:00.000Z",
+    });
+    assert.ok(full.findings.length > 1, "fixture must have >1 findings");
+    assert.equal(full.top, undefined);
+    assert.equal(full.truncated, undefined);
+
+    const top1 = runReport({
+      sarif: FIXTURE_SARIF,
+      cwd: root,
+      top: 1,
+      generatedAt: "2026-09-20T12:00:00.000Z",
+    });
+    assert.equal(top1.findings.length, 1);
+    assert.equal(top1.top, 1);
+    assert.equal(top1.truncated, true);
+    assert.equal(top1.findings[0]?.path, full.findings[0]?.path);
+    assert.equal(top1.findings[0]?.rank, full.findings[0]?.rank);
+    assert.equal(top1.runpod, false);
+
+    // top >= count: still notes top, truncated false
+    const topAll = runReport({
+      sarif: FIXTURE_SARIF,
+      cwd: root,
+      top: full.findings.length + 5,
+    });
+    assert.equal(topAll.findings.length, full.findings.length);
+    assert.equal(topAll.truncated, false);
+    assert.equal(topAll.top, full.findings.length + 5);
+
+    const md = formatReportMarkdown(top1);
+    assert.match(md, /Showing top 1/);
+    assert.match(md, /truncated/i);
+    assert.match(md, /Localization ≠ exploitability/i);
+  });
+
+  it("applyTopFindings slices without inventing scores", () => {
+    const applied = applyTopFindings(
+      [
+        { path: "a.js", rank: 1, evidence: ["x"], source: "sarif" },
+        { path: "b.js", rank: 2, evidence: ["y"], source: "sarif" },
+        { path: "c.js", rank: 3, evidence: ["z"], source: "sarif" },
+      ],
+      2,
+    );
+    assert.equal(applied.findings.length, 2);
+    assert.equal(applied.top, 2);
+    assert.equal(applied.truncated, true);
+    assert.equal(applied.findings[0]?.path, "a.js");
+    assert.equal(applied.findings[1]?.path, "b.js");
+    assert.equal(applied.findings[0]?.score, undefined);
+  });
 });
 
 describe("CLI report", () => {
@@ -303,6 +374,75 @@ describe("CLI report", () => {
       assert.equal(json.code, "INPUT_SCHEMA");
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("--top 1 truncates SARIF findings (>1 → 1) with truncated:true", () => {
+    const full = runReportCli(["--sarif", FIXTURE_SARIF, "--json"]);
+    assert.equal(full.status, 0, full.stderr);
+    const fullJson = JSON.parse(full.stdout) as {
+      findings: Array<{ path: string }>;
+    };
+    assert.ok(fullJson.findings.length > 1);
+
+    const r = runReportCli([
+      "--sarif",
+      FIXTURE_SARIF,
+      "--json",
+      "--top",
+      "1",
+    ]);
+    assert.equal(r.status, 0, r.stderr);
+    const json = JSON.parse(r.stdout) as {
+      schemaVersion: string;
+      runpod: boolean;
+      findings: Array<{ path: string; rank?: number }>;
+      top?: number;
+      truncated?: boolean;
+      disclaimers: string[];
+    };
+    assert.equal(json.schemaVersion, REPORT_SCHEMA);
+    assert.equal(json.runpod, false);
+    assert.equal(json.findings.length, 1);
+    assert.equal(json.top, 1);
+    assert.equal(json.truncated, true);
+    assert.equal(json.findings[0]?.path, fullJson.findings[0]?.path);
+    assert.ok(json.disclaimers.some((d) => /Localization ≠ exploitability/i.test(d)));
+  });
+
+  it("default (no --top) unchanged — no top/truncated fields", () => {
+    const r = runReportCli(["--sarif", FIXTURE_SARIF, "--json"]);
+    assert.equal(r.status, 0, r.stderr);
+    const json = JSON.parse(r.stdout) as {
+      findings: unknown[];
+      top?: number;
+      truncated?: boolean;
+    };
+    assert.ok(json.findings.length >= 2);
+    assert.equal(json.top, undefined);
+    assert.equal(json.truncated, undefined);
+  });
+
+  it("invalid --top fails closed (0, negative, non-integer)", () => {
+    for (const bad of ["0", "-1", "1.5", "abc"]) {
+      const r = runReportCli([
+        "--sarif",
+        FIXTURE_SARIF,
+        "--json",
+        "--top",
+        bad,
+      ]);
+      assert.notEqual(r.status, 0, `expected fail for --top ${bad}`);
+      const json = JSON.parse(r.stdout) as {
+        ok: boolean;
+        runpod: boolean;
+        code?: string;
+        error?: string;
+      };
+      assert.equal(json.ok, false);
+      assert.equal(json.runpod, false);
+      assert.equal(json.code, "INPUT_INVALID");
+      assert.match(String(json.error), /--top/i);
     }
   });
 });

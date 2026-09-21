@@ -49,6 +49,7 @@ export type ReportErrorCode =
   | "INPUT_MISSING"
   | "INPUT_CORRUPT"
   | "INPUT_SCHEMA"
+  | "INPUT_INVALID"
   | "WRITE_FAILED";
 
 export class ReportError extends Error {
@@ -102,6 +103,13 @@ export interface ZerodayReport {
     historicalGpu: boolean;
   };
   gpuFootnote?: ReportGpuFootnote;
+  /**
+   * Present when `--top N` was applied — positive integer N.
+   * Does not invent scores; truncates existing ranked findings only.
+   */
+  top?: number;
+  /** True when findings[] was truncated to `top`. Omitted when no `--top`. */
+  truncated?: boolean;
 }
 
 export interface RunReportOptions {
@@ -118,6 +126,11 @@ export interface RunReportOptions {
   cwd?: string;
   /** Inject generated_at for tests. */
   generatedAt?: string;
+  /**
+   * Keep only the first N ranked findings (after existing ranking).
+   * Positive integer; omit for full list. Fail-closed via parseReportTop.
+   */
+  top?: number;
 }
 
 const DISCLAIMERS: string[] = [
@@ -131,6 +144,58 @@ const DISCLAIMERS: string[] = [
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/**
+ * Fail-closed parse of `--top <N>`: positive integer only.
+ * Rejects missing / empty, non-integer, ≤0, floats, and scientific notation.
+ */
+export function parseReportTop(raw: unknown): number {
+  if (raw === undefined || raw === null) {
+    throw new ReportError(
+      "--top requires a positive integer",
+      "INPUT_INVALID",
+    );
+  }
+  const s = String(raw).trim();
+  if (!s) {
+    throw new ReportError(
+      "--top requires a positive integer",
+      "INPUT_INVALID",
+    );
+  }
+  // Digits only — rejects "1.5", "-1", "1e2", "abc", "0x2".
+  if (!/^\d+$/.test(s)) {
+    throw new ReportError(
+      `--top must be a positive integer (got ${JSON.stringify(String(raw))})`,
+      "INPUT_INVALID",
+    );
+  }
+  const n = Number(s);
+  if (!Number.isInteger(n) || n < 1 || !Number.isSafeInteger(n)) {
+    throw new ReportError(
+      `--top must be a positive integer (got ${JSON.stringify(String(raw))})`,
+      "INPUT_INVALID",
+    );
+  }
+  return n;
+}
+
+/**
+ * Truncate already-ranked findings to the first N entries.
+ * Does not re-rank or invent scores — preserves collector order.
+ */
+export function applyTopFindings(
+  findings: ReportFinding[],
+  top: number,
+): { findings: ReportFinding[]; truncated: boolean; top: number } {
+  const n = parseReportTop(top);
+  const truncated = findings.length > n;
+  return {
+    findings: findings.slice(0, n),
+    truncated,
+    top: n,
+  };
 }
 
 function resolveUnderCwd(cwd: string, raw: string, label: string): string {
@@ -504,11 +569,20 @@ export function runReport(opts: RunReportOptions = {}): ZerodayReport {
     }
   }
 
+  // Apply --top after ranking / collection, before emit. No new metrics.
+  let emittedFindings = findings;
+  let topMeta: { top: number; truncated: boolean } | undefined;
+  if (opts.top !== undefined) {
+    const applied = applyTopFindings(findings, opts.top);
+    emittedFindings = applied.findings;
+    topMeta = { top: applied.top, truncated: applied.truncated };
+  }
+
   return {
     schemaVersion: REPORT_SCHEMA,
     generated_at: opts.generatedAt ?? new Date().toISOString(),
     sources,
-    findings,
+    findings: emittedFindings,
     disclaimers: [...DISCLAIMERS, ...extraDisclaimers],
     runpod: false,
     whatWasRun: {
@@ -517,6 +591,9 @@ export function runReport(opts: RunReportOptions = {}): ZerodayReport {
       historicalGpu,
     },
     ...(gpuFootnote ? { gpuFootnote } : {}),
+    ...(topMeta
+      ? { top: topMeta.top, truncated: topMeta.truncated }
+      : {}),
   };
 }
 
@@ -577,6 +654,12 @@ export function formatReportMarkdown(report: ZerodayReport): string {
 
   lines.push(`## Ranked files / findings`);
   lines.push(``);
+  if (typeof report.top === "number") {
+    lines.push(
+      `_Showing top ${report.top} ranked finding${report.top === 1 ? "" : "s"}${report.truncated ? " (truncated)" : ""}. Localization ≠ exploitability._`,
+    );
+    lines.push(``);
+  }
   if (report.findings.length === 0) {
     lines.push(
       `_No ranked files in the supplied inputs. Empty localization is **not** a claim that the target is clean._`,

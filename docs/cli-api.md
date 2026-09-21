@@ -40,6 +40,7 @@ npm run zeroday -- doctor --json
 npm run report -- --from prove-doors.json
 npm run zeroday -- report --sarif fixtures/locate/ingest-sample/sample.sarif
 # npm run report -- --from prove-doors.json --json --out report.json
+# Short CISO cut: npm run report -- --sarif fixtures/locate/ingest-sample/sample.sarif --top 5 --json
 
 # Print-only local OpenAI-compatible brain checklist (Keyless K4 — $0)
 npm run zeroday -- doctor --local-brain
@@ -82,7 +83,7 @@ Rules mode is thin in-repo heuristics — **not** Antares File F1 and **not** ex
 Ingest mode reads a local SARIF 2.1 file only — **not** Antares/rules discovery; no alerts API fetch.
 `record --redact` (default ON, fail-closed) writes org CI cassettes; `locate --recording` replays them as `mode: "recording"`. Human reviews redaction before commit — never auto-commit / network-exfil. Org cassettes ≠ mvp fixtures.
 `zeroday doctor` (default) is fail-closed local workstation readiness (`zeroday.doctor/v1`) — Node, package scripts, historical gpu-evidence, cassette fixture, prove-doors entrypoints; no RunPod / no network. Desk: `POST /api/doctor` → download `doctor.json`. `zeroday doctor --local-brain` is print-only Keyless K4: completions-only, no model download / auto-start. Arbitrary local models ≠ Antares File F1. See [`local-brain.md`](./local-brain.md).
-`zeroday report` (`zeroday.report/v1`) turns existing prove-doors JSON and/or SARIF into a short CISO summary (optional historical gpu-evidence footnote); localization ≠ exploitability; `runpod: false`. Desk: `POST /api/report` → download `report.json` + `report.md`.
+`zeroday report` (`zeroday.report/v1`) turns existing prove-doors JSON and/or SARIF into a short CISO summary (optional historical gpu-evidence footnote; optional `--top N` truncates ranked findings); localization ≠ exploitability; `runpod: false`. Desk: `POST /api/report` → download `report.json` + `report.md`.
 
 ## Local UI API (npm run play)
 

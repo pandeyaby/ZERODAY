@@ -27,6 +27,7 @@ ZERODAY Codespace — clone-free Door A
   8. Optional: Run Task → “ZERODAY: report”
      (or: npm run report -- --from fixtures/locate/report-sample/prove-doors.json --out out/report.md)
      writes out/report.md + out/report.json · CISO localization summary (zeroday.report/v1); does not start RunPod
+     tip: add --top N for a short CISO cut of the top N ranked findings (e.g. --top 5)
   9. Expect Door A PASS + Door B citation (no GPU here)
 
 Honest non-claims:
@@ -37,7 +38,7 @@ Honest non-claims:
   · gpu-evidence task = --out gpu-evidence.json · historical Measured A40 only; does not start RunPod
   · evidence-pack task = --out out/evidence · historical gpu-evidence only; does not start RunPod
   · doctor task = --out out/doctor.json · local workstation readiness only; does not start RunPod
-  · report task = --out out/report.md + out/report.json · localization only; does not start RunPod
+  · report task = --out out/report.md + out/report.json · localization only; optional --top N; does not start RunPod
   · live upload stays CLI + security_events: write
   · no HF gated weights · no RunPod auto-provision
 
