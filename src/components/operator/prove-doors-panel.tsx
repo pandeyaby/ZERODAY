@@ -286,6 +286,10 @@ type ReportJson = ReportDownloadPayload & {
     source?: string;
   }>;
   disclaimers?: string[];
+  /** Present when Desk/CLI top-N was applied (positive integer). */
+  top?: number;
+  /** True when findings[] was truncated to top. */
+  truncated?: boolean;
 };
 
 /**
@@ -334,6 +338,8 @@ export function ProveDoorsPanel() {
   const [reportBusy, setReportBusy] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
   const [reportResult, setReportResult] = useState<ReportJson | null>(null);
+  /** Optional top-N (empty = omit → full ranked list; same as CLI --top). */
+  const [reportTop, setReportTop] = useState("");
 
   const anyBusy =
     busy ||
@@ -573,10 +579,15 @@ export function ProveDoorsPanel() {
     setReportResult(null);
     try {
       // Prefer last Run-all prove-doors JSON; else keyless fixture default.
-      const body =
+      const body: Record<string, unknown> =
         allResult && allResult.schemaVersion
           ? { proveDoors: allResult }
           : { from: "prove-doors" };
+      // Optional top-N — same parseReportTop semantics as CLI --top (API fail-closed).
+      const topRaw = reportTop.trim();
+      if (topRaw) {
+        body.top = topRaw;
+      }
       const res = await fetch(REPORT_API_PATH, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -596,7 +607,7 @@ export function ProveDoorsPanel() {
     } finally {
       setReportBusy(false);
     }
-  }, [allResult]);
+  }, [allResult, reportTop]);
 
   return (
     <div className="space-y-4 animate-fade-up" data-testid="prove-doors-panel">
@@ -1563,13 +1574,41 @@ export function ProveDoorsPanel() {
           <code className="text-[var(--accent)]">out/report.json</code> /{" "}
           <code className="text-[var(--accent)]">out/report.md</code>. Uses last
           Run-all prove-doors JSON when present; otherwise keyless fixture.
-          Fail-closed · never invents findings ·{" "}
+          Optional Top-N matches CLI{" "}
+          <code className="text-[var(--accent)]">--top N</code> (omit = full
+          list). Fail-closed · never invents findings ·{" "}
           <strong className="text-[var(--text)]/85 font-medium">
             does not start RunPod
           </strong>
           .
         </p>
-        <div className="flex flex-wrap items-center gap-2 mt-3">
+        <div className="flex flex-wrap items-end gap-3 mt-3">
+          <div className="min-w-[7rem]">
+            <label
+              className="block text-[11px] uppercase tracking-wider text-[var(--muted)] mb-1.5"
+              htmlFor="prove-doors-report-top"
+            >
+              Top-N (optional)
+            </label>
+            <input
+              id="prove-doors-report-top"
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              value={reportTop}
+              onChange={(e) => setReportTop(e.target.value)}
+              placeholder="all"
+              className={cn(
+                "w-full max-w-[8rem] rounded-md border border-[var(--line)] bg-[var(--bg-2)]",
+                "px-3 py-2 text-sm font-mono text-[var(--text)] placeholder:text-[var(--muted)]",
+                "focus:outline-none focus:border-[var(--accent)]",
+              )}
+              data-testid="prove-doors-report-top"
+              aria-label="Optional top N ranked findings (positive integer; omit for full list)"
+              disabled={reportBusy}
+            />
+          </div>
           <Button
             type="button"
             size="md"
@@ -1585,7 +1624,7 @@ export function ProveDoorsPanel() {
             )}
             {reportBusy ? "Generating…" : "Generate report"}
           </Button>
-          <span className="text-[11px] text-[var(--muted)]">
+          <span className="text-[11px] text-[var(--muted)] pb-2">
             Downloads {REPORT_DOWNLOAD_FILENAMES.join(" · ")}
             {allResult ? " · from last Run-all" : " · fixture sample"}
           </span>
@@ -1611,6 +1650,12 @@ export function ProveDoorsPanel() {
                   ? reportResult.findings.length
                   : 0}
               </Badge>
+              {typeof reportResult.top === "number" ? (
+                <Badge tone="muted" data-testid="prove-doors-report-top-badge">
+                  top: {reportResult.top}
+                  {reportResult.truncated ? " · truncated" : ""}
+                </Badge>
+              ) : null}
               <Badge tone="muted">
                 runpod: {String(reportResult.runpod ?? false)}
               </Badge>
