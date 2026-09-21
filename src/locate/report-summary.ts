@@ -755,6 +755,7 @@ export function reportCatalog() {
       "Fail-closed: never invents findings / metrics / AUROC / File F1",
       "runpod: false — does not start RunPod / no GPU spend / no live Antares",
       "Inputs: prove-doors JSON path, inline prove-doors, and/or SARIF path on disk",
+      "Optional top (body/query) — same parseReportTop / applyTopFindings as CLI --top N",
       "Desk returns zeroday.report/v1 JSON + markdown for browser download",
       "No PoC / exploit / payload · no auto-fix · no auto-merge",
     ],

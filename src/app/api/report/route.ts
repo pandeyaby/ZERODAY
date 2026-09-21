@@ -16,6 +16,7 @@ import {
   formatReportMarkdown,
   reportCatalog,
   ReportError,
+  parseReportTop,
   REPORT_SCHEMA,
   REPORT_DEFAULT_FROM,
   REPORT_REPO_ROOT,
@@ -53,6 +54,11 @@ type ReportBody = {
   markdown?: unknown;
   /** Alias for from=fixture default when true. */
   fixture?: unknown;
+  /**
+   * Optional top-N truncate (same as CLI `--top N`).
+   * Positive integer; omit for full ranked list. Fail-closed via parseReportTop.
+   */
+  top?: unknown;
 };
 
 function reportErrorBody(
@@ -101,6 +107,7 @@ function statusForReportCode(code: string | undefined): number {
     case "PATH_POLICY":
     case "INPUT_CORRUPT":
     case "INPUT_SCHEMA":
+    case "INPUT_INVALID":
     case "FIELD_TYPE":
     case "BAD_JSON":
       return 400;
@@ -110,6 +117,26 @@ function statusForReportCode(code: string | undefined): number {
       return 500;
     default:
       return 500;
+  }
+}
+
+/**
+ * Optional top-N: omit/null → full list; otherwise fail-closed parseReportTop
+ * (same helper as CLI `--top`).
+ */
+function optionalTop(
+  value: unknown,
+): { ok: true; value: number | undefined } | { ok: false; error: string; code: string } {
+  if (value === undefined || value === null) {
+    return { ok: true, value: undefined };
+  }
+  try {
+    return { ok: true, value: parseReportTop(value) };
+  } catch (e) {
+    const err = e as Error;
+    const code =
+      err instanceof ReportError ? (err as ReportError).code : "INPUT_INVALID";
+    return { ok: false, error: err.message, code };
   }
 }
 
@@ -200,6 +227,8 @@ async function runReportFromRequest(opts: {
   gpuEvidence?: string;
   fixture?: boolean;
   includeMarkdown: boolean;
+  /** Positive integer; omit for full ranked list (CLI `--top` semantics). */
+  top?: number;
 }): Promise<NextResponse> {
   let tmpRoot: string | undefined;
 
@@ -266,6 +295,7 @@ async function runReportFromRequest(opts: {
       ...(fromPath ? { from: fromPath } : {}),
       ...(sarifPath ? { sarif: sarifPath } : {}),
       ...(gpuPath ? { gpuEvidence: gpuPath } : {}),
+      ...(opts.top !== undefined ? { top: opts.top } : {}),
       cwd: REPORT_REPO_ROOT,
     });
 
@@ -302,12 +332,22 @@ export async function GET(req: Request) {
   const sarifQ = url.searchParams.get("sarif") ?? undefined;
   const fixtureQ = url.searchParams.get("fixture");
   const mdQ = url.searchParams.get("markdown");
+  const topQ = url.searchParams.has("top")
+    ? url.searchParams.get("top")
+    : undefined;
+  const top = optionalTop(topQ);
+  if (!top.ok) {
+    return NextResponse.json(reportErrorBody(top.error, top.code), {
+      status: 400,
+    });
+  }
 
   return runReportFromRequest({
     from: fromQ?.trim() || undefined,
     sarif: sarifQ?.trim() || undefined,
     fixture: fixtureQ === "1" || fixtureQ === "true",
     includeMarkdown: mdQ !== "0" && mdQ !== "false",
+    top: top.value,
   });
 }
 
@@ -320,7 +360,7 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json(
         reportErrorBody(
-          'Expected JSON body (optional { "from", "sarif", "proveDoors", "fixture" })',
+          'Expected JSON body (optional { "from", "sarif", "proveDoors", "fixture", "top" })',
           "BAD_JSON",
         ),
         { status: 400 },
@@ -370,6 +410,12 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
+  const top = optionalTop(body.top);
+  if (!top.ok) {
+    return NextResponse.json(reportErrorBody(top.error, top.code), {
+      status: 400,
+    });
+  }
 
   return runReportFromRequest({
     from: from.value,
@@ -378,5 +424,6 @@ export async function POST(req: Request) {
     gpuEvidence: gpuEvidence.value,
     fixture: fixture.value,
     includeMarkdown: markdown.value !== false,
+    top: top.value,
   });
 }
