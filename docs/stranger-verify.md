@@ -41,7 +41,7 @@ see [`ci-trust.md`](./ci-trust.md)). Same job also runs
 `npm run gpu-evidence -- --json --out gpu-evidence.json` → artifact **`gpu-evidence-json`** (CI validates historical evidence JSON; does not start RunPod) and
 `npm run evidence-pack -- --json --out out/evidence` → artifact **`evidence-pack`** (`out/evidence/` incl. `report.json`/`report.md`; fail-closed `assert-evidence-pack-report.mjs`; does not start RunPod) and
 `npm run doctor -- --json --out out/doctor.json` → artifact **`doctor`** (`out/doctor.json`; `zeroday.doctor/v1` workstation readiness; does not start RunPod) and
-`npm run report -- --from fixtures/locate/report-sample/prove-doors.json --json --out out/report.json` (+ `--out out/report.md`) → artifact **`report`** (`out/report.json` + `out/report.md`; `zeroday.report/v1` CISO localization summary; does not start RunPod). The reusable
+`npm run report -- --from fixtures/locate/report-sample/prove-doors.json --json --out out/report.json` (+ `--out out/report.md`) → artifact **`report`** (`out/report.json` + `out/report.md`; `zeroday.report/v1` CISO localization summary; does not start RunPod). Generated `out/` artifacts are gitignored (`fixtures/` / `docs/` historical evidence stay tracked). The reusable
 [`stranger-verify.yml`](../.github/workflows/stranger-verify.yml) uploads the
 same artifacts for external `workflow_call` callers.
 
