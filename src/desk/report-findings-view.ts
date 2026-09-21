@@ -18,7 +18,13 @@ export type ReportFindingView = {
   rank?: number;
   score?: number;
   cweIds?: string[];
+  /** Truncated first evidence line for UI display only. */
   evidenceSnippet?: string;
+  /**
+   * Exact first non-blank evidence string from report JSON (for Copy evidence).
+   * Never invented; absent when evidence is blank/missing.
+   */
+  evidenceExact?: string;
   source?: string;
 };
 
@@ -63,6 +69,25 @@ export function findingPathForClipboard(
 }
 
 /**
+ * Evidence string for clipboard "Copy evidence" — exact report text only.
+ * Accepts finding.evidence[] (first non-blank string) or an already-extracted
+ * string. Fail-closed: missing/blank → null (do not invent evidence).
+ */
+export function findingEvidenceForClipboard(
+  evidence: unknown,
+): string | null {
+  if (typeof evidence === "string") {
+    const trimmed = evidence.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if (!Array.isArray(evidence) || evidence.length === 0) return null;
+  const first = evidence.find((e) => typeof e === "string" && e.trim());
+  if (typeof first !== "string") return null;
+  const trimmed = first.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
  * Normalize one zeroday.report/v1 finding for display.
  * Fail-closed: missing/invalid path → null (do not invent a row).
  */
@@ -92,8 +117,12 @@ export function viewFromReportFinding(
   if (typeof raw.source === "string" && raw.source.trim()) {
     view.source = raw.source.trim();
   }
-  const snippet = evidenceSnippetFromFinding(raw.evidence);
-  if (snippet) view.evidenceSnippet = snippet;
+  const exact = findingEvidenceForClipboard(raw.evidence);
+  if (exact) {
+    view.evidenceExact = exact;
+    const snippet = evidenceSnippetFromFinding([exact]);
+    if (snippet) view.evidenceSnippet = snippet;
+  }
 
   return view;
 }

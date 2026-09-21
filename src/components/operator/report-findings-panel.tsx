@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  findingEvidenceForClipboard,
   findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
@@ -101,6 +102,7 @@ function FindingRow({
   const rankLabel =
     typeof finding.rank === "number" ? `#${finding.rank}` : `#${index + 1}`;
   const copyPath = findingPathForClipboard(finding.path);
+  const copyEvidence = findingEvidenceForClipboard(finding.evidenceExact);
 
   return (
     <li
@@ -125,6 +127,9 @@ function FindingRow({
         ) : null}
         {copyPath ? (
           <CopyFindingPathButton path={copyPath} />
+        ) : null}
+        {copyEvidence ? (
+          <CopyFindingEvidenceButton evidence={copyEvidence} />
         ) : null}
       </div>
       {finding.evidenceSnippet ? (
@@ -162,6 +167,33 @@ function CopyFindingPathButton({ path }: { path: string }) {
     >
       {copied ? <Check size={12} /> : <ClipboardCopy size={12} />}
       {copied ? "Copied" : "Copy path"}
+    </Button>
+  );
+}
+
+/**
+ * Per-row Copy evidence — twin of Copy path / Desk Copy JSON.
+ * Copies the exact first evidence string from report JSON; never invents.
+ */
+function CopyFindingEvidenceButton({ evidence }: { evidence: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      type="button"
+      className="shrink-0"
+      onClick={() => {
+        void navigator.clipboard.writeText(evidence).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        });
+      }}
+      aria-label={`Copy evidence ${evidence}`}
+      data-testid="prove-doors-report-finding-copy-evidence"
+    >
+      {copied ? <Check size={12} /> : <ClipboardCopy size={12} />}
+      {copied ? "Copied" : "Copy evidence"}
     </Button>
   );
 }
