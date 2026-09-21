@@ -14,6 +14,10 @@ import {
   CassetteReplayAssertError,
   RULES_CWE_89_CASSETTE,
 } from "../locate/index";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "../lib/path-policy";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const CASSETTE_REPLAY_REPO_ROOT = path.resolve(HERE, "../..");
@@ -81,6 +85,21 @@ const NON_CLAIMS: CassetteReplayNonClaims = {
   ciBadgeNotVulnProof: true,
 };
 
+function resolveDeskReadPath(cwd: string, raw: string, label: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new CassetteReplayError(`${label} is empty`, "PATH_EMPTY");
+  }
+  try {
+    return assertAllowedReadPath(cwd, trimmed, { label });
+  } catch (e) {
+    if (e instanceof PathPolicyError) {
+      throw new CassetteReplayError(e.message, "PATH_POLICY", 2);
+    }
+    throw e;
+  }
+}
+
 function resolveUnderCwd(cwd: string, raw: string, label: string): string {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -112,7 +131,8 @@ export async function runCassetteReplay(
     );
   }
 
-  const recording = resolveUnderCwd(cwd, recordingRel, "recording");
+  // Read input: fail-closed Desk allowlist. Output dir may be tmp (Desk/API tests).
+  const recording = resolveDeskReadPath(cwd, recordingRel, "recording");
   const outputDir = resolveUnderCwd(cwd, outputRel, "outputDir");
 
   let located;

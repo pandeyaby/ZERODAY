@@ -14,6 +14,10 @@ import {
   normalizeCompletionsEndpoint,
 } from "../locate/completions";
 import { runPairedProbesFromSarif } from "../locate/paired-probes/from-sarif";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "../lib/path-policy";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const STRANGER_VERIFY_REPO_ROOT = path.resolve(HERE, "../..");
@@ -259,8 +263,21 @@ export async function runStrangerVerify(
 ): Promise<StrangerVerifyResult> {
   const cwd = opts.cwd ? path.resolve(opts.cwd) : STRANGER_VERIFY_REPO_ROOT;
   const outRel = opts.outputDir ?? "zeroday-reports/trust-loop";
+  // Output may be tmp (Desk/API tests). Fixture SARIF read is allowlisted.
   const outputRoot = path.isAbsolute(outRel) ? outRel : path.join(cwd, outRel);
-  const sampleSarif = path.join(cwd, SAMPLE_SARIF);
+  let sampleSarif: string;
+  try {
+    sampleSarif = assertAllowedReadPath(cwd, SAMPLE_SARIF, {
+      mustExist: true,
+      kind: "file",
+      label: "sampleSarif",
+    });
+  } catch (e) {
+    if (e instanceof PathPolicyError) {
+      throw new StrangerVerifyError(e.message, "PATH_POLICY");
+    }
+    throw e;
+  }
 
   // Door A — keyless paired-probe from in-repo fixture SARIF (trust-loop default).
   await runPairedProbesFromSarif({

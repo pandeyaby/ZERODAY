@@ -15,7 +15,12 @@ import { NextResponse } from "next/server";
 import {
   runProveDoors,
   proveDoorsCatalog,
+  PROVE_DOORS_REPO_ROOT,
 } from "@/desk/prove-doors";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "@/lib/path-policy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,6 +71,25 @@ function optionalPositiveInt(
     return { ok: false, error: `${field} must be a positive integer` };
   }
   return { ok: true, value: n };
+}
+
+/** Fail-closed Desk read allowlist for optional client path fields. */
+function gateOptionalPath(
+  value: string | undefined,
+  label: string,
+): { ok: true; value: string | undefined } | { ok: false; error: string } {
+  if (!value) return { ok: true, value: undefined };
+  try {
+    return {
+      ok: true,
+      value: assertAllowedReadPath(PROVE_DOORS_REPO_ROOT, value, { label }),
+    };
+  } catch (e) {
+    if (e instanceof PathPolicyError) {
+      return { ok: false, error: e.message };
+    }
+    throw e;
+  }
 }
 
 export async function GET() {
@@ -162,10 +186,21 @@ export async function POST(req: Request) {
     );
   }
 
+  const recordingPath = gateOptionalPath(recording.value, "recording");
+  if (!recordingPath.ok) {
+    return NextResponse.json(
+      { error: recordingPath.error, code: "PATH_POLICY", ok: false },
+      { status: 400 },
+    );
+  }
+  // Output dirs are write targets (may be tmp) — gate only read inputs here.
+  // cassetteOutputDir / strangerOutputDir stay optional overrides without
+  // package-root allowlist (runners still resolve under cwd).
+
   try {
     const result = await runProveDoors({
       liveUrl: liveUrl.value,
-      recording: recording.value,
+      recording: recordingPath.value,
       cassetteOutputDir: cassetteOutputDir.value,
       strangerOutputDir: strangerOutputDir.value,
       expectFindings: expectFindings.value,
@@ -177,6 +212,17 @@ export async function POST(req: Request) {
     return NextResponse.json(result);
   } catch (e) {
     const err = e as Error;
+    if (err instanceof PathPolicyError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: err.message,
+          code: "PATH_POLICY",
+          schemaVersion: "zeroday-prove-doors/v1",
+        },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       {
         ok: false,
