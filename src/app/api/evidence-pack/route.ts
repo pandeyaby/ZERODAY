@@ -22,8 +22,13 @@ import {
   EVIDENCE_PACK_REPORT_JSON_FILE,
   EVIDENCE_PACK_REPORT_MD_FILE,
   EVIDENCE_PACK_MANIFEST_FILE,
+  EVIDENCE_PACK_REPO_ROOT,
   type EvidencePackManifest,
 } from "@/locate/evidence-pack";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "@/lib/path-policy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -114,15 +119,39 @@ export async function POST(req: Request) {
     );
   }
 
+  let gatedGpuFrom: string | undefined;
+  if (gpuEvidenceFrom.value) {
+    try {
+      gatedGpuFrom = assertAllowedReadPath(
+        EVIDENCE_PACK_REPO_ROOT,
+        gpuEvidenceFrom.value,
+        { label: "gpuEvidenceFrom" },
+      );
+    } catch (e) {
+      if (e instanceof PathPolicyError) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: e.message,
+            code: "PATH_POLICY",
+            schemaVersion: EVIDENCE_PACK_SCHEMA,
+            startsRunPod: false,
+            historicalGpuEvidenceOnly: true,
+          },
+          { status: 400 },
+        );
+      }
+      throw e;
+    }
+  }
+
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zd-desk-evidence-pack-"));
   const outDir = path.join(tmpRoot, "evidence");
 
   try {
     const result = await runEvidencePack({
       out: outDir,
-      ...(gpuEvidenceFrom.value
-        ? { gpuEvidenceFrom: gpuEvidenceFrom.value }
-        : {}),
+      ...(gatedGpuFrom ? { gpuEvidenceFrom: gatedGpuFrom } : {}),
     });
 
     // Downloadable manifest uses CLI default out path (not server temp).
@@ -153,17 +182,24 @@ export async function POST(req: Request) {
   } catch (e) {
     const err = e as Error;
     const isEp = err instanceof EvidencePackError;
-    const code = isEp ? (err as EvidencePackError).code : undefined;
+    const isPolicy = err instanceof PathPolicyError;
+    const code = isEp
+      ? (err as EvidencePackError).code
+      : isPolicy
+        ? "PATH_POLICY"
+        : undefined;
     const status =
-      code === "GPU_EVIDENCE_FAILED"
-        ? 422
-        : code === "PROVE_DOORS_FAILED"
+      code === "PATH_POLICY"
+        ? 400
+        : code === "GPU_EVIDENCE_FAILED"
           ? 422
-          : code === "REPORT_FAILED"
+          : code === "PROVE_DOORS_FAILED"
             ? 422
-            : code === "WRITE_FAILED"
-              ? 500
-              : 500;
+            : code === "REPORT_FAILED"
+              ? 422
+              : code === "WRITE_FAILED"
+                ? 500
+                : 500;
     return NextResponse.json(
       {
         ok: false,

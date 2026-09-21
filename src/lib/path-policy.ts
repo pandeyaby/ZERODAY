@@ -165,3 +165,60 @@ export function resolveOutputDir(
     label: options?.label ?? "output",
   });
 }
+
+/**
+ * Intentional Desk read prefixes under a package/repo root.
+ * Used for documentation + getDeskReadAllowRoots; the allow check is
+ * still "must resolve under root" (fixtures/ and out/ are descendants).
+ */
+export const DESK_READ_REL_ROOTS = [
+  "fixtures",
+  "out",
+  "docs/reports",
+  "zeroday-reports",
+] as const;
+
+/**
+ * Allowed absolute roots for Desk prove-doors / report / evidence-pack
+ * filesystem reads. Primary gate is `root` itself; listed prefixes are the
+ * intentional operator input locations (fixtures, out, checked-in reports).
+ * Does not honor ZERODAY_UI_ROOTS — Desk reads stay pinned to the package tree.
+ */
+export function getDeskReadAllowRoots(root: string): string[] {
+  const abs = path.resolve(root);
+  const seen = new Set<string>([abs]);
+  const roots = [abs];
+  for (const rel of DESK_READ_REL_ROOTS) {
+    const r = path.resolve(abs, rel);
+    if (!seen.has(r)) {
+      seen.add(r);
+      roots.push(r);
+    }
+  }
+  return roots;
+}
+
+/**
+ * Fail-closed Desk read path gate for operator-supplied / default inputs
+ * (`--from`, sarif, recording, evidence paths, etc.).
+ *
+ * Resolves `candidate` against `root`, rejects empty / null-byte / `..`
+ * escape / absolute paths outside the package tree / symlink escapes
+ * (via canonicalizePath). Does not widen via ZERODAY_UI_ROOTS.
+ *
+ * Reuses assertPathAllowed — does not weaken the UI sandbox.
+ */
+export function assertAllowedReadPath(
+  root: string,
+  candidate: string,
+  options?: Omit<AssertPathOptions, "cwd" | "envRoots" | "roots">,
+): string {
+  const absRoot = path.resolve(root);
+  return assertPathAllowed(candidate, {
+    ...options,
+    cwd: absRoot,
+    envRoots: null,
+    roots: getDeskReadAllowRoots(absRoot),
+    label: options?.label ?? "path",
+  });
+}

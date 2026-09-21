@@ -22,7 +22,10 @@ import {
   type ZerodayReport,
 } from "@/locate/report-summary";
 import { PROVE_DOORS_SCHEMA } from "@/desk/prove-doors";
-import { assertPathAllowed, PathPolicyError } from "@/lib/path-policy";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "@/lib/path-policy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -94,8 +97,8 @@ function optionalBoolean(
 function statusForReportCode(code: string | undefined): number {
   switch (code) {
     case "INPUT_MISSING":
-    case "PATH_POLICY":
       return 404;
+    case "PATH_POLICY":
     case "INPUT_CORRUPT":
     case "INPUT_SCHEMA":
     case "FIELD_TYPE":
@@ -124,12 +127,11 @@ function fixtureProveDoorsAbs(): string {
 /**
  * Resolve --from:
  * - omitted / "prove-doors" / "fixture" / fixture:true → checked-in sample
- * - otherwise sandboxed path under UI roots
+ * - otherwise fail-closed Desk read allowlist under package root
  */
 function resolveFromPath(
   fromRaw: string | undefined,
   fixtureFlag: boolean | undefined,
-  cwd: string,
 ): { from: string; source: "fixture" | "path" } {
   const useFixture =
     fixtureFlag === true ||
@@ -141,61 +143,34 @@ function resolveFromPath(
     return { from: fixtureProveDoorsAbs(), source: "fixture" };
   }
 
-  try {
-    // File (prove-doors.json) or directory (evidence-pack) — runReport decides.
-    const resolved = assertPathAllowed(fromRaw, {
-      cwd,
-      mustExist: true,
-      kind: "any",
-      label: "from",
-    });
-    return { from: resolved, source: "path" };
-  } catch (e) {
-    if (e instanceof PathPolicyError) {
-      throw new ReportError(e.message, "INPUT_MISSING", e);
-    }
-    throw e;
-  }
+  // File (prove-doors.json) or directory (evidence-pack) — runReport decides.
+  // PathPolicyError propagates → HTTP 400 (fail-closed allowlist).
+  const resolved = assertAllowedReadPath(REPORT_REPO_ROOT, fromRaw, {
+    mustExist: true,
+    kind: "any",
+    label: "from",
+  });
+  return { from: resolved, source: "path" };
 }
 
-function resolveSarifPath(
-  sarifRaw: string | undefined,
-  cwd: string,
-): string | undefined {
+function resolveSarifPath(sarifRaw: string | undefined): string | undefined {
   if (!sarifRaw) return undefined;
-  try {
-    return assertPathAllowed(sarifRaw, {
-      cwd,
-      mustExist: true,
-      kind: "file",
-      label: "sarif",
-    });
-  } catch (e) {
-    if (e instanceof PathPolicyError) {
-      throw new ReportError(e.message, "INPUT_MISSING", e);
-    }
-    throw e;
-  }
+  return assertAllowedReadPath(REPORT_REPO_ROOT, sarifRaw, {
+    mustExist: true,
+    kind: "file",
+    label: "sarif",
+  });
 }
 
 function resolveGpuEvidencePath(
   gpuRaw: string | undefined,
-  cwd: string,
 ): string | undefined {
   if (!gpuRaw) return undefined;
-  try {
-    return assertPathAllowed(gpuRaw, {
-      cwd,
-      mustExist: true,
-      kind: "file",
-      label: "gpuEvidence",
-    });
-  } catch (e) {
-    if (e instanceof PathPolicyError) {
-      throw new ReportError(e.message, "INPUT_MISSING", e);
-    }
-    throw e;
-  }
+  return assertAllowedReadPath(REPORT_REPO_ROOT, gpuRaw, {
+    mustExist: true,
+    kind: "file",
+    label: "gpuEvidence",
+  });
 }
 
 function buildReportResponse(
@@ -226,15 +201,14 @@ async function runReportFromRequest(opts: {
   fixture?: boolean;
   includeMarkdown: boolean;
 }): Promise<NextResponse> {
-  const cwd = process.cwd();
   let tmpRoot: string | undefined;
 
   try {
     let fromPath: string | undefined;
     let sourceLabel = "fixture";
 
-    const sarifPath = resolveSarifPath(opts.sarif, cwd);
-    const gpuPath = resolveGpuEvidencePath(opts.gpuEvidence, cwd);
+    const sarifPath = resolveSarifPath(opts.sarif);
+    const gpuPath = resolveGpuEvidencePath(opts.gpuEvidence);
 
     if (opts.proveDoors !== undefined) {
       if (
@@ -273,7 +247,7 @@ async function runReportFromRequest(opts: {
       fromPath = undefined;
       sourceLabel = "sarif";
     } else {
-      const resolved = resolveFromPath(opts.from, opts.fixture, cwd);
+      const resolved = resolveFromPath(opts.from, opts.fixture);
       fromPath = resolved.from;
       sourceLabel = sarifPath ? `${resolved.source}+sarif` : resolved.source;
     }
