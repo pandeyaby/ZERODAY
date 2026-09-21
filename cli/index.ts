@@ -19,7 +19,7 @@
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
  *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
- *   zeroday evidence-pack [--out <dir>] # design-partner pack: prove-doors + gpu-evidence + report + manifest (no RunPod)
+ *   zeroday evidence-pack [--out <dir>] [--top N] # design-partner pack: prove-doors + gpu-evidence + report + manifest (no RunPod)
  *   zeroday report --from prove-doors.json | --sarif path.sarif [--top N]  # CISO localization summary (zeroday.report/v1)
  *   zeroday verify  --from zeroday-reports/<run>
  *   zeroday export / upload-sarif / draft-fix / classify / demo / play
@@ -1991,7 +1991,7 @@ program
 program
   .command("evidence-pack")
   .description(
-    "Build a local design-partner evidence folder from existing keyless doors: prove-doors.json + gpu-evidence.json + report.json + report.md + manifest.json (zeroday.evidence_pack/v1). Default out/evidence/. Fail-closed. Historical gpu-evidence only — does not start RunPod / not live GPU.",
+    "Build a local design-partner evidence folder from existing keyless doors: prove-doors.json + gpu-evidence.json + report.json + report.md + manifest.json (zeroday.evidence_pack/v1). Default out/evidence/. Fail-closed. Historical gpu-evidence only — does not start RunPod / not live GPU. Optional --top N truncates packed report findings (same as report --top).",
   )
   .option(
     "--out <dir>",
@@ -2007,13 +2007,26 @@ program
     "--from <path>",
     "gpu-evidence path override (default: docs/reports/a40-live-locate-20260920.json)",
   )
-  .action(async (opts: { out: string; json: boolean; from?: string }) => {
+  .option(
+    "--top <N>",
+    "Keep only the top N ranked findings in packed report.json / report.md (positive integer; same as report --top)",
+  )
+  .action(async (opts: {
+    out: string;
+    json: boolean;
+    from?: string;
+    top?: string;
+  }) => {
     try {
       const from = gateCliReadPath(opts.from, "from");
+      // Commander may omit --top or pass a string; parseReportTop fails closed.
+      const top =
+        opts.top !== undefined ? parseReportTop(opts.top) : undefined;
       const result = await runEvidencePack({
         out: opts.out,
         cwd: REPO_ROOT,
         ...(from ? { gpuEvidenceFrom: from } : {}),
+        ...(top !== undefined ? { top } : {}),
       });
       if (opts.json) {
         console.log(JSON.stringify(result.manifest, null, 2));
@@ -2023,7 +2036,11 @@ program
           [
             `Wrote prove-doors : ${result.proveDoorsPath}`,
             `Wrote gpu-evidence: ${result.gpuEvidencePath}`,
-            `Wrote report.json : ${result.reportJsonPath}`,
+            `Wrote report.json : ${result.reportJsonPath}${
+              typeof result.report.top === "number"
+                ? ` (top ${result.report.top}${result.report.truncated ? ", truncated" : ""})`
+                : ""
+            }`,
             `Wrote report.md   : ${result.reportMdPath}`,
             `Wrote manifest    : ${result.manifestPath}`,
             "",
@@ -2034,11 +2051,14 @@ program
       const err = e as Error;
       const isPolicy = err instanceof PathPolicyError;
       const isEp = err instanceof EvidencePackError;
+      const isR = err instanceof ReportError;
       const code = isPolicy
         ? "PATH_POLICY"
         : isEp
           ? (err as EvidencePackError).code
-          : undefined;
+          : isR
+            ? (err as ReportError).code
+            : undefined;
       const msg = err.message;
       if (opts.json) {
         console.log(
@@ -2057,7 +2077,7 @@ program
         );
       } else {
         console.error(
-          isPolicy || isEp
+          isPolicy || isEp || isR
             ? `evidence-pack failed (${code}): ${msg}`
             : `evidence-pack failed: ${msg}`,
         );
