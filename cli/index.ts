@@ -117,11 +117,26 @@ import {
   ReportError,
   REPORT_SCHEMA,
 } from "../src/locate/report-summary.ts";
+import {
+  assertAllowedReadPath,
+  PathPolicyError,
+} from "../src/lib/path-policy.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+/** Fail-closed CLI read gate — reuses Desk assertAllowedReadPath (no fork). */
+function gateCliReadPath(
+  raw: string | undefined,
+  label: string,
+  opts?: { mustExist?: boolean; kind?: "file" | "dir" | "any" },
+): string | undefined {
+  if (raw === undefined) return undefined;
+  return assertAllowedReadPath(REPO_ROOT, raw, { label, ...opts });
+}
+
 
 async function api(pathName: string, init?: RequestInit) {
   const res = await fetch(`${BASE}${pathName}`, {
@@ -1865,10 +1880,22 @@ program
     out?: string;
   }) => {
     try {
+      const from = gateCliReadPath(opts.from, "from", {
+        mustExist: true,
+        kind: "any",
+      });
+      const sarif = gateCliReadPath(opts.sarif, "sarif", {
+        mustExist: true,
+        kind: "file",
+      });
+      const gpuEvidence = gateCliReadPath(opts.gpuEvidence, "gpu-evidence", {
+        mustExist: true,
+        kind: "file",
+      });
       const report = runReport({
-        from: opts.from,
-        sarif: opts.sarif,
-        gpuEvidence: opts.gpuEvidence,
+        from,
+        sarif,
+        gpuEvidence,
         cwd: REPO_ROOT,
       });
 
@@ -1904,8 +1931,13 @@ program
       }
     } catch (e) {
       const err = e as Error;
+      const isPolicy = err instanceof PathPolicyError;
       const isR = err instanceof ReportError;
-      const code = isR ? (err as ReportError).code : undefined;
+      const code = isPolicy
+        ? "PATH_POLICY"
+        : isR
+          ? (err as ReportError).code
+          : undefined;
       const msg = err.message;
       if (opts.json) {
         console.log(
@@ -1923,10 +1955,14 @@ program
         );
       } else {
         console.error(
-          isR ? `report failed (${code}): ${msg}` : `report failed: ${msg}`,
+          isPolicy || isR
+            ? `report failed (${code}): ${msg}`
+            : `report failed: ${msg}`,
         );
         console.error(
-          "Localization only · fail-closed · does not start RunPod / no PoC.",
+          isPolicy
+            ? "Path allowlist · fail-closed · fixtures/out/docs/reports only."
+            : "Localization only · fail-closed · does not start RunPod / no PoC.",
         );
       }
       process.exitCode =
@@ -1959,11 +1995,11 @@ program
   )
   .action(async (opts: { out: string; json: boolean; from?: string }) => {
     try {
-      const from = opts.from?.trim();
+      const from = gateCliReadPath(opts.from, "from");
       const result = await runEvidencePack({
         out: opts.out,
         cwd: REPO_ROOT,
-        ...(from ? { gpuEvidenceFrom: path.resolve(from) } : {}),
+        ...(from ? { gpuEvidenceFrom: from } : {}),
       });
       if (opts.json) {
         console.log(JSON.stringify(result.manifest, null, 2));
@@ -1982,8 +2018,13 @@ program
       }
     } catch (e) {
       const err = e as Error;
+      const isPolicy = err instanceof PathPolicyError;
       const isEp = err instanceof EvidencePackError;
-      const code = isEp ? (err as EvidencePackError).code : undefined;
+      const code = isPolicy
+        ? "PATH_POLICY"
+        : isEp
+          ? (err as EvidencePackError).code
+          : undefined;
       const msg = err.message;
       if (opts.json) {
         console.log(
@@ -2002,7 +2043,7 @@ program
         );
       } else {
         console.error(
-          isEp
+          isPolicy || isEp
             ? `evidence-pack failed (${code}): ${msg}`
             : `evidence-pack failed: ${msg}`,
         );
@@ -2036,10 +2077,10 @@ program
     from?: string;
   }) => {
     try {
-      const from = opts.from?.trim();
+      const from = gateCliReadPath(opts.from, "from");
       const result = loadGpuEvidence({
         cwd: REPO_ROOT,
-        ...(from ? { relativePath: path.resolve(from) } : {}),
+        ...(from ? { relativePath: from } : {}),
       });
 
       const outRaw = (opts.out ?? opts.outFile)?.trim();
@@ -2088,8 +2129,13 @@ program
       }
     } catch (e) {
       const err = e as Error;
+      const isPolicy = err instanceof PathPolicyError;
       const isGe = err instanceof GpuEvidenceError;
-      const code = isGe ? (err as GpuEvidenceError).code : undefined;
+      const code = isPolicy
+        ? "PATH_POLICY"
+        : isGe
+          ? (err as GpuEvidenceError).code
+          : undefined;
       const msg = err.message;
       if (opts.json) {
         console.log(
@@ -2108,7 +2154,7 @@ program
         );
       } else {
         console.error(
-          isGe
+          isPolicy || isGe
             ? `gpu-evidence failed (${code}): ${msg}`
             : `gpu-evidence failed: ${msg}`,
         );
@@ -2174,12 +2220,13 @@ program
           expectFindings = n;
         }
 
+        const recording = gateCliReadPath(opts.recording, "recording");
         const result = await runProveDoors({
           liveUrl: opts.liveUrl,
           expectFile: opts.expectFile?.trim() || undefined,
           expectFindings,
           expectCwe: opts.expectCwe?.trim() || undefined,
-          recording: opts.recording?.trim() || undefined,
+          recording,
         });
 
         const outRaw = (opts.out ?? opts.outFile)?.trim();
@@ -2228,7 +2275,10 @@ program
         // Fail-closed: exit 0 only when overall ok (A + cassette + D + E; B ok|skipped).
         if (!result.ok) process.exitCode = 1;
       } catch (e) {
-        const msg = (e as Error).message;
+        const err = e as Error;
+        const isPolicy = err instanceof PathPolicyError;
+        const msg = err.message;
+        const code = isPolicy ? "PATH_POLICY" : undefined;
         if (opts.json) {
           console.log(
             JSON.stringify(
@@ -2236,13 +2286,18 @@ program
                 schemaVersion: PROVE_DOORS_SCHEMA,
                 ok: false,
                 error: msg,
+                ...(code ? { code } : {}),
               },
               null,
               2,
             ),
           );
         } else {
-          console.error(`prove-doors failed: ${msg}`);
+          console.error(
+            isPolicy
+              ? `prove-doors failed (${code}): ${msg}`
+              : `prove-doors failed: ${msg}`,
+          );
         }
         process.exitCode = 2;
       }
@@ -2288,7 +2343,11 @@ program
       expectCwe: string;
     }) => {
       try {
-        const recording = path.resolve(opts.recording.trim());
+        const recording = assertAllowedReadPath(
+          REPO_ROOT,
+          opts.recording.trim(),
+          { label: "recording", mustExist: true, kind: "file" },
+        );
         const outputDir = path.resolve(opts.output.trim());
         const findingCount = Number(opts.expectFindings);
         if (!Number.isFinite(findingCount) || findingCount < 1) {
@@ -2340,13 +2399,18 @@ program
           "Posture: localization only · cassette ≠ exploit proof · no GPU · needs human",
         );
       } catch (e) {
-        const msg = (e as Error).message;
-        console.error(
-          e instanceof CassetteReplayAssertError ||
-            msg.startsWith("cassette replay assert")
-            ? msg
-            : `cassette:replay failed: ${msg}`,
-        );
+        const err = e as Error;
+        const msg = err.message;
+        if (err instanceof PathPolicyError) {
+          console.error(`cassette:replay failed (PATH_POLICY): ${msg}`);
+        } else {
+          console.error(
+            e instanceof CassetteReplayAssertError ||
+              msg.startsWith("cassette replay assert")
+              ? msg
+              : `cassette:replay failed: ${msg}`,
+          );
+        }
         process.exitCode = 2;
       }
     },
