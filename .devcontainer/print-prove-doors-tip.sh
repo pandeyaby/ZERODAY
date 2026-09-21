@@ -20,7 +20,8 @@ ZERODAY Codespace — clone-free Door A
      writes gpu-evidence.json · historical Measured A40 only; does not start RunPod
   6. Optional: Run Task → “ZERODAY: evidence-pack”
      (or: npm run evidence-pack -- --json --out out/evidence)
-     writes out/evidence/ (prove-doors.json + gpu-evidence.json + manifest.json); does not start RunPod
+     writes out/evidence/ (prove-doors.json + gpu-evidence.json + report.json + report.md + manifest.json); does not start RunPod
+     tip: add --top N for a short CISO cut in packed report.json / report.md (same as report --top)
   7. Optional: Run Task → “ZERODAY: doctor”
      (or: npm run doctor -- --json --out out/doctor.json)
      writes out/doctor.json · workstation readiness (zeroday.doctor/v1); does not start RunPod
@@ -36,7 +37,7 @@ Honest non-claims:
   · Codespace ≠ live Antares (Door B stays citation-only)
   · Door E / upload-sarif task = dry-run Code Scanning check, not live upload
   · gpu-evidence task = --out gpu-evidence.json · historical Measured A40 only; does not start RunPod
-  · evidence-pack task = --out out/evidence · historical gpu-evidence only; does not start RunPod
+  · evidence-pack task = --out out/evidence · historical gpu-evidence only; optional --top N; does not start RunPod
   · doctor task = --out out/doctor.json · local workstation readiness only; does not start RunPod
   · report task = --out out/report.md + out/report.json · localization only; optional --top N; does not start RunPod
   · live upload stays CLI + security_events: write

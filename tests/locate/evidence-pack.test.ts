@@ -29,6 +29,7 @@ import { GPU_EVIDENCE_SCHEMA } from "../../src/desk/gpu-evidence.ts";
 import {
   ReportError,
   REPORT_SCHEMA,
+  runReport,
 } from "../../src/locate/report-summary.ts";
 import { sha256Buffer } from "../../src/evidence/vault.ts";
 
@@ -322,6 +323,178 @@ describe("evidence-pack module + CLI", () => {
       assert.equal(body.schemaVersion, EVIDENCE_PACK_SCHEMA);
       assert.equal(body.startsRunPod, false);
       assert.equal(body.code, "GPU_EVIDENCE_FAILED");
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("--top 1: packed report has ≤1 finding; manifest still hashes report files", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-top-"));
+    try {
+      const outFull = path.join(tmp, "full");
+      const outTop = path.join(tmp, "top1");
+      const full = await runEvidencePack({ out: outFull, cwd: root });
+      const top1 = await runEvidencePack({ out: outTop, cwd: root, top: 1 });
+
+      assert.equal(full.report.top, undefined);
+      assert.equal(full.report.truncated, undefined);
+      assert.ok(Array.isArray(full.report.findings));
+
+      assert.ok(top1.report.findings.length <= 1);
+      assert.equal(top1.report.top, 1);
+      assert.equal(top1.report.truncated, full.report.findings.length > 1);
+      assert.equal(top1.report.runpod, false);
+      if (full.report.findings.length > 0) {
+        assert.equal(top1.report.findings[0]?.path, full.report.findings[0]?.path);
+        assert.equal(top1.report.findings[0]?.rank, full.report.findings[0]?.rank);
+      }
+
+      const reportJson = JSON.parse(
+        fs.readFileSync(path.join(outTop, EVIDENCE_PACK_REPORT_JSON_FILE), "utf8"),
+      ) as {
+        findings: unknown[];
+        top?: number;
+        truncated?: boolean;
+      };
+      assert.ok(reportJson.findings.length <= 1);
+      assert.equal(reportJson.top, 1);
+
+      const reportMd = fs.readFileSync(
+        path.join(outTop, EVIDENCE_PACK_REPORT_MD_FILE),
+        "utf8",
+      );
+      assert.match(reportMd, /Showing top 1/);
+
+      const byName = Object.fromEntries(
+        top1.manifest.files.map((f) => [f.name, f.sha256]),
+      );
+      assert.equal(
+        byName[EVIDENCE_PACK_REPORT_JSON_FILE],
+        sha256Buffer(fs.readFileSync(path.join(outTop, EVIDENCE_PACK_REPORT_JSON_FILE))),
+      );
+      assert.equal(
+        byName[EVIDENCE_PACK_REPORT_MD_FILE],
+        sha256Buffer(fs.readFileSync(path.join(outTop, EVIDENCE_PACK_REPORT_MD_FILE))),
+      );
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("omit --top keeps full report (no top/truncated fields)", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-notop-"));
+    try {
+      const out = path.join(tmp, "evidence");
+      const result = await runEvidencePack({ out, cwd: root });
+      assert.equal(result.report.top, undefined);
+      assert.equal(result.report.truncated, undefined);
+      const report = JSON.parse(
+        fs.readFileSync(path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE), "utf8"),
+      ) as { top?: number; truncated?: boolean; findings: unknown[] };
+      assert.equal(report.top, undefined);
+      assert.equal(report.truncated, undefined);
+      assert.equal(report.findings.length, result.report.findings.length);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("passes top through to report builder (reuse, no fork)", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-passthru-"));
+    try {
+      const out = path.join(tmp, "evidence");
+      let receivedTop: number | undefined;
+      await runEvidencePack({
+        out,
+        cwd: root,
+        top: 1,
+        buildReport: (opts) => {
+          receivedTop = opts.top;
+          return runReport(opts);
+        },
+      });
+      assert.equal(receivedTop, 1);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("fail-closed: invalid top (0) does not claim ok", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-badtop-"));
+    try {
+      const out = path.join(tmp, "evidence");
+      await assert.rejects(
+        () =>
+          runEvidencePack({
+            out,
+            cwd: root,
+            top: 0,
+          }),
+        (err: unknown) => {
+          assert.ok(err instanceof EvidencePackError);
+          assert.equal(err.code, "REPORT_FAILED");
+          assert.match(err.message, /--top/i);
+          return true;
+        },
+      );
+      assert.equal(fs.existsSync(path.join(out, EVIDENCE_PACK_MANIFEST_FILE)), false);
+      assert.equal(fs.existsSync(path.join(out, EVIDENCE_PACK_REPORT_JSON_FILE)), false);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("CLI: --top 1 truncates packed report; invalid --top fails closed", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zd-evidence-pack-cli-top-"));
+    try {
+      const outTop = path.join(tmp, "top1");
+      const rTop = runEvidencePackCli(["--json", "--out", outTop, "--top", "1"]);
+      assert.equal(
+        rTop.status,
+        0,
+        `evidence-pack --top 1 failed (status=${rTop.status})\nstdout:\n${rTop.stdout}\nstderr:\n${rTop.stderr}`,
+      );
+      const report = JSON.parse(
+        fs.readFileSync(path.join(outTop, EVIDENCE_PACK_REPORT_JSON_FILE), "utf8"),
+      ) as {
+        findings: unknown[];
+        top?: number;
+        truncated?: boolean;
+        runpod: boolean;
+      };
+      assert.ok(report.findings.length <= 1);
+      assert.equal(report.top, 1);
+      assert.equal(report.runpod, false);
+
+      const outFull = path.join(tmp, "full");
+      const rFull = runEvidencePackCli(["--json", "--out", outFull]);
+      assert.equal(rFull.status, 0);
+      const fullReport = JSON.parse(
+        fs.readFileSync(path.join(outFull, EVIDENCE_PACK_REPORT_JSON_FILE), "utf8"),
+      ) as { findings: unknown[]; top?: number; truncated?: boolean };
+      assert.equal(fullReport.top, undefined);
+      assert.equal(fullReport.truncated, undefined);
+      assert.ok(fullReport.findings.length >= report.findings.length);
+
+      for (const bad of ["0", "-1", "1.5", "abc"]) {
+        const outBad = path.join(tmp, `bad-${bad}`);
+        const r = runEvidencePackCli(["--json", "--out", outBad, "--top", bad]);
+        assert.notEqual(r.status, 0, `expected fail for --top ${bad}`);
+        const body = JSON.parse(r.stdout) as {
+          ok: boolean;
+          error?: string;
+          code?: string;
+          startsRunPod: boolean;
+        };
+        assert.equal(body.ok, false);
+        assert.equal(body.startsRunPod, false);
+        assert.match(String(body.error), /--top/i);
+        assert.equal(body.code, "INPUT_INVALID");
+        assert.equal(
+          fs.existsSync(path.join(outBad, EVIDENCE_PACK_MANIFEST_FILE)),
+          false,
+        );
+      }
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
