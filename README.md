@@ -400,6 +400,12 @@ Workflow:
 
 ---
 
+## Shipping
+
+Agent factory playbook: [`SHIPPING.md`](./SHIPPING.md) — GRAX outer-loop + evidence-first merges.
+
+---
+
 ## License & credits
 
 **Apache-2.0** public OSS — see [`LICENSE`](./LICENSE)
