@@ -230,6 +230,7 @@ describe("CLI prove-doors", () => {
     assert.match(r.stdout, /Door B\s*:\s*skipped/i);
     assert.match(r.stdout, /Door D\s*:\s*ok/i);
     assert.match(r.stdout, /Door E\s*:\s*ok/i);
+    assert.match(r.stdout, /Door F\s*:\s*skipped/i);
     assert.match(r.stdout, /dry-run Code Scanning|not live upload/i);
     assert.match(r.stdout, /fail-closed|needs human/i);
   });
