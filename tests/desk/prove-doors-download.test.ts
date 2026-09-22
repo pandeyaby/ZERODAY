@@ -28,6 +28,7 @@ const SAMPLE_PAYLOAD = {
     b: { status: "skipped", label: "b", reason: "liveUrl omitted" },
     d: { status: "ok", label: "d" },
     e: { status: "ok", label: "e" },
+    f: { status: "skipped", label: "f", reason: "liveLocateUrl omitted" },
   },
   nonClaims: { localizationNotExploitability: true },
 };

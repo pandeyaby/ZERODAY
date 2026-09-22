@@ -145,6 +145,14 @@ describe("CLI prove-doors", () => {
     assert.equal(json.doors.e.status, "ok");
     assert.equal(json.doors.e.dryRun, true);
     assert.equal(json.doors.e.neverCallsGitHub, true);
+    assert.equal(
+      (json.doors as { f?: { status: string; reason?: string } }).f?.status,
+      "skipped",
+    );
+    assert.equal(
+      (json.doors as { f?: { reason?: string } }).f?.reason,
+      "liveLocateUrl omitted",
+    );
   });
 
   it("cassette fail: --expect-file mismatch exits 1 · ok false", () => {

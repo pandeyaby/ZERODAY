@@ -72,11 +72,14 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(c.doors.e.requiredForKeylessOk, true);
     assert.match(c.doors.e.note, /dry-run Code Scanning|not live upload/i);
     assert.equal(c.doors.e.source, UPLOAD_SARIF_DESK_DEFAULT_FIXTURE);
+    assert.equal(c.doors.f.label, "Door F — live-locate (tool-calls + SARIF)");
+    assert.equal(c.doors.f.skippedWhen, "liveLocateUrl omitted");
     assert.ok(c.honesty.some((h) => /fail-closed/i.test(h)));
     assert.ok(c.honesty.some((h) => /skipped/i.test(h)));
     assert.ok(c.honesty.some((h) => /no RunPod|spend/i.test(h)));
     assert.ok(c.honesty.some((h) => /Door D|historical measured/i.test(h)));
     assert.ok(c.honesty.some((h) => /Door E|dry-run Code Scanning/i.test(h)));
+    assert.ok(c.honesty.some((h) => /Door F|live locate/i.test(h)));
   });
 
   it("all-pass: Door A + cassette + Door B (mock /v1/models)", async () => {
@@ -201,11 +204,17 @@ describe("Desk prove-doors Run-all-doors orchestrator", () => {
     assert.equal(payload.doors.d.status, "ok");
     assert.equal(payload.doors.e.status, "ok");
     assert.equal(payload.doors.e.dryRun, true);
+    assert.equal(payload.doors.f.status, "skipped");
     if (payload.doors.b.status === "skipped") {
       assert.equal(payload.doors.b.reason, "liveUrl omitted");
       assert.match(payload.doors.b.note, /skipped/i);
       assert.equal(payload.doors.b.provisioned, false);
       assert.equal(payload.doors.b.spendUsd, null);
+    }
+    if (payload.doors.f.status === "skipped") {
+      assert.equal(payload.doors.f.reason, "liveLocateUrl omitted");
+      assert.equal(payload.doors.f.provisioned, false);
+      assert.equal(payload.doors.f.spendUsd, null);
     }
     assert.doesNotMatch(JSON.stringify(payload.doors.b), /"status"\s*:\s*"failed"/);
   });

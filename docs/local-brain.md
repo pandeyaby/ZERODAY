@@ -109,6 +109,19 @@ npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
 # → report.sarif with mode: "live"
 ```
 
+### Fail-closed Door F (prove door)
+
+Stranger / CI contract path against a **local** OpenAI-compatible URL (mock
+completions in tests — no GPU/HF). Missing or bad URL fails loud:
+
+```bash
+npm run live-locate-door -- --endpoint http://127.0.0.1:8000/v1 --mock-antares --json
+# or: npm run prove-doors -- --live-locate-url http://127.0.0.1:8000/v1
+```
+
+Keyless `npm run prove-doors` skips Door F (like Door B without `--live-url`).
+Door F is **live** (keyless vs live labels stay honest) — not a silent GPU claim.
+
 Remote / LAN host:
 
 ```bash

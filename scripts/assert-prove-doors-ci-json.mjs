@@ -2,14 +2,15 @@
 /**
  * Fail-closed CI assert for `npm run prove-doors -- --json` output.
  * Keyless Door A + cassette + Door D (Measured A40 evidence) + Door E
- * (upload-sarif dry-run) — Door B must be skipped (no --live-url).
- * Door D = historical checked-in evidence, not live GPU.
+ * (upload-sarif dry-run) — Door B + Door F must be skipped (no --live-url /
+ * --live-locate-url). Door D = historical checked-in evidence, not live GPU.
  * Door E = dry-run Code Scanning check, not live upload.
+ * Door F = opt-in live locate (tool-calls + SARIF); keyless CI omits.
  *
  * Usage: node scripts/assert-prove-doors-ci-json.mjs [path]
  * Default path: ./prove-doors.json
  *
- * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–8 door status
+ * Exit codes: 0 ok · 1 IO/parse · 2 schema · 3 ok≠true · 4–9 door status
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -100,6 +101,12 @@ if (j.doors?.e?.schemaVersion !== "zeroday-upload-sarif-desk/v1" &&
     `assert-prove-doors-ci-json: doors.e schema want zeroday-upload-sarif-desk/v1 got ${got}`,
   );
   process.exit(8);
+}
+if (j.doors?.f?.status !== "skipped") {
+  console.error(
+    `assert-prove-doors-ci-json: doors.f.status want skipped got ${j.doors?.f?.status}`,
+  );
+  process.exit(9);
 }
 
 process.stdout.write(`assert-prove-doors-ci-json: ok ${file}\n`);

@@ -1,14 +1,16 @@
 /**
  * Desk Prove Run-all-doors orchestrator — Door A + cassette:replay + optional Door B
  * + Door D (Measured A40 evidence, historical read-only)
- * + Door E (upload-sarif dry-run against checked-in fixture — never live GitHub).
+ * + Door E (upload-sarif dry-run against checked-in fixture — never live GitHub)
+ * + optional Door F (live-locate against local OpenAI-compatible URL → tool-calls + SARIF).
  *
  * Reuses in-process runners (no HTTP fan-out). Fail-closed per door: one failure
  * does not invent success for others; overall `ok` is true only when every
  * non-skipped door succeeded. Door B is `skipped` (not failed) when liveUrl omitted.
- * Door D + Door E are required for keyless ok (like A + cassette). Never invents
- * spend / AUROC / provision. No RunPod create — Door D loads checked-in evidence
- * only. Door E is dry-run Code Scanning check, not live upload.
+ * Door F is `skipped` when liveLocateUrl omitted. Door D + Door E are required for
+ * keyless ok (like A + cassette). Never invents spend / AUROC / provision. No RunPod
+ * create — Door D loads checked-in evidence only. Door E is dry-run Code Scanning
+ * check, not live upload. Door F never provisions GPU / HF weights.
  */
 
 import path from "node:path";
@@ -50,6 +52,12 @@ import {
   type UploadSarifDeskResult,
 } from "./upload-sarif";
 import type { UploadSarifPayload, UploadSarifResult } from "../locate/upload-sarif";
+import {
+  runLiveLocateDoor,
+  LiveLocateDoorError,
+  LIVE_LOCATE_DOOR_SCHEMA,
+  type LiveLocateDoorResult,
+} from "./live-locate-door";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const PROVE_DOORS_REPO_ROOT = path.resolve(HERE, "../..");
@@ -169,6 +177,41 @@ export interface ProveDoorEFailed {
 
 export type ProveDoorEEntry = ProveDoorEOk | ProveDoorEFailed;
 
+export interface ProveDoorFOk {
+  status: "ok";
+  label: "f";
+  door: "Door F — live-locate (tool-calls + SARIF)";
+  schemaVersion: typeof LIVE_LOCATE_DOOR_SCHEMA;
+  result: LiveLocateDoorResult;
+}
+
+export interface ProveDoorFFailed {
+  status: "failed";
+  label: "f";
+  door: "Door F — live-locate (tool-calls + SARIF)";
+  schemaVersion: typeof LIVE_LOCATE_DOOR_SCHEMA;
+  error: string;
+  code?: string;
+  provisioned: false;
+  spendUsd: null;
+}
+
+export interface ProveDoorFSkipped {
+  status: "skipped";
+  label: "f";
+  door: "Door F — live-locate (tool-calls + SARIF)";
+  schemaVersion: typeof LIVE_LOCATE_DOOR_SCHEMA;
+  reason: "liveLocateUrl omitted";
+  note: string;
+  provisioned: false;
+  spendUsd: null;
+}
+
+export type ProveDoorFEntry =
+  | ProveDoorFOk
+  | ProveDoorFFailed
+  | ProveDoorFSkipped;
+
 export interface ProveDoorsNonClaims {
   localizationNotExploitability: true;
   needsHuman: true;
@@ -177,6 +220,7 @@ export interface ProveDoorsNonClaims {
   probeNotMeasuredA40ReProof: true;
   doorDHistoricalMeasuredOnly: true;
   doorEDryRunCodeScanningOnly: true;
+  doorFLiveLocateOptInOnly: true;
   noLiveGitHubUploadFromProveDoors: true;
   noRunPodCreateFromProveDoors: true;
   noSpendClaimsInvented: true;
@@ -195,6 +239,8 @@ export interface ProveDoorsResult {
     d: ProveDoorDEntry;
     /** Door E — upload-sarif dry-run on fixture (required for keyless ok). */
     e: ProveDoorEEntry;
+    /** Door F — opt-in live-locate (tool-calls + SARIF); skipped without URL. */
+    f: ProveDoorFEntry;
   };
   nonClaims: ProveDoorsNonClaims;
 }
@@ -202,6 +248,20 @@ export interface ProveDoorsResult {
 export interface ProveDoorsOptions {
   /** Opt-in Door B. Omitted / blank → doors.b.status = "skipped" (not failed). */
   liveUrl?: string;
+  /**
+   * Opt-in Door F. OpenAI-compatible /v1 for live locate (tool-calls → SARIF).
+   * Omitted / blank → doors.f.status = "skipped" (not failed). Keyless CI omits.
+   */
+  liveLocateUrl?: string;
+  /** Door F model override (default mock/antares-tool-calls when mockAntares). */
+  liveLocateModel?: string;
+  /**
+   * Door F mock Antares tool-call loop (default true — contract / no GPU).
+   * Set false only for a real completions brain you already host.
+   */
+  liveLocateMockAntares?: boolean;
+  /** Door F output dir override (tests). */
+  liveLocateOutputDir?: string;
   /** Temp / override output for Door A trust-loop artifacts. */
   strangerOutputDir?: string;
   /** Cassette overrides (same as POST /api/cassette-replay). */
@@ -239,6 +299,7 @@ const NON_CLAIMS: ProveDoorsNonClaims = {
   probeNotMeasuredA40ReProof: true,
   doorDHistoricalMeasuredOnly: true,
   doorEDryRunCodeScanningOnly: true,
+  doorFLiveLocateOptInOnly: true,
   noLiveGitHubUploadFromProveDoors: true,
   noRunPodCreateFromProveDoors: true,
   noSpendClaimsInvented: true,
@@ -468,9 +529,60 @@ function runDoorE(opts: ProveDoorsOptions, cwd: string): ProveDoorEEntry {
 }
 
 /**
- * Run all Desk Prove doors in-process. Per-door fail-closed; Door B skipped
- * without liveUrl. Door D + Door E required (historical evidence + SARIF
- * dry-run). overall ok iff every non-skipped door has status "ok".
+ * Door F — opt-in live-locate against operator OpenAI-compatible /v1.
+ * Skipped (not failed) when liveLocateUrl omitted. Fail-closed on bad URL /
+ * missing tool-calls / empty SARIF. Default mockAntares for no-GPU contract.
+ */
+async function runDoorF(opts: ProveDoorsOptions): Promise<ProveDoorFEntry> {
+  const liveLocateUrl = opts.liveLocateUrl?.trim();
+  if (!liveLocateUrl) {
+    return {
+      status: "skipped",
+      label: "f",
+      door: "Door F — live-locate (tool-calls + SARIF)",
+      schemaVersion: LIVE_LOCATE_DOOR_SCHEMA,
+      reason: "liveLocateUrl omitted",
+      note: "Door F skipped (not failed) — provide liveLocateUrl for live locate (tool-calls → SARIF); keyless CI omits. provisioned:false · spendUsd:null · not A40 re-proof · mock path ≠ live GPU.",
+      provisioned: false,
+      spendUsd: null,
+    };
+  }
+
+  try {
+    const result = await runLiveLocateDoor({
+      endpoint: liveLocateUrl,
+      model: opts.liveLocateModel,
+      mockAntares: opts.liveLocateMockAntares !== false,
+      outputDir: opts.liveLocateOutputDir,
+      cwd: opts.cwd,
+    });
+    return {
+      status: "ok",
+      label: "f",
+      door: "Door F — live-locate (tool-calls + SARIF)",
+      schemaVersion: LIVE_LOCATE_DOOR_SCHEMA,
+      result,
+    };
+  } catch (e) {
+    const err = e as Error;
+    const isDoor = err instanceof LiveLocateDoorError;
+    return {
+      status: "failed",
+      label: "f",
+      door: "Door F — live-locate (tool-calls + SARIF)",
+      schemaVersion: LIVE_LOCATE_DOOR_SCHEMA,
+      error: err.message,
+      code: isDoor ? (err as LiveLocateDoorError).code : undefined,
+      provisioned: false,
+      spendUsd: null,
+    };
+  }
+}
+
+/**
+ * Run all Desk Prove doors in-process. Per-door fail-closed; Door B / Door F
+ * skipped without their URLs. Door D + Door E required (historical evidence +
+ * SARIF dry-run). overall ok iff every non-skipped door has status "ok".
  */
 export async function runProveDoors(
   opts: ProveDoorsOptions = {},
@@ -483,14 +595,16 @@ export async function runProveDoors(
   const b = await runDoorB(opts);
   const d = runDoorD(opts, cwd);
   const e = runDoorE(opts, cwd);
+  const f = await runDoorF({ ...opts, cwd });
 
-  const doors = { a, cassette, b, d, e };
+  const doors = { a, cassette, b, d, e, f };
   const ok =
     a.status === "ok" &&
     cassette.status === "ok" &&
     (b.status === "ok" || b.status === "skipped") &&
     d.status === "ok" &&
-    e.status === "ok";
+    e.status === "ok" &&
+    (f.status === "ok" || f.status === "skipped");
 
   return {
     schemaVersion: PROVE_DOORS_SCHEMA,
@@ -540,12 +654,24 @@ export function proveDoorsCatalog() {
         note: "Door E = dry-run Code Scanning check, not live upload",
         requiredForKeylessOk: true,
       },
+      f: {
+        label: "Door F — live-locate (tool-calls + SARIF)",
+        via: "runLiveLocateDoor",
+        api: "POST /api/live-locate-door",
+        skippedWhen: "liveLocateUrl omitted",
+        note: "Opt-in live locate against local OpenAI-compatible /v1 — fail-closed; mockAntares default for no-GPU contract",
+      },
     },
     body: {
       liveUrl: {
         optional: true,
         description:
           "OpenAI-compatible /v1 — runs Door B; omit → doors.b.status=skipped (not failed)",
+      },
+      liveLocateUrl: {
+        optional: true,
+        description:
+          "OpenAI-compatible /v1 — runs Door F live locate; omit → doors.f.status=skipped (not failed)",
       },
       recording: { optional: true, description: "Cassette path override" },
       expectFindings: { optional: true },
@@ -555,19 +681,23 @@ export function proveDoorsCatalog() {
     flags: {
       json: "--json",
       liveUrl: "--live-url <url> (omit → Door B skipped)",
+      liveLocateUrl:
+        "--live-locate-url <url> (omit → Door F skipped; tool-calls + SARIF)",
     },
     returns: {
-      ok: "true iff every non-skipped door ok (A + cassette + D + E required; B ok|skipped)",
+      ok: "true iff every non-skipped door ok (A + cassette + D + E required; B/F ok|skipped)",
       generatedAt: "ISO-8601",
-      doors: "{ a, cassette, b, d, e }",
+      doors: "{ a, cassette, b, d, e, f }",
       exit: "0 only when ok; 1 when a required door fails; 2 on unexpected error",
     },
     honesty: [
       "needs_human · localization ≠ exploitability",
       "fail-closed per door · never invent spend / AUROC",
       "Door B skipped (not failed) when liveUrl omitted",
+      "Door F skipped (not failed) when liveLocateUrl omitted",
       "Door D = historical measured A40 evidence — not live GPU · does not start RunPod",
       "Door E = dry-run Code Scanning check, not live upload",
+      "Door F = opt-in live locate (tool-calls + SARIF) · mock path ≠ measured A40",
       "probe ≠ measured Secure A40 re-proof · provisioned: false",
       "no RunPod create / no HF pull / no live GitHub upload from prove-doors",
     ],

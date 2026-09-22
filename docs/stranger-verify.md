@@ -81,6 +81,26 @@ Behavior:
 200 facts stay on [`gpu-claims.md`](./gpu-claims.md) § Live re-proof (2026-09-19 PT).
 This flag only validates *your* endpoint reachability.
 
+### Opt-in Door F live-locate (`--live-locate-url`) — tool-calls + SARIF
+
+When **you** already host an OpenAI-compatible `/v1` (loopback mock or local
+brain), Door F runs **live locate** (tool-calls → ranked files → SARIF) — not
+just `GET /v1/models`. Fail-closed: missing/bad/chat-only URL → clear failure;
+never silent fixture fallback. Default **mock Antares** path (no GPU / HF
+weights). Keyless `prove-doors` / CI omit the flag → Door F `skipped` (not failed).
+
+```bash
+# Standalone Door F (contract / stranger):
+npm run live-locate-door -- --endpoint http://127.0.0.1:8000/v1 --mock-antares --json
+# Inside prove-doors:
+npm run prove-doors -- --json --live-locate-url http://127.0.0.1:8000/v1
+# Desk API: POST /api/live-locate-door { "endpoint": "http://127.0.0.1:8000/v1" }
+```
+
+Honesty: Door F ≠ measured A40 re-proof · `provisioned: false` · `spendUsd: null`
+· no RunPod create · localization ≠ exploitability · no invented AUROC.
+See [`local-brain.md`](./local-brain.md).
+
 ### Clone-free — GitHub Codespaces (Door A)
 
 No local Node install. Default Codespace is CPU / keyless only — **not** live
