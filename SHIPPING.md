@@ -55,6 +55,30 @@ When an agent repeats a mistake, change the environment — do not only re-promp
 - Desk / prove-doors / evidence-pack changes must keep stranger-path honesty.
 - HF Antares weights stay gated; no silent GPU claims without measured evidence.
 
+## Inner loop: pstack
+
+[pstack](https://cursor.com/marketplace/cursor/pstack) (Lauren / @poteto) is the **inner loop** for ZeroDay pilot shipping. Do not vendor the plugin into this repo — install it on the human Cursor machine.
+
+**Install (human Cursor):**
+
+1. `/add-plugin pstack`
+2. `/setup-pstack` (writes models rule → `~/.cursor/rules/pstack-models.mdc`)
+
+**Day-to-day:**
+
+```text
+/poteto-mode <goal>. Done means <checkable>. Keep <invariants>.
+```
+
+**Division of labor:**
+
+| Loop | Who | Job |
+|------|-----|-----|
+| Outer | GRAX + desk | Intake, task selection, merge yes/no |
+| Inner | pstack / `/poteto-mode` | Implement → verify → open tight PR |
+
+Prefer blast-radius notes and prove-it-works evidence (tests, CLI/runtime traces, screenshots) before a merge ask. Marketplace: https://cursor.com/marketplace/cursor/pstack
+
 ## Inner-loop checklist (PR body)
 
 - [ ] Goal + success criteria restated
