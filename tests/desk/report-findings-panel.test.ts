@@ -11,10 +11,12 @@ import { fileURLToPath } from "node:url";
 
 import {
   evidenceSnippetFromFinding,
+  filterFindingsByPathContains,
   findingEvidenceForClipboard,
   findingPathForClipboard,
   findingsViewFromReport,
   REPORT_FINDINGS_NON_CLAIM,
+  REPORT_FINDINGS_PATH_FILTER_EMPTY,
   viewFromReportFinding,
 } from "../../src/desk/report-findings-view.ts";
 import {
@@ -156,6 +158,44 @@ describe("report-findings-view (from fixture report JSON)", () => {
     assert.equal(clipboardPayloadOnCopyPathClick(""), null);
   });
 
+  it("filterFindingsByPathContains: substring match · empty = all · no re-rank", () => {
+    const findings = [
+      { path: "src/search.js", rank: 1 },
+      { path: "lib/Auth/Handler.ts", rank: 2 },
+      { path: "src/db/query.js", rank: 3 },
+    ];
+
+    // Empty / whitespace / nullish → all rows, same order.
+    assert.deepEqual(filterFindingsByPathContains(findings, ""), findings);
+    assert.deepEqual(filterFindingsByPathContains(findings, "   "), findings);
+    assert.deepEqual(filterFindingsByPathContains(findings, null), findings);
+    assert.deepEqual(
+      filterFindingsByPathContains(findings, undefined),
+      findings,
+    );
+
+    // Case-insensitive path substring; order preserved (no re-rank).
+    const src = filterFindingsByPathContains(findings, "SRC/");
+    assert.equal(src.length, 2);
+    assert.equal(src[0]?.path, "src/search.js");
+    assert.equal(src[0]?.rank, 1);
+    assert.equal(src[1]?.path, "src/db/query.js");
+    assert.equal(src[1]?.rank, 3);
+
+    const auth = filterFindingsByPathContains(findings, "auth");
+    assert.equal(auth.length, 1);
+    assert.equal(auth[0]?.path, "lib/Auth/Handler.ts");
+    assert.equal(auth[0]?.rank, 2);
+
+    // No match → empty (caller shows honest filter-empty message).
+    assert.deepEqual(filterFindingsByPathContains(findings, "zzznomatch"), []);
+    assert.match(REPORT_FINDINGS_PATH_FILTER_EMPTY, /path filter/i);
+    assert.match(REPORT_FINDINGS_PATH_FILTER_EMPTY, /does not invent/i);
+
+    // Does not invent rows from empty input.
+    assert.deepEqual(filterFindingsByPathContains([], "src"), []);
+  });
+
   it("Copy evidence clipboard payload is exact fixture evidence (no invent)", () => {
     const report = runReport({ from: FIXTURE_PROVE, cwd: root });
     const view = findingsViewFromReport(report);
@@ -212,6 +252,10 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(panel, /data-testid="prove-doors-report-findings"/);
     assert.match(panel, /data-testid="prove-doors-report-findings-non-claim"/);
     assert.match(panel, /data-testid="prove-doors-report-findings-empty"/);
+    assert.match(panel, /data-testid="prove-doors-report-findings-path-filter"/);
+    assert.match(panel, /data-testid="prove-doors-report-findings-filter-empty"/);
+    assert.match(panel, /filterFindingsByPathContains/);
+    assert.match(panel, /REPORT_FINDINGS_PATH_FILTER_EMPTY/);
     assert.match(panel, /REPORT_FINDINGS_NON_CLAIM/);
     assert.match(panel, /findingsViewFromReport/);
     assert.match(panel, /Localization|REPORT_FINDINGS_NON_CLAIM/);
@@ -251,6 +295,8 @@ describe("ReportFindingsPanel + Prove-doors wiring", () => {
     assert.match(view, /Localization\s*≠\s*exploitability/);
     assert.match(view, /findingPathForClipboard/);
     assert.match(view, /findingEvidenceForClipboard/);
+    assert.match(view, /filterFindingsByPathContains/);
+    assert.match(view, /does not re-rank|Preserves order/i);
     assert.doesNotMatch(view, /create-pod|runpod\.com|exploit PoC/i);
   });
 });
