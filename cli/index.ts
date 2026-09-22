@@ -2388,12 +2388,8 @@ program
   )
   .option(
     "--mock-antares",
-    "Use mock Antares tool-call loop against endpoint (default on)",
+    "Use mock Antares tool-call loop against endpoint (default on; CI/contract path)",
     true,
-  )
-  .option(
-    "--no-mock-antares",
-    "Disable mock Antares — real completions brain you already host",
   )
   .option(
     "--remote-inference",

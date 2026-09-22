@@ -11,7 +11,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import {
   LIVE_LOCATE_DOOR_SCHEMA,
   LiveLocateDoorError,
@@ -26,6 +26,39 @@ import {
 } from "../../src/app/api/live-locate-door/route.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+function runCliAsync(
+  args: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn("npx", ["tsx", "cli/index.ts", ...args], {
+      cwd: root,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (c) => {
+      stdout += String(c);
+    });
+    child.stderr.on("data", (c) => {
+      stderr += String(c);
+    });
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new Error(`live-locate-door CLI timed out\n${stdout}\n${stderr}`));
+    }, 60_000);
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+    child.on("close", (status) => {
+      clearTimeout(timer);
+      resolve({ status, stdout, stderr });
+    });
+  });
+}
 
 describe("Door F live-locate-door (fail-closed contract)", () => {
   it("catalog documents endpoint + honesty + fail-closed", () => {
@@ -235,12 +268,8 @@ describe("Door F live-locate-door (fail-closed contract)", () => {
     }
   });
 
-  it("CLI: missing --endpoint exits non-zero (commander required)", () => {
-    const r = spawnSync(
-      "npx",
-      ["tsx", "cli/index.ts", "live-locate-door", "--json"],
-      { cwd: root, encoding: "utf8", env: process.env },
-    );
+  it("CLI: missing --endpoint exits non-zero (commander required)", async () => {
+    const r = await runCliAsync(["live-locate-door", "--json"]);
     assert.notEqual(r.status, 0);
   });
 
@@ -248,21 +277,16 @@ describe("Door F live-locate-door (fail-closed contract)", () => {
     const server = await startMockCompletionsServer();
     const out = fs.mkdtempSync(path.join(os.tmpdir(), "zd-lld-cli-"));
     try {
-      const r = spawnSync(
-        "npx",
-        [
-          "tsx",
-          "cli/index.ts",
-          "live-locate-door",
-          "--json",
-          "--endpoint",
-          server.endpoint,
-          "--out",
-          out,
-          "--mock-antares",
-        ],
-        { cwd: root, encoding: "utf8", env: process.env },
-      );
+      // Async spawn (not spawnSync): parent mock server must keep its event loop.
+      const r = await runCliAsync([
+        "live-locate-door",
+        "--json",
+        "--endpoint",
+        server.endpoint,
+        "--out",
+        out,
+        "--mock-antares",
+      ]);
       assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
       const json = JSON.parse(r.stdout) as {
         ok: boolean;
@@ -286,23 +310,17 @@ describe("Door F live-locate-door (fail-closed contract)", () => {
     }
   });
 
-  it("CLI: unreachable endpoint exits non-zero with fail code", () => {
+  it("CLI: unreachable endpoint exits non-zero with fail code", async () => {
     const out = fs.mkdtempSync(path.join(os.tmpdir(), "zd-lld-cli-bad-"));
     try {
-      const r = spawnSync(
-        "npx",
-        [
-          "tsx",
-          "cli/index.ts",
-          "live-locate-door",
-          "--json",
-          "--endpoint",
-          "http://127.0.0.1:1/v1",
-          "--out",
-          out,
-        ],
-        { cwd: root, encoding: "utf8", env: process.env },
-      );
+      const r = await runCliAsync([
+        "live-locate-door",
+        "--json",
+        "--endpoint",
+        "http://127.0.0.1:1/v1",
+        "--out",
+        out,
+      ]);
       assert.notEqual(r.status, 0);
       const json = JSON.parse(r.stdout) as {
         ok: boolean;
