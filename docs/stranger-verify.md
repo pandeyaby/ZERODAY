@@ -153,7 +153,7 @@ shell out to npm; schema preview is static, not live output).
 
 | Door | This command | Evidence |
 |------|--------------|----------|
-| **A — Keyless** | **Runs** locally · $0 · no GPU · no HF | PASS + SARIF / paired-probe paths under `zeroday-reports/trust-loop/` · sample grade [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
+| **A — Keyless** | **Runs** locally · $0 · no GPU · no HF | PASS + SARIF / paired-probe paths under `zeroday-reports/trust-loop/` (CLI; override with `TRUST_LOOP_OUT`) · Desk / `POST /api/stranger-verify` / in-process prove-doors write a per-run `zeroday-reports/trust-loop-XXXXXX/` (newest 5 kept, older pruned; exact path in `doorA.artifacts`) · sample grade [`reports/diptych-sample-grade.md`](./reports/diptych-sample-grade.md) |
 | **B — Live GPU** | **Does not run** · citation only (default) | Dated measured session in [`gpu-claims.md`](./gpu-claims.md) § Live re-proof (2026-09-19 PT) |
 | **B — Opt-in probe** | `--live-url <your /v1>` · GET `/v1/models` only | `doorB.probe` status + latency · `provisioned: false` · `spendUsd: null` · **not** A40 re-proof |
 

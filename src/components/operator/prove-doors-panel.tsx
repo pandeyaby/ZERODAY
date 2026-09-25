@@ -660,7 +660,10 @@ export function ProveDoorsPanel() {
             (fixture SARIF → paired-probe). No GPU, no HF token, no spend. Prints
             PASS + artifact paths under{" "}
             <code className="text-[var(--accent)]">zeroday-reports/trust-loop/</code>
-            .
+            . Desk runs write a per-run{" "}
+            <code className="text-[var(--accent)]">zeroday-reports/trust-loop-XXXXXX/</code>{" "}
+            (newest 5 kept; exact path in{" "}
+            <code className="text-[var(--accent)]">doorA.artifacts</code>).
           </p>
           <p className="text-[11px] text-[var(--muted)] mt-2">
             CI job{" "}

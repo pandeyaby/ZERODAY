@@ -110,7 +110,11 @@ export interface StrangerVerifyResult {
 export interface StrangerVerifyOptions {
   /** Opt-in Door B: OpenAI-compatible /v1 base (GET /v1/models only). */
   liveUrl?: string;
-  /** Output root for paired-probe (default: unique zeroday-reports/trust-loop-* dir). */
+  /**
+   * Output root for paired-probe. Default: a fresh per-run
+   * zeroday-reports/trust-loop-XXXXXX dir (older run dirs pruned — see
+   * createTrustLoopRunDir). Tests should pass an explicit temp dir.
+   */
   outputDir?: string;
   /** Working directory / repo root (default: package root). */
   cwd?: string;
@@ -255,6 +259,81 @@ function buildDoorBProbe(probe: StrangerVerifyProbe): StrangerVerifyDoorBProbe {
   };
 }
 
+/** Per-run Desk Door A dirs: zeroday-reports/trust-loop-XXXXXX (mkdtemp shape). */
+export const TRUST_LOOP_RUN_DIR_PREFIX = "trust-loop-";
+const TRUST_LOOP_RUN_DIR_RE = /^trust-loop-[A-Za-z0-9]{6}$/;
+/** Newest run dirs always kept. */
+export const TRUST_LOOP_RUN_DIRS_KEEP = 5;
+/** Never prune a run dir younger than this (a concurrent run may still be writing). */
+export const TRUST_LOOP_RUN_DIR_MIN_AGE_MS = 10 * 60 * 1000;
+
+export interface PruneTrustLoopRunDirsOptions {
+  keep?: number;
+  minAgeMs?: number;
+  /** Injectable clock for tests. */
+  now?: number;
+}
+
+/**
+ * Remove stale per-run trust-loop-XXXXXX dirs under `base`, keeping the newest
+ * `keep` (by mtime) and anything younger than `minAgeMs`. Only exact mkdtemp-
+ * shaped names are touched — never the CLI's stable `trust-loop/` dir, never
+ * symlinks or files. Returns absolute paths removed. Best-effort: errors on
+ * individual entries are ignored.
+ */
+export function pruneTrustLoopRunDirs(
+  base: string,
+  opts: PruneTrustLoopRunDirsOptions = {},
+): string[] {
+  const keep = Math.max(0, opts.keep ?? TRUST_LOOP_RUN_DIRS_KEEP);
+  const minAgeMs = Math.max(0, opts.minAgeMs ?? TRUST_LOOP_RUN_DIR_MIN_AGE_MS);
+  const now = opts.now ?? Date.now();
+  let names: string[];
+  try {
+    names = fs.readdirSync(base);
+  } catch {
+    return [];
+  }
+  const runs: Array<{ abs: string; mtimeMs: number }> = [];
+  for (const name of names) {
+    if (!TRUST_LOOP_RUN_DIR_RE.test(name)) continue;
+    const abs = path.join(base, name);
+    try {
+      const st = fs.lstatSync(abs);
+      if (st.isDirectory()) runs.push({ abs, mtimeMs: st.mtimeMs });
+    } catch {
+      /* vanished — ignore */
+    }
+  }
+  runs.sort((a, b) => b.mtimeMs - a.mtimeMs);
+  const removed: string[] = [];
+  for (const run of runs.slice(keep)) {
+    if (now - run.mtimeMs < minAgeMs) continue;
+    try {
+      fs.rmSync(run.abs, { recursive: true, force: true });
+      removed.push(run.abs);
+    } catch {
+      /* ignore */
+    }
+  }
+  return removed;
+}
+
+/**
+ * Create a fresh per-run Door A output dir under `<cwd>/zeroday-reports/`,
+ * pruning stale run dirs first so default Desk/API runs do not pile up.
+ * Returns the absolute path.
+ */
+export function createTrustLoopRunDir(
+  cwd: string,
+  opts: PruneTrustLoopRunDirsOptions = {},
+): string {
+  const base = path.join(cwd, "zeroday-reports");
+  fs.mkdirSync(base, { recursive: true });
+  pruneTrustLoopRunDirs(base, opts);
+  return fs.mkdtempSync(path.join(base, TRUST_LOOP_RUN_DIR_PREFIX));
+}
+
 /**
  * Run prove-doors in-process (Desk API / tests). Same JSON as
  * `npm run --silent stranger:verify -- --json` [+ optional --live-url].
@@ -266,16 +345,12 @@ export async function runStrangerVerify(
   /**
    * Isolate concurrent Desk/API/prove-doors Door A callers from stomping the
    * shared trust-loop dir (Node test runner runs files in parallel). Explicit
-   * outputDir wins; otherwise create a unique dir under zeroday-reports/.
+   * outputDir wins; otherwise create a unique run dir under zeroday-reports/
+   * (bounded: older run dirs are pruned, see createTrustLoopRunDir).
    */
   let outRel = opts.outputDir?.trim();
   if (!outRel) {
-    const base = path.join(cwd, "zeroday-reports");
-    fs.mkdirSync(base, { recursive: true });
-    outRel = path.relative(
-      cwd,
-      fs.mkdtempSync(path.join(base, "trust-loop-")),
-    );
+    outRel = path.relative(cwd, createTrustLoopRunDir(cwd));
   }
   // Output may be tmp (Desk/API tests). Fixture SARIF read is allowlisted.
   const outputRoot = path.isAbsolute(outRel) ? outRel : path.join(cwd, outRel);
