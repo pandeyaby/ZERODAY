@@ -6,16 +6,20 @@
 
 ![ZERODAY workflow — default keyless mvp path (code → localize → SARIF → human gate) plus optional Antares live brain](./docs/images/zeroday-readme-hero.png)
 
-**Public OSS · Apache-2.0 · not a Cisco product.**  
-Local-first defensive **localization** desk: given a CWE / CVE / GHSA you are
-authorized to assess, rank which files matter, then emit **SARIF** + hashed
-evidence for a human to review — never auto-merge, never exploit theater.
+**Public OSS · Apache-2.0 · not a Cisco product.**
 
-Built around [Antares](https://cisco-foundation-ai.github.io/antares/) as an
-optional live brain. Calibration claims for paired-trace / hyperproperty grading
-go through the emit-only adapters into
-**[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** (paired probes already on
-`main`; ZERODAY does not implement DIPTYCH’s grader).
+**An advisory just landed — which files in your repo should a human look at first?**
+Give ZERODAY a CWE, CVE or GHSA plus a repo you are authorized to assess. It
+ranks the candidate files and writes standard **SARIF** (GitHub Code Scanning,
+IDEs, SIEM exports) with a hash-verified evidence folder. It runs locally and
+offline by default: no API keys, no GPU, and your source never leaves the machine.
+
+ZERODAY *localizes*; it does not prove bugs. Every result is a candidate for
+human review — never auto-merged, never an exploit.
+
+Optional extras: plug in a local model (for example
+[Antares](https://cisco-foundation-ai.github.io/antares/)) to cover any CWE, and
+grade calibration with **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)**.
 
 > **Hard limits** (unchanged product rules)
 >
@@ -30,121 +34,79 @@ go through the emit-only adapters into
 > - Scope: [`SCOPE_AND_AUTHORIZATION.md`](./SCOPE_AND_AUTHORIZATION.md) ·
 >   disclosure: [`SECURITY.md`](./SECURITY.md) · help: [`SUPPORT.md`](./SUPPORT.md)
 
-![ZERODAY architecture — locate desk → SARIF/cassette → DIPTYCH paired probes](./docs/images/zeroday-diptych-architecture.png)
-
-**Pipeline (honest):** locate desk → SARIF / redacted cassette →
-`paired-probe` conforming+violating twins →
-[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) grades hyperproperties.
-CI requires **`paired-probe` + `gate_axis_mutate`** (all 8 operators green or
-honestly deferred — never cosmetic greens). Details:
-[`docs/paired-probes.md`](./docs/paired-probes.md) ·
-[`docs/architecture.md`](./docs/architecture.md).
-
-**Design-partner door (no DIPTYCH clone):** `npm run paired-probe` then
-`npm run paired-probe:sample-report` → checked-in sample grade under
-[`docs/reports/diptych-sample-grade.md`](./docs/reports/diptych-sample-grade.md)
-(illustrative DIPTYCH-shaped mirror — not a live harness claim; greens =
-hyperproperty adapters; localization ≠ exploitability).
-
-**One-command from an existing locate SARIF / vault:**  
-`npm run paired-probe:from-sarif -- --sarif path/to/report.sarif` → same
-envelopes + coverage matrix (keyless, no GPU, no DIPTYCH clone). Pipeline:
-locate → SARIF → this command → optional DIPTYCH grade. Details:
-[`docs/paired-probes.md`](./docs/paired-probes.md).
-
-### Stranger trust loop (≤3 commands)
-
-After locate, the design-partner path from Desk / CLI to paired-probe artifacts
-+ a checked-in sample DIPTYCH-shaped grade — **no DIPTYCH clone**, no GPU:
-
-```bash
-npm run mvp                                                      # 1 · fixture locate → SARIF
-npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp   # 2 · envelopes + matrix
-# 3 · open sample grade (illustrative): docs/reports/diptych-sample-grade.md
-```
-
-One-shot (same story, prints paths): `npm run trust-loop`  
-(or `npm run trust-loop -- --mvp` to run fixture locate first).
-
-Honest non-claims: localization ≠ exploitability · no AUROC · DIPTYCH grades ·
-ZeroDay emits · sample grade is illustrative (not a live DIPTYCH harness run).
-See [`docs/paired-probes.md`](./docs/paired-probes.md) ·
-[`docs/design-partner-trust.md`](./docs/design-partner-trust.md) ·
-[`SUPPORT.md`](./SUPPORT.md).
-
 ---
 
-## Two doors (honest labels)
+## Start in 2 minutes
 
-| Door | What it is | Spend / CI |
-|------|------------|------------|
-| **A — Keyless CPU / fixture** (default) | `npm run mvp` · fixture / rules / SARIF ingest / recordings | **$0** · required CI gate — no GPU, no HF, no RunPod |
-| **B — Opt-in live GPU brain** | You host Antares-1B on CUDA/vLLM (`POST /v1/completions`); RunPod Secure A40 recommended | **You** provision + terminate · **not** in CI |
-
-Proven vs deferred (design-partner table): [`docs/gpu-claims.md`](./docs/gpu-claims.md).
-Paired-eval trust layer (optional, keyless): [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) ·
-[`docs/paired-probes.md`](./docs/paired-probes.md).
-
-### What a stranger can verify today
-
-One keyless command — no GPU spend, no pod create:
-
-```bash
-npm install
-npm run stranger:verify
-# alias: npm run doors
-# one-command A + cassette (Door B / Door F skipped without URLs):
-npm run prove-doors
-# npm run prove-doors -- --json
-# npm run prove-doors -- --live-url http://127.0.0.1:8000/v1
-# Door F (live locate → tool-calls + SARIF; mock path, no GPU):
-# npm run live-locate-door -- --endpoint http://127.0.0.1:8000/v1 --mock-antares --json
-# npm run prove-doors -- --live-locate-url http://127.0.0.1:8000/v1
-```
-
-**Clone-free (GitHub Codespaces):** open this repo in a Codespace (Node LTS +
-`npm install` via [`.devcontainer/`](./.devcontainer/devcontainer.json)) —
-no local Node setup.
-
-1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace)
-2. In the terminal: `npm run stranger:verify` (or `npm run doors`)
-3. See **Door A PASS** + **Door B citation** (no GPU in the default Codespace)
-
-| Door | What happens | Where to read |
-|------|--------------|---------------|
-| **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
-| **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
-| **F — Live locate (opt-in)** | Point at **your** local OpenAI-compatible `/v1` → tool-calls + SARIF; fail-closed on missing/bad URL; default mock path (no GPU/HF). Keyless CI skips. | [`docs/stranger-verify.md`](./docs/stranger-verify.md) · [`docs/local-brain.md`](./docs/local-brain.md) |
-
-Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions or the default Codespace).
-
-**Other repos (reusable workflow):**  
-`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` — checks out ZERODAY fixtures/scripts (not your private tree). Snippet: [`docs/stranger-verify.md`](./docs/stranger-verify.md).
-
-Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · Codespace ≠ live Antares · DIPTYCH grades separately · sample grade illustrative.
-
-**Day-1 water-flow (clone → mvp → trust-loop → stranger:verify → optional Door B cite):**
-[`docs/design-partner-day1.md`](./docs/design-partner-day1.md).
-
----
-
-## Start in 2 minutes — Door A (keyless)
-
-Clone, install, run the fixture smoke. Offline. No GPU. No HF token. No spend.
+Needs Node 20+ on macOS or Linux. Offline. No GPU, no HF token, no spend.
 
 ```bash
 git clone https://github.com/pandeyaby/ZERODAY.git && cd ZERODAY
 npm install
-npm run mvp
+npm run mvp        # self-test on a bundled demo app → PASS + report.sarif
 ```
 
-Expect **PASS**, then open the printed SARIF under `zeroday-reports/mvp/`
-(`report.sarif`). Same door as `locate --fixture` — proves the workstation +
-SARIF habit. Honest: this is not live Antares File F1; it validates the factory
-shape.
+`npm run mvp` replays a recorded run (`--fixture`) to prove your setup works —
+it does not read your code. Open the printed `report.sarif` under
+`zeroday-reports/mvp/`, then point ZERODAY at your own repo.
 
-More stranger detail: [`docs/getting-started.md`](./docs/getting-started.md) ·
-[`docs/first-time-users.md`](./docs/first-time-users.md)
+### Scan your own repo (keyless)
+
+```bash
+npm run zeroday -- locate --cwe CWE-89 --repo /path/to/your/repo --rules --offline \
+  --output zeroday-reports/my-scan
+```
+
+Example on a small Express + Python app:
+
+```text
+Mode     : rules
+Findings : 3
+
+Ranked files:
+  1. src/users.js   [CWE-89]  SQL query built via string concatenation
+  2. src/search.js  [CWE-89]  SQL built with template-literal interpolation
+  3. src/search.py  [CWE-89]  SQL built with Python f-string
+```
+
+Parameterized queries in the same app are not flagged.
+
+### What it covers
+
+| Mode | Flag | Advisories | You need |
+|------|------|------------|----------|
+| Rules (keyless heuristics) | `--rules` | CWE-89 SQL injection · CWE-79 XSS · CWE-22 path traversal | Nothing |
+| Import existing findings | `--from-sarif <file>` | Any CWE in a CodeQL / Semgrep / generic SARIF 2.1 file | A SARIF file |
+| Live model | `--endpoint <url>` | Any CWE, CVE or GHSA | A local OpenAI-compatible `/v1/completions` server — [`docs/local-brain.md`](./docs/local-brain.md) |
+| Demo | `--fixture` | Bundled CWE-89 demo | Nothing |
+
+Rules mode is deliberately thin. Ask it for a CWE it has no rules for and it
+prints **NOT SCANNED** and exits `2` — it never reports an unscanned CWE as clean.
+`--cve` / `--ghsa` resolve to a CWE through a vendored map, or NVD / GHSA when
+online (`--offline` skips the network).
+
+### What you get
+
+Every run writes one folder (default `zeroday-reports/<advisory>-<timestamp>/`, or `--output`):
+
+| File | Use it for |
+|------|------------|
+| `report.sarif` | GitHub Code Scanning (`upload-sarif`), IDE SARIF viewers |
+| `report.md` | Human-readable ranked files with evidence lines |
+| `comment.md` | Paste-ready pull-request comment |
+| `evidence/manifest.json` | SHA-256 evidence vault — check with `npm run zeroday -- verify --from <dir>` |
+| `*.json` / `*.ndjson` exports | AWS Security Hub (ASFF), Splunk CIM, Cortex XSOAR, FortiSIEM, CrowdStrike HEC |
+
+**Exit codes:** `0` done · `1` candidates found with `--fail-on-findings` ·
+`2` not scanned, incomplete live run, or error.
+
+### In CI
+
+The composite Action in
+[`.github/actions/zeroday-locate-gate`](./.github/actions/zeroday-locate-gate/action.yml)
+runs `fixture`, `rules` or cassette-replay locate on a pull request, uploads
+SARIF to Code Scanning and posts a reviewable comment. Setup and spend gates:
+[`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md).
 
 ---
 
@@ -223,6 +185,108 @@ lives in [DIPTYCH](https://github.com/pandeyaby/DIPTYCH). A Desk `/play` session
 does **not** prove FREEZEDRY bit-reproducibility or full hyperproperty coverage —
 CI `paired-probe` + `gate_axis_mutate` does. See
 [`docs/paired-probes.md`](./docs/paired-probes.md).
+
+---
+
+## Verify it yourself (trust & reproducibility)
+
+Everything below is optional. It lets a stranger or design partner check the
+project's claims without trusting the authors.
+
+![ZERODAY architecture — locate desk → SARIF/cassette → DIPTYCH paired probes](./docs/images/zeroday-diptych-architecture.png)
+
+**Pipeline (honest):** locate desk → SARIF / redacted cassette →
+`paired-probe` conforming+violating twins →
+[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) grades hyperproperties.
+CI requires **`paired-probe` + `gate_axis_mutate`** (all 8 operators green or
+honestly deferred — never cosmetic greens). Details:
+[`docs/paired-probes.md`](./docs/paired-probes.md) ·
+[`docs/architecture.md`](./docs/architecture.md).
+
+**Design-partner door (no DIPTYCH clone):** `npm run paired-probe` then
+`npm run paired-probe:sample-report` → checked-in sample grade under
+[`docs/reports/diptych-sample-grade.md`](./docs/reports/diptych-sample-grade.md)
+(illustrative DIPTYCH-shaped mirror — not a live harness claim; greens =
+hyperproperty adapters; localization ≠ exploitability).
+
+**One-command from an existing locate SARIF / vault:**  
+`npm run paired-probe:from-sarif -- --sarif path/to/report.sarif` → same
+envelopes + coverage matrix (keyless, no GPU, no DIPTYCH clone). Pipeline:
+locate → SARIF → this command → optional DIPTYCH grade. Details:
+[`docs/paired-probes.md`](./docs/paired-probes.md).
+
+### Stranger trust loop (≤3 commands)
+
+After locate, the design-partner path from Desk / CLI to paired-probe artifacts
++ a checked-in sample DIPTYCH-shaped grade — **no DIPTYCH clone**, no GPU:
+
+```bash
+npm run mvp                                                      # 1 · fixture locate → SARIF
+npm run paired-probe:from-sarif -- --sarif zeroday-reports/mvp   # 2 · envelopes + matrix
+# 3 · open sample grade (illustrative): docs/reports/diptych-sample-grade.md
+```
+
+One-shot (same story, prints paths): `npm run trust-loop`  
+(or `npm run trust-loop -- --mvp` to run fixture locate first).
+
+Honest non-claims: localization ≠ exploitability · no AUROC · DIPTYCH grades ·
+ZeroDay emits · sample grade is illustrative (not a live DIPTYCH harness run).
+See [`docs/paired-probes.md`](./docs/paired-probes.md) ·
+[`docs/design-partner-trust.md`](./docs/design-partner-trust.md) ·
+[`SUPPORT.md`](./SUPPORT.md).
+
+
+### Two doors (honest labels)
+
+| Door | What it is | Spend / CI |
+|------|------------|------------|
+| **A — Keyless CPU / fixture** (default) | `npm run mvp` · fixture / rules / SARIF ingest / recordings | **$0** · required CI gate — no GPU, no HF, no RunPod |
+| **B — Opt-in live GPU brain** | You host Antares-1B on CUDA/vLLM (`POST /v1/completions`); RunPod Secure A40 recommended | **You** provision + terminate · **not** in CI |
+
+Proven vs deferred (design-partner table): [`docs/gpu-claims.md`](./docs/gpu-claims.md).
+Paired-eval trust layer (optional, keyless): [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) ·
+[`docs/paired-probes.md`](./docs/paired-probes.md).
+
+### What a stranger can verify today
+
+One keyless command — no GPU spend, no pod create:
+
+```bash
+npm install
+npm run stranger:verify
+# alias: npm run doors
+# one-command A + cassette (Door B / Door F skipped without URLs):
+npm run prove-doors
+# npm run prove-doors -- --json
+# npm run prove-doors -- --live-url http://127.0.0.1:8000/v1
+# Door F (live locate → tool-calls + SARIF; mock path, no GPU):
+# npm run live-locate-door -- --endpoint http://127.0.0.1:8000/v1 --mock-antares --json
+# npm run prove-doors -- --live-locate-url http://127.0.0.1:8000/v1
+```
+
+**Clone-free (GitHub Codespaces):** open this repo in a Codespace (Node LTS +
+`npm install` via [`.devcontainer/`](./.devcontainer/devcontainer.json)) —
+no local Node setup.
+
+1. [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/ZERODAY) (create codespace)
+2. In the terminal: `npm run stranger:verify` (or `npm run doors`)
+3. See **Door A PASS** + **Door B citation** (no GPU in the default Codespace)
+
+| Door | What happens | Where to read |
+|------|--------------|---------------|
+| **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
+| **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
+| **F — Live locate (opt-in)** | Point at **your** local OpenAI-compatible `/v1` → tool-calls + SARIF; fail-closed on missing/bad URL; default mock path (no GPU/HF). Keyless CI skips. | [`docs/stranger-verify.md`](./docs/stranger-verify.md) · [`docs/local-brain.md`](./docs/local-brain.md) |
+
+Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions or the default Codespace).
+
+**Other repos (reusable workflow):**  
+`uses: pandeyaby/ZERODAY/.github/workflows/stranger-verify.yml@main` — checks out ZERODAY fixtures/scripts (not your private tree). Snippet: [`docs/stranger-verify.md`](./docs/stranger-verify.md).
+
+Honest non-claims: localization ≠ exploitability · CI badge ≠ vuln proof · no AUROC · Codespace ≠ live Antares · DIPTYCH grades separately · sample grade illustrative.
+
+**Day-1 water-flow (clone → mvp → trust-loop → stranger:verify → optional Door B cite):**
+[`docs/design-partner-day1.md`](./docs/design-partner-day1.md).
 
 ---
 
