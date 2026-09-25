@@ -77,8 +77,8 @@ describe("CWE-89 rules heuristics", () => {
     assert.ok(hits.some((h) => h.filePath.includes("search.js")));
   });
 
-  it("runRulesLocalization emits mode=rules + honest warnings", () => {
-    const result = runRulesLocalization(
+  it("runRulesLocalization emits mode=rules + honest warnings", async () => {
+    const result = await runRulesLocalization(
       { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
       rulesSample,
     );
@@ -199,9 +199,9 @@ describe("CWE-22 rules heuristics", () => {
 });
 
 describe("rules mode — unsupported CWE is not a clean negative", () => {
-  it("marks unsupported CWEs as not scanned", () => {
-    const result = runRulesLocalization(
-      { kind: "cwe", id: "CWE-78", cweId: "CWE-78" },
+  it("marks unsupported CWEs as not scanned", async () => {
+    const result = await runRulesLocalization(
+      { kind: "cwe", id: "CWE-352", cweId: "CWE-352" },
       rulesSample,
     );
     assert.equal(result.rankedFiles.length, 0);
@@ -209,8 +209,8 @@ describe("rules mode — unsupported CWE is not a clean negative", () => {
     assert.ok(result.warnings.some((w) => w.startsWith("NOT SCANNED")));
   });
 
-  it("supported CWEs do not carry the flag", () => {
-    const result = runRulesLocalization(
+  it("supported CWEs do not carry the flag", async () => {
+    const result = await runRulesLocalization(
       { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
       rulesSample,
     );
@@ -221,7 +221,7 @@ describe("rules mode — unsupported CWE is not a clean negative", () => {
     const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-rules-unsup-"));
     await locate({
       repo: rulesSample,
-      advisory: "CWE-78",
+      advisory: "CWE-352",
       rules: true,
       offline: true,
       outputDir: out,

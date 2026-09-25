@@ -16,12 +16,12 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const rootPkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 
 describe("npm CLI package (zeroday-cli)", () => {
-  it("manifest is CLI-only: bin zeroday, deps commander + tsx", () => {
+  it("manifest is CLI-only: bin zeroday, deps commander + tsx + web-tree-sitter", () => {
     const m = buildManifest(rootPkg);
     assert.equal(m.name, NPM_PACKAGE_NAME);
     assert.equal(m.version, rootPkg.version);
     assert.deepEqual(m.bin, { zeroday: "bin/zeroday.mjs" });
-    assert.deepEqual(Object.keys(m.dependencies).sort(), ["commander", "tsx"]);
+    assert.deepEqual(Object.keys(m.dependencies).sort(), ["commander", "tsx", "web-tree-sitter"]);
     for (const v of Object.values(m.dependencies)) assert.ok(v, "dependency version resolved");
     assert.ok(!("private" in m), "published manifest must not be private");
   });
@@ -35,9 +35,9 @@ describe("npm CLI package (zeroday-cli)", () => {
 });
 
 describe("single version source", () => {
-  it("ZERODAY_VERSION matches package.json and SARIF driver version", () => {
+  it("ZERODAY_VERSION matches package.json and SARIF driver version", async () => {
     assert.equal(ZERODAY_VERSION, rootPkg.version);
-    const result = runRulesLocalization(
+    const result = await runRulesLocalization(
       { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
       path.join(root, "fixtures/locate/rules-sample"),
     );

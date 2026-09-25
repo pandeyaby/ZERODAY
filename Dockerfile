@@ -28,6 +28,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/data ./data
+COPY --from=builder /app/grammars ./grammars
 
 RUN chown -R zeroday:nodejs /app /data
 

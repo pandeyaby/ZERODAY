@@ -72,24 +72,46 @@ Mode     : rules
 Findings : 3
 
 Ranked files:
-  1. src/users.js   [CWE-89]  SQL query built via string concatenation
-  2. src/search.js  [CWE-89]  SQL built with template-literal interpolation
-  3. src/search.py  [CWE-89]  SQL built with Python f-string
+  1. src/search.js  [CWE-89]  SQL query built from dynamic input
+  2. src/users.js   [CWE-89]  SQL query built from dynamic input
+  3. src/search.py  [CWE-89]  SQL query built from dynamic input
 ```
 
+`report.md` explains each one — for `src/users.js:4`: *Request input from line 3
+(`req.query.name`) reaches this call.* Files where request input is traced to the
+sink rank above values that are merely built at runtime (`src/search.py`).
 Parameterized queries in the same app are not flagged.
 
 ### What it covers
 
 | Mode | Flag | Advisories | You need |
 |------|------|------------|----------|
-| Rules (keyless heuristics) | `--rules` | CWE-89 SQL injection · CWE-79 XSS · CWE-22 path traversal | Nothing |
+| Rules (keyless analysis) | `--rules` | 10 CWEs, below — JS/TS, Python, Java, Go | Nothing |
 | Import existing findings | `--from-sarif <file>` | Any CWE in a CodeQL / Semgrep / generic SARIF 2.1 file | A SARIF file |
 | Live model | `--endpoint <url>` | Any CWE, CVE or GHSA | A local OpenAI-compatible `/v1/completions` server — [`docs/local-brain.md`](./docs/local-brain.md) |
 | Demo | `--fixture` | Bundled CWE-89 demo | Nothing |
 
-Rules mode is deliberately thin. Ask it for a CWE it has no rules for and it
-prints **NOT SCANNED** and exits `2` — it never reports an unscanned CWE as clean.
+Rules mode parses JavaScript/TypeScript, Python, Java and Go into syntax trees
+(tree-sitter, bundled — no native build) and traces request input through
+assignments, string building, branches, collections and same-file helpers to
+dangerous calls:
+
+| CWE | | CWE | |
+|-----|--|-----|--|
+| 89 | SQL injection | 502 | Unsafe deserialization |
+| 79 | Cross-site scripting | 918 | Server-side request forgery |
+| 22 | Path traversal | 611 | XML external entities |
+| 78 | OS command injection | 798 | Hard-coded credentials |
+| 94 | Code injection | 601 | Open redirect |
+
+Other languages (Ruby, PHP, C#) get line heuristics for CWE-89 / 79 / 22. Ask for
+a CWE with no rules and it prints **NOT SCANNED** and exits `2` — it never reports
+an unscanned CWE as clean.
+
+**Measured accuracy** (high-confidence findings, [`docs/benchmark.md`](./docs/benchmark.md)):
+OWASP Benchmark Java **57.7** (80% precision, 80% recall) and Python **53.7**
+(81% precision, 62% recall), scored as true-positive rate − false-positive rate.
+Reproduce with `npm run bench`.
 `--cve` / `--ghsa` resolve to a CWE through a vendored map, or NVD / GHSA when
 online (`--offline` skips the network).
 

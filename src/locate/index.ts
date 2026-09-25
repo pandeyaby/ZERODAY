@@ -419,7 +419,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       // Container-free; no Semgrep; no Antares weights.
       const snap = createSnapshot(repo);
       snapshotPath = snap.snapshotPath;
-      result = runRulesLocalization(advisory, snap.snapshotPath);
+      result = await runRulesLocalization(advisory, snap.snapshotPath);
       result.targetRepo = repo;
       result.snapshotPath = snap.snapshotPath;
       if (result.mode !== "rules") {
