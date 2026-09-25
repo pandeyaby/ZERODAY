@@ -752,6 +752,8 @@ jobs:
           set -euo pipefail
           # Machine-readable Door A proof card + Door B citation (not vuln/AUROC proof).
           npm run --silent stranger:verify -- --json > stranger-verify.json
+          # CLI path stays zeroday-reports/trust-loop/ (TRUST_LOOP_OUT default);
+          # only in-process Desk/API runs use per-run trust-loop-XXXXXX dirs.
           test -f zeroday-reports/trust-loop/paired-probe/coverage/matrix.json
           test -s stranger-verify.json
           node -e '
