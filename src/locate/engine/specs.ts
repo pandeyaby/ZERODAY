@@ -74,7 +74,7 @@ export const SANITIZERS: Record<Family, Sanitizer[]> = {
     { re: /^FilenameUtils\.getName$|\.getFileName$/, cwes: PATH },
   ],
   go: [
-    { re: /^strconv\.(?:Atoi|ParseInt|ParseUint|ParseFloat|ParseBool)$|^uuid\.Parse$/, cwes: "all" },
+    { re: /^strconv\.(?:Atoi|ParseInt|ParseUint|ParseFloat|ParseBool|Itoa|FormatInt|FormatUint|FormatFloat|FormatBool)$|^uuid\.Parse$/, cwes: "all" },
     { re: /^(?:html\.EscapeString|template\.HTMLEscapeString|template\.JSEscapeString|url\.QueryEscape|url\.PathEscape)$/, cwes: XSS },
     { re: /^(?:filepath\.Base|path\.Base)$/, cwes: PATH },
   ],
@@ -116,6 +116,8 @@ export interface SinkSpec {
   safeOption?: { name: string; value: RegExp };
   /** Only flag when the whole file lacks this (e.g. XXE hardening calls). */
   fileLacks?: RegExp;
+  /** Values whose fixed literal prefix matches this are safe (e.g. a pinned scheme + host). */
+  safePrefix?: RegExp;
   title: string;
 }
 
@@ -529,6 +531,7 @@ export const SINKS: SinkSpec[] = [
     kind: "call",
     target: /^(?:fetch|axios|got|request|needle|superagent|undici\.request|axios\.(?:get|post|put|patch|delete|head|request)|got\.(?:get|post|put|patch|delete|stream)|https?\.(?:get|request)|superagent\.(?:get|post|put|delete)|request\.(?:get|post|put|delete))$/,
     args: [0],
+    safePrefix: /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#]/i,
     when: "tainted",
     title: "Request input chooses an outbound request URL",
   },
@@ -538,6 +541,7 @@ export const SINKS: SinkSpec[] = [
     families: ["py"],
     kind: "call",
     target: /^(?:requests|httpx|session|s|client)\.(?:get|post|put|patch|delete|head|options|request|stream)$|^(?:urlopen|urllib\.request\.urlopen|urllib2\.urlopen|request\.urlopen|http\.client\.HTTPConnection|aiohttp\.request)$/,
+    safePrefix: /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#]/i,
     when: "tainted",
     title: "Request input chooses an outbound request URL",
   },
@@ -547,6 +551,7 @@ export const SINKS: SinkSpec[] = [
     families: ["java"],
     kind: "new",
     target: /^(?:URL|java\.net\.URL|HttpGet|HttpPost|HttpPut|HttpDelete)$/,
+    safePrefix: /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#]/i,
     when: "tainted",
     title: "Request input chooses an outbound request URL",
   },
@@ -557,6 +562,7 @@ export const SINKS: SinkSpec[] = [
     kind: "call",
     target: /^URI\.create$|\.(?:getForObject|getForEntity|postForObject|postForEntity|exchange)$|\.uri$/,
     args: [0],
+    safePrefix: /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#]/i,
     when: "tainted",
     title: "Request input chooses an outbound request URL",
   },
@@ -567,6 +573,7 @@ export const SINKS: SinkSpec[] = [
     kind: "call",
     target: /^http\.(?:Get|Post|Head|PostForm|NewRequest|NewRequestWithContext)$|\.(?:Get|Post|Head)$/,
     notTarget: /^(?:r|req|request|c|ctx|q|query|values|params|m|cache|v|os|db|tx|rows)\.|\.(?:Header|URL|Query\(\)|Form|PostForm)\.Get$/,
+    safePrefix: /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#]/i,
     when: "tainted",
     title: "Request input chooses an outbound request URL",
   },
@@ -621,6 +628,7 @@ export const SINKS: SinkSpec[] = [
     families: ["js"],
     kind: "call",
     target: /^(?:res|response|reply|ctx)\.redirect$/,
+    safePrefix: /^(?:\/(?![/\\])|[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#])/i,
     when: "tainted",
     title: "Request input used as a redirect target",
   },
@@ -630,6 +638,7 @@ export const SINKS: SinkSpec[] = [
     families: ["js"],
     kind: "assign",
     target: /^(?:window\.|document\.)?location(?:\.href)?$/,
+    safePrefix: /^(?:\/(?![/\\])|[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#])/i,
     when: "tainted",
     title: "Request input used as a redirect target",
   },
@@ -640,6 +649,7 @@ export const SINKS: SinkSpec[] = [
     kind: "call",
     target: /^(?:redirect|HttpResponseRedirect|HttpResponsePermanentRedirect|RedirectResponse|flask\.redirect)$/,
     args: [0],
+    safePrefix: /^(?:\/(?![/\\])|[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#])/i,
     when: "tainted",
     title: "Request input used as a redirect target",
   },
@@ -649,6 +659,7 @@ export const SINKS: SinkSpec[] = [
     families: ["java"],
     kind: "call",
     target: /\.sendRedirect$/,
+    safePrefix: /^(?:\/(?![/\\])|[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#])/i,
     when: "tainted",
     title: "Request input used as a redirect target",
   },
@@ -658,6 +669,7 @@ export const SINKS: SinkSpec[] = [
     families: ["go"],
     kind: "call",
     target: /^(?:http\.Redirect|c\.Redirect)$/,
+    safePrefix: /^(?:\/(?![/\\])|[a-z][a-z0-9+.-]*:\/\/[^/?#]+[/?#])/i,
     when: "tainted",
     title: "Request input used as a redirect target",
   },

@@ -53,6 +53,19 @@ jobs:
       - name: Lint (errors fail; warnings reported)
         run: npm run lint
 
+      - name: Rules engine accuracy (maintainer corpus — no download)
+        run: |
+          set -euo pipefail
+          npm run --silent bench -- --suite corpus --json bench-corpus.json
+          node -e '
+            const j = require("./bench-corpus.json");
+            const rows = j.suites[0].rows;
+            const t = rows.reduce((a, r) => ({ tp: a.tp + r.tp, fp: a.fp + r.fp, tn: a.tn + r.tn, fn: a.fn + r.fn }), { tp: 0, fp: 0, tn: 0, fn: 0 });
+            const score = 100 * (t.tp / (t.tp + t.fn) - t.fp / (t.fp + t.tn));
+            console.log("corpus score", score.toFixed(1));
+            if (score < 95) { console.error("rules engine regressed on bench/corpus (score < 95)"); process.exit(1); }
+          '
+
       - name: Next.js production build
         run: npm run build
 

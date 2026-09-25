@@ -44,9 +44,11 @@ interface Val {
   clean?: string[];
   /** Known numeric constant (for folding `if ((7 * 42) - num > 200)`). */
   num?: number;
+  /** Literal text before the first dynamic part (constants: the whole literal). */
+  prefix?: string;
 }
 
-const CONST = (literal = ""): Val => ({ tainted: false, dynamic: false, literal });
+const CONST = (literal = ""): Val => ({ tainted: false, dynamic: false, literal, prefix: literal });
 const UNKNOWN: Val = { tainted: false, dynamic: true, literal: "" };
 const SAFE: Val = { tainted: false, dynamic: false, literal: "" };
 
@@ -66,10 +68,20 @@ function cleanOf(vals: Val[]): string[] | undefined {
 function join(vals: Val[]): Val {
   const src = vals.find((v) => v.tainted)?.src;
   const clean = cleanOf(vals);
+  let prefix = "";
+  for (const v of vals) {
+    if (!v.dynamic) {
+      prefix += v.prefix ?? v.literal;
+      continue;
+    }
+    prefix += v.prefix ?? "";
+    break;
+  }
   return {
     tainted: vals.some((v) => v.tainted),
     dynamic: vals.some((v) => v.dynamic),
     literal: vals.map((v) => v.literal).join(""),
+    prefix,
     ...(src ? { src } : {}),
     ...(clean ? { clean } : {}),
   };
@@ -79,8 +91,13 @@ function join(vals: Val[]): Val {
 function merge(a: Val, b: Val): Val {
   const j = join([a, b]);
   const num = a.num !== undefined && a.num === b.num ? a.num : undefined;
+  const pa = a.prefix ?? "";
+  const pb = b.prefix ?? "";
+  let common = 0;
+  while (common < pa.length && common < pb.length && pa[common] === pb[common]) common++;
   return {
     ...j,
+    prefix: pa.slice(0, common),
     literal: a.literal.length >= b.literal.length ? a.literal : b.literal,
     ...(num !== undefined ? { num } : {}),
   };
@@ -361,6 +378,8 @@ class FileAnalyzer {
   private readonly returns: Val[][] = [];
   private readonly inlining: number[] = [];
   private readonly summaries = new Map<string, Val>();
+  /** `url = urlparse(bar)` → aliases.get("url") = {"bar"}: a guard on url also validates bar. */
+  private readonly aliases = new Map<string, Set<string>>();
 
   private addHit(h: EngineHit): void {
     if (this.suppress === 0) this.hits.push(h);
@@ -412,7 +431,9 @@ class FileAnalyzer {
     });
     const body = def.childForFieldName("body");
     let result: Val;
-    this.suppress++;
+    // Request input flowing in: analyze the callee for real so its sinks are reported.
+    const reporting = this.suppress === 0 && argVals.some((v) => v.tainted);
+    if (!reporting) this.suppress++;
     this.inlining.push(def.id);
     this.returns.push([]);
     try {
@@ -426,7 +447,7 @@ class FileAnalyzer {
     } finally {
       this.returns.pop();
       this.inlining.pop();
-      this.suppress--;
+      if (!reporting) this.suppress--;
     }
     // Keep the caller's evidence pointer to where the input came from.
     const src = argVals.find((v) => v.tainted)?.src;
@@ -675,6 +696,11 @@ class FileAnalyzer {
 
   evaluate(n: Node | null, env: Env): Val {
     if (!n) return UNKNOWN;
+    // Python `request.args.get("n", type=int)`: coerced to a number before it is used.
+    if (this.fam === "py" && n.type === "call") {
+      const t = this.callOf(n)?.options.get("type")?.text;
+      if (t && /^(?:int|float|bool)$/.test(t)) return SAFE;
+    }
     const src = this.isSource(n);
     if (src) return { tainted: true, dynamic: true, literal: "", src };
 
@@ -759,6 +785,10 @@ class FileAnalyzer {
       const summary = this.inline(call, argVals);
       if (summary) return summary;
       const recv = call.receiver ? this.evaluate(call.receiver, env) : SAFE;
+      // Arguments of slice / substring / charAt are positions, not content.
+      if (call.receiver && /\.(?:slice|substring|substr|charAt|at|subList|subSequence|splice)$/.test(call.callee)) {
+        return { ...recv, dynamic: true, literal: "" };
+      }
       if (FORMATTERS[this.fam].test(call.callee) || /\.format$/.test(call.callee)) {
         return { ...join([recv, ...argVals]), dynamic: true };
       }
@@ -816,6 +846,7 @@ class FileAnalyzer {
   /** Does `val` satisfy the sink's trigger condition? */
   private triggers(spec: SinkSpec, val: Val): boolean {
     if (val.clean?.includes(spec.cwe)) return false;
+    if (spec.safePrefix && val.prefix && spec.safePrefix.test(val.prefix)) return false;
     if (val.tainted) return true;
     if (spec.when === "tainted") return false;
     if (spec.when === "always") return true;
@@ -902,7 +933,9 @@ class FileAnalyzer {
     if (n.type === "return_statement") {
       for (const spec of this.sinks) {
         if (spec.kind !== "return") continue;
-        const val = this.evaluate(n.namedChildren[0] ?? null, env);
+        const expr = n.namedChildren[0] ?? null;
+        if (expr && (/^(?:dictionary|list|dictionary_comprehension|list_comprehension)$/.test(expr.type) || /^(?:jsonify|json\.dumps|JSONResponse|Response\.json)\s*\(/.test(expr.text))) continue;
+        const val = this.evaluate(expr, env);
         if (!val.tainted || val.clean?.includes(spec.cwe)) continue;
         if (!spec.literalRe || spec.literalRe.test(val.literal) || this.inRouteHandler(n)) this.report(spec, n, val);
       }
@@ -983,10 +1016,23 @@ class FileAnalyzer {
     const params =
       scope.childForFieldName("parameters") ?? scope.childForFieldName("parameter") ?? null;
     if (!params) return;
-    for (const p of params.namedChildren) {
-      if (!p) continue;
+    const list = params.namedChildren.filter((p): p is Node => !!p && p.type !== "comment");
+    for (const [i, p] of list.entries()) {
       const tainted = this.fam === "java" && JAVA_TAINTED_PARAM_ANNOTATIONS.test(p.text);
       const nameNode = p.childForFieldName("name") ?? p.childForFieldName("pattern") ?? p;
+      // Express-style `({ query, params, body }, res) => …`: destructured request fields.
+      if (this.fam === "js" && i === 0 && list.length >= 2 && nameNode.type === "object_pattern") {
+        for (const name of patternNames(nameNode)) {
+          const isReq = /^(?:query|params|body|cookies|headers|files|file)$/.test(name);
+          env.set(
+            name,
+            isReq
+              ? { tainted: true, dynamic: true, literal: "", src: { line: p.startPosition.row + 1, text: `req.${name}` } }
+              : UNKNOWN,
+          );
+        }
+        continue;
+      }
       for (const name of patternNames(nameNode)) {
         env.set(
           name,
@@ -1073,11 +1119,60 @@ class FileAnalyzer {
     const e2: Env = new Map(env);
     if (cons) this.visit(cons, e1);
     for (const a of alts) this.visit(a, e2);
+
+    // Early-exit guard: `if <content check on x>: return / raise / throw` → only the
+    // fall-through path continues, and x counts as validated after it.
+    if (alts.length === 0 && cons && this.alwaysExits(cons)) {
+      this.applyGuard(cond, env);
+      return;
+    }
     for (const key of new Set([...e1.keys(), ...e2.keys()])) {
       const base = env.get(key);
       const a = e1.get(key) ?? base;
       const b = e2.get(key) ?? base;
       env.set(key, a && b ? merge(a, b) : (a ?? b)!);
+    }
+  }
+
+  /** Does this branch always leave the function (return / raise / throw / abort)? */
+  private alwaysExits(n: Node): boolean {
+    const stmts = /block|statement_block|consequence/.test(n.type)
+      ? n.namedChildren.filter((c): c is Node => !!c && c.type !== "comment")
+      : [n];
+    const last = stmts[stmts.length - 1];
+    if (!last) return false;
+    if (/^(?:return_statement|raise_statement|throw_statement)$/.test(last.type)) return true;
+    if (last.type === "expression_statement") {
+      return /^(?:abort|flask\.abort|sys\.exit|exit|panic|http\.Error|os\.Exit|log\.Fatal\w*|\w+\.sendError)\s*\(/.test(last.text.trim());
+    }
+    if (/block|statement_block/.test(last.type)) return this.alwaysExits(last);
+    return false;
+  }
+
+  /** Mark variables checked by a validating guard as clean for the CWEs the check covers. */
+  private applyGuard(cond: Node | null, env: Env): void {
+    if (!cond) return;
+    const text = cond.text;
+    const isContentCheck =
+      /\bin\b|\bnot in\b|startswith|endswith|startsWith|endsWith|\.match|fullmatch|\.test\(|matches\(|contains\(|indexOf|includes\(|isdigit|isalnum|isnumeric|isalpha|netloc|scheme|host|\.\.|realpath|abspath|normpath|isAbsolute|allowed|whitelist|allowlist|valid/i.test(text);
+    if (!isContentCheck) return;
+    const cwes = /\.\.|realpath|abspath|normpath|os\.sep|isAbsolute|getCanonicalPath|normalize\(/.test(text)
+      ? ["CWE-22"]
+      : /netloc|scheme|host|is_safe_url|url_has_allowed_host|allowed_hosts/i.test(text)
+        ? ["CWE-601", "CWE-918"]
+        : ["CWE-89", "CWE-79", "CWE-22", "CWE-78", "CWE-94", "CWE-502", "CWE-918", "CWE-611", "CWE-601"];
+    const names = new Set<string>();
+    const collect = (x: Node) => {
+      const id = identifierName(x);
+      if (id) names.add(id);
+      for (const c of x.namedChildren) if (c) collect(c);
+    };
+    collect(cond);
+    for (const name of [...names]) for (const a of this.aliases.get(name) ?? []) names.add(a);
+    for (const name of names) {
+      const v = env.get(name);
+      if (!v || (!v.tainted && !v.dynamic)) continue;
+      env.set(name, { ...v, clean: [...new Set([...(v.clean ?? []), ...cwes])] });
     }
   }
 
@@ -1108,6 +1203,12 @@ class FileAnalyzer {
     }
 
     this.checkSinks(n, env);
+    // Statement-level calls to same-file helpers: analyze them with the actual arguments.
+    if (CALL_TYPES.has(n.type) && n.parent?.type === "expression_statement") {
+      const call = this.callOf(n);
+      const name = call?.callee.split(".").pop();
+      if (call && name && this.fns.has(name)) this.evaluate(n, env);
+    }
     if (n.type === "return_statement" && this.returns.length) {
       this.returns[this.returns.length - 1]!.push(this.evaluate(n.namedChildren[0] ?? null, env));
     }
@@ -1123,6 +1224,16 @@ class FileAnalyzer {
         if (valueNode) this.checkSqlConstruct(valueNode, val);
         for (const name of patternNames(t)) {
           env.set(name, b.augmented ? join([env.get(name) ?? UNKNOWN, val]) : val);
+          if (valueNode && (val.tainted || val.dynamic)) {
+            const ids = new Set<string>();
+            const collect = (x: Node) => {
+              const id = identifierName(x);
+              if (id && id !== name) ids.add(id);
+              for (const c of x.namedChildren) if (c) collect(c);
+            };
+            collect(valueNode);
+            if (ids.size) this.aliases.set(name, ids);
+          }
         }
         // `obj.field = x` / `d["k"] = x` also taints the object
         if (MEMBER_TYPES.has(t.type)) {

@@ -1365,7 +1365,7 @@ program
   .option("--fixture", "CI / no-GPU: recorded localization (not the live product path)", false)
   .option(
     "--rules",
-    "Keyless real-repo heuristics (mode=rules). Incompatible with --fixture / --from-sarif / --recording / --live / --endpoint. Not Antares F1.",
+    "Keyless real-repo analysis (mode=rules): 10 CWEs across JS/TS, Python, Java, Go. Incompatible with --fixture / --from-sarif / --recording / --live / --endpoint. Not Antares F1.",
     false,
   )
   .option(
@@ -1617,7 +1617,7 @@ program
         } else if (r.mode === "rules") {
           console.log("");
           console.log(
-            "Rules path complete — thin in-repo heuristics (not Antares F1; not exploitability).",
+            "Rules path complete — in-repo syntax-tree analysis (not Antares F1; not exploitability). Accuracy: docs/benchmark.md",
           );
           console.log(
             "Live Antares (opt-in): locate --endpoint … · Fixture smoke: locate --fixture / npm run mvp · Ingest: locate --from-sarif …",

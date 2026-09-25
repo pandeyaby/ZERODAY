@@ -3,8 +3,9 @@
  * Stage the npm package for the ZERODAY CLI (`npx zeroday-cli`).
  *
  * The repo root package.json is the private Next.js Desk app. The published
- * package is CLI-only: TypeScript sources run through tsx, with commander +
- * tsx as the only dependencies (no Next / React / native SQLite).
+ * package is CLI-only: TypeScript sources run through tsx, with commander, tsx
+ * and web-tree-sitter (pure WASM) as the only dependencies (no Next / React /
+ * native SQLite).
  *
  * Usage:
  *   node scripts/pack-cli.mjs            # stage → dist/npm/ and `npm pack` a tarball
@@ -27,6 +28,7 @@ const INCLUDE = [
   "bin",
   "cli",
   "src",
+  "grammars",
   "data",
   "fixtures",
   "docs",
@@ -84,6 +86,7 @@ export function buildManifest(rootPkg) {
     dependencies: {
       commander: deps.commander,
       tsx: deps.tsx,
+      "web-tree-sitter": deps["web-tree-sitter"],
     },
   };
 }
