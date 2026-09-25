@@ -1,11 +1,11 @@
 {
   "name": "zeroday",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "ZERODAY — defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate → SARIF). Not a Cisco product.",
   "license": "Apache-2.0",
   "bin": {
-    "zeroday": "./cli/index.ts"
+    "zeroday": "./bin/zeroday.mjs"
   },
   "scripts": {
     "dev": "next dev --turbopack -p 3333",
@@ -14,6 +14,7 @@
     "build": "next build",
     "start": "next start -p 3333",
     "lint": "eslint .",
+    "pack:cli": "node scripts/pack-cli.mjs",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "test:desk": "tsx --test \"tests/desk/**/*.test.ts\"",
     "paired-probe": "tsx cli/index.ts paired-probe",

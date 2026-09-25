@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { redactInventoryText } from "./inventory-evidence";
+import { ZERODAY_VERSION } from "../version";
 import type {
   InventoryArtifact,
   InventoryFinding,
@@ -192,7 +193,7 @@ export function toInventorySarif(
         tool: {
           driver: {
             name: "ZERODAY-Inventory",
-            version: "0.6.0",
+            version: ZERODAY_VERSION,
             informationUri: "https://github.com/pandeyaby/ZERODAY",
             rules,
           },

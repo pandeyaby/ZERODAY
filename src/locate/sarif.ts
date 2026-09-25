@@ -3,6 +3,7 @@
  */
 
 import type { LocalizationResult } from "./types";
+import { ZERODAY_VERSION } from "../version";
 
 export interface SarifLog {
   $schema: string;
@@ -161,7 +162,7 @@ export function toSarif(result: LocalizationResult): SarifLog {
         tool: {
           driver: {
             name: "ZERODAY",
-            version: "0.3.0",
+            version: ZERODAY_VERSION,
             informationUri: "https://github.com/pandeyaby/ZERODAY",
             rules,
           },

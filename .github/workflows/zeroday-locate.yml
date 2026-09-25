@@ -2,7 +2,7 @@
 #
 # Fixture-only smoke + keyless rules + SARIF ingest + org cassette record/replay —
 # no model weights, no HF pull, no GPU. Live Antares is never in this workflow.
-# Jobs: quality (tsc + lint + next build + docker build) + locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
+# Jobs: quality (tsc + lint + next build + docker build + npm pack smoke) + locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
 # the composite Action) + operate→verify + desk-ui (UI-2 reports + UI-3
 # live-endpoint unit tests) + locate-rules (K1) + locate-ingest (K2) +
 # locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2) +
@@ -58,6 +58,17 @@ jobs:
 
       - name: Docker image build
         run: docker build -t zeroday:ci .
+
+      - name: npm package (zeroday-cli) — pack + install + smoke from a clean project
+        run: |
+          set -euo pipefail
+          node scripts/pack-cli.mjs
+          tgz="$(ls "$PWD"/dist/zeroday-cli-*.tgz)"
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "$tgz"
+          npx --no-install zeroday --version
+          npx --no-install zeroday mvp
 
   locate:
     name: CI/no-GPU fixture localize → SARIF + PR comment

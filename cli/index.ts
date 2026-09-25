@@ -27,6 +27,7 @@
  */
 
 import { Command } from "commander";
+import { ZERODAY_VERSION } from "../src/version.ts";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -316,7 +317,7 @@ program
   .description(
     "ZERODAY — Localization & Evidence Defense Factory (keyless default; optional Antares)",
   )
-  .version("0.6.0");
+  .version(ZERODAY_VERSION);
 
 program
   .command("mvp")
@@ -3199,5 +3200,20 @@ live
     },
   );
 
+
+// Stability contract (docs/stability.md): these commands, their documented
+// flags, output files and exit codes follow semver. Everything else may change.
+const STABLE_COMMANDS = new Set(["mvp", "locate", "verify", "operate", "doctor"]);
+for (const cmd of program.commands) {
+  cmd.helpGroup(
+    STABLE_COMMANDS.has(cmd.name())
+      ? "Core commands (stable):"
+      : "Advanced / experimental commands:",
+  );
+}
+program.addHelpText(
+  "after",
+  "\nStable surface, output files and exit codes: docs/stability.md",
+);
 
 program.parseAsync(process.argv);

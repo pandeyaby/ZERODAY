@@ -63,3 +63,6 @@ yarn-error.log*
 !/artifacts/desk-ui-demo/04-locate-result.png
 !/artifacts/desk-ui-demo/live-06-locate-result.png
 /artifacts/desk-ui-demo/*.webm
+
+# npm CLI package staging (scripts/pack-cli.mjs)
+/dist

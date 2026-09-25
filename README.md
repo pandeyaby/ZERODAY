@@ -50,6 +50,14 @@ npm run mvp        # self-test on a bundled demo app → PASS + report.sarif
 it does not read your code. Open the printed `report.sarif` under
 `zeroday-reports/mvp/`, then point ZERODAY at your own repo.
 
+**No clone needed (from the v0.7.0 release):**
+
+```bash
+npx zeroday-cli mvp                                   # CLI only — or: npm i -g zeroday-cli → zeroday
+npx zeroday-cli locate --cwe CWE-89 --repo . --rules --offline
+docker run --rm -p 127.0.0.1:3000:3000 ghcr.io/pandeyaby/zeroday   # Desk web UI → http://localhost:3000
+```
+
 ### Scan your own repo (keyless)
 
 ```bash
@@ -98,7 +106,9 @@ Every run writes one folder (default `zeroday-reports/<advisory>-<timestamp>/`, 
 | `*.json` / `*.ndjson` exports | AWS Security Hub (ASFF), Splunk CIM, Cortex XSOAR, FortiSIEM, CrowdStrike HEC |
 
 **Exit codes:** `0` done · `1` candidates found with `--fail-on-findings` ·
-`2` not scanned, incomplete live run, or error.
+`2` not scanned, incomplete live run, or error. The stable commands, flags,
+output files and exit codes are listed in [`docs/stability.md`](./docs/stability.md)
+([`CHANGELOG.md`](./CHANGELOG.md) for changes).
 
 ### In CI
 
