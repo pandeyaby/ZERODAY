@@ -8,7 +8,7 @@
         "@demo-app-backend"
       ],
       "matchedPattern": "/src/",
-      "blameHint": "Abhinav Pandey <pandey.aby@gmail.com>"
+      "blameHint": "Demo Maintainer <maintainer@example.com>"
     },
     {
       "filePath": "src/app.js",
@@ -16,11 +16,11 @@
         "@demo-app-backend"
       ],
       "matchedPattern": "/src/",
-      "blameHint": "Abhinav Pandey <pandey.aby@gmail.com>"
+      "blameHint": "Demo Maintainer <maintainer@example.com>"
     }
   ],
   "unmatched": [],
-  "reviewMarkdown": "# ZERODAY ownership route\n\n> **Human review required.** Localization candidates with CODEOWNERS / blame hints — **not** proof of exploitability. No auto-merge.\n\n- Advisory: `CWE-89` → `CWE-89`\n- Mode: `fixture`\n- Findings: 2\n\n## Routed files\n\n| File | Owners | Pattern | Blame hint |\n|------|--------|---------|------------|\n| `src/users.js` | @demo-app-backend | `/src/` | Abhinav Pandey <pandey.aby@gmail.com> |\n| `src/app.js` | @demo-app-backend | `/src/` | Abhinav Pandey <pandey.aby@gmail.com> |\n\n## Posture\n\n- Localization only · not exploit proof · no PoC · no auto-merge\n- Ownership hints are for triage routing — not assignment authority\n",
+  "reviewMarkdown": "# ZERODAY ownership route\n\n> **Human review required.** Localization candidates with CODEOWNERS / blame hints — **not** proof of exploitability. No auto-merge.\n\n- Advisory: `CWE-89` → `CWE-89`\n- Mode: `fixture`\n- Findings: 2\n\n## Routed files\n\n| File | Owners | Pattern | Blame hint |\n|------|--------|---------|------------|\n| `src/users.js` | @demo-app-backend | `/src/` | Demo Maintainer <maintainer@example.com> |\n| `src/app.js` | @demo-app-backend | `/src/` | Demo Maintainer <maintainer@example.com> |\n\n## Posture\n\n- Localization only · not exploit proof · no PoC · no auto-merge\n- Ownership hints are for triage routing — not assignment authority\n",
   "githubCommentMarkdown": "## ZERODAY factory — ownership route\n\n> **Human review required.** Not exploitability proof. No auto-merge.\n\n| Advisory | `CWE-89` → `CWE-89` |\n| Findings | **2** |\n\n| File | Owners |\n|------|--------|\n| `src/users.js` | @demo-app-backend |\n| `src/app.js` | @demo-app-backend |\n\n_Factory loop: inventory → locate → classify → own → verify._\n",
   "posture": {
     "localizationOnly": true,

@@ -6,6 +6,14 @@ import type { TraceStep } from "../types";
 import { readFileLines, type WalkedFile } from "./walk";
 import type { RuleHit } from "./cwe-89";
 
+/**
+ * Filesystem APIs where a ../ literal reaches the disk: fs.* calls, Express
+ * sendFile, and a bare open( (Python / C) — not window.open or path.join
+ * (path.join(__dirname, "../views") is a normal static-dir idiom).
+ */
+const FS_CALL =
+  "(?:\\bfs\\w*\\.(?:read|write|append|create|open|unlink|readdir|stat|access|rm)\\w*|\\bsendFile|(?<![.\\w])open)";
+
 const PATH_PATTERNS: Array<{
   id: string;
   re: RegExp;
@@ -22,19 +30,37 @@ const PATH_PATTERNS: Array<{
   },
   {
     id: "readfile-concat",
-    re: /(?:readFile|createReadStream|openSync)\s*\(\s*[^,)]*\+/i,
+    re: /(?:readFile(?:Sync)?|createReadStream|openSync)\s*\(\s*[^,)]*\+/i,
     title: "Filesystem read with concatenated path",
     note: "File read uses string concatenation for path — candidate for path-traversal review.",
     score: 70,
   },
   {
-    id: "dotdot-in-path-expr",
-    re: /["'`].*\.\.\/.*["'`]|path\.resolve\s*\([^)]*(?:req\.|params\.)/i,
-    title: "Path expression with ../ or request resolve",
-    note: "Path expression involves ../ or request-derived resolve — localization candidate.",
-    score: 60,
+    id: "resolve-req",
+    re: /path\.resolve\s*\([^)]*(?:req\.|request\.|params\.|query\.|body\.)/i,
+    title: "path.resolve with request-derived segment",
+    note: "path.resolve mixes a filesystem root with request input — candidate for CWE-22 review.",
+    score: 70,
+  },
+  {
+    // ../ only counts inside a filesystem call — not in any string literal.
+    id: "dotdot-in-fs-call",
+    re: new RegExp(
+      `${FS_CALL}\\s*\\([^)]*["'\`][^"'\`]*\\.\\.[\\\\/]`,
+      "i",
+    ),
+    title: "Filesystem call with ../ path segment",
+    note: "Filesystem call includes a ../ segment — localization candidate for path-traversal review.",
+    score: 40,
   },
 ];
+
+/**
+ * Module loading (require / import / export … from / Python import) resolves
+ * relative paths at build time, not from user input — never a CWE-22 signal.
+ */
+const MODULE_LOAD_LINE =
+  /^\s*(?:import\b|export\b[^;]*\bfrom\b|from\s+\S+\s+import\b)|\brequire\s*\(\s*["'`]|\bimport\s*\(\s*["'`]/;
 
 export function scanRepoForCwe22(files: WalkedFile[]): {
   hits: RuleHit[];
@@ -45,7 +71,7 @@ export function scanRepoForCwe22(files: WalkedFile[]): {
     {
       step: 1,
       tool: "grep",
-      command: "rules:cwe-22 path.join|readFile concat|../",
+      command: "rules:cwe-22 path.join/resolve(req)|readFile concat|fs-call ../",
       summary: "Applied thin optional CWE-22 path-traversal patterns.",
     },
   ];
@@ -59,6 +85,7 @@ export function scanRepoForCwe22(files: WalkedFile[]): {
     }
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
+      if (MODULE_LOAD_LINE.test(line)) continue;
       for (const pat of PATH_PATTERNS) {
         if (!pat.re.test(line)) continue;
         hits.push({

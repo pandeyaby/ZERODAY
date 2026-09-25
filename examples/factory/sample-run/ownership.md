@@ -10,8 +10,8 @@
 
 | File | Owners | Pattern | Blame hint |
 |------|--------|---------|------------|
-| `src/users.js` | @demo-app-backend | `/src/` | Abhinav Pandey <pandey.aby@gmail.com> |
-| `src/app.js` | @demo-app-backend | `/src/` | Abhinav Pandey <pandey.aby@gmail.com> |
+| `src/users.js` | @demo-app-backend | `/src/` | Demo Maintainer <maintainer@example.com> |
+| `src/app.js` | @demo-app-backend | `/src/` | Demo Maintainer <maintainer@example.com> |
 
 ## Posture
 

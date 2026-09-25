@@ -14,6 +14,9 @@ import { scanRepoForCwe22 } from "./cwe-22";
 
 export const RULES_MODEL_ID = "zeroday/rules-heuristics";
 
+/** CWEs with a thin rules pack. Anything else is reported as not scanned. */
+export const RULES_SUPPORTED_CWES = ["CWE-89", "CWE-79", "CWE-22"] as const;
+
 const HONEST_WARNINGS = [
   "Rules mode: thin in-repo CWE heuristics — not Antares inference and not Antares File F1.",
   "Localization only: ranked files are candidates for human review — not proof of exploitability.",
@@ -38,6 +41,7 @@ export function runRulesLocalization(
   const { files, skipped, warnings: walkWarnings } = walkSourceFiles(root);
 
   const explorationTrace: TraceStep[] = [];
+  let unsupportedCwe = false;
   let rankedFiles = hitsToRankedFiles([], cweId);
   const warnings: string[] = [...HONEST_WARNINGS, ...walkWarnings];
 
@@ -82,14 +86,16 @@ export function runRulesLocalization(
       });
     }
   } else {
+    unsupportedCwe = true;
     explorationTrace.push({
       step: 1,
       tool: "other",
       command: "rules:unsupported-cwe",
-      summary: `No thin rules pack for ${cweId}; emitting empty localization (CWE-89 required; CWE-79/22 optional).`,
+      summary: `No rules pack for ${cweId}; repo NOT scanned for it (not a clean negative).`,
     });
     warnings.push(
-      `No rules heuristics registered for ${cweId}. Supported: CWE-89 (required), CWE-79 / CWE-22 (optional).`,
+      `NOT SCANNED: no rules heuristics registered for ${cweId}. ` +
+        `Supported: ${RULES_SUPPORTED_CWES.join(", ")}. Zero findings is not a clean negative.`,
     );
   }
 
@@ -100,7 +106,9 @@ export function runRulesLocalization(
     summary:
       rankedFiles.length > 0
         ? `Submitted ${rankedFiles.length} ranked file(s) from rules heuristics.`
-        : "No ranked files from rules heuristics (not a claim of cleanliness).",
+        : unsupportedCwe
+          ? `Not scanned: no rules for ${cweId}.`
+          : "No ranked files from rules heuristics (not a claim of cleanliness).",
   });
 
   return {
@@ -121,6 +129,7 @@ export function runRulesLocalization(
     summary: {
       findingCount: rankedFiles.length,
       incompleteReason: null,
+      ...(unsupportedCwe ? { unsupportedCwe: true } : {}),
       terminalCallBudget: explorationTrace.length,
       terminalCallsUsed: explorationTrace.length,
     },

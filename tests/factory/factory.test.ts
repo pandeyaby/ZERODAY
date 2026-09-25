@@ -106,7 +106,7 @@ describe("factory inference provider ACK", () => {
     const r = resolveInferenceProvider({
       provider: "local",
       endpoint: "http://127.0.0.1:8000/v1",
-      env: {},
+      env: {} as NodeJS.ProcessEnv,
     });
     assert.equal(r.remote, false);
     assert.equal(r.localLoopback, true);
@@ -118,7 +118,7 @@ describe("factory inference provider ACK", () => {
         resolveInferenceProvider({
           provider: "remote",
           endpoint: "https://gpu.example.runpod.net/v1",
-          env: {},
+          env: {} as NodeJS.ProcessEnv,
         }),
       (e: Error) => e.message.includes("REMOTE_INFERENCE") || e.message.includes(REMOTE_INFERENCE_REQUIRED.slice(0, 20)),
     );
@@ -126,7 +126,7 @@ describe("factory inference provider ACK", () => {
       provider: "runpod",
       endpoint: "https://gpu.example.runpod.net/v1",
       remoteInference: true,
-      env: {},
+      env: {} as NodeJS.ProcessEnv,
     });
     assert.equal(ok.remote, true);
     assert.equal(ok.provider, "remote");

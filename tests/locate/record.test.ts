@@ -302,6 +302,7 @@ describe("record --redact org CI cassettes (Keyless K3)", () => {
     assert.ok(fs.existsSync(cassettePath), "committed org cassette missing");
 
     const replayed = await locate({
+      repo: "",
       advisory: "",
       recording: cassettePath,
       outputDir: replayOut,

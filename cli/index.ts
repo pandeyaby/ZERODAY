@@ -27,6 +27,7 @@
  */
 
 import { Command } from "commander";
+import { ZERODAY_VERSION } from "../src/version.ts";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -37,6 +38,7 @@ import {
   runAntaresSweep,
   recordCassette,
   RULES_CWE_89_CASSETTE,
+  RULES_SUPPORTED_CWES,
   assertRecordingReplayArtifacts,
 } from "../src/locate/index.ts";
 import {
@@ -315,7 +317,7 @@ program
   .description(
     "ZERODAY — Localization & Evidence Defense Factory (keyless default; optional Antares)",
   )
-  .version("0.6.0");
+  .version(ZERODAY_VERSION);
 
 program
   .command("mvp")
@@ -544,10 +546,9 @@ async function runCraftCli(opts: {
     }
   } catch (e) {
     const refuse =
-      e &&
-      typeof e === "object" &&
-      "refuse" in e &&
-      (e as { refuse?: { message?: string } }).refuse;
+      e && typeof e === "object" && "refuse" in e
+        ? (e as { refuse?: { message?: string } }).refuse
+        : undefined;
     if (refuse?.message) {
       console.error(refuse.message);
       process.exitCode = 3;
@@ -1112,7 +1113,7 @@ factory
       json: boolean;
     }) => {
       try {
-        await runInventoryCli(opts);
+        await runInventoryCli({ ...opts, fixture: false });
       } catch (e) {
         console.error(`factory inventory failed: ${(e as Error).message}`);
         process.exitCode = 2;
@@ -1560,6 +1561,17 @@ program
             }),
           );
           console.log("");
+        } else if (r.summary.unsupportedCwe) {
+          console.log(
+            `NOT SCANNED — rules mode has no heuristics for ${r.advisory.cweId}.`,
+          );
+          console.log(
+            "Zero findings here is NOT a clean result: the repo was not checked for this CWE.",
+          );
+          console.log(
+            `Rules-mode CWEs: ${RULES_SUPPORTED_CWES.join(", ")}. For other CWEs use --endpoint (live brain) or --from-sarif.`,
+          );
+          console.log("");
         } else {
           console.log("No vulnerable files submitted.");
           console.log("");
@@ -1638,6 +1650,10 @@ program
         process.exitCode = 1;
       }
       if (artifacts.failIncomplete) {
+        process.exitCode = 2;
+      }
+      // Fail closed: an unscanned CWE must never pass a gate as "0 findings".
+      if (artifacts.result.summary.unsupportedCwe) {
         process.exitCode = 2;
       }
     } catch (e) {
@@ -2537,6 +2553,7 @@ program
         console.log("");
 
         const located = await locate({
+          repo: "",
           advisory: "",
           recording,
           outputDir,
@@ -3183,5 +3200,20 @@ live
     },
   );
 
+
+// Stability contract (docs/stability.md): these commands, their documented
+// flags, output files and exit codes follow semver. Everything else may change.
+const STABLE_COMMANDS = new Set(["mvp", "locate", "verify", "operate", "doctor"]);
+for (const cmd of program.commands) {
+  cmd.helpGroup(
+    STABLE_COMMANDS.has(cmd.name())
+      ? "Core commands (stable):"
+      : "Advanced / experimental commands:",
+  );
+}
+program.addHelpText(
+  "after",
+  "\nStable surface, output files and exit codes: docs/stability.md",
+);
 
 program.parseAsync(process.argv);

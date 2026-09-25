@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbRepo } from "@/lib/db/repo";
+import { ZERODAY_VERSION } from "@/version";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "ZERODAY",
-    version: "0.5.0",
+    version: ZERODAY_VERSION,
     product: "agent-operator",
     defaultPath: "keyless-operate",
     persistence: backend,

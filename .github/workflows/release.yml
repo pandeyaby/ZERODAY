@@ -1,0 +1,119 @@
+# Release on a version tag (vX.Y.Z):
+#   - verify: tag matches package.json, typecheck + tests
+#   - Docker image → ghcr.io/<owner>/zeroday:<version> + :latest (GITHUB_TOKEN)
+#   - npm package zeroday-cli (only when the NPM_TOKEN secret is set; with provenance)
+#   - GitHub release with the npm tarball attached
+# Never runs on pull requests. No GPU / HF / RunPod.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify tag + tests
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Tag must match package.json version
+        id: version
+        run: |
+          set -euo pipefail
+          pkg="$(node -p 'require("./package.json").version')"
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$pkg" != "$tag" ]; then
+            echo "::error::tag v$tag does not match package.json version $pkg"
+            exit 1
+          fi
+          echo "version=$pkg" >> "$GITHUB_OUTPUT"
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  docker:
+    name: Docker image → GHCR
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build + push
+        run: |
+          set -euo pipefail
+          image="ghcr.io/$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')/zeroday"
+          docker build \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.version=${{ needs.verify.outputs.version }}" \
+            --label "org.opencontainers.image.licenses=Apache-2.0" \
+            -t "$image:${{ needs.verify.outputs.version }}" -t "$image:latest" .
+          docker push "$image:${{ needs.verify.outputs.version }}"
+          docker push "$image:latest"
+
+  npm:
+    name: npm package + GitHub release
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+
+      - name: Stage + pack CLI package
+        run: node scripts/pack-cli.mjs
+
+      - name: Smoke-test the packed CLI from a clean project
+        run: |
+          set -euo pipefail
+          tgz="$(ls "$PWD"/dist/zeroday-cli-*.tgz)"
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "$tgz"
+          npx --no-install zeroday --version
+          npx --no-install zeroday mvp
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::notice::NPM_TOKEN not set — skipping npm publish (tarball still attached to the release)."
+            exit 0
+          fi
+          cd dist/npm && npm publish --provenance --access public
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/zeroday-cli-*.tgz \
+            --title "ZERODAY ${GITHUB_REF_NAME}" \
+            --notes "See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md)."

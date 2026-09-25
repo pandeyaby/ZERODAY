@@ -115,11 +115,11 @@ describe("GET/POST /api/evidence-pack", () => {
     assert.equal(body.gpuEvidence.historical, true);
     assert.equal(body.gpuEvidence.startsRunPod, false);
     assert.equal(
-      body.files[EVIDENCE_PACK_PROVE_DOORS_FILE]?.schemaVersion,
+      (body.files[EVIDENCE_PACK_PROVE_DOORS_FILE] as { schemaVersion?: string } | undefined)?.schemaVersion,
       PROVE_DOORS_SCHEMA,
     );
     assert.equal(
-      body.files[EVIDENCE_PACK_GPU_EVIDENCE_FILE]?.startsRunPod,
+      (body.files[EVIDENCE_PACK_GPU_EVIDENCE_FILE] as { startsRunPod?: boolean } | undefined)?.startsRunPod,
       false,
     );
     const reportFile = body.files[EVIDENCE_PACK_REPORT_JSON_FILE] as {

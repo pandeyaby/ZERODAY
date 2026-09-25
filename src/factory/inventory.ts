@@ -13,6 +13,7 @@ import type {
   InventoryArtifact,
   InventoryFile,
   InventoryManifest,
+  InventoryManifestRepo,
   InventorySkipEntry,
   LanguageStat,
   MultiRepoInventoryArtifact,

@@ -79,6 +79,14 @@ export function toHumanReport(
             ];
       tips.forEach((t, i) => lines.push(`${i + 1}. ${t}`));
       lines.push(``);
+    } else if (result.summary.unsupportedCwe) {
+      lines.push(`### Not scanned`);
+      lines.push(``);
+      lines.push(
+        `> **Rules mode has no heuristics for ${result.advisory.cweId}.** ` +
+          `The repo was **not** checked for this CWE. This is **not** a clean negative.`,
+      );
+      lines.push(``);
     } else {
       lines.push(
         `_No vulnerable files submitted (\`submit_no_vulnerability_found\`)._`,

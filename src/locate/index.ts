@@ -8,7 +8,7 @@ import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
-import { runRulesLocalization } from "./rules/index";
+import { runRulesLocalization, RULES_SUPPORTED_CWES } from "./rules/index";
 import { runIngestLocalization, parseSarifFile, mapRuleToCwe } from "./ingest/index";
 import {
   loadOrgCassette,
@@ -69,6 +69,7 @@ export {
   DEFAULT_LIVE_TOOL_BUDGET,
   classifyIncomplete,
   runRulesLocalization,
+  RULES_SUPPORTED_CWES,
   runIngestLocalization,
   parseSarifFile,
   mapRuleToCwe,
