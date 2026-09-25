@@ -65,6 +65,16 @@
       "uploadSarif": true,
       "dryRun": true,
       "neverCallsGitHub": true
+    },
+    "f": {
+      "status": "skipped",
+      "label": "f",
+      "door": "Door F — live-locate (tool-calls + SARIF)",
+      "schemaVersion": "zeroday-live-locate-door/v1",
+      "reason": "liveLocateUrl omitted",
+      "note": "Door F skipped (fixture) — not failed.",
+      "provisioned": false,
+      "spendUsd": null
     }
   },
   "nonClaims": {
@@ -75,6 +85,7 @@
     "probeNotMeasuredA40ReProof": true,
     "doorDHistoricalMeasuredOnly": true,
     "doorEDryRunCodeScanningOnly": true,
+    "doorFLiveLocateOptInOnly": true,
     "noLiveGitHubUploadFromProveDoors": true,
     "noRunPodCreateFromProveDoors": true,
     "noSpendClaimsInvented": true,

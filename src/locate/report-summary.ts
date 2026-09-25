@@ -266,7 +266,7 @@ export function parseProveDoorsJson(raw: unknown): ProveDoorsResult {
   if (!isPlainObject(raw.doors)) {
     throw new ReportError("prove-doors.doors must be an object", "INPUT_SCHEMA");
   }
-  for (const key of ["a", "cassette", "b", "d", "e"] as const) {
+  for (const key of ["a", "cassette", "b", "d", "e", "f"] as const) {
     if (!isPlainObject(raw.doors[key])) {
       throw new ReportError(
         `prove-doors.doors.${key} must be an object`,
@@ -604,6 +604,7 @@ function summarizeDoors(prove: ProveDoorsResult): string {
     `B=${prove.doors.b.status}`,
     `D=${prove.doors.d.status}`,
     `E=${prove.doors.e.status}`,
+    `F=${prove.doors.f.status}`,
   ];
   return `keyless prove-doors (ok=${prove.ok}; ${parts.join(" · ")})`;
 }

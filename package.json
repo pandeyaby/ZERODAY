@@ -23,6 +23,7 @@
     "stranger:verify": "bash scripts/stranger-verify.sh",
     "doors": "bash scripts/stranger-verify.sh",
     "prove-doors": "tsx cli/index.ts prove-doors",
+    "live-locate-door": "tsx cli/index.ts live-locate-door",
     "gpu-evidence": "tsx cli/index.ts gpu-evidence",
     "evidence-pack": "tsx cli/index.ts evidence-pack",
     "report": "tsx cli/index.ts report",

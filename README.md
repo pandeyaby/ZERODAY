@@ -93,10 +93,13 @@ One keyless command — no GPU spend, no pod create:
 npm install
 npm run stranger:verify
 # alias: npm run doors
-# one-command A + cassette (Door B skipped without --live-url):
+# one-command A + cassette (Door B / Door F skipped without URLs):
 npm run prove-doors
 # npm run prove-doors -- --json
 # npm run prove-doors -- --live-url http://127.0.0.1:8000/v1
+# Door F (live locate → tool-calls + SARIF; mock path, no GPU):
+# npm run live-locate-door -- --endpoint http://127.0.0.1:8000/v1 --mock-antares --json
+# npm run prove-doors -- --live-locate-url http://127.0.0.1:8000/v1
 ```
 
 **Clone-free (GitHub Codespaces):** open this repo in a Codespace (Node LTS +
@@ -111,6 +114,7 @@ no local Node setup.
 |------|--------------|---------------|
 | **A — Keyless** | Runs `trust-loop` (fixture SARIF → paired-probe) · prints **PASS** + artifact paths | [`docs/ci-trust.md`](./docs/ci-trust.md) · [`docs/stranger-verify.md`](./docs/stranger-verify.md) |
 | **B — Live GPU** | **Not run** — cites dated Secure A40 re-proof only (pod `d65ny3xqf7bwza`, ~$0.034, models/completions 200, locate → `src/users.js`) | [`docs/gpu-claims.md`](./docs/gpu-claims.md) § Live re-proof (2026-09-19) |
+| **F — Live locate (opt-in)** | Point at **your** local OpenAI-compatible `/v1` → tool-calls + SARIF; fail-closed on missing/bad URL; default mock path (no GPU/HF). Keyless CI skips. | [`docs/stranger-verify.md`](./docs/stranger-verify.md) · [`docs/local-brain.md`](./docs/local-brain.md) |
 
 Same keyless command is a CI job (`stranger-verify`) on the locate workflow badge above — Door B stays citation-only (no GPU in Actions or the default Codespace).
 

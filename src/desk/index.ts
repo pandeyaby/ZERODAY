@@ -158,9 +158,22 @@ export {
   type ProveDoorCassetteEntry,
   type ProveDoorBEntry,
   type ProveDoorDEntry,
+  type ProveDoorEEntry,
+  type ProveDoorFEntry,
   type ProveDoorsNonClaims,
   type ProveDoorStatus,
 } from "./prove-doors.ts";
+
+export {
+  LIVE_LOCATE_DOOR_SCHEMA,
+  LIVE_LOCATE_DOOR_REPO_ROOT,
+  runLiveLocateDoor,
+  liveLocateDoorCatalog,
+  LiveLocateDoorError,
+  type LiveLocateDoorOptions,
+  type LiveLocateDoorResult,
+  type LiveLocateDoorNonClaims,
+} from "./live-locate-door.ts";
 
 export {
   UPLOAD_SARIF_DESK_SCHEMA,

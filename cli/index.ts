@@ -17,7 +17,8 @@
  *   zeroday record  --from <locate-dir> --out <cassette.json>   # Keyless K3
  *   zeroday locate  --recording <cassette.json>                 # replay org cassette
  *   zeroday cassette:replay  # offline replay + stable CI assert (replay-only)
- *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional --live-url Door B)
+ *   zeroday prove-doors [--out <path>]  # Door A + cassette + D + E (+ optional Door B / Door F)
+ *   zeroday live-locate-door --endpoint <url>  # Door F alone: fail-closed live locate → SARIF
  *   zeroday gpu-evidence [--out <path>] # load checked-in Measured A40 evidence (historical; no RunPod)
  *   zeroday evidence-pack [--out <dir>] [--top N] # design-partner pack: prove-doors + gpu-evidence + report + manifest (no RunPod)
  *   zeroday report --from prove-doors.json | --sarif path.sarif [--top N]  # CISO localization summary (zeroday.report/v1)
@@ -101,6 +102,9 @@ import {
   formatGpuEvidenceBanner,
   GpuEvidenceError,
   GPU_EVIDENCE_SCHEMA,
+  runLiveLocateDoor,
+  LiveLocateDoorError,
+  LIVE_LOCATE_DOOR_SCHEMA,
   type ProveDoorsResult,
 } from "../src/desk/index.ts";
 import {
@@ -1821,7 +1825,7 @@ program
 function formatProveDoorsBanner(result: ProveDoorsResult): string {
   const lines: string[] = [
     "",
-    "ZERODAY prove-doors (Door A + cassette + D + E · optional Door B)",
+    "ZERODAY prove-doors (Door A + cassette + D + E · optional Door B / Door F)",
     "─────────────────────────────────────────────────────────",
     `schema  : ${result.schemaVersion}`,
     `ok      : ${result.ok}`,
@@ -1843,6 +1847,13 @@ function formatProveDoorsBanner(result: ProveDoorsResult): string {
       result.doors.e.status === "failed"
         ? ` — ${result.doors.e.error}`
         : " — dry-run Code Scanning check (not live upload)"
+    }`,
+    `Door F  : ${result.doors.f.status}${
+      result.doors.f.status === "skipped"
+        ? ` — ${result.doors.f.reason}`
+        : result.doors.f.status === "failed"
+          ? ` — ${result.doors.f.error}`
+          : " — live locate (tool-calls + SARIF)"
     }`,
     "",
     "Posture: localization only · needs human · fail-closed · no RunPod create · no live GitHub upload · no invented spend",
@@ -2203,7 +2214,7 @@ program
 program
   .command("prove-doors")
   .description(
-    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay + Door D (Measured A40 evidence, historical) + Door E (upload-sarif dry-run); optional Door B via --live-url. Exit 0 only when required doors pass. No HTTP self-call · no RunPod · Door D does not start GPU · Door E never live-uploads.",
+    "Run Desk Prove doors in-process: Door A (stranger:verify) + cassette:replay + Door D (Measured A40 evidence, historical) + Door E (upload-sarif dry-run); optional Door B via --live-url; optional Door F via --live-locate-url (tool-calls + SARIF). Exit 0 only when required doors pass. No HTTP self-call · no RunPod · Door D does not start GPU · Door E never live-uploads · Door F never provisions.",
   )
   .option("--json", "Print zeroday-prove-doors/v1 JSON to stdout", false)
   .option(
@@ -2214,6 +2225,18 @@ program
   .option(
     "--live-url <url>",
     "Opt-in Door B: OpenAI-compatible /v1 base (GET /v1/models). Omit → Door B skipped (not failed).",
+  )
+  .option(
+    "--live-locate-url <url>",
+    "Opt-in Door F: OpenAI-compatible /v1 for live locate (tool-calls → SARIF). Omit → Door F skipped (not failed). Default mockAntares (no GPU).",
+  )
+  .option(
+    "--live-locate-model <id>",
+    "Door F model id (default: mock/antares-tool-calls when mock Antares)",
+  )
+  .option(
+    "--no-live-locate-mock",
+    "Door F: disable mock Antares (real completions brain you already host)",
   )
   .option(
     "--expect-file <path>",
@@ -2237,6 +2260,9 @@ program
       out?: string;
       outFile?: string;
       liveUrl?: string;
+      liveLocateUrl?: string;
+      liveLocateModel?: string;
+      liveLocateMock?: boolean;
       expectFile?: string;
       expectFindings?: string;
       expectCwe?: string;
@@ -2257,6 +2283,9 @@ program
         const recording = gateCliReadPath(opts.recording, "recording");
         const result = await runProveDoors({
           liveUrl: opts.liveUrl,
+          liveLocateUrl: opts.liveLocateUrl,
+          liveLocateModel: opts.liveLocateModel?.trim() || undefined,
+          liveLocateMockAntares: opts.liveLocateMock !== false,
           expectFile: opts.expectFile?.trim() || undefined,
           expectFindings,
           expectCwe: opts.expectCwe?.trim() || undefined,
@@ -2306,7 +2335,7 @@ program
           }
         }
 
-        // Fail-closed: exit 0 only when overall ok (A + cassette + D + E; B ok|skipped).
+        // Fail-closed: exit 0 only when overall ok (A + cassette + D + E; B/F ok|skipped).
         if (!result.ok) process.exitCode = 1;
       } catch (e) {
         const err = e as Error;
@@ -2334,6 +2363,112 @@ program
           );
         }
         process.exitCode = 2;
+      }
+    },
+  );
+
+program
+  .command("live-locate-door")
+  .description(
+    "Door F alone: fail-closed live locate against a local OpenAI-compatible /v1 URL (tool-calls → ranked files → SARIF). Missing/bad URL → non-zero. Default --mock-antares (no GPU/HF). Never RunPod create. Localization ≠ exploitability.",
+  )
+  .requiredOption(
+    "--endpoint <url>",
+    "OpenAI-compatible /v1 base (POST /v1/completions; chat refused)",
+  )
+  .option("--model <id>", "Served model id (default: mock/antares-tool-calls)")
+  .option("--cwe <id>", "Advisory CWE (default: CWE-89)", "CWE-89")
+  .option(
+    "--repo <path>",
+    "Repo to localize (default: fixtures/locate/demo-app)",
+  )
+  .option(
+    "--out <dir>",
+    "Locate output directory (default: zeroday-reports/live-locate-door)",
+  )
+  .option(
+    "--mock-antares",
+    "Use mock Antares tool-call loop against endpoint (default on; CI/contract path)",
+    true,
+  )
+  .option(
+    "--remote-inference",
+    "ACK non-loopback endpoint (ZERODAY_REMOTE_INFERENCE_ACK)",
+    false,
+  )
+  .option("--json", "Print zeroday-live-locate-door/v1 JSON to stdout", false)
+  .action(
+    async (opts: {
+      endpoint: string;
+      model?: string;
+      cwe: string;
+      repo?: string;
+      out?: string;
+      mockAntares: boolean;
+      remoteInference: boolean;
+      json: boolean;
+    }) => {
+      try {
+        const result = await runLiveLocateDoor({
+          endpoint: opts.endpoint,
+          model: opts.model,
+          cwe: opts.cwe,
+          repo: opts.repo,
+          outputDir: opts.out,
+          mockAntares: opts.mockAntares !== false,
+          remoteInference: opts.remoteInference === true,
+        });
+        if (opts.json) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          const lines = [
+            "",
+            "ZERODAY live-locate-door (Door F)",
+            "─────────────────────────────────",
+            `schema     : ${result.schemaVersion}`,
+            `ok         : ${result.ok}`,
+            `mode       : ${result.mode}`,
+            `endpoint   : ${result.endpoint}`,
+            `model      : ${result.model}`,
+            `mockAntares: ${result.mockAntares}`,
+            `tool-calls : exercised`,
+            `ranked     : ${result.rankedFiles.join(", ")}`,
+            `SARIF      : ${result.sarifPath} (${result.sarifResultCount} result(s))`,
+            `provisioned: ${result.provisioned}`,
+            `spendUsd   : ${result.spendUsd}`,
+            "",
+            "Posture: localization only · needs human · fail-closed · no RunPod · not A40 re-proof",
+            "",
+          ];
+          process.stdout.write(lines.join("\n"));
+        }
+      } catch (e) {
+        const err = e as Error;
+        const isDoor = err instanceof LiveLocateDoorError;
+        const code = isDoor ? (err as LiveLocateDoorError).code : undefined;
+        if (opts.json) {
+          console.log(
+            JSON.stringify(
+              {
+                schemaVersion: LIVE_LOCATE_DOOR_SCHEMA,
+                ok: false,
+                error: err.message,
+                ...(code ? { code } : {}),
+                provisioned: false,
+                spendUsd: null,
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          console.error(
+            code
+              ? `live-locate-door failed (${code}): ${err.message}`
+              : `live-locate-door failed: ${err.message}`,
+          );
+        }
+        process.exitCode = code === "ENDPOINT_UNREACHABLE" ? 1 : 2;
       }
     },
   );

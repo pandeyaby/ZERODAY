@@ -81,6 +81,7 @@ describe("prove-doors.json CI artifact contract", () => {
             dryRun: true,
             schemaVersion: "zeroday-upload-sarif-desk/v1",
           },
+          f: { status: "skipped" },
         },
       }),
     );
@@ -103,6 +104,7 @@ describe("prove-doors.json CI artifact contract", () => {
             dryRun: true,
             schemaVersion: "zeroday-upload-sarif-desk/v1",
           },
+          f: { status: "skipped" },
         },
       }),
     );
@@ -125,6 +127,7 @@ describe("prove-doors.json CI artifact contract", () => {
             dryRun: true,
             schemaVersion: "zeroday-upload-sarif-desk/v1",
           },
+          f: { status: "skipped" },
         },
       }),
     );
@@ -143,11 +146,35 @@ describe("prove-doors.json CI artifact contract", () => {
           b: { status: "skipped" },
           d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
           e: { status: "failed", dryRun: true },
+          f: { status: "skipped" },
         },
       }),
     );
     const failE = spawnSync("node", [ASSERT, badE], { encoding: "utf8" });
     assert.equal(failE.status, 8, "Door E not ok must exit 8");
+
+    const badF = path.join(tmp, "bad-f.json");
+    fs.writeFileSync(
+      badF,
+      JSON.stringify({
+        schemaVersion: "zeroday-prove-doors/v1",
+        ok: true,
+        doors: {
+          a: { status: "ok" },
+          cassette: { status: "ok" },
+          b: { status: "skipped" },
+          d: { status: "ok", schemaVersion: "zeroday-gpu-evidence/v1" },
+          e: {
+            status: "ok",
+            dryRun: true,
+            schemaVersion: "zeroday-upload-sarif-desk/v1",
+          },
+          f: { status: "ok" },
+        },
+      }),
+    );
+    const failF = spawnSync("node", [ASSERT, badF], { encoding: "utf8" });
+    assert.equal(failF.status, 9, "Door F not skipped must exit 9");
   });
 
   it("locate + reusable stranger-verify upload prove-doors-json on success", () => {

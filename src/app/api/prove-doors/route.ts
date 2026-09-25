@@ -3,12 +3,12 @@
  *
  * Runs Door A (stranger:verify), cassette:replay, Door D (Measured A40
  * evidence, historical), Door E (upload-sarif dry-run on fixture), and
- * optionally Door B (live-url) in-process. Returns aggregated JSON:
- *   { schemaVersion, ok, generatedAt, doors: { a, cassette, b, d, e }, nonClaims }
- * Door B skipped (not failed) when liveUrl omitted. Door D + Door E required
- * for ok. Fail-closed per door. Never invents spend / metrics. No RunPod
- * create — Door D loads checked-in evidence only (not live GPU).
- * Door E = dry-run Code Scanning check, not live upload.
+ * optionally Door B (live-url) and Door F (live-locate) in-process. Returns aggregated JSON:
+ *   { schemaVersion, ok, generatedAt, doors: { a, cassette, b, d, e, f }, nonClaims }
+ * Door B skipped (not failed) when liveUrl omitted. Door F skipped when liveLocateUrl
+ * omitted. Door D + Door E required for ok. Fail-closed per door. Never invents spend /
+ * metrics. No RunPod create — Door D loads checked-in evidence only (not live GPU).
+ * Door E = dry-run Code Scanning check, not live upload. Door F = opt-in live locate.
  */
 
 import { NextResponse } from "next/server";
@@ -27,6 +27,9 @@ export const dynamic = "force-dynamic";
 
 type ProveDoorsBody = {
   liveUrl?: unknown;
+  liveLocateUrl?: unknown;
+  liveLocateModel?: unknown;
+  liveLocateMockAntares?: unknown;
   recording?: unknown;
   outputDir?: unknown;
   cassetteOutputDir?: unknown;
@@ -134,6 +137,27 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  const liveLocateUrl = optionalString(body.liveLocateUrl, "liveLocateUrl");
+  if (!liveLocateUrl.ok) {
+    return NextResponse.json(
+      { error: liveLocateUrl.error, code: "FIELD_TYPE", ok: false },
+      { status: 400 },
+    );
+  }
+  const liveLocateModel = optionalString(
+    body.liveLocateModel,
+    "liveLocateModel",
+  );
+  if (!liveLocateModel.ok) {
+    return NextResponse.json(
+      { error: liveLocateModel.error, code: "FIELD_TYPE", ok: false },
+      { status: 400 },
+    );
+  }
+  const liveLocateMockAntares =
+    body.liveLocateMockAntares === undefined
+      ? undefined
+      : body.liveLocateMockAntares === true;
   const recording = optionalString(body.recording, "recording");
   if (!recording.ok) {
     return NextResponse.json(
@@ -200,6 +224,11 @@ export async function POST(req: Request) {
   try {
     const result = await runProveDoors({
       liveUrl: liveUrl.value,
+      liveLocateUrl: liveLocateUrl.value,
+      liveLocateModel: liveLocateModel.value,
+      ...(liveLocateMockAntares !== undefined
+        ? { liveLocateMockAntares }
+        : {}),
       recording: recordingPath.value,
       cassetteOutputDir: cassetteOutputDir.value,
       strangerOutputDir: strangerOutputDir.value,

@@ -14,7 +14,7 @@ import {
   DIPTYCH_SCHEMA,
   PAIRED_PROBE_SOURCE,
 } from "./types";
-import { artifactRelPath } from "./envelope";
+import { artifactRelPath, writeFileAtomicSync } from "./envelope";
 
 const STUB_MARKERS = [
   /\bTODO\b/,
@@ -282,7 +282,6 @@ export function buildMatrix(
 
 export function writeMatrix(outputRoot: string, matrix: ZerodayCoverageMatrix): string {
   const abs = path.join(outputRoot, "paired-probe/coverage/matrix.json");
-  fs.mkdirSync(path.dirname(abs), { recursive: true });
-  fs.writeFileSync(abs, JSON.stringify(matrix, null, 2) + "\n");
+  writeFileAtomicSync(abs, JSON.stringify(matrix, null, 2) + "\n");
   return abs;
 }

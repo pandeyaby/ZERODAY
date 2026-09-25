@@ -174,10 +174,15 @@ describe("POST /api/stranger-verify", () => {
       body: "{}",
     });
     const res = await strangerVerifyPost(req);
-    assert.equal(res.status, 200);
-    const payload = (await res.json()) as {
+    const raw = await res.text();
+    assert.equal(
+      res.status,
+      200,
+      `expected 200 got ${res.status}: ${raw.slice(0, 500)}`,
+    );
+    const payload = JSON.parse(raw) as {
       schemaVersion: string;
-      doorA: { ran: boolean };
+      doorA: { ran: boolean; artifacts?: { envelopes?: string } };
       doorB: { mode: string; ran: boolean; provisioned?: boolean };
       nonClaims: Record<string, boolean>;
     };
@@ -186,6 +191,10 @@ describe("POST /api/stranger-verify", () => {
     assert.equal(payload.doorB.mode, "citation");
     assert.equal(payload.doorB.ran, false);
     assert.equal(payload.nonClaims.needsHuman, true);
+    // Isolated trust-loop-* dirs under concurrent desk tests (no shared stomp).
+    if (payload.doorA.artifacts?.envelopes) {
+      assert.match(payload.doorA.artifacts.envelopes, /trust-loop/);
+    }
     // No provision language
     assert.doesNotMatch(
       JSON.stringify(payload),
