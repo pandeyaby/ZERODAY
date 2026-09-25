@@ -7,6 +7,7 @@
  * (provisioned: false · spendUsd: null · never RunPod create · never HF pull).
  */
 
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -109,7 +110,7 @@ export interface StrangerVerifyResult {
 export interface StrangerVerifyOptions {
   /** Opt-in Door B: OpenAI-compatible /v1 base (GET /v1/models only). */
   liveUrl?: string;
-  /** Output root for paired-probe (default: zeroday-reports/trust-loop). */
+  /** Output root for paired-probe (default: unique zeroday-reports/trust-loop-* dir). */
   outputDir?: string;
   /** Working directory / repo root (default: package root). */
   cwd?: string;
@@ -262,7 +263,20 @@ export async function runStrangerVerify(
   opts: StrangerVerifyOptions = {},
 ): Promise<StrangerVerifyResult> {
   const cwd = opts.cwd ? path.resolve(opts.cwd) : STRANGER_VERIFY_REPO_ROOT;
-  const outRel = opts.outputDir ?? "zeroday-reports/trust-loop";
+  /**
+   * Isolate concurrent Desk/API/prove-doors Door A callers from stomping the
+   * shared trust-loop dir (Node test runner runs files in parallel). Explicit
+   * outputDir wins; otherwise create a unique dir under zeroday-reports/.
+   */
+  let outRel = opts.outputDir?.trim();
+  if (!outRel) {
+    const base = path.join(cwd, "zeroday-reports");
+    fs.mkdirSync(base, { recursive: true });
+    outRel = path.relative(
+      cwd,
+      fs.mkdtempSync(path.join(base, "trust-loop-")),
+    );
+  }
   // Output may be tmp (Desk/API tests). Fixture SARIF read is allowlisted.
   const outputRoot = path.isAbsolute(outRel) ? outRel : path.join(cwd, outRel);
   let sampleSarif: string;
@@ -280,32 +294,28 @@ export async function runStrangerVerify(
   }
 
   // Door A — keyless paired-probe from in-repo fixture SARIF (trust-loop default).
-  await runPairedProbesFromSarif({
-    input: sampleSarif,
-    output: outputRoot,
-  });
+  try {
+    await runPairedProbesFromSarif({
+      input: sampleSarif,
+      output: outputRoot,
+    });
+  } catch (e) {
+    const msg = (e as Error).message;
+    throw new StrangerVerifyError(
+      `Door A paired-probe failed: ${msg}`,
+      "DOOR_A_FAILED",
+    );
+  }
 
-  const envelopes = "zeroday-reports/trust-loop/paired-probe/";
-  const matrix = "zeroday-reports/trust-loop/paired-probe/coverage/matrix.json";
-  // Prefer paths relative to outRel when custom outputDir is under repo; keep
-  // CLI-compatible relative defaults for the common Desk / CI card.
+  const outRelPosix = path.relative(cwd, outputRoot).split(path.sep).join("/") || ".";
+  // Honest artifact paths for the actual output root (isolated or caller-supplied).
   const doorA: StrangerVerifyDoorA = {
     status: "pass",
     ran: true,
     command: "npm run trust-loop",
     artifacts: {
-      envelopes: opts.outputDir
-        ? path.posix.join(
-            path.relative(cwd, outputRoot).split(path.sep).join("/") || ".",
-            "paired-probe/",
-          )
-        : envelopes,
-      matrix: opts.outputDir
-        ? path.posix.join(
-            path.relative(cwd, outputRoot).split(path.sep).join("/") || ".",
-            "paired-probe/coverage/matrix.json",
-          )
-        : matrix,
+      envelopes: path.posix.join(outRelPosix, "paired-probe/"),
+      matrix: path.posix.join(outRelPosix, "paired-probe/coverage/matrix.json"),
       sampleGradeMd: SAMPLE_GRADE_MD,
     },
   };
