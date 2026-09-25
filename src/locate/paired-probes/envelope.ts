@@ -15,6 +15,32 @@ import type {
 } from "./types";
 import { DIPTYCH_SCHEMA, PAIRED_PROBE_SOURCE } from "./types";
 
+/**
+ * Write a file atomically: unique temp file in the same directory, then
+ * rename over the target. Concurrent runs sharing an output root (e.g. Desk
+ * POST /api/stranger-verify and CLI prove-doors both defaulting to
+ * zeroday-reports/trust-loop) must never observe a truncated / partial
+ * envelope — plain writeFileSync truncates first, so a concurrent gate read
+ * could hit "Unexpected end of JSON input".
+ */
+export function writeFileAtomicSync(abs: string, data: string | Buffer): void {
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  const tmp = `${abs}.${process.pid}.${Date.now()}.${Math.random()
+    .toString(36)
+    .slice(2)}.tmp`;
+  try {
+    fs.writeFileSync(tmp, data);
+    fs.renameSync(tmp, abs);
+  } catch (e) {
+    try {
+      fs.rmSync(tmp, { force: true });
+    } catch {
+      /* ignore */
+    }
+    throw e;
+  }
+}
+
 export function cassetteRelPath(
   op: DiptychOperator,
   role: ControlRole,
@@ -69,8 +95,7 @@ export function writeEnvelope(
 ): string {
   const rel = artifactRelPath(envelope.operator, envelope.control_role);
   const abs = path.join(outputRoot, rel);
-  fs.mkdirSync(path.dirname(abs), { recursive: true });
-  fs.writeFileSync(abs, JSON.stringify(envelope, null, 2) + "\n");
+  writeFileAtomicSync(abs, JSON.stringify(envelope, null, 2) + "\n");
   return abs;
 }
 
@@ -83,15 +108,14 @@ export function writeCassetteBytes(
 ): { abs: string; rel: string } {
   const rel = cassetteRelPath(op, role, ext);
   const abs = path.join(outputRoot, rel);
-  fs.mkdirSync(path.dirname(abs), { recursive: true });
   if (ext === "json") {
-    fs.writeFileSync(abs, JSON.stringify(payload, null, 2) + "\n");
+    writeFileAtomicSync(abs, JSON.stringify(payload, null, 2) + "\n");
   } else {
     const buf = Buffer.from(
       typeof payload === "string" ? payload : JSON.stringify(payload),
       "utf8",
     );
-    fs.writeFileSync(abs, buf);
+    writeFileAtomicSync(abs, buf);
   }
   return { abs, rel };
 }
