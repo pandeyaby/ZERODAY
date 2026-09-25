@@ -221,6 +221,77 @@ npm run locate -- --cwe CWE-89 --repo fixtures/locate/demo-app --live \
 
 ---
 
+## Live locate (2026-09-24 PT)
+
+**Label: live GPU — fuller locate with real tool-calls on Secure L4**
+(operator-hosted; Antares-1B plus an optional Antares-350M run). Distinct from
+the A40 sessions above and from **keyless** fixture/CI (Door A).
+Machine-readable mirrors (`zeroday.gpu_live_locate_evidence/v1`):
+[`l4-live-locate-20260924.json`](./reports/l4-live-locate-20260924.json) (1B) ·
+[`l4-live-locate-350m-20260924.json`](./reports/l4-live-locate-350m-20260924.json) (350M).
+Main SHA at run time `42a002d4ace4341972f3cce0b21ee2ed8ef867d5`. **Not** a
+checked-in cassette. Invent nothing beyond the facts below.
+
+Why L4, not A40: Secure Cloud **A40 showed stock `Out`** (host CUDA 12.8 / 12.9 /
+13.0) at provision time. NVIDIA **L4 (24 GB)** was the cheapest in-stock
+Secure GPU with ≥ 24 GB VRAM. This is one fixture run, not an A40-vs-L4
+comparison.
+
+| Field | Antares-1B | Antares-350M |
+|-------|------------|--------------|
+| Pod id | `17dxif43j5rw2b` | `zbnj0j2pfcwqwd` |
+| Tier / GPU / DC | RunPod Secure Cloud · `NVIDIA L4` · `EU-RO-1` (host CUDA 12.8) | same |
+| Image | `vllm/vllm-openai:latest` (vLLM **0.30.0**, digest `sha256:8a69ffad…4b90`) | same |
+| Model | `fdtn-ai/antares-1b` · `--max-model-len 8192` | `fdtn-ai/antares-350m` · `--max-model-len 8192` |
+| Rate at create | **$0.49/hr** | **$0.49/hr** |
+| Timeline (UTC) | startedAt `2026-09-25T01:28:53Z` · `GET /v1/models` 200 ~`01:30:48Z` · locate finished ~`01:31:22Z` · delete-pod 204 ~`01:31:45Z` | startedAt `2026-09-25T01:31:51Z` · `GET /v1/models` 200 ~`01:33:19Z` · locate finished ~`01:33:38Z` · delete-pod 204 ~`01:33:42Z` |
+| Time to first `/v1/models` 200 (5s poll) | ~**114s** | ~**87s** |
+| `/v1/models` id | `fdtn-ai/antares-1b` | `fdtn-ai/antares-350m` |
+| Completions smoke (`ping`, `max_tokens=8`) | **200** | **200** |
+| Wall start→terminate | **~2.85 min** | **~1.83 min** |
+| Estimated spend | **~$0.0233** (= 2.85/60 × $0.49) | **~$0.0149** (= 1.83/60 × $0.49) |
+
+Estimated spend only: the RunPod pod-billing API had no records for either pod
+at report time. Do not invent a different number.
+
+### Live locate (ZERODAY-mac-verify — real tool-calls)
+
+```bash
+ZERODAY_REMOTE_INFERENCE_ACK=1 npm run locate -- --cwe CWE-89 \
+  --repo fixtures/locate/demo-app --live \
+  --endpoint https://<pod-id>-8000.proxy.runpod.net/v1 \
+  --model <fdtn-ai/antares-1b | fdtn-ai/antares-350m> --remote-inference \
+  --tool-budget 15 --output <dir> --json
+```
+
+| Field | Antares-1B | Antares-350M |
+|-------|------------|--------------|
+| Mode / backend | `live` · official Antares CLI `backend: remote` (not mock) | same |
+| Ranked file | **`src/users.js`** rank 1 | **`src/users.js`** rank 1 |
+| findingCount · incompleteReason | 1 · `null` | 1 · `null` |
+| terminalCallsUsed | **1** / budget 15 | **1** / budget 15 |
+| Antares CLI tool calls (failed) | 13 (3 failed) | 10 (5 failed) |
+| Locate wall (Antares CLI duration) | ~23s (~18.7s) | ~13s (~10.8s) |
+| SARIF results · sha256 | **1** · `aa60f8dbc11e05791ed5c1a0c8291181799f43cc943858ff0ee98a982897a9ea` | **1** · `cd7f5f66f8b8b12b8c40e0f50d86145e05c5ac653d85feecc40b78493d744c15` |
+| Posture | localizationOnly · notExploitProof · noPoC · noAutoMerge | same |
+
+Both runs printed ZERODAY's warning that the Antares raw report listed the
+ranked finding without an explicit `submit_*` tool in the exploration trace.
+The finding is treated as a localization candidate, and human triage is still
+required.
+
+### Honest non-claims (this live locate)
+
+- Localization ≠ exploitability · `needs_human` · no PoC · no auto-merge
+- **Not** a public AUROC / File-F1 / marketing-F1 claim (one fixture, one run per model)
+- **Not** an org-scale latency or spend SLA (timings and ~$ figures are
+  **this session only**)
+- **Not** a CI cassette; **keyless** CI still never pulls weights or calls RunPod
+- Does not replace or retract the A40 sections above. The 350M run is **not**
+  a claim that 350M matches 1B in general
+
+---
+
 ## Smoke / fail-closed (**keyless** CI — no live GPU)
 
 | Check | What it does | Live GPU? |
@@ -241,6 +312,10 @@ Keyless unit coverage (mocked / unreachable — **not** a live GPU cassette):
 - `tests/doctor/a40-live-locate-evidence.test.ts` — parses checked-in
   [`a40-live-locate-20260920.json`](./reports/a40-live-locate-20260920.json)
   (schema + measured fields only; **not** a live GPU call)
+- `tests/doctor/l4-live-locate-evidence-20260924.test.ts` — parses checked-in
+  [`l4-live-locate-20260924.json`](./reports/l4-live-locate-20260924.json) and
+  [`l4-live-locate-350m-20260924.json`](./reports/l4-live-locate-350m-20260924.json)
+  via the same schema loader (**not** a live GPU call)
 
 CI never pulls `model.safetensors` and never calls RunPod.
 
