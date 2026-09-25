@@ -30,7 +30,7 @@ export function familyOf(lang: LangId): Family {
 export const SOURCES: Record<Family, RegExp> = {
   js: /^(?:req|request|ctx|ctx\.request)\.(?:query|params|body|headers|cookies|files|file|hostname|path|url|originalUrl)\b|^(?:req|request)\.(?:get|header|param)$|^(?:window\.|document\.)?location\.(?:search|hash|href)\b|^document\.(?:URL|documentURI|referrer|cookie)\b|^(?:new\s+)?URLSearchParams\b/,
   py: /^request\.(?:args|form|values|json|data|files|cookies|headers|GET|POST|body|query_params|path_params|FILES|COOKIES|META|get_json|get_data)\b/,
-  java: /\.(?:getParameter|getParameterValues|getParameterMap|getHeader|getHeaders|getQueryString|getCookies|getInputStream|getReader|getPathInfo|getRequestURI|getRequestURL|getPart)$/,
+  java: /\.(?:getParameter|getParameterValues|getParameterMap|getParameterNames|getHeader|getHeaders|getHeaderNames|getQueryString|getCookies|getInputStream|getReader|getPathInfo|getRequestURI|getRequestURL|getPart)$/,
   go: /^(?:r|req|request)\.(?:URL|Form|PostForm|MultipartForm|Header|Body|FormValue|PostFormValue|Cookie|Cookies|RequestURI)\b|^mux\.Vars$|^(?:c|ctx)\.(?:Query|Param|PostForm|DefaultQuery|DefaultPostForm|GetHeader|FormValue|QueryParam|Params)$/,
 };
 
@@ -38,12 +38,46 @@ export const SOURCES: Record<Family, RegExp> = {
 export const JAVA_TAINTED_PARAM_ANNOTATIONS =
   /@(?:RequestParam|PathVariable|RequestBody|RequestHeader|CookieValue|ModelAttribute|QueryParam|PathParam|FormParam|HeaderParam)\b/;
 
-/** Calls whose result is safe to use (numeric parse, escaping, basename, …). */
-export const SANITIZERS: Record<Family, RegExp> = {
-  js: /(?:^|\.)(?:parseInt|parseFloat|Number|Boolean|encodeURIComponent|encodeURI|escape|escapeHtml|escapeHTML|encode|sanitize|sanitizeHtml|basename|escapeId|quote|isValidObjectId)$|^(?:xss|he\.encode|validator\.\w+|DOMPurify\.sanitize|path\.basename)$/,
-  py: /^(?:int|float|bool|uuid\.UUID|UUID|secure_filename|os\.path\.basename|html\.escape|escape|markupsafe\.escape|bleach\.clean|shlex\.quote|pipes\.quote|quote|urllib\.parse\.quote|parse\.quote|quote_plus)$/,
-  java: /(?:^|\.)(?:parseInt|parseLong|parseDouble|valueOf|fromString|escapeHtml4|escapeHtml|forHtml|forJavaScript|encodeForHTML|encodeForSQL|htmlEscape|getName|getFileName|quote)$/,
-  go: /^(?:strconv\.(?:Atoi|ParseInt|ParseUint|ParseFloat|ParseBool)|html\.EscapeString|template\.HTMLEscapeString|template\.JSEscapeString|url\.QueryEscape|url\.PathEscape|filepath\.Base|path\.Base|uuid\.Parse)$/,
+/**
+ * Calls whose result is safe for some CWEs: numeric parsing is safe everywhere,
+ * HTML escaping only protects HTML output, basename only protects paths, …
+ */
+export interface Sanitizer {
+  re: RegExp;
+  cwes: "all" | string[];
+}
+
+const XSS = ["CWE-79"];
+const PATH = ["CWE-22"];
+const SQL = ["CWE-89"];
+const CMD = ["CWE-78"];
+
+export const SANITIZERS: Record<Family, Sanitizer[]> = {
+  js: [
+    { re: /(?:^|\.)(?:parseInt|parseFloat|Number|Boolean|isValidObjectId|isInteger|isUUID)$/, cwes: "all" },
+    { re: /(?:^|\.)(?:escapeHtml|escapeHTML|htmlEscape|sanitizeHtml|encodeURIComponent|encodeURI)$|^(?:xss|he\.(?:encode|escape)|validator\.escape|DOMPurify\.sanitize|_\.escape|lodash\.escape)$/, cwes: XSS },
+    { re: /(?:^|\.)basename$/, cwes: PATH },
+    { re: /^(?:mysql|SqlString|sqlstring|connection|pool|db|conn)\.(?:escape|escapeId|format)$|(?:^|\.)escapeLiteral$/, cwes: SQL },
+    { re: /^(?:shellescape|shellEscape|shellQuote\.quote|quote)$/, cwes: CMD },
+  ],
+  py: [
+    { re: /^(?:int|float|bool|uuid\.UUID|UUID|decimal\.Decimal|Decimal)$/, cwes: "all" },
+    { re: /^(?:html\.escape|escape|markupsafe\.escape|flask\.escape|bleach\.clean|escape_html|html_escape|escape_for_html|cgi\.escape|django\.utils\.html\.escape|conditional_escape)$/, cwes: XSS },
+    { re: /^(?:secure_filename|werkzeug\.utils\.secure_filename|os\.path\.basename|basename)$/, cwes: PATH },
+    { re: /^(?:shlex\.quote|pipes\.quote|quote)$/, cwes: CMD },
+  ],
+  java: [
+    { re: /(?:^|\.)(?:parseInt|parseLong|parseDouble|parseFloat|parseBoolean)$|^(?:Integer|Long|Double|Boolean|UUID)\.(?:valueOf|fromString)$/, cwes: "all" },
+    { re: /(?:^|\.)(?:escapeHtml4|escapeHtml|escapeXml11|forHtml|forHtmlContent|forHtmlAttribute|forJavaScript|encodeForHTML|encodeForHTMLAttribute|encodeForJavaScript|htmlEscape)$/, cwes: XSS },
+    { re: /(?:^|\.)encodeForSQL$/, cwes: SQL },
+    { re: /(?:^|\.)encodeForOS$/, cwes: CMD },
+    { re: /^FilenameUtils\.getName$|\.getFileName$/, cwes: PATH },
+  ],
+  go: [
+    { re: /^strconv\.(?:Atoi|ParseInt|ParseUint|ParseFloat|ParseBool)$|^uuid\.Parse$/, cwes: "all" },
+    { re: /^(?:html\.EscapeString|template\.HTMLEscapeString|template\.JSEscapeString|url\.QueryEscape|url\.PathEscape)$/, cwes: XSS },
+    { re: /^(?:filepath\.Base|path\.Base)$/, cwes: PATH },
+  ],
 };
 
 /** Calls that format a string from their receiver / arguments. */
@@ -348,7 +382,7 @@ export const SINKS: SinkSpec[] = [
     cwe: "CWE-78",
     families: ["java"],
     kind: "call",
-    target: /(?:getRuntime\(\)|runtime|rt)\.exec$/,
+    target: /(?:^|\.)(?:Runtime\.exec|getRuntime\(\)\.exec)$|^(?:runtime|rt)\.exec$/,
     when: "tainted-or-dynamic",
     literalRe: ANY,
     title: "OS command built from dynamic input",
@@ -359,6 +393,15 @@ export const SINKS: SinkSpec[] = [
     families: ["java"],
     kind: "new",
     target: /^ProcessBuilder$/,
+    when: "tainted",
+    title: "Request input passed to ProcessBuilder",
+  },
+  {
+    id: "cmd-exec",
+    cwe: "CWE-78",
+    families: ["java"],
+    kind: "call",
+    target: /^ProcessBuilder\.command$/,
     when: "tainted",
     title: "Request input passed to ProcessBuilder",
   },

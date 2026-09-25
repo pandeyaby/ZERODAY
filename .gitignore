@@ -66,3 +66,6 @@ yarn-error.log*
 
 # npm CLI package staging (scripts/pack-cli.mjs)
 /dist
+
+# Downloaded benchmark suites (scripts/bench.ts)
+/.cache
