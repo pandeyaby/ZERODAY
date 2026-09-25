@@ -111,7 +111,7 @@ describe("live locate against mock /v1/completions (tool-calls)", () => {
         `expected multi-turn completions, got ${server.completionHits}`,
       );
       assert.ok(
-        server.posts.every((p) => p.stream !== true || p.stream === false),
+        server.posts.every((p) => p.stream !== true),
       );
 
       const report = JSON.parse(

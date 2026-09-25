@@ -16,6 +16,8 @@ module.exports = async function postPrComment({
       "COMMENT_PATH is required — refusing to skip PR findings comment on pull_request",
     );
   }
+  // CommonJS: executed by actions/github-script, not bundled.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const fs = require("fs");
   if (!fs.existsSync(commentPath)) {
     throw new Error(
@@ -25,7 +27,8 @@ module.exports = async function postPrComment({
   const raw = fs.readFileSync(commentPath, "utf8");
   if (
     !raw.includes("Ranked candidate files") &&
-    !raw.includes("No vulnerable files submitted")
+    !raw.includes("No vulnerable files submitted") &&
+    !raw.includes("**Not scanned**")
   ) {
     throw new Error(
       "comment.md missing ranked-files section — refuse to post incomplete findings comment",

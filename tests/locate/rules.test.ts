@@ -18,6 +18,7 @@ import {
   runRulesLocalization,
 } from "../../src/locate/index.ts";
 import { scanRepoForCwe89 } from "../../src/locate/rules/cwe-89.ts";
+import { scanRepoForCwe22 } from "../../src/locate/rules/cwe-22.ts";
 import { walkSourceFiles } from "../../src/locate/rules/walk.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -155,5 +156,79 @@ describe("locate({ rules: true }) end-to-end", () => {
         }),
       /mixed mode|Refusing/,
     );
+  });
+});
+
+function writeRepo(files: Record<string, string>): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-rules-repo-"));
+  for (const [rel, body] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
+    fs.writeFileSync(path.join(dir, rel), `${body}\n`);
+  }
+  return dir;
+}
+
+describe("CWE-22 rules heuristics", () => {
+  it("does not flag module imports or static-dir idioms", () => {
+    const dir = writeRepo({
+      "a.js": `const db = require('../lib/db');`,
+      "b.ts": `import { x } from "../lib/x";`,
+      "c.ts": `export * from "../lib/y";`,
+      "d.py": `from ..models import User`,
+      "e.js": `app.use(express.static(path.join(__dirname, "../public")));`,
+      "f.js": `window.open("../help.html");`,
+      "g.js": `const lazy = await import("../chunk.js");`,
+    });
+    const { hits } = scanRepoForCwe22(walkSourceFiles(dir).files);
+    assert.deepEqual(hits.map((h) => h.filePath), []);
+  });
+
+  it("flags request-derived and ../ filesystem paths", () => {
+    const dir = writeRepo({
+      "h.js": `res.sendFile(path.join(root, req.params.file));`,
+      "i.js": `fs.readFileSync(base + req.query.name);`,
+      "j.js": `const p = path.resolve(uploads, req.body.path);`,
+      "k.py": `data = open("../conf/settings.ini").read()`,
+    });
+    const { hits } = scanRepoForCwe22(walkSourceFiles(dir).files);
+    assert.deepEqual(
+      hits.map((h) => h.filePath).sort(),
+      ["h.js", "i.js", "j.js", "k.py"],
+    );
+  });
+});
+
+describe("rules mode — unsupported CWE is not a clean negative", () => {
+  it("marks unsupported CWEs as not scanned", () => {
+    const result = runRulesLocalization(
+      { kind: "cwe", id: "CWE-78", cweId: "CWE-78" },
+      rulesSample,
+    );
+    assert.equal(result.rankedFiles.length, 0);
+    assert.equal(result.summary.unsupportedCwe, true);
+    assert.ok(result.warnings.some((w) => w.startsWith("NOT SCANNED")));
+  });
+
+  it("supported CWEs do not carry the flag", () => {
+    const result = runRulesLocalization(
+      { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
+      rulesSample,
+    );
+    assert.equal(result.summary.unsupportedCwe, undefined);
+  });
+
+  it("report.md and comment.md say Not scanned", async () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-rules-unsup-"));
+    await locate({
+      repo: rulesSample,
+      advisory: "CWE-78",
+      rules: true,
+      offline: true,
+      outputDir: out,
+    });
+    assert.match(fs.readFileSync(path.join(out, "report.md"), "utf8"), /### Not scanned/);
+    const comment = fs.readFileSync(path.join(out, "comment.md"), "utf8");
+    assert.match(comment, /\*\*Not scanned\*\*/);
+    assert.doesNotMatch(comment, /No vulnerable files submitted/);
   });
 });

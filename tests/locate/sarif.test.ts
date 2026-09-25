@@ -76,9 +76,12 @@ describe("SARIF emitter", () => {
 
   it("includes posture in run properties", () => {
     const sarif = toSarif(sampleResult());
-    const props = sarif.runs[0].properties;
-    assert.equal(props.posture.noPoC, true);
-    assert.equal(props.posture.localizationOnly, true);
+    const posture = sarif.runs[0].properties.posture as {
+      noPoC?: boolean;
+      localizationOnly?: boolean;
+    };
+    assert.equal(posture.noPoC, true);
+    assert.equal(posture.localizationOnly, true);
   });
 
   it("emits empty results when no findings", () => {

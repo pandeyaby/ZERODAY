@@ -83,6 +83,11 @@ export interface LocalizationResult {
     incompleteTips?: string[];
     /** Best-effort live re-query was attempted */
     recoveryAttempted?: boolean;
+    /**
+     * Rules mode only: no heuristics exist for this CWE, so the repo was NOT
+     * scanned for it. Zero findings here is never a clean negative.
+     */
+    unsupportedCwe?: boolean;
     terminalCallBudget: number;
     terminalCallsUsed: number;
   };

@@ -67,6 +67,12 @@ export function toPullRequestComment(result: LocalizationResult): string {
           "._",
       );
       lines.push("");
+    } else if (result.summary.unsupportedCwe) {
+      lines.push(
+        `**Not scanned** — rules mode has no heuristics for ${result.advisory.cweId}. ` +
+          "The repo was not checked for this CWE; do not treat this as a clean result.",
+      );
+      lines.push("");
     } else {
       lines.push(
         "No vulnerable files submitted (`submit_no_vulnerability_found`).",

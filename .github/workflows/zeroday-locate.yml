@@ -2,7 +2,7 @@
 #
 # Fixture-only smoke + keyless rules + SARIF ingest + org cassette record/replay —
 # no model weights, no HF pull, no GPU. Live Antares is never in this workflow.
-# Jobs: locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
+# Jobs: quality (tsc + lint + next build + docker build) + locate (SARIF + PR comment + npm test) + org-path (rules + cassette via
 # the composite Action) + operate→verify + desk-ui (UI-2 reports + UI-3
 # live-endpoint unit tests) + locate-rules (K1) + locate-ingest (K2) +
 # locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2) +
@@ -31,6 +31,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Typecheck + lint + Next.js build + Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: Lint (errors fail; warnings reported)
+        run: npm run lint
+
+      - name: Next.js production build
+        run: npm run build
+
+      - name: Docker image build
+        run: docker build -t zeroday:ci .
+
   locate:
     name: CI/no-GPU fixture localize → SARIF + PR comment
     runs-on: ubuntu-latest
