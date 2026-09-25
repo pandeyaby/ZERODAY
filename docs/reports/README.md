@@ -9,6 +9,9 @@ HF tokens). CI never replays this as a live GPU call.
 |------|------|
 | [`a40-live-locate-20260920.json`](./a40-live-locate-20260920.json) | `zeroday.gpu_live_locate_evidence/v1` — pod `1trf1rks3h40vs`, estimate ~$0.0245, locate → `src/users.js` |
 | Narrative | [`docs/gpu-claims.md`](../gpu-claims.md) § Live locate (2026-09-19/20 PT) |
+| [`l4-live-locate-20260924.json`](./l4-live-locate-20260924.json) | `zeroday.gpu_live_locate_evidence/v1` — Secure L4 pod `17dxif43j5rw2b`, Antares-1B, estimate ~$0.0233, locate → `src/users.js` |
+| [`l4-live-locate-350m-20260924.json`](./l4-live-locate-350m-20260924.json) | Same schema — Secure L4 pod `zbnj0j2pfcwqwd`, Antares-350M, estimate ~$0.0149, locate → `src/users.js` |
+| Narrative (L4) | [`docs/gpu-claims.md`](../gpu-claims.md) § Live locate (2026-09-24 PT) |
 
 **Posture:** localization ≠ exploitability · not AUROC/File-F1/SLA · keyless CI
 stays GPU-free · prior A40 smoke kept in gpu-claims § Live re-proof (2026-09-19).
