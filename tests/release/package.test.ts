@@ -35,9 +35,9 @@ describe("npm CLI package (zeroday-cli)", () => {
 });
 
 describe("single version source", () => {
-  it("ZERODAY_VERSION matches package.json and SARIF driver version", () => {
+  it("ZERODAY_VERSION matches package.json and SARIF driver version", async () => {
     assert.equal(ZERODAY_VERSION, rootPkg.version);
-    const result = runRulesLocalization(
+    const result = await runRulesLocalization(
       { kind: "cwe", id: "CWE-89", cweId: "CWE-89" },
       path.join(root, "fixtures/locate/rules-sample"),
     );
