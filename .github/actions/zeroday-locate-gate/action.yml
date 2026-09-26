@@ -46,19 +46,42 @@ inputs:
     default: "true"
   run-unit-tests:
     description: >
-      Run npm test before locate. Default true for this repo's CI; set false when
-      consuming the Action from an org workflow that already tested elsewhere.
+      Run ZERODAY's own test suite before locate (ZERODAY's CI sets this; other
+      repositories should leave it off).
     required: false
-    default: "true"
+    default: "false"
+  advisory:
+    description: >
+      CVE-… or GHSA-… id (mode=rules). Adds dependency matching: affected package
+      versions in your lockfiles and calls to the vulnerable functions. Takes
+      precedence over `cwe`.
+    required: false
+    default: ""
+  baseline:
+    description: Earlier report.json (or its directory). Findings are marked new / unchanged; fail-on-findings counts only new ones.
+    required: false
+    default: ""
+  changed-since:
+    description: >
+      Git ref (e.g. origin/main). Keep findings in files changed since the merge
+      base. Needs history: actions/checkout with fetch-depth 0.
+    required: false
+    default: ""
+  offline:
+    description: >
+      auto (default) = CWE scans offline, CVE / GHSA scans read public advisory
+      metadata from api.osv.dev (source code is never sent); true = never fetch.
+    required: false
+    default: auto
   sarif-category:
     description: Code Scanning category for this upload
     required: false
     default: zeroday-antares
   working-directory:
     description: >
-      Directory that contains package.json / the ZERODAY CLI (default `.`).
-      When ZERODAY is checked out to a subdirectory (e.g. `_zeroday`), set this
-      so npm ci / locate run there while `repo` can still point at the consumer tree.
+      Deprecated (kept for compatibility): the Action now runs the ZERODAY CLI
+      from its own copy, so callers no longer check ZERODAY out. Paths (`repo`,
+      `output`, `baseline`) are relative to the caller's workspace.
     required: false
     default: "."
 outputs:
@@ -68,6 +91,9 @@ outputs:
   finding-count:
     description: Number of ranked candidate files
     value: ${{ steps.locate.outputs.finding-count }}
+  new-finding-count:
+    description: Findings not in the baseline (equals finding-count without a baseline)
+    value: ${{ steps.locate.outputs.new-finding-count }}
   comment-path:
     description: Path to comment.md
     value: ${{ steps.locate.outputs.comment-path }}
@@ -82,81 +108,112 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: "22"
-        cache: npm
-        cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
-    - name: Install dependencies
+    - name: Install the ZERODAY CLI (from the Action's own copy)
+      id: cli
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: npm ci
-
-    - name: Unit tests (locate + Desk UI surfaces)
-      if: inputs.run-unit-tests == 'true'
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
-        # Full suite includes tests/desk/{reports,live-endpoint,console}.test.ts
-        # (UI-2 reports + UI-3 live-endpoint). Dedicated desk-ui CI job also runs
-        # npm run test:desk for visible PR coverage.
+        # uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@<ref> ships the
+        # whole ZERODAY repo at <ref>; the CLI runs from there, not from the caller's tree.
+        ROOT="$(cd "${{ github.action_path }}/../../.." && pwd)"
+        VERSION="$(node -p "require('$ROOT/package.json').version")"
+        if [ -d "$ROOT/node_modules/tsx" ]; then
+          echo "Using existing ZERODAY install at $ROOT"
+          echo "cmd=node $ROOT/bin/zeroday.mjs" >> "$GITHUB_OUTPUT"
+        elif npm view "zeroday-cli@$VERSION" version >/dev/null 2>&1; then
+          # Released version: the published CLI package (small, no Next.js).
+          PREFIX="$RUNNER_TEMP/zeroday-cli"
+          npm install --prefix "$PREFIX" --no-audit --no-fund --loglevel=error "zeroday-cli@$VERSION"
+          echo "cmd=node $PREFIX/node_modules/zeroday-cli/bin/zeroday.mjs" >> "$GITHUB_OUTPUT"
+        else
+          # Unreleased ref: install the checkout's own dependencies.
+          (cd "$ROOT" && npm ci --no-audit --no-fund --loglevel=error)
+          echo "cmd=node $ROOT/bin/zeroday.mjs" >> "$GITHUB_OUTPUT"
+        fi
+        echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+        echo "ZERODAY $VERSION ready"
+
+    - name: Unit tests (ZERODAY's own CI)
+      if: inputs.run-unit-tests == 'true'
+      shell: bash
+      working-directory: ${{ steps.cli.outputs.root }}
+      run: |
+        set -euo pipefail
+        [ -d node_modules/tsx ] || npm ci --no-audit --no-fund --loglevel=error
         npm test
 
     - name: Keyless locate (fixture | rules | recording — never live)
       id: locate
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       env:
         CWE: ${{ inputs.cwe }}
+        ADVISORY: ${{ inputs.advisory }}
         REPO: ${{ inputs.repo }}
         OUT: ${{ inputs.output }}
         RECORDING: ${{ inputs.recording }}
+        BASELINE: ${{ inputs.baseline }}
+        CHANGED_SINCE: ${{ inputs.changed-since }}
+        OFFLINE: ${{ inputs.offline }}
         ZERODAY_GATE_MODE: ${{ inputs.mode }}
+        ZERODAY_ROOT: ${{ steps.cli.outputs.root }}
+        ZERODAY_CMD: ${{ steps.cli.outputs.cmd }}
       run: |
         set -euo pipefail
+        # Bundled fixtures (fixture mode default) live in the Action's copy, not the caller's tree.
+        if [ ! -e "$REPO" ] && [ -e "$ZERODAY_ROOT/$REPO" ]; then REPO="$ZERODAY_ROOT/$REPO"; fi
+        if [ -n "$RECORDING" ] && [ ! -e "$RECORDING" ] && [ -e "$ZERODAY_ROOT/$RECORDING" ]; then RECORDING="$ZERODAY_ROOT/$RECORDING"; fi
+        export REPO RECORDING
         mkdir -p "$OUT"
         RESOLVED="$(node "${{ github.action_path }}/resolve-locate-cmd.js")"
         EXPECTED_MODE="$(node -e "const j=JSON.parse(process.argv[1]);process.stdout.write(j.expectedMode)" "$RESOLVED")"
         LABEL="$(node -e "const j=JSON.parse(process.argv[1]);process.stdout.write(j.label)" "$RESOLVED")"
         # Explicit keyless doors only. Never --endpoint / --live in CI (no weights / no spend).
+        # Exit 2 = NOT SCANNED (no rules for the CWE) — fail closed.
         node -e "
           const {spawnSync}=require('child_process');
           const j=JSON.parse(process.argv[1]);
-          const r=spawnSync('npm', j.argv, {stdio:'inherit', env:process.env});
+          const [bin, ...pre]=process.env.ZERODAY_CMD.split(' ');
+          const r=spawnSync(bin, [...pre, ...j.cliArgs], {stdio:'inherit', env:process.env});
           process.exit(r.status===null?1:r.status);
         " "$RESOLVED"
         test -f "$OUT/report.sarif"
         test -f "$OUT/report.json"
         test -f "$OUT/comment.md"
-        # Fail closed before GitHub API: comment must carry ranked findings (or empty result).
-        grep -E 'Ranked candidate files|No vulnerable files submitted' "$OUT/comment.md" >/dev/null
+        # Fail closed before GitHub API: comment must carry ranked findings (or an explicit empty / not-scanned result).
+        grep -E 'Ranked candidate files|No vulnerable files submitted|\*\*Not scanned\*\*' "$OUT/comment.md" >/dev/null
         grep -F 'Human review required' "$OUT/comment.md" >/dev/null
         MODE="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(r.mode)")"
         test "$MODE" = "$EXPECTED_MODE"
         COUNT="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(String(r.summary.findingCount))")"
-        # Absolute paths so upload-sarif / PR comment work when working-directory ≠ workspace root
+        NEW="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.OUT+'/report.json','utf8'));process.stdout.write(String(r.summary.baseline ? r.summary.baseline.new : r.summary.findingCount))")"
+        # Absolute paths so upload-sarif / PR comment work from any directory
         ABS_OUT="$(node -e "process.stdout.write(require('path').resolve(process.env.OUT))")"
         echo "sarif-path=$ABS_OUT/report.sarif" >> "$GITHUB_OUTPUT"
         echo "comment-path=$ABS_OUT/comment.md" >> "$GITHUB_OUTPUT"
         echo "json-path=$ABS_OUT/report.json" >> "$GITHUB_OUTPUT"
         echo "finding-count=$COUNT" >> "$GITHUB_OUTPUT"
+        echo "new-finding-count=$NEW" >> "$GITHUB_OUTPUT"
         echo "locate-mode=$MODE" >> "$GITHUB_OUTPUT"
-        echo "ZERODAY $LABEL complete — mode=$MODE findings=$COUNT (localization only)"
+        echo "ZERODAY $LABEL complete — mode=$MODE findings=$COUNT new=$NEW (localization only)"
 
     - name: Optional antares plan (no inference)
       continue-on-error: true
       if: inputs.mode == 'fixture'
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       env:
         REPO: ${{ inputs.repo }}
+        ZERODAY_CMD: ${{ steps.cli.outputs.cmd }}
+        ZERODAY_ROOT: ${{ steps.cli.outputs.root }}
       run: |
         set -euo pipefail
+        if [ ! -e "$REPO" ] && [ -e "$ZERODAY_ROOT/$REPO" ]; then REPO="$ZERODAY_ROOT/$REPO"; fi
         if command -v uv >/dev/null 2>&1; then
           uv tool install cisco-antares-cli >/dev/null
           export PATH="$(uv tool dir --bin):$PATH"
         fi
         if command -v antares >/dev/null 2>&1; then
-          npm run zeroday -- plan "$REPO" --max-cwes 5 --format json | head -c 4000
+          $ZERODAY_CMD plan "$REPO" --max-cwes 5 --format json | head -c 4000
         else
           echo "cisco-antares-cli not on PATH — skipping plan (locate fixture already ran)"
         fi
@@ -212,8 +269,8 @@ runs:
         } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Reviewable fail-on-findings (optional)
-      if: inputs.fail-on-findings == 'true' && steps.locate.outputs.finding-count != '0'
+      if: inputs.fail-on-findings == 'true' && steps.locate.outputs.new-finding-count != '0'
       shell: bash
       run: |
-        echo "::error title=ZERODAY localization review::${{ steps.locate.outputs.finding-count }} ranked candidate file(s) for human review. This is NOT proof of exploitability. SARIF + PR comment were published. No auto-merge."
+        echo "::error title=ZERODAY localization review::${{ steps.locate.outputs.new-finding-count }} ranked candidate file(s) for human review${{ inputs.baseline != '' && ' (new since the baseline)' || '' }}. This is NOT proof of exploitability. SARIF + PR comment were published. No auto-merge."
         exit 1

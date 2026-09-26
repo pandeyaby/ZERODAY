@@ -107,6 +107,7 @@ jobs:
           cwe: CWE-89
           repo: fixtures/locate/demo-app
           output: zeroday-reports/ci
+          run-unit-tests: "true"
           fail-on-findings: ${{ vars.ZERODAY_FAIL_ON_FINDINGS || 'false' }}
           upload-sarif: "true"
           post-comment: "true"

@@ -93,8 +93,8 @@ Parameterized queries in the same app are not flagged.
 
 Rules mode parses JavaScript/TypeScript, Python, Java and Go into syntax trees
 (tree-sitter, bundled — no native build) and traces request input through
-assignments, string building, branches, collections and same-file helpers to
-dangerous calls:
+assignments, string building, branches, collections and helper functions — in
+the same file or imported from another — to dangerous calls:
 
 | CWE | | CWE | |
 |-----|--|-----|--|
@@ -115,6 +115,28 @@ Reproduce with `npm run bench`.
 `--cve` / `--ghsa` resolve to a CWE through a vendored map, or NVD / GHSA when
 online (`--offline` skips the network).
 
+### An advisory just landed: which files matter?
+
+Give it a CVE or GHSA instead of a CWE. ZERODAY reads the advisory from
+[OSV](https://osv.dev) (only the id is sent, never your code), checks the pinned
+versions in your lockfiles (npm / yarn / pnpm, pip / Poetry / Pipfile / uv,
+Go modules, Maven / Gradle) and ranks calls to the vulnerable functions first:
+
+```text
+$ npx zeroday-cli locate --cve CVE-2021-23337 --repo . --rules
+Exposure : AFFECTED — GHSA-35jh-r3h4-6jhm, GHSA-r5fr-rjxr-66jc
+           ✗ lodash@4.17.15  package-lock.json  → upgrade to 4.17.21
+Functions: template, …
+
+Ranked files:
+  1. src/email.js       [CWE-94]  Calls `template` from lodash@4.17.15
+  2. package-lock.json  [CWE-94]  Vulnerable dependency lodash@4.17.15
+  3. src/cart.js        [CWE-94]  Imports lodash@4.17.15
+```
+
+A patched version reports *not affected*; a package you don't use reports *not
+used*. `--offline` never fetches (a cached or mirrored advisory is still used).
+
 ### What you get
 
 Every run writes one folder (default `zeroday-reports/<advisory>-<timestamp>/`, or `--output`):
@@ -134,11 +156,26 @@ output files and exit codes are listed in [`docs/stability.md`](./docs/stability
 
 ### In CI
 
-The composite Action in
-[`.github/actions/zeroday-locate-gate`](./.github/actions/zeroday-locate-gate/action.yml)
-runs `fixture`, `rules` or cassette-replay locate on a pull request, uploads
-SARIF to Code Scanning and posts a reviewable comment. Setup and spend gates:
-[`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md).
+Add the Action to any repository — it brings its own ZERODAY. On a pull request
+it scans the files the PR changed, uploads SARIF to Code Scanning and posts a
+reviewable comment:
+
+```yaml
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v0.9.0
+        with:
+          mode: rules
+          repo: .
+          cwe: CWE-89
+          changed-since: origin/${{ github.base_ref }}
+          fail-on-findings: "true"
+```
+
+Adopting on an existing codebase? Commit a baseline `report.json` and pass
+`baseline:` so only **new** findings fail the job. Full guide, matrix over CWEs
+and the advisory workflow: [`docs/github-action.md`](./docs/github-action.md).
+Org setup and spend gates: [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md).
 
 ---
 

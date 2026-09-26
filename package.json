@@ -1,6 +1,6 @@
 {
   "name": "zeroday",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "ZERODAY — defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate → SARIF). Not a Cisco product.",
   "license": "Apache-2.0",

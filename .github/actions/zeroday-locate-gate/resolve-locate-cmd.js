@@ -2,15 +2,40 @@
  * Resolve the keyless locate CLI invocation for the composite Action.
  * Default: fixture (CI / no-GPU). Live / endpoint never allowed here.
  *
- * @param {{ mode?: string, cwe?: string, repo?: string, output?: string, recording?: string }} inputs
- * @returns {{ argv: string[], expectedMode: string, label: string }}
+ * @param {{ mode?: string, cwe?: string, advisory?: string, repo?: string, output?: string, recording?: string, baseline?: string, changedSince?: string, offline?: string }} inputs
+ * @returns {{ argv: string[], cliArgs: string[], expectedMode: string, label: string }}
  */
 function resolveLocateCmd(inputs = {}) {
+  const resolved = resolveBase(inputs);
+  const extra = [];
+  const baseline = String(inputs.baseline || "").trim();
+  const changedSince = String(inputs.changedSince || "").trim();
+  if (baseline) extra.push("--baseline", baseline);
+  if (changedSince) extra.push("--changed-since", changedSince);
+  const argv = [...resolved.argv, ...extra];
+  // cliArgs: the same invocation for `node <zeroday>/bin/zeroday.mjs …` (no npm script).
+  return { ...resolved, argv, cliArgs: argv.slice(argv.indexOf("--") + 1) };
+}
+
+/** Advisory flag for the locate CLI: --cve / --ghsa / --cwe. */
+function advisoryArgs(cwe, advisory) {
+  const a = String(advisory || "").trim();
+  if (/^CVE-\d{4}-\d+$/i.test(a)) return ["--cve", a];
+  if (/^GHSA-/i.test(a)) return ["--ghsa", a];
+  if (a) throw new Error("zeroday-locate-gate: advisory must be a CVE-… or GHSA-… id (got " + a + ")");
+  return ["--cwe", cwe];
+}
+
+function resolveBase(inputs) {
   const mode = String(inputs.mode || "fixture").trim().toLowerCase();
   const cwe = String(inputs.cwe || "CWE-89").trim();
   const repo = String(inputs.repo || "fixtures/locate/demo-app").trim();
   const output = String(inputs.output || "zeroday-reports/ci").trim();
   const recording = String(inputs.recording || "").trim();
+  const advisory = String(inputs.advisory || "").trim();
+  // CWE scans stay offline; CVE / GHSA scans read public OSV advisory metadata unless offline=true.
+  const offline = String(inputs.offline || "auto").trim().toLowerCase();
+  const offlineArgs = offline === "true" || (offline === "auto" && !advisory) ? ["--offline"] : [];
 
   if (mode === "live" || mode === "endpoint") {
     throw new Error(
@@ -48,12 +73,11 @@ function resolveLocateCmd(inputs = {}) {
         "zeroday",
         "--",
         "locate",
-        "--cwe",
-        cwe,
+        ...advisoryArgs(cwe, advisory),
         "--repo",
         repo,
         "--rules",
-        "--offline",
+        ...offlineArgs,
         "--output",
         output,
       ],
@@ -101,6 +125,10 @@ if (require.main === module) {
     repo: process.env.REPO || process.argv[4],
     output: process.env.OUT || process.argv[5],
     recording: process.env.RECORDING || process.argv[6],
+    advisory: process.env.ADVISORY,
+    baseline: process.env.BASELINE,
+    changedSince: process.env.CHANGED_SINCE,
+    offline: process.env.OFFLINE,
   });
   process.stdout.write(JSON.stringify(resolved) + "\n");
 }
