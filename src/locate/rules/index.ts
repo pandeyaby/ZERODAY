@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, TraceStep } from "../types";
-import { analyzeSource } from "../engine/analyze";
+import { analyzeProject } from "../engine/analyze";
 import { langForPath } from "../engine/grammar";
 import { walkSourceFiles, type WalkedFile } from "./walk";
 import { hitsToRankedFiles, scanRepoForCwe89, type RuleHit } from "./cwe-89";
@@ -64,47 +64,50 @@ function excerpt(lines: string[], startLine: number, endLine: number): string {
   return lines.slice(from, to).join("\n").slice(0, 400);
 }
 
-/** Run the tree-sitter engine over every file it can parse. */
+/** Run the tree-sitter engine over every file it can parse, as one project (cross-file). */
 async function runEngine(
+  root: string,
   files: WalkedFile[],
   cweId: string,
 ): Promise<{ hits: RuleHit[]; parsed: number; failed: number }> {
-  const hits: RuleHit[] = [];
-  let parsed = 0;
+  const inputs: Array<{ relPath: string; lang: NonNullable<ReturnType<typeof langForPath>>; source: string }> = [];
   let failed = 0;
-  const cwes = new Set([cweId]);
   for (const f of files) {
     const lang = langForPath(f.relPath);
     if (!lang) continue;
-    let source: string;
     try {
-      source = fs.readFileSync(f.absPath, "utf8");
-    } catch {
-      failed += 1;
-      continue;
-    }
-    try {
-      const found = await analyzeSource(lang, source, cwes);
-      parsed += 1;
-      if (found.length === 0) continue;
-      const lines = source.split(/\r?\n/);
-      for (const h of found) {
-        hits.push({
-          ruleId: h.ruleId,
-          filePath: f.relPath,
-          startLine: h.startLine,
-          endLine: h.endLine,
-          title: h.title,
-          note: h.note,
-          excerpt: excerpt(lines, h.startLine, h.endLine),
-          score: h.score,
-        });
-      }
+      inputs.push({ relPath: f.relPath, lang, source: fs.readFileSync(f.absPath, "utf8") });
     } catch {
       failed += 1;
     }
   }
-  return { hits, parsed, failed };
+  let goModule: string | undefined;
+  try {
+    goModule = /^module\s+(\S+)/m.exec(fs.readFileSync(path.join(root, "go.mod"), "utf8"))?.[1];
+  } catch {
+    /* not a Go module */
+  }
+  const result = await analyzeProject(inputs, new Set([cweId]), { goModule });
+  failed += result.failed.length;
+  const hits: RuleHit[] = [];
+  for (const input of inputs) {
+    const found = result.hits.get(input.relPath);
+    if (!found?.length) continue;
+    const lines = input.source.split(/\r?\n/);
+    for (const h of found) {
+      hits.push({
+        ruleId: h.ruleId,
+        filePath: input.relPath,
+        startLine: h.startLine,
+        endLine: h.endLine,
+        title: h.title,
+        note: h.note,
+        excerpt: excerpt(lines, h.startLine, h.endLine),
+        score: h.score,
+      });
+    }
+  }
+  return { hits, parsed: inputs.length - result.failed.length, failed };
 }
 
 /**
@@ -137,7 +140,7 @@ export async function runRulesLocalization(
       summary: `Rules walk listed ${files.length} source file(s).`,
     });
 
-    const engine = await runEngine(files, cweId);
+    const engine = await runEngine(root, files, cweId);
     explorationTrace.push({
       step: explorationTrace.length + 1,
       tool: "grep",
