@@ -33,6 +33,10 @@ export interface RankedFile {
   evidence: EvidenceSpan[];
   /** MITRE taxonomy metadata when known — not model confidence */
   likelihoodOfExploit?: string;
+  /** Stable id across runs (CWE + file + title + flagged line text); set by locate. */
+  fingerprint?: string;
+  /** With --baseline: whether the finding existed in the baseline report. */
+  baselineState?: "new" | "unchanged";
 }
 
 export interface TraceStep {
@@ -88,6 +92,10 @@ export interface LocalizationResult {
      * scanned for it. Zero findings here is never a clean negative.
      */
     unsupportedCwe?: boolean;
+    /** With --baseline: counts against the baseline report. */
+    baseline?: { file: string; new: number; unchanged: number; absent: number };
+    /** With --changed-since: findings limited to files changed since the ref. */
+    changedSince?: { ref: string; changedFiles: number; droppedFindings: number };
     /**
      * Rules mode, CVE / GHSA only: dependency exposure from OSV advisory data.
      * affected = a lockfile pins an affected version; possibly-affected = only a
@@ -135,6 +143,10 @@ export interface LocateOptions {
    */
   recording?: string;
   /** Skip NVD/GHSA network resolve */
+  /** Earlier report.json (or its directory): mark findings new / unchanged. */
+  baseline?: string;
+  /** Git ref: keep findings in files changed since the ref (merge-base diff). */
+  changedSince?: string;
   offline?: boolean;
   /** Explicit CWE when CVE/GHSA cannot be resolved */
   explicitCwe?: string;

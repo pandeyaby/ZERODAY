@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { categoryForCwe } from "./categories";
+import { addFingerprints, applyBaseline, applyChangedSince } from "./baseline";
 import { detectAdvisoryKind } from "./advisory-id";
 import { canonicalOsvId, packageRecords } from "./advisory/osv";
 import { createSnapshot, destroySnapshot } from "./snapshot";
@@ -484,6 +485,12 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         );
       }
     }
+
+    // Stable fingerprints on every finding; optional diff / baseline filtering for CI.
+    const fingerprintRoot = result.mode === "fixture" ? result.targetRepo : repo;
+    if (options.changedSince) applyChangedSince(result, fingerprintRoot, options.changedSince);
+    addFingerprints(result, fingerprintRoot);
+    if (options.baseline) applyBaseline(result, fingerprintRoot, options.baseline);
 
     const runId = path.basename(outputDir);
     const vault = new EvidenceVault(outputDir, runId);

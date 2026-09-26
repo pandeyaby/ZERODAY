@@ -1415,9 +1415,17 @@ program
     "Skip best-effort live re-query when model stops without submit",
     false,
   )
-  .option("--fail-on-findings", "Exit 1 when ranked files are non-empty", false)
+  .option(
+    "--fail-on-findings",
+    "Exit 1 when ranked files are non-empty (with --baseline: only new findings count)",
+    false,
+  )
+  .option("--baseline <report.json>", "Earlier report.json (or its directory): mark findings new / unchanged")
+  .option("--changed-since <git-ref>", "Keep findings in files changed since the ref (e.g. origin/main)")
   .option("--json", "Print LocalizationResult JSON to stdout", false)
   .action(async (opts: {
+    baseline?: string;
+    changedSince?: string;
     cwe?: string;
     cve?: string;
     ghsa?: string;
@@ -1521,6 +1529,8 @@ program
         liveRecovery: !opts.noLiveRecovery,
         failOnFindings: opts.failOnFindings,
         remoteInference: opts.remoteInference,
+        ...(opts.baseline ? { baseline: path.resolve(opts.baseline) } : {}),
+        ...(opts.changedSince ? { changedSince: opts.changedSince } : {}),
       });
 
       if (opts.json) {
@@ -1534,7 +1544,12 @@ program
         console.log(`Mode     : ${r.mode}`);
         console.log(`Model    : ${r.model}`);
         console.log(`Target   : ${r.targetRepo}`);
-        console.log(`Findings : ${r.summary.findingCount}`);
+        console.log(
+          `Findings : ${r.summary.findingCount}${r.summary.baseline ? ` (${r.summary.baseline.new} new, ${r.summary.baseline.unchanged} unchanged, ${r.summary.baseline.absent} fixed)` : ""}`,
+        );
+        if (r.summary.changedSince) {
+          console.log(`Diff     : ${r.summary.changedSince.changedFiles} file(s) changed since ${r.summary.changedSince.ref} (${r.summary.changedSince.droppedFindings} finding(s) elsewhere hidden)`);
+        }
         if (r.summary.incompleteReason) {
           console.log(`Incomplete: yes [${r.summary.incompleteClass ?? "unknown"}]`);
         }
@@ -1558,8 +1573,9 @@ program
         if (r.rankedFiles.length) {
           console.log("Ranked files:");
           for (const f of r.rankedFiles) {
+            const state = f.baselineState ? `[${f.baselineState}] ` : "";
             console.log(
-              `  ${f.rank}. ${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
+              `  ${f.rank}. ${state}${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
             );
           }
           console.log("");
@@ -1662,7 +1678,10 @@ program
         }
       }
 
-      if (opts.failOnFindings && artifacts.result.rankedFiles.length > 0) {
+      const blocking = artifacts.result.summary.baseline
+        ? artifacts.result.rankedFiles.filter((f) => f.baselineState === "new").length
+        : artifacts.result.rankedFiles.length;
+      if (opts.failOnFindings && blocking > 0) {
         process.exitCode = 1;
       }
       if (artifacts.failIncomplete) {

@@ -39,6 +39,7 @@ interface SarifRun {
       };
     }>;
     partialFingerprints?: Record<string, string>;
+    baselineState?: "new" | "unchanged" | "updated" | "absent";
     properties: Record<string, unknown>;
   }>;
   originalUriBaseIds: {
@@ -137,8 +138,12 @@ export function toSarif(result: LocalizationResult): SarifLog {
         },
       ],
       partialFingerprints: {
-        primaryLocationLineHash: `${cwe}|${uri}|${file.rank}`,
+        // Stable across runs (CWE + file + title + flagged line text), so Code Scanning
+        // keeps one alert per finding even when ranks or line numbers shift.
+        primaryLocationLineHash: file.fingerprint ?? `${cwe}|${uri}|${file.rank}`,
+        ...(file.fingerprint ? { "zeroday/v1": file.fingerprint } : {}),
       },
+      ...(file.baselineState ? { baselineState: file.baselineState } : {}),
       properties: {
         submission_rank: file.rank,
         cwe_ids: file.cweIds,
