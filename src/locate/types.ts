@@ -88,6 +88,24 @@ export interface LocalizationResult {
      * scanned for it. Zero findings here is never a clean negative.
      */
     unsupportedCwe?: boolean;
+    /**
+     * Rules mode, CVE / GHSA only: dependency exposure from OSV advisory data.
+     * affected = a lockfile pins an affected version; possibly-affected = only a
+     * declared (unpinned) version matches; not-affected / not-used = checked, clean.
+     */
+    advisoryMatch?: {
+      verdict: "affected" | "possibly-affected" | "not-affected" | "not-used";
+      advisoryIds: string[];
+      packages: Array<{
+        ecosystem: string;
+        name: string;
+        installed: string;
+        file: string;
+        affected: boolean;
+        fixed?: string;
+      }>;
+      symbols: string[];
+    };
     terminalCallBudget: number;
     terminalCallsUsed: number;
   };

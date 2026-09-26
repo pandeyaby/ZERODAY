@@ -44,6 +44,24 @@ export function toHumanReport(
   lines.push(`| Generated | ${result.generatedAt} |`);
   lines.push(``);
 
+  const am = result.summary.advisoryMatch;
+  if (am) {
+    lines.push(`## Dependency exposure`);
+    lines.push(``);
+    lines.push(`**Verdict:** ${am.verdict} · advisory data: ${am.advisoryIds.join(", ")} (OSV)`);
+    lines.push(``);
+    lines.push(`| Package | Installed | Pinned in | Affected | Fixed in |`);
+    lines.push(`|---------|-----------|-----------|----------|----------|`);
+    for (const p of am.packages) {
+      lines.push(`| \`${p.name}\` | ${p.installed} | \`${p.file}\` | ${p.affected ? "**yes**" : "no"} | ${p.fixed ?? "—"} |`);
+    }
+    if (am.symbols.length) {
+      lines.push(``);
+      lines.push(`Vulnerable functions looked for: ${am.symbols.map((x) => `\`${x}\``).join(", ")}`);
+    }
+    lines.push(``);
+  }
+
   lines.push(`## What files`);
   lines.push(``);
   if (result.rankedFiles.length === 0) {

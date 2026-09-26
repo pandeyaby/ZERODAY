@@ -6,6 +6,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveAdvisory } from "./resolve";
+import { categoryForCwe } from "./categories";
+import { detectAdvisoryKind } from "./advisory-id";
+import { canonicalOsvId, packageRecords } from "./advisory/osv";
 import { createSnapshot, destroySnapshot } from "./snapshot";
 import { runFixtureLocalization, defaultFixtureRepo } from "./fixture";
 import { runRulesLocalization, RULES_SUPPORTED_CWES } from "./rules/index";
@@ -173,10 +176,30 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     resolvedSource = "ingest";
     resolvedCategory = "ingest";
   } else {
-    const resolved = await resolveAdvisory(options.advisory, {
-      offline: !preferLive || options.offline === true,
-      explicitCwe: options.explicitCwe,
-    });
+    let resolved: Awaited<ReturnType<typeof resolveAdvisory>>;
+    try {
+      resolved = await resolveAdvisory(options.advisory, {
+        offline: !preferLive || options.offline === true,
+        explicitCwe: options.explicitCwe,
+      });
+    } catch (e) {
+      // Rules mode: an unmapped CVE / GHSA can still be resolved through OSV advisory
+      // metadata (and matched against the repo's dependencies).
+      const kind = detectAdvisoryKind(options.advisory);
+      if (!preferRules || (kind !== "cve" && kind !== "ghsa")) throw e;
+      const records = await packageRecords(options.advisory, { offline: options.offline === true });
+      if (records.length === 0) throw e;
+      const cwes = [...new Set(records.flatMap((r) => r.database_specific?.cwe_ids ?? []))];
+      const cweId = cwes.find((c) => (RULES_SUPPORTED_CWES as readonly string[]).includes(c)) ?? cwes[0] ?? "CWE-000";
+      resolved = {
+        kind,
+        id: canonicalOsvId(options.advisory),
+        cweId,
+        title: records[0]!.summary,
+        category: categoryForCwe(cweId),
+        source: "osv",
+      };
+    }
     advisory = {
       kind: resolved.kind,
       id: resolved.id,
@@ -419,7 +442,9 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       // Container-free; no Semgrep; no Antares weights.
       const snap = createSnapshot(repo);
       snapshotPath = snap.snapshotPath;
-      result = await runRulesLocalization(advisory, snap.snapshotPath);
+      result = await runRulesLocalization(advisory, snap.snapshotPath, {
+        offline: options.offline === true,
+      });
       result.targetRepo = repo;
       result.snapshotPath = snap.snapshotPath;
       if (result.mode !== "rules") {

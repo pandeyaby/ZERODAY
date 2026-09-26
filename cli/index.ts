@@ -1538,6 +1538,22 @@ program
         if (r.summary.incompleteReason) {
           console.log(`Incomplete: yes [${r.summary.incompleteClass ?? "unknown"}]`);
         }
+        const am = r.summary.advisoryMatch;
+        if (am) {
+          const label: Record<string, string> = {
+            affected: "AFFECTED",
+            "possibly-affected": "POSSIBLY AFFECTED (declared version, no lockfile pin)",
+            "not-affected": "not affected (installed versions are outside the vulnerable ranges)",
+            "not-used": "not used (no affected package in lockfiles / manifests)",
+          };
+          console.log(`Exposure : ${label[am.verdict] ?? am.verdict} — ${am.advisoryIds.join(", ")}`);
+          for (const p of am.packages) {
+            console.log(
+              `           ${p.affected ? "✗" : "✓"} ${p.name}@${p.installed}  ${p.file}${p.affected && p.fixed ? `  → upgrade to ${p.fixed}` : ""}`,
+            );
+          }
+          if (am.symbols.length) console.log(`Functions: ${am.symbols.slice(0, 8).join(", ")}`);
+        }
         console.log("");
         if (r.rankedFiles.length) {
           console.log("Ranked files:");
