@@ -300,10 +300,10 @@ export function DeskConsole() {
             </p>
             <p className="text-xs">
               Scans read only folders under
-              {catalog?.allowedRoots?.[0]
-                ? ` ${catalog.allowedRoots[0]}`
+              {catalog?.allowedRoots?.length
+                ? ` ${catalog.allowedRoots.join(", ")}`
                 : " the workspace"}{" "}
-              (add more with <code>ZERODAY_UI_ROOTS</code>). The Desk answers on
+              (set with <code>ZERODAY_UI_ROOTS</code>). The Desk answers on
               localhost only.
             </p>
           </div>
