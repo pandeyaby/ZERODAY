@@ -67,11 +67,11 @@ export function toSarif(result: LocalizationResult): SarifLog {
           id: cwe,
           name: cwe,
           shortDescription: {
-            text: `${cwe} candidate file (Antares localization)`,
+            text: `${cwe} candidate file (ZERODAY localization)`,
           },
           fullDescription: {
             text:
-              `ZERODAY/Antares localized a candidate for ${cwe}. ` +
+              `ZERODAY localized a candidate for ${cwe}. ` +
               `This is file-level localization for human review — not proof of exploitability. ` +
               `Reports do not include offensive demonstration code or attack procedures.`,
           },
