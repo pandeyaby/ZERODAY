@@ -69,7 +69,15 @@ type DeskResult = {
     excerpt?: string;
     note?: string;
     baselineState?: "new" | "unchanged";
+    sources?: Array<"antares" | "rules">;
   }>;
+  hybrid?: {
+    contextSent: boolean;
+    rulesCandidates: number;
+    agreed: string[];
+    antaresOnly: string[];
+    rulesOnly: Array<{ filePath: string; title: string; line?: number }>;
+  };
   exposure?: {
     verdict: "affected" | "possibly-affected" | "not-affected" | "not-used";
     advisoryIds: string[];
@@ -1523,6 +1531,30 @@ function DeskResultPanel({ result }: { result: DeskResult }) {
               )}
             </div>
           )}
+          {result.hybrid && (
+            <div data-testid="desk-hybrid">
+              <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1">
+                Antares + ZERODAY static pass
+              </div>
+              <p className="text-xs text-[var(--muted)]">
+                {result.hybrid.contextSent
+                  ? `Static pass (${result.hybrid.rulesCandidates} candidate file(s)) given to Antares as starting context — Antares explored and decided.`
+                  : "Static pass had nothing to add — Antares ran alone."}
+              </p>
+              <p className="text-xs mt-1">
+                Both flagged: <span className="font-mono">{result.hybrid.agreed.join(", ") || "—"}</span>
+                {" · "}Antares only: <span className="font-mono">{result.hybrid.antaresOnly.join(", ") || "—"}</span>
+              </p>
+              {result.hybrid.rulesOnly.length > 0 && (
+                <p className="text-xs mt-1 text-[var(--muted)]">
+                  Rules only (Antares did not confirm):{" "}
+                  <span className="font-mono">
+                    {result.hybrid.rulesOnly.map((f) => `${f.filePath}${f.line ? `:${f.line}` : ""}`).join(", ")}
+                  </span>
+                </p>
+              )}
+            </div>
+          )}
           {result.rankedFiles && result.rankedFiles.length > 0 && (
             <div>
               <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1">
@@ -1539,6 +1571,7 @@ function DeskResultPanel({ result }: { result: DeskResult }) {
                         {f.cweIds?.length ? ` (${f.cweIds.join(", ")})` : ""}
                       </span>
                       {f.baselineState === "new" && <span className="ml-2"><Badge tone="warn">new</Badge></span>}
+                      {f.sources?.includes("rules") && <span className="ml-2"><Badge tone="ok">rules agree</Badge></span>}
                     </div>
                     {f.note && <div className="text-[var(--muted)] mt-0.5">{f.note}</div>}
                     {f.excerpt && (

@@ -161,9 +161,10 @@ const SPEND_BANNER =
 
 const HONESTY = [
   "Keyless stays default; live is opt-in with an explicit human click + spend banner",
-  "UI-2 “No live Antares” meant validate/CI didn’t exercise spend — live path already exists via locate --endpoint + doctor; UI-3 makes it first-class in Desk Console",
-  "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — not a random chat model (llama3.2)",
-  "Reuses --endpoint / live-guard / doctor — no new inference engines",
+  "Antares explores the repo with find / grep / cat tool calls and submits the files it believes are vulnerable — for any CWE",
+  "ZERODAY gives Antares its static pass (dependency verdict, vulnerable functions, rules candidates) as starting context, then shows where they agree",
+  "No endpoint saved? ZERODAY looks for a local vLLM / Ollama / LM Studio serving Antares",
+  "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — never a random chat model",
   "Non-loopback requires remote-inference ACK (UI checkbox)",
   "HF / auth tokens stay in env (tokenEnvVar name only in config) — never written to reports/SARIF",
   "No auto RunPod · no PoC · needs_human · private",
@@ -237,7 +238,14 @@ export interface LiveLocateResult {
     filePath: string;
     title: string;
     cweIds: string[];
+    line?: number;
+    excerpt?: string;
+    note?: string;
+    sources?: Array<"antares" | "rules">;
   }>;
+  /** Hybrid run: ZERODAY's static pass given to Antares, and agreement. */
+  hybrid?: NonNullable<LocalizationResult["summary"]["hybrid"]>;
+  exposure?: NonNullable<LocalizationResult["summary"]["advisoryMatch"]>;
   outputDir: string;
   paths: { json: string; sarif: string; report: string };
   endpoint: string;
@@ -827,12 +835,21 @@ export async function runLiveLocate(
     advisory: artifacts.result.advisory.id,
     cweId: artifacts.result.advisory.cweId,
     findingCount: artifacts.result.summary.findingCount,
-    rankedFiles: artifacts.result.rankedFiles.map((f) => ({
-      rank: f.rank,
-      filePath: f.filePath,
-      title: f.title,
-      cweIds: f.cweIds,
-    })),
+    rankedFiles: artifacts.result.rankedFiles.map((f) => {
+      const ev = f.evidence?.[0];
+      return {
+        rank: f.rank,
+        filePath: f.filePath,
+        title: f.title,
+        cweIds: f.cweIds,
+        ...(ev?.startLine ? { line: ev.startLine } : {}),
+        ...(ev?.excerpt ? { excerpt: ev.excerpt.slice(0, 400) } : {}),
+        ...(ev?.note ? { note: ev.note } : {}),
+        ...(f.sources ? { sources: f.sources } : {}),
+      };
+    }),
+    ...(artifacts.result.summary.hybrid ? { hybrid: artifacts.result.summary.hybrid } : {}),
+    ...(artifacts.result.summary.advisoryMatch ? { exposure: artifacts.result.summary.advisoryMatch } : {}),
     outputDir: artifacts.outputDir,
     paths,
     endpoint: normalizeCompletionsEndpoint(endpoint).replace(

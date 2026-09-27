@@ -66,7 +66,8 @@ describe("live endpoint wizard (UI-3)", () => {
     assert.ok(c.presets.some((p) => p.id === "local-openai"));
     assert.ok(c.presets.find((p) => p.id === "antares-1b")?.hfGated);
     assert.match(c.spendBanner, /spend|confirm|GPU/i);
-    assert.ok(c.honesty.some((h) => /UI-2/i.test(h)));
+    assert.ok(c.honesty.some((h) => /starting context/i.test(h)));
+    assert.ok(!c.honesty.some((h) => /UI-[23]/.test(h)), "no internal milestone jargon on screen");
     assert.ok(c.configPath.endsWith(DESK_ENDPOINT_REL));
     assert.ok(c.configPath.startsWith(cwd));
   });

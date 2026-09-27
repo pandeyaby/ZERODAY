@@ -59,10 +59,9 @@ try {
     shotName: "live-01-panel.png",
   });
 
-  const p350 = page.locator('[data-testid="preset-antares-350m-ollama"]');
-  const p1b = page.locator('[data-testid="preset-antares-1b"]');
-  if (await p350.count()) await p350.click();
-  else if (await p1b.count()) await p1b.click();
+  // Antares-1B unless ZERODAY_LIVE_PRESET=antares-350m-ollama.
+  const preset = page.locator(`[data-testid="preset-${process.env.ZERODAY_LIVE_PRESET || "antares-1b"}"]`);
+  if (await preset.count()) await preset.click();
   await sleep(DWELL_MS);
 
   await page.locator('[data-testid="live-endpoint"]').fill(ENDPOINT);
@@ -80,12 +79,16 @@ try {
     if (t.includes("cwe")) await input.fill(CWE);
   }
 
-  // loopback — remote ack should stay off
+  // Remote ACK only for a non-loopback endpoint (e.g. a RunPod proxy) — shown on screen.
+  const isLoopback = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:|\/)/.test(ENDPOINT);
   const remote = page.locator('[data-testid="remote-inference-ack"]');
-  if ((await remote.count()) && (await remote.isChecked())) await remote.uncheck();
+  if (await remote.count()) {
+    if (isLoopback && (await remote.isChecked())) await remote.uncheck();
+    if (!isLoopback && !(await remote.isChecked())) await remote.check();
+  }
 
   await step(page, OUT, {
-    title: "2 · Point at local Antares",
+    title: isLoopback ? "2 · Point at local Antares" : "2 · Point at your Antares host (remote inference acknowledged)",
     detail: `${ENDPOINT} · ${CWE} · ${REPO}`,
     shotName: "live-02-configured.png",
   });
