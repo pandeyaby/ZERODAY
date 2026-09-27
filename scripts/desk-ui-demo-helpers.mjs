@@ -10,6 +10,22 @@ export const DWELL_MS = Number(
   process.env.ZERODAY_DWELL_MS || (PACE === "fast" ? 800 : 2800),
 );
 
+/**
+ * Playwright is not a ZERODAY dependency (only these demo scripts use it).
+ * Install once: npm install --no-save playwright@1.56.1 && npx playwright install chromium
+ */
+export async function loadChromium() {
+  try {
+    return (await import("playwright")).chromium;
+  } catch {
+    console.error(
+      "These Desk demo scripts need Playwright, which ZERODAY does not install.\n" +
+        "  npm install --no-save playwright@1.56.1 && npx playwright install chromium",
+    );
+    process.exit(2);
+  }
+}
+
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** Persistent bottom banner so viewers know which step they're watching. */

@@ -8,11 +8,11 @@
     "zeroday": "./bin/zeroday.mjs"
   },
   "scripts": {
-    "dev": "next dev --turbopack -p 3333",
-    "operator": "next dev --turbopack -p 3333",
-    "play": "next dev --turbopack -p 3333",
+    "dev": "next dev --turbopack -H 127.0.0.1 -p 3333",
+    "operator": "next dev --turbopack -H 127.0.0.1 -p 3333",
+    "play": "next dev --turbopack -H 127.0.0.1 -p 3333",
     "build": "next build",
-    "start": "next start -p 3333",
+    "start": "next start -H 127.0.0.1 -p 3333",
     "lint": "eslint .",
     "pack:cli": "node scripts/pack-cli.mjs",
     "bench": "tsx scripts/bench.ts",

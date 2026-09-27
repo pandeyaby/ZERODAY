@@ -5,6 +5,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { publicRequestBody } from "@/lib/request-body";
 import {
   REPORTS_ACTIONS,
   listReports,
@@ -25,7 +26,7 @@ export async function GET() {
 export async function POST(req: Request) {
   let body: ReportsRunRequest = { action: "list" };
   try {
-    body = (await req.json()) as ReportsRunRequest;
+    body = publicRequestBody((await req.json()) as ReportsRunRequest);
   } catch {
     return NextResponse.json(
       { error: "Expected JSON body with { action }" },

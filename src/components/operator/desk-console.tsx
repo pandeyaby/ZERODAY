@@ -65,7 +65,24 @@ type DeskResult = {
     filePath: string;
     title: string;
     cweIds: string[];
+    line?: number;
+    excerpt?: string;
+    note?: string;
+    baselineState?: "new" | "unchanged";
   }>;
+  exposure?: {
+    verdict: "affected" | "possibly-affected" | "not-affected" | "not-used";
+    advisoryIds: string[];
+    packages: Array<{
+      ecosystem: string;
+      name: string;
+      installed: string;
+      file: string;
+      affected: boolean;
+      fixed?: string;
+    }>;
+    symbols: string[];
+  };
   outputDir?: string;
   paths?: Record<string, string>;
   warnings?: string[];
@@ -277,19 +294,17 @@ export function DeskConsole() {
               <span className="text-[var(--warn)] font-medium">
                 Hard limits:{" "}
               </span>
-              <code className="text-[var(--accent)]">needs_human</code> always ·
-              no PoC · localization ≠ exploitability · no auto-merge · Commands
-              stay keyless · Live brain is opt-in (spend banner)
+              a human reviews every finding · no PoC · localization ≠ exploitability ·
+              no auto-merge · no API keys needed · the optional model
+              (Live brain) never runs without your confirmation
             </p>
             <p className="text-xs">
-              Desk Console imports locate / desk libs in-process. Paths must stay
-              under workspace roots
-              {catalog?.allowedRoots?.[0]
-                ? ` (default: ${catalog.allowedRoots[0]})`
-                : " (cwd + ZERODAY_UI_ROOTS)"}
-              . UI-2 “No live Antares” meant validate didn’t exercise spend —
-              live already existed via <code>locate --endpoint</code> + doctor;
-              this Live brain tab makes it first-class.
+              Scans read only folders under
+              {catalog?.allowedRoots?.length
+                ? ` ${catalog.allowedRoots.join(", ")}`
+                : " the workspace"}{" "}
+              (set with <code>ZERODAY_UI_ROOTS</code>). The Desk answers on
+              localhost only.
             </p>
           </div>
         </div>
@@ -1479,20 +1494,61 @@ function DeskResultPanel({ result }: { result: DeskResult }) {
           {result.outputDir && (
             <CopyRow label="Output" value={result.outputDir} />
           )}
+          {result.exposure && (
+            <div data-testid="desk-exposure">
+              <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1">
+                Dependency exposure
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <Badge tone={result.exposure.verdict === "affected" ? "danger" : result.exposure.verdict === "possibly-affected" ? "warn" : "ok"}>
+                  {result.exposure.verdict.replace("-", " ")}
+                </Badge>
+                <span className="text-[11px] text-[var(--muted)] font-mono">
+                  {result.exposure.advisoryIds.join(", ")}
+                </span>
+              </div>
+              <ul className="text-xs space-y-0.5 font-mono">
+                {result.exposure.packages.map((p) => (
+                  <li key={`${p.ecosystem}:${p.name}@${p.installed}:${p.file}`}>
+                    {p.affected ? "✗" : "✓"} {p.name}@{p.installed}{" "}
+                    <span className="text-[var(--muted)]">{p.file}</span>
+                    {p.affected && p.fixed ? ` → upgrade to ${p.fixed}` : ""}
+                  </li>
+                ))}
+              </ul>
+              {result.exposure.symbols.length > 0 && (
+                <p className="text-[11px] text-[var(--muted)] mt-1">
+                  Vulnerable functions: <span className="font-mono">{result.exposure.symbols.join(", ")}</span>
+                </p>
+              )}
+            </div>
+          )}
           {result.rankedFiles && result.rankedFiles.length > 0 && (
             <div>
               <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1">
                 Ranked files
               </div>
-              <ul className="text-xs space-y-1 font-mono text-[var(--muted)] max-h-[220px] overflow-auto">
+              <ol className="space-y-2 max-h-[360px] overflow-auto" data-testid="desk-ranked-files">
                 {result.rankedFiles.map((f) => (
-                  <li key={`${f.rank}-${f.filePath}`}>
-                    {f.rank}. {f.filePath}
-                    {f.title ? ` — ${f.title}` : ""}
-                    {f.cweIds?.length ? ` (${f.cweIds.join(", ")})` : ""}
+                  <li key={`${f.rank}-${f.filePath}`} className="text-xs">
+                    <div className="font-mono">
+                      {f.rank}. {f.filePath}
+                      {f.line ? `:${f.line}` : ""}
+                      <span className="text-[var(--muted)]">
+                        {f.title ? ` — ${f.title}` : ""}
+                        {f.cweIds?.length ? ` (${f.cweIds.join(", ")})` : ""}
+                      </span>
+                      {f.baselineState === "new" && <span className="ml-2"><Badge tone="warn">new</Badge></span>}
+                    </div>
+                    {f.note && <div className="text-[var(--muted)] mt-0.5">{f.note}</div>}
+                    {f.excerpt && (
+                      <pre className="mt-1 px-2 py-1 rounded bg-black/30 border border-[var(--line)] font-mono text-[11px] whitespace-pre-wrap break-all">
+                        {f.excerpt}
+                      </pre>
+                    )}
                   </li>
                 ))}
-              </ul>
+              </ol>
             </div>
           )}
           <p className="text-[11px] text-[var(--warn)] border-t border-[var(--line)] pt-3">

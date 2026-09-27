@@ -39,13 +39,18 @@ export const DESK_ACTIONS = [
 export type DeskAction = (typeof DESK_ACTIONS)[number];
 
 const HONESTY_BANNER =
-  "needs_human · no PoC · localization ≠ exploitability · no auto-merge · Desk Console wraps libs in-process";
+  "needs_human · no PoC · localization ≠ exploitability · no auto-merge · same engine as the CLI";
 
 export interface DeskRankedFile {
   rank: number;
   filePath: string;
   title: string;
   cweIds: string[];
+  /** First evidence span: where and why. */
+  line?: number;
+  excerpt?: string;
+  note?: string;
+  baselineState?: "new" | "unchanged";
 }
 
 export interface DeskCatalog {
@@ -74,6 +79,8 @@ export interface DeskLocateResult {
   cweId: string;
   findingCount: number;
   rankedFiles: DeskRankedFile[];
+  /** CVE / GHSA in rules mode: dependency verdict from lockfiles. */
+  exposure?: NonNullable<LocalizationResult["summary"]["advisoryMatch"]>;
   outputDir: string;
   paths: {
     json: string;
@@ -181,12 +188,19 @@ export interface DeskRunRequest {
 }
 
 function rankedFromLocate(result: LocalizationResult): DeskRankedFile[] {
-  return result.rankedFiles.map((f) => ({
-    rank: f.rank,
-    filePath: f.filePath,
-    title: f.title,
-    cweIds: f.cweIds,
-  }));
+  return result.rankedFiles.map((f) => {
+    const ev = f.evidence?.[0];
+    return {
+      rank: f.rank,
+      filePath: f.filePath,
+      title: f.title,
+      cweIds: f.cweIds,
+      ...(ev?.startLine ? { line: ev.startLine } : {}),
+      ...(ev?.excerpt ? { excerpt: ev.excerpt.slice(0, 400) } : {}),
+      ...(ev?.note ? { note: ev.note } : {}),
+      ...(f.baselineState ? { baselineState: f.baselineState } : {}),
+    };
+  });
 }
 
 export function deskCatalog(options?: { cwd?: string }): DeskCatalog {
@@ -246,14 +260,12 @@ export function deskCatalog(options?: { cwd?: string }): DeskCatalog {
       inventoryRepo: path.join("fixtures", "inventory", "sidecar-app"),
     },
     honesty: [
-      "Desk Console wraps existing libs in-process — not an Antares CLI shell product",
+      "Same engine as the CLI (zeroday locate) — results match on the command line",
       "needs_human is always true — localization ≠ exploitability",
-      "No PoCs · no auto-merge · Commands tab stays keyless (no silent spend)",
-      "Live brain is opt-in on the Live brain tab (UI-3) — spend banner + human click; reuses locate --endpoint + doctor",
-      "UI-2 “No live Antares” meant validate didn’t exercise spend — live path already existed via CLI",
-      "Paths must stay under cwd (or ZERODAY_UI_ROOTS)",
-      "Reports & cassettes = org regression (redact ON) — not discovery",
-      "Fixture playground remains a separate smoke action via /api/playground",
+      "No PoCs · no auto-merge · no API keys needed",
+      "Live brain (optional model endpoint) runs only after you confirm it",
+      "Scans read only folders under the workspace (or ZERODAY_UI_ROOTS)",
+      "Reports & cassettes: replay earlier runs as regression checks",
     ],
   };
 }
@@ -289,6 +301,9 @@ export async function runDeskRules(
     cweId: artifacts.result.advisory.cweId,
     findingCount: artifacts.result.summary.findingCount,
     rankedFiles: rankedFromLocate(artifacts.result),
+    ...(artifacts.result.summary.advisoryMatch
+      ? { exposure: artifacts.result.summary.advisoryMatch }
+      : {}),
     outputDir: artifacts.outputDir,
     paths: {
       json: artifacts.jsonPath,
@@ -340,6 +355,9 @@ export async function runDeskFromSarif(
     cweId: artifacts.result.advisory.cweId,
     findingCount: artifacts.result.summary.findingCount,
     rankedFiles: rankedFromLocate(artifacts.result),
+    ...(artifacts.result.summary.advisoryMatch
+      ? { exposure: artifacts.result.summary.advisoryMatch }
+      : {}),
     outputDir: artifacts.outputDir,
     paths: {
       json: artifacts.jsonPath,

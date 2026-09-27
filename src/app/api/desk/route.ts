@@ -5,6 +5,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { publicRequestBody } from "@/lib/request-body";
 import {
   DESK_ACTIONS,
   deskCatalog,
@@ -24,7 +25,7 @@ export async function GET() {
 export async function POST(req: Request) {
   let body: DeskRunRequest = { action: "catalog" };
   try {
-    body = (await req.json()) as DeskRunRequest;
+    body = publicRequestBody((await req.json()) as DeskRunRequest);
   } catch {
     return NextResponse.json(
       { error: "Expected JSON body with { action }" },

@@ -2,7 +2,7 @@
  * Slow, shareable keyless Desk Console demo (no spend / no live locate).
  * Pace: ZERODAY_DEMO_PACE=slow|fast (default slow). Review before git push.
  */
-import { chromium } from "playwright";
+import { loadChromium } from "./desk-ui-demo-helpers.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,8 @@ import {
   step,
   shot,
 } from "./desk-ui-demo-helpers.mjs";
+
+const chromium = await loadChromium();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");

@@ -176,16 +176,16 @@ export function OrgUsagePanel({
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Badge tone="ok">local only</Badge>
-              <Badge tone="muted">in-process libs</Badge>
+              <Badge tone="muted">your code stays here</Badge>
               <Badge tone="warn">human in the loop</Badge>
             </div>
             <h2 className="font-display text-2xl tracking-wide">
               Desk Console
             </h2>
             <p className="text-sm text-[var(--muted)] mt-1 max-w-2xl">
-              Interactive local product UI around ZERODAY locate / desk libs —
-              not an Antares CLI brochure. Reports &amp; cassettes = org
-              regression (redact ON). FAQ and fixture smoke remain tabs.
+              Point it at a repository and a CWE, CVE or GHSA: ZERODAY ranks the
+              files a reviewer should read first and says why. Everything runs
+              on this machine; findings are candidates for a human, not proof.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -198,17 +198,17 @@ export function OrgUsagePanel({
                 ],
                 [
                   "playground",
-                  "Fixture smoke",
+                  "Demo data",
                   <FlaskConical size={14} key="f" />,
                 ],
                 [
                   "prove",
-                  "Prove doors",
+                  "Verify it yourself",
                   <DoorOpen size={14} key="p" />,
                 ],
                 ["faq", "FAQ", <CircleHelp size={14} key="q" />],
-                ["person", "Best for a person", <User size={14} key="u" />],
-                ["org", "How orgs use it", <Building2 size={14} key="b" />],
+                ["person", "For individuals", <User size={14} key="u" />],
+                ["org", "For teams", <Building2 size={14} key="b" />],
               ] as const
             ).map(([id, label, icon]) => (
               <Button
@@ -299,7 +299,7 @@ npm run zeroday -- draft-fix --i-asked-for-a-fix --from …/report.json`}
           <div className="panel rounded-lg">
             <div className="panel-header">
               <span className="text-sm font-display tracking-wide flex items-center gap-2">
-                <FlaskConical size={14} /> Fixture smoke
+                <FlaskConical size={14} /> Demo data
               </span>
               <Badge tone="ok">no weights</Badge>
             </div>

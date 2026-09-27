@@ -52,6 +52,19 @@ const EXCLUDE = new Set([
 
 const EXCLUDE_FILE = /\.(db|db-shm|db-wal)$|^zeroday-store\.json$|^\.DS_Store$/;
 
+/**
+ * npmjs.com renders the README without the repo around it (and docs/images is not
+ * packed): point relative links and images at the matching GitHub tag.
+ */
+export function absoluteReadmeLinks(md, version) {
+  const ref = `v${version}`;
+  const blob = `https://github.com/pandeyaby/ZERODAY/blob/${ref}/`;
+  const raw = `https://raw.githubusercontent.com/pandeyaby/ZERODAY/${ref}/`;
+  return md
+    .replace(/(!\[[^\]]*\]\(|<img [^>]*src=")\.\/([^)"]+)/g, (_m, pre, rel) => `${pre}${raw}${rel}`)
+    .replace(/(\]\()\.\/([^)]+)/g, (_m, pre, rel) => `${pre}${blob}${rel}`);
+}
+
 function copy(rel) {
   if (EXCLUDE.has(rel)) return;
   const src = path.join(root, rel);
@@ -96,6 +109,7 @@ function main() {
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   for (const rel of INCLUDE) copy(rel);
+  fs.writeFileSync(path.join(out, "README.md"), absoluteReadmeLinks(fs.readFileSync(path.join(root, "README.md"), "utf8"), rootPkg.version));
   fs.writeFileSync(
     path.join(out, "package.json"),
     `${JSON.stringify(buildManifest(rootPkg), null, 2)}\n`,

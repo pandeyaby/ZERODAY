@@ -5,6 +5,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { publicRequestBody } from "@/lib/request-body";
 import {
   LIVE_ACTIONS,
   liveCatalog,
@@ -25,7 +26,7 @@ export async function GET() {
 export async function POST(req: Request) {
   let body: LiveRunRequest = { action: "catalog" };
   try {
-    body = (await req.json()) as LiveRunRequest;
+    body = publicRequestBody((await req.json()) as LiveRunRequest);
   } catch {
     return NextResponse.json(
       { error: "Expected JSON body with { action }" },

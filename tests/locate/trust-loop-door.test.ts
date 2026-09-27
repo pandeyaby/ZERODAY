@@ -34,7 +34,10 @@ describe("stranger trust-loop door", () => {
   });
 
   it("README + paired-probes document Stranger trust loop (≤3 commands)", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const paired = fs.readFileSync(
       path.join(root, "docs/paired-probes.md"),
       "utf8",

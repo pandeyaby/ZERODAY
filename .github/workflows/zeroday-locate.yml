@@ -162,6 +162,11 @@ jobs:
           post-comment: "false"
           sarif-category: zeroday-org-cassette
 
+      # The Action runs its own ZERODAY (the published zeroday-cli once this
+      # version is released), so the repo's npm scripts need their own install.
+      - name: Install dependencies for npm scripts
+        run: '[ -d node_modules/tsx ] || npm ci --no-audit --no-fund --loglevel=error'
+
       - name: Cassette replay CI assert (npm run cassette:replay)
         run: |
           set -euo pipefail

@@ -8,7 +8,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 
 describe("README adoption path sanity", () => {
   it("leads with Start-in-2-minutes + hard limits, then opt-in live Antares (costs $)", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const pathsDoc = fs.readFileSync(path.join(root, "docs/paths.md"), "utf8");
 
     assert.match(readme, /Hard limits/i);
@@ -73,8 +76,8 @@ describe("README adoption path sanity", () => {
     assert.match(readme, /DIPTYCH/);
     assert.match(readme, /paired-probe/);
     assert.match(readme, /gate_axis_mutate/);
-    assert.match(readme, /docs\/images\/zeroday-trust-pipeline\.svg/);
-    assert.match(readme, /docs\/images\/zeroday-diptych-architecture\.png/);
+    assert.match(readme, /(?:docs\/)?images\/zeroday-trust-pipeline\.svg/);
+    assert.match(readme, /(?:docs\/)?images\/zeroday-diptych-architecture\.png/);
     assert.match(readme, /github\.com\/pandeyaby\/DIPTYCH/);
     assert.match(readme, /AUROC|auroc/i);
     assert.match(readme, /SUPPORT\.md/);
@@ -132,7 +135,10 @@ describe("README adoption path sanity", () => {
   });
 
   it("Proof section links sample SARIF + images (no private paths)", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const proofIdx = readme.indexOf("## Proof");
     const startIdx = Math.max(
       readme.indexOf("## Start in 2 minutes"),
@@ -141,8 +147,8 @@ describe("README adoption path sanity", () => {
     assert.ok(proofIdx >= 0, "missing Proof section");
     assert.ok(startIdx >= 0 && startIdx < proofIdx, "Start/MVP path must lead before Proof");
     assert.match(readme, /examples\/sample-live-sarif\/report\.sarif/);
-    assert.match(readme, /docs\/images\/zeroday-locate-cli\.png/);
-    assert.match(readme, /docs\/images\/zeroday-sarif-findings\.png/);
+    assert.match(readme, /(?:docs\/)?images\/zeroday-locate-cli\.png/);
+    assert.match(readme, /(?:docs\/)?images\/zeroday-sarif-findings\.png/);
     assert.match(readme, /demo-proof\.sh/);
     assert.doesNotMatch(readme, /Webuzz|\/Users\//);
 

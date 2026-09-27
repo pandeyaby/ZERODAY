@@ -60,7 +60,10 @@ describe("stranger prove-doors (stranger:verify)", () => {
   });
 
   it("README links ci-trust + gpu-claims and documents stranger:verify", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     assert.match(readme, /What a stranger can verify today/i);
     assert.match(readme, /npm run stranger:verify/);
     assert.match(readme, /npm run doors/);

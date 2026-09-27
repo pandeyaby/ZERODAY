@@ -59,16 +59,25 @@ function fromText(rec: OsvRecord, packageNames: string[]): Set<string> {
   return out;
 }
 
+const TEST_PATH = /(?:^|\/)(?:tests?|__tests__|spec|testing)\/|(?:^|\/)test_[^/]*\.py$|_test\.(?:go|py)$|\.(?:test|spec)\.[jt]sx?$|Test\.java$/;
+
 /** Function names from git diff hunk headers: `@@ -1,2 +1,2 @@ function template(string, options) {`. */
 export function functionsFromPatch(patch: string): Set<string> {
   const out = new Set<string>();
-  for (const m of patch.matchAll(/^@@[^@]*@@\s*(.*)$/gm)) {
-    const ctx = m[1]!;
+  let inTest = false;
+  for (const m of patch.matchAll(/^(?:diff --git a\/\S+ b\/(\S+)|@@[^@]*@@\s*(.*))$/gm)) {
+    if (m[1] !== undefined) {
+      // Tests added by the fix name the regression test, not the vulnerable API.
+      inTest = TEST_PATH.test(m[1]);
+      continue;
+    }
+    if (inTest) continue;
+    const ctx = m[2]!;
     const named =
       /\b(?:function|def|func)\s+(?:\([^)]*\)\s*)?([A-Za-z_$][\w$]*)/.exec(ctx) ??
       /([A-Za-z_$][\w$]*)\s*(?:=|:)\s*(?:async\s+)?function\b/.exec(ctx) ??
       /([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*(?:throws [\w., ]+)?\s*\{?\s*$/.exec(ctx);
-    if (named && isIdent(named[1]!)) out.add(named[1]!);
+    if (named && isIdent(named[1]!) && !/^(?:test_|Test[A-Z_])/.test(named[1]!)) out.add(named[1]!);
   }
   return out;
 }

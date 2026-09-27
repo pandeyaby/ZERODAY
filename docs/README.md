@@ -2,6 +2,12 @@
 
 | Doc | Purpose |
 |-----|---------|
+| [demo.md](./demo.md) | 3-minute demo script — CLI, Desk, pull request; offline setup and likely questions |
+| [github-action.md](./github-action.md) | Use the Action from any repository — PR gate, baseline, advisory workflow |
+| [benchmark.md](./benchmark.md) | Measured accuracy (OWASP Benchmark Java / Python, corpus) and how to reproduce |
+| [stability.md](./stability.md) | Stable commands, output files and exit codes |
+| [desk-security.md](./desk-security.md) | Desk web UI security model, remote-access token, 1.0 review findings |
+| [trust.md](./trust.md) | Trust & reproducibility (Prove doors, DIPTYCH, live Antares in depth) — moved out of the README |
 | [defense-factory.md](./defense-factory.md) | Localization & Evidence Defense Factory north star |
 | [gpu-claims.md](./gpu-claims.md) | Honest GPU-claim pack — proven vs deferred + dated **live GPU** Secure A40 re-proof (2026-09-19; no invented AUROC / File-F1 / latency SLAs; keyless CI separate) |
 | [runpod-antares.md](./runpod-antares.md) | Recommended remote CUDA path (RunPod + vLLM) |
