@@ -22,7 +22,7 @@ describe("Desk Prove doors panel", () => {
     );
     assert.match(panel, /ProveDoorsPanel/);
     assert.match(panel, /"prove"/);
-    assert.match(panel, /Prove doors/);
+    assert.match(panel, /Verify it yourself/);
     assert.match(prove, /data-testid="prove-doors-panel"/);
     assert.match(prove, /npm run stranger:verify/);
     assert.match(prove, /npm run doors/);
