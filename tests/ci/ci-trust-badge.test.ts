@@ -19,7 +19,10 @@ const BADGE_HREF =
 
 describe("CI trust badge + ci-trust one-pager", () => {
   it("README badge URL resolves to workflow file with badge-friendly name", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const wfPath = path.join(root, WORKFLOW_REL);
     assert.ok(fs.existsSync(wfPath), `missing ${WORKFLOW_REL}`);
 

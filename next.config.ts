@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["better-sqlite3", "web-tree-sitter"],
   output: "standalone",
   poweredByHeader: false,
+  devIndicators: false,
   async headers() {
     return [
       {

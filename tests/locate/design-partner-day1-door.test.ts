@@ -35,7 +35,10 @@ describe("design-partner Day-1 checklist", () => {
   });
 
   it("README + SUPPORT + design-partner-trust + stranger-verify cross-link day1", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const support = fs.readFileSync(path.join(root, "SUPPORT.md"), "utf8");
     const trust = fs.readFileSync(
       path.join(root, "docs/design-partner-trust.md"),

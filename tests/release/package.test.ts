@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildManifest, NPM_PACKAGE_NAME } from "../../scripts/pack-cli.mjs";
+import { absoluteReadmeLinks, buildManifest, NPM_PACKAGE_NAME } from "../../scripts/pack-cli.mjs";
 import { ZERODAY_VERSION } from "../../src/version.ts";
 import { toSarif } from "../../src/locate/sarif.ts";
 import { runRulesLocalization } from "../../src/locate/index.ts";
@@ -59,5 +59,17 @@ describe("single version source", () => {
         rel,
       );
     }
+  });
+
+  it("npm README links point at the release tag (npmjs.com has no repo around it)", () => {
+    const md = absoluteReadmeLinks(
+      '<img src="./docs/images/a.png" width="1">\n![x](./docs/images/b.png)\n[`docs/demo.md`](./docs/demo.md) · [ext](https://osv.dev)',
+      "1.2.3",
+    );
+    assert.match(md, /src="https:\/\/raw\.githubusercontent\.com\/pandeyaby\/ZERODAY\/v1\.2\.3\/docs\/images\/a\.png"/);
+    assert.match(md, /\(https:\/\/raw\.githubusercontent\.com\/pandeyaby\/ZERODAY\/v1\.2\.3\/docs\/images\/b\.png\)/);
+    assert.match(md, /\(https:\/\/github\.com\/pandeyaby\/ZERODAY\/blob\/v1\.2\.3\/docs\/demo\.md\)/);
+    assert.match(md, /\(https:\/\/osv\.dev\)/);
+    assert.doesNotMatch(md, /\]\(\.\//);
   });
 });

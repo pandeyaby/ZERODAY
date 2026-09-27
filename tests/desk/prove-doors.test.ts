@@ -210,7 +210,10 @@ describe("Desk Prove doors panel", () => {
   });
 
   it("README + howto point at Desk Prove doors tab", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     const howto = fs.readFileSync(path.join(root, "docs/howto.md"), "utf8");
     const stranger = fs.readFileSync(
       path.join(root, "docs/stranger-verify.md"),

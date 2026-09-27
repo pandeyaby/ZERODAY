@@ -90,7 +90,10 @@ describe("FAQ (Keyless Strength honesty)", () => {
   });
 
   it("README links FAQ near How it works / Honesty", () => {
-    const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+    // Trust / reproducibility material moved from README to docs/trust.md (1.0 README cleanup).
+    const readme =
+      fs.readFileSync(path.join(root, "README.md"), "utf8") +
+      fs.readFileSync(path.join(root, "docs/trust.md"), "utf8");
     assert.match(readme, /docs\/faq\.md/);
     const howIdx = readme.indexOf("## How it works");
     const honestyIdx = readme.indexOf("## Honesty");

@@ -3,6 +3,39 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+### Security
+- **Desk web UI review** ([`docs/desk-security.md`](./docs/desk-security.md)). Fixed:
+  a `cwd` field in `/api/desk`, `/api/live` and `/api/reports` request bodies
+  replaced the path-sandbox root (scan any folder, write reports anywhere);
+  cross-site `text/plain` POSTs were accepted (CSRF); any `Host` header was
+  served (DNS rebinding) and `npm run dev` listened on all interfaces. The Desk
+  now binds `127.0.0.1`, answers only for loopback hosts, requires same-origin
+  JSON for state-changing calls, and can be shared only with
+  `ZERODAY_UI_TOKEN` + `ZERODAY_UI_ALLOWED_HOSTS`. `/api/settings` stores known
+  fields only; anti-framing headers added.
+
+### Added
+- CWE-502 / CWE-94 rules for ML model loading: `torch.load` without
+  `weights_only=True`, `numpy.load(allow_pickle=True)`, joblib /
+  `pandas.read_pickle`, Keras `load_model(safe_mode=False)`, Hugging Face
+  `from_pretrained` / `pipeline` with `trust_remote_code=True`.
+- Desk results show each finding's line, code excerpt and reason, and CVE / GHSA
+  scans show the dependency verdict with the version to upgrade to.
+- [`docs/demo.md`](./docs/demo.md): 3-minute demo script;
+  `scripts/desk-ui-advisory-demo.mjs` rehearses the browser part.
+
+### Changed
+- README rewritten for a first-time reader; trust / reproducibility material
+  (Prove doors, DIPTYCH, live Antares in depth) moved to
+  [`docs/trust.md`](./docs/trust.md). Desk labels in plain language
+  (*Verify it yourself*, *Demo data*).
+
+### Fixed
+- Advisory matching no longer reports a fix commit's regression test
+  (`test_…`) as the vulnerable function.
+
 ## 0.9.0
 
 ### Added
