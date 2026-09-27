@@ -110,6 +110,19 @@ describe("advisory lockfiles", () => {
     const patch = "@@ -10,4 +10,6 @@ function template(string, options, guard) {\n@@ -1 +1 @@ def full_load(stream):\n@@ -3 +3 @@ func (s *Server) ServeConn(c net.Conn) {\n";
     assert.deepEqual([...functionsFromPatch(patch)].sort(), ["ServeConn", "full_load", "template"]);
   });
+
+  it("fix-commit functions skip the regression tests the fix adds", () => {
+    const patch = [
+      "diff --git a/torch/nn/functional.py b/torch/nn/functional.py",
+      "@@ -1 +1 @@ def ctc_loss(log_probs, targets):",
+      "diff --git a/test/test_nn.py b/test/test_nn.py",
+      "@@ -1 +1 @@ def test_ctc_loss_cudnn_tensor(self):",
+      "diff --git a/lib/parse.go b/lib/parse.go",
+      "@@ -1 +1 @@ func TestParse(t *testing.T) {",
+      "",
+    ].join("\n");
+    assert.deepEqual([...functionsFromPatch(patch)], ["ctc_loss"]);
+  });
 });
 
 describe("advisory matching (recorded OSV fixtures, offline)", () => {
