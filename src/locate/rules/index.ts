@@ -12,10 +12,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, TraceStep } from "../types";
-import { analyzeSource } from "../engine/analyze";
+import { analyzeProject } from "../engine/analyze";
 import { langForPath } from "../engine/grammar";
 import { walkSourceFiles, type WalkedFile } from "./walk";
 import { hitsToRankedFiles, scanRepoForCwe89, type RuleHit } from "./cwe-89";
+import { matchAdvisory, type AdvisoryMatch } from "../advisory/match";
 import { scanRepoForCwe79 } from "./cwe-79";
 import { scanRepoForCwe22 } from "./cwe-22";
 
@@ -48,7 +49,7 @@ const FALLBACK: Record<string, (files: WalkedFile[]) => { hits: RuleHit[] }> = {
 const HONEST_WARNINGS = [
   "Rules mode: in-repo syntax-tree analysis + heuristics — not Antares inference and not Antares File F1.",
   "Localization only: ranked files are candidates for human review — not proof of exploitability.",
-  "No Semgrep binary dependency; network=none; Docker not required (CI-safe).",
+  "No Semgrep binary dependency; Docker not required (CI-safe). Source code never leaves the machine; for CVE / GHSA ids only public advisory metadata is read from api.osv.dev (cached; none with --offline).",
   "No PoC / exploit / payload content is emitted.",
 ];
 
@@ -63,47 +64,50 @@ function excerpt(lines: string[], startLine: number, endLine: number): string {
   return lines.slice(from, to).join("\n").slice(0, 400);
 }
 
-/** Run the tree-sitter engine over every file it can parse. */
+/** Run the tree-sitter engine over every file it can parse, as one project (cross-file). */
 async function runEngine(
+  root: string,
   files: WalkedFile[],
   cweId: string,
 ): Promise<{ hits: RuleHit[]; parsed: number; failed: number }> {
-  const hits: RuleHit[] = [];
-  let parsed = 0;
+  const inputs: Array<{ relPath: string; lang: NonNullable<ReturnType<typeof langForPath>>; source: string }> = [];
   let failed = 0;
-  const cwes = new Set([cweId]);
   for (const f of files) {
     const lang = langForPath(f.relPath);
     if (!lang) continue;
-    let source: string;
     try {
-      source = fs.readFileSync(f.absPath, "utf8");
-    } catch {
-      failed += 1;
-      continue;
-    }
-    try {
-      const found = await analyzeSource(lang, source, cwes);
-      parsed += 1;
-      if (found.length === 0) continue;
-      const lines = source.split(/\r?\n/);
-      for (const h of found) {
-        hits.push({
-          ruleId: h.ruleId,
-          filePath: f.relPath,
-          startLine: h.startLine,
-          endLine: h.endLine,
-          title: h.title,
-          note: h.note,
-          excerpt: excerpt(lines, h.startLine, h.endLine),
-          score: h.score,
-        });
-      }
+      inputs.push({ relPath: f.relPath, lang, source: fs.readFileSync(f.absPath, "utf8") });
     } catch {
       failed += 1;
     }
   }
-  return { hits, parsed, failed };
+  let goModule: string | undefined;
+  try {
+    goModule = /^module\s+(\S+)/m.exec(fs.readFileSync(path.join(root, "go.mod"), "utf8"))?.[1];
+  } catch {
+    /* not a Go module */
+  }
+  const result = await analyzeProject(inputs, new Set([cweId]), { goModule });
+  failed += result.failed.length;
+  const hits: RuleHit[] = [];
+  for (const input of inputs) {
+    const found = result.hits.get(input.relPath);
+    if (!found?.length) continue;
+    const lines = input.source.split(/\r?\n/);
+    for (const h of found) {
+      hits.push({
+        ruleId: h.ruleId,
+        filePath: input.relPath,
+        startLine: h.startLine,
+        endLine: h.endLine,
+        title: h.title,
+        note: h.note,
+        excerpt: excerpt(lines, h.startLine, h.endLine),
+        score: h.score,
+      });
+    }
+  }
+  return { hits, parsed: inputs.length - result.failed.length, failed };
 }
 
 /**
@@ -112,6 +116,7 @@ async function runEngine(
 export async function runRulesLocalization(
   advisory: AdvisoryRef,
   targetRepo: string,
+  opts: { offline?: boolean } = {},
 ): Promise<LocalizationResult> {
   const cweId = normalizeCwe(advisory.cweId);
   const root = path.resolve(targetRepo);
@@ -120,6 +125,7 @@ export async function runRulesLocalization(
   const explorationTrace: TraceStep[] = [];
   let unsupportedCwe = false;
   let rankedFiles = hitsToRankedFiles([], cweId);
+  const hits: RuleHit[] = [];
   const warnings: string[] = [...HONEST_WARNINGS, ...walkWarnings];
 
   if (skipped > 0) {
@@ -134,7 +140,7 @@ export async function runRulesLocalization(
       summary: `Rules walk listed ${files.length} source file(s).`,
     });
 
-    const engine = await runEngine(files, cweId);
+    const engine = await runEngine(root, files, cweId);
     explorationTrace.push({
       step: explorationTrace.length + 1,
       tool: "grep",
@@ -145,7 +151,7 @@ export async function runRulesLocalization(
       warnings.push(`Rules engine could not analyze ${engine.failed} file(s) (unreadable or parse failure).`);
     }
 
-    const hits = [...engine.hits];
+    hits.push(...engine.hits);
     const fallback = FALLBACK[cweId];
     const otherFiles = files.filter((f) => !langForPath(f.relPath));
     if (fallback && otherFiles.length > 0) {
@@ -155,17 +161,6 @@ export async function runRulesLocalization(
         tool: "grep",
         command: `rules:${cweId.toLowerCase()} line heuristics (other languages)`,
         summary: `Applied line heuristics to ${otherFiles.length} file(s) the engine does not parse.`,
-      });
-    }
-
-    hits.sort((a, b) => b.score - a.score || a.filePath.localeCompare(b.filePath));
-    rankedFiles = hitsToRankedFiles(hits, cweId);
-    for (const h of hits.slice(0, 8)) {
-      explorationTrace.push({
-        step: explorationTrace.length + 1,
-        tool: "grep",
-        command: `rules-hit ${h.ruleId} ${h.filePath}:${h.startLine}`,
-        summary: `${h.title} @ ${h.filePath}:${h.startLine}`,
       });
     }
   } else {
@@ -180,6 +175,40 @@ export async function runRulesLocalization(
       `NOT SCANNED: no rules heuristics registered for ${cweId}. ` +
         `Supported: ${RULES_SUPPORTED_CWES.join(", ")}. Zero findings is not a clean negative.`,
     );
+  }
+
+  // CVE / GHSA: which packages does the advisory affect, are they installed at an
+  // affected version, and where does the code import / call them?
+  let advisoryMatch: AdvisoryMatch | undefined;
+  if (advisory.kind === "cve" || advisory.kind === "ghsa") {
+    advisoryMatch = await matchAdvisory(advisory.id, root, { offline: opts.offline === true });
+    hits.push(...advisoryMatch.hits);
+    warnings.push(...advisoryMatch.notes);
+    const pkgs = advisoryMatch.packages.map((p) => `${p.name}@${p.installed}${p.affected ? " (affected)" : ""}`).join(", ");
+    explorationTrace.push({
+      step: explorationTrace.length + 1,
+      tool: "other",
+      command: `advisory:osv ${advisory.id} → ${advisoryMatch.advisoryIds.join(", ") || "no data"}`,
+      summary: `Dependency exposure: ${advisoryMatch.verdict}${pkgs ? ` — ${pkgs}` : ""}.`,
+    });
+    if (unsupportedCwe && advisoryMatch.verdict !== "no-data") {
+      // The repo was checked for this advisory (dependencies), just not by CWE rules.
+      unsupportedCwe = false;
+      warnings.push(
+        `No code rules for ${cweId}; results come from dependency matching against ${advisoryMatch.advisoryIds.join(", ")}.`,
+      );
+    }
+  }
+
+  hits.sort((a, b) => b.score - a.score || a.filePath.localeCompare(b.filePath));
+  rankedFiles = hitsToRankedFiles(hits, cweId);
+  for (const h of hits.slice(0, 8)) {
+    explorationTrace.push({
+      step: explorationTrace.length + 1,
+      tool: "grep",
+      command: `rules-hit ${h.ruleId} ${h.filePath}:${h.startLine}`,
+      summary: `${h.title} @ ${h.filePath}:${h.startLine}`,
+    });
   }
 
   explorationTrace.push({
@@ -213,6 +242,23 @@ export async function runRulesLocalization(
       findingCount: rankedFiles.length,
       incompleteReason: null,
       ...(unsupportedCwe ? { unsupportedCwe: true } : {}),
+      ...(advisoryMatch && advisoryMatch.verdict !== "no-data"
+        ? {
+            advisoryMatch: {
+              verdict: advisoryMatch.verdict,
+              advisoryIds: advisoryMatch.advisoryIds,
+              packages: advisoryMatch.packages.map(({ ecosystem, name, installed, file, affected, fixed }) => ({
+                ecosystem,
+                name,
+                installed,
+                file,
+                affected,
+                ...(fixed ? { fixed } : {}),
+              })),
+              symbols: advisoryMatch.symbols,
+            },
+          }
+        : {}),
       terminalCallBudget: explorationTrace.length,
       terminalCallsUsed: explorationTrace.length,
     },

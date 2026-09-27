@@ -19,6 +19,7 @@ const eslintConfig = [
       "build/**",
       "dist/**",
       "bench/corpus/**",
+      "fixtures/advisory/**",
       ".cache/**",
       "next-env.d.ts",
     ],

@@ -4,7 +4,8 @@
  * and format calls to sinks. Localization candidates only.
  */
 
-import type { Node } from "web-tree-sitter";
+import path from "node:path";
+import type { Node, Parser, Tree } from "web-tree-sitter";
 import { parserFor, type LangId } from "./grammar";
 import {
   FORMATTERS,
@@ -39,7 +40,7 @@ interface Val {
   /** Concatenated literal text (for keyword checks like SQL / HTML). */
   literal: string;
   /** Where the request input came from. */
-  src?: { line: number; text: string };
+  src?: { line: number; text: string; file?: string };
   /** CWEs every non-constant part has been sanitized for (e.g. HTML-escaped → CWE-79). */
   clean?: string[];
   /** Known numeric constant (for folding `if ((7 * 42) - num > 200)`). */
@@ -359,6 +360,8 @@ class FileAnalyzer {
     private readonly source: string,
     private readonly lines: string[],
     cwes: Set<string>,
+    readonly relPath = "",
+    private readonly project: Project | null = null,
   ) {
     this.fam = familyOf(lang);
     this.sinks = SINKS.filter((s) => s.families.includes(this.fam) && cwes.has(s.cwe));
@@ -376,7 +379,7 @@ class FileAnalyzer {
   private suppress = 0;
   /** Return values collected for the function currently being summarized. */
   private readonly returns: Val[][] = [];
-  private readonly inlining: number[] = [];
+  private readonly inlining: string[] = [];
   private readonly summaries = new Map<string, Val>();
   /** `url = urlparse(bar)` → aliases.get("url") = {"bar"}: a guard on url also validates bar. */
   private readonly aliases = new Map<string, Set<string>>();
@@ -386,6 +389,109 @@ class FileAnalyzer {
   }
 
   /** Index named functions / methods (and `const f = () => …`). */
+  /** Imported bindings: local name → module spec + imported name ("*" = module object). */
+  readonly imports = new Map<string, { spec: string; name: string }>();
+  /** Java: top-level class names declared in this file. */
+  readonly classes: string[] = [];
+  /** Go: package clause name. */
+  goPackage = "";
+
+  get family(): Family {
+    return this.fam;
+  }
+
+  functionsNamed(name: string): Node[] | undefined {
+    return this.fns.get(name);
+  }
+
+  indexImports(root: Node): void {
+    const str = (n: Node | null | undefined) => (n ? stripQuotes(n.text) : "");
+    const walk = (n: Node, depth: number) => {
+      if (depth > 3) return; // imports live at the top of the file
+      switch (n.type) {
+        case "import_statement": {
+          if (this.fam === "js") {
+            const spec = str(n.childForFieldName("source"));
+            const clause = n.namedChildren.find((c) => c?.type === "import_clause");
+            for (const c of clause?.namedChildren ?? []) {
+              if (!c) continue;
+              if (c.type === "identifier") this.imports.set(c.text, { spec, name: "default" });
+              else if (c.type === "namespace_import") {
+                const id = c.namedChildren.find((x) => x?.type === "identifier");
+                if (id) this.imports.set(id.text, { spec, name: "*" });
+              } else if (c.type === "named_imports") {
+                for (const s of c.namedChildren) {
+                  if (s?.type !== "import_specifier") continue;
+                  const name = s.childForFieldName("name")?.text;
+                  const alias = s.childForFieldName("alias")?.text;
+                  if (name) this.imports.set(alias ?? name, { spec, name });
+                }
+              }
+            }
+          } else if (this.fam === "py") {
+            for (const c of n.childrenForFieldName("name")) {
+              if (!c) continue;
+              const mod = c.type === "aliased_import" ? c.childForFieldName("name")?.text : c.text;
+              const alias = c.type === "aliased_import" ? c.childForFieldName("alias")?.text : c.text.split(".")[0];
+              if (mod && alias) this.imports.set(alias, { spec: mod, name: "*" });
+            }
+          }
+          return;
+        }
+        case "import_from_statement": {
+          const spec = n.childForFieldName("module_name")?.text ?? "";
+          for (const c of n.childrenForFieldName("name")) {
+            if (!c) continue;
+            const name = c.type === "aliased_import" ? c.childForFieldName("name")?.text : c.text;
+            const alias = c.type === "aliased_import" ? c.childForFieldName("alias")?.text : c.text;
+            // `from pkg import helpers` may name a module or a function: record both readings.
+            if (name && alias) this.imports.set(alias, { spec, name });
+          }
+          return;
+        }
+        case "variable_declarator": {
+          // const x = require("./x") / const { a, b: c } = require("./x")
+          const v = n.childForFieldName("value");
+          if (v?.type === "call_expression" && v.childForFieldName("function")?.text === "require") {
+            const spec = str(v.childForFieldName("arguments")?.namedChildren[0]);
+            const target = n.childForFieldName("name");
+            if (target?.type === "identifier") this.imports.set(target.text, { spec, name: "*" });
+            else if (target?.type === "object_pattern") {
+              for (const c of target.namedChildren) {
+                if (c?.type === "shorthand_property_identifier_pattern") this.imports.set(c.text, { spec, name: c.text });
+                else if (c?.type === "pair_pattern") {
+                  const k = c.childForFieldName("key")?.text;
+                  const val = c.childForFieldName("value")?.text;
+                  if (k && val) this.imports.set(val, { spec, name: k });
+                }
+              }
+            }
+          }
+          return;
+        }
+        case "import_spec": {
+          const spec = str(n.childForFieldName("path"));
+          const alias = n.childForFieldName("name")?.text ?? spec.split("/").pop()!;
+          this.imports.set(alias, { spec, name: "*" });
+          return;
+        }
+        case "package_clause":
+          this.goPackage = n.namedChildren[0]?.text ?? "";
+          return;
+        case "class_declaration":
+        case "interface_declaration":
+        case "enum_declaration":
+          if (this.fam === "java") {
+            const name = n.childForFieldName("name")?.text;
+            if (name) this.classes.push(name);
+          }
+          return;
+      }
+      for (const c of n.namedChildren) if (c) walk(c, depth + 1);
+    };
+    walk(root, 0);
+  }
+
   indexFunctions(root: Node): void {
     const add = (name: string | undefined, def: Node) => {
       if (!name) return;
@@ -413,14 +519,44 @@ class FileAnalyzer {
     );
   }
 
-  /** Summarize a same-file callee with concrete argument values (depth ≤ 2). */
+  /** Which analyzer + function does this call reach (same file, or via imports)? */
+  private resolveCallee(call: CallShape): { target: FileAnalyzer; defs: Node[] } | undefined {
+    const parts = call.callee.split(".");
+    const name = parts.pop() ?? "";
+    const local = this.fns.get(name);
+    // Same file first (plain calls, this.x(), obj.method() defined here).
+    if (local?.length && (parts.length === 0 || /^(?:this|self|super)$/.test(parts[0]!) || !this.project)) {
+      return { target: this, defs: local };
+    }
+    if (!this.project) return local?.length ? { target: this, defs: local } : undefined;
+    const ext = this.project.resolveCall(this, call, parts, name);
+    if (ext) return ext;
+    return local?.length ? { target: this, defs: local } : undefined;
+  }
+
+  /** Summarize a callee (this file or another) with concrete argument values. */
   private inline(call: CallShape, argVals: Val[]): Val | undefined {
-    const name = call.callee.split(".").pop() ?? "";
-    const defs = this.fns.get(name);
-    if (!defs?.length || this.inlining.length >= 2) return undefined;
+    const resolved = this.resolveCallee(call);
+    if (!resolved) return undefined;
+    const src = argVals.find((v) => v.tainted)?.src;
+    // Crossing into another file: remember where the input came from.
+    const args =
+      resolved.target === this
+        ? argVals
+        : argVals.map((v) => (v.tainted && v.src && !v.src.file ? { ...v, src: { ...v.src, file: this.relPath } } : v));
+    const result = resolved.target.summarize(resolved.defs, args, this.suppress > 0);
+    if (!result) return undefined;
+    return result.tainted && src ? { ...result, src: args.find((v) => v.tainted)?.src ?? src } : result;
+  }
+
+  /** Evaluate `defs` (overloads) with argument values; report sinks when request input flows in. */
+  summarize(defs: Node[], argVals: Val[], callerSuppressed: boolean): Val | undefined {
+    const stack = this.project?.inlining ?? this.inlining;
+    if (stack.length >= (this.project ? 3 : 2)) return undefined;
     const def = defs.find((d) => this.paramNodes(d).length === argVals.length) ?? defs[0]!;
-    if (this.inlining.includes(def.id)) return undefined;
-    const sig = `${def.id}|${argVals.map((v) => `${+v.tainted}${+v.dynamic}${(v.clean ?? []).join("+")}${v.num ?? ""}`).join(",")}`;
+    const key = `${this.relPath}:${def.startIndex}`;
+    if (stack.includes(key)) return undefined;
+    const sig = `${key}|${argVals.map((v) => `${+v.tainted}${+v.dynamic}${(v.clean ?? []).join("+")}${v.num ?? ""}`).join(",")}`;
     const cached = this.summaries.get(sig);
     if (cached) return cached;
 
@@ -432,9 +568,9 @@ class FileAnalyzer {
     const body = def.childForFieldName("body");
     let result: Val;
     // Request input flowing in: analyze the callee for real so its sinks are reported.
-    const reporting = this.suppress === 0 && argVals.some((v) => v.tainted);
+    const reporting = !callerSuppressed && this.suppress === 0 && argVals.some((v) => v.tainted);
     if (!reporting) this.suppress++;
-    this.inlining.push(def.id);
+    stack.push(key);
     this.returns.push([]);
     try {
       if (body && body.type !== "statement_block" && body.type !== "block" && body.type !== "constructor_body") {
@@ -446,12 +582,9 @@ class FileAnalyzer {
       }
     } finally {
       this.returns.pop();
-      this.inlining.pop();
+      stack.pop();
       if (!reporting) this.suppress--;
     }
-    // Keep the caller's evidence pointer to where the input came from.
-    const src = argVals.find((v) => v.tainted)?.src;
-    if (result.tainted && src) result = { ...result, src };
     this.summaries.set(sig, result);
     return result;
   }
@@ -819,7 +952,7 @@ class FileAnalyzer {
     if (val?.tainted) {
       score = 92;
       note = val.src
-        ? `Request input from line ${val.src.line} (\`${val.src.text}\`) reaches this call.`
+        ? `Request input from ${val.src.file && val.src.file !== this.relPath ? `${val.src.file} ` : ""}line ${val.src.line} (\`${val.src.text}\`) reaches this call.`
         : "Request input reaches this call.";
     } else if (spec.when === "always" && !val?.dynamic) {
       score = 60;
@@ -990,6 +1123,24 @@ class FileAnalyzer {
       title: "Hard-coded credential",
       note: `\`${name}\` is assigned a string literal — move secrets to configuration or a secret store.`,
       score: 75,
+    });
+  }
+
+  /** libxml2 bindings: entity substitution / DTD loading flags enable XXE (CWE-611). */
+  scanXxeFlags(): void {
+    if (!this.sinks.some((s) => s.cwe === "CWE-611")) return;
+    this.lines.forEach((text, i) => {
+      if (/^\s*(?:\/\/|#|\*)/.test(text)) return;
+      if (!/\b(?:XML_PARSE_NOENT|XML_PARSE_DTDLOAD|LIBXML_NOENT|LIBXML_DTDLOAD|XMLParserOption\.NOENT)\b/.test(text)) return;
+      this.addHit({
+        cwe: "CWE-611",
+        ruleId: "cwe-611/libxml-entity-flags",
+        startLine: i + 1,
+        endLine: i + 1,
+        title: "XML parsed with entity substitution / DTD loading enabled",
+        note: "libxml2 NOENT / DTDLOAD flags resolve external entities — review whether untrusted XML reaches this parser.",
+        score: 60,
+      });
     });
   }
 
@@ -1203,11 +1354,12 @@ class FileAnalyzer {
     }
 
     this.checkSinks(n, env);
-    // Statement-level calls to same-file helpers: analyze them with the actual arguments.
-    if (CALL_TYPES.has(n.type) && n.parent?.type === "expression_statement") {
+    // Calls to known helpers (this file or imported): analyze them with the actual arguments
+    // (summaries are cached, so values evaluated again later cost nothing).
+    if (CALL_TYPES.has(n.type)) {
       const call = this.callOf(n);
       const name = call?.callee.split(".").pop();
-      if (call && name && this.fns.has(name)) this.evaluate(n, env);
+      if (call && name && this.resolveCallee(call)) this.evaluate(n, env);
     }
     if (n.type === "return_statement" && this.returns.length) {
       this.returns[this.returns.length - 1]!.push(this.evaluate(n.namedChildren[0] ?? null, env));
@@ -1255,33 +1407,192 @@ class FileAnalyzer {
   }
 }
 
-/**
- * Analyze one source file for the requested CWEs. Returns [] for files that do
- * not parse into anything useful.
- */
-export async function analyzeSource(
-  lang: LangId,
-  source: string,
-  cwes: Set<string>,
-): Promise<EngineHit[]> {
-  const parser = await parserFor(lang);
-  const tree = parser.parse(source);
-  if (!tree) return [];
-  try {
-    const a = new FileAnalyzer(lang, source, source.split(/\r?\n/), cwes);
-    a.indexFunctions(tree.rootNode);
-    a.visit(tree.rootNode, new Map());
-    a.scanSecretFormats();
-    // One hit per (line, rule): nested sinks can match the same call twice.
-    const seen = new Set<string>();
-    return a.hits.filter((h) => {
-      const key = `${h.ruleId}:${h.startLine}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  } finally {
-    tree.delete();
-    parser.delete();
+/** One hit per (rule, line); keep the highest score. */
+function dedupe(hits: EngineHit[]): EngineHit[] {
+  const best = new Map<string, EngineHit>();
+  for (const h of hits) {
+    const key = `${h.ruleId}:${h.startLine}`;
+    const cur = best.get(key);
+    if (!cur || h.score > cur.score) best.set(key, h);
   }
+  return [...best.values()].sort((a, b) => a.startLine - b.startLine || b.score - a.score);
+}
+
+const JS_EXTS = ["", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"];
+
+/**
+ * All engine-supported files of a repo, analyzed together so that request input
+ * passed to a function imported from another file is followed into that file.
+ */
+export class Project {
+  readonly analyzers = new Map<string, FileAnalyzer>();
+  /** Shared recursion guard for cross-file summaries. */
+  readonly inlining: string[] = [];
+  private readonly javaClasses = new Map<string, FileAnalyzer>();
+  private goModule = "";
+
+  constructor(private readonly cwes: Set<string>) {}
+
+  setGoModule(module: string): void {
+    this.goModule = module;
+  }
+
+  add(relPath: string, lang: LangId, source: string, root: Node): FileAnalyzer {
+    const a = new FileAnalyzer(lang, source, source.split(/\r?\n/), this.cwes, relPath, this);
+    a.indexImports(root);
+    a.indexFunctions(root);
+    this.analyzers.set(relPath, a);
+    for (const c of a.classes) if (!this.javaClasses.has(c)) this.javaClasses.set(c, a);
+    return a;
+  }
+
+  private jsModule(from: string, spec: string): FileAnalyzer | undefined {
+    if (!spec.startsWith(".")) return undefined;
+    const base = path.posix.normalize(path.posix.join(path.posix.dirname(from), spec));
+    for (const ext of JS_EXTS) {
+      const hit = this.analyzers.get(base + ext) ?? this.analyzers.get(`${base}/index${ext || ".js"}`);
+      if (hit) return hit;
+    }
+    for (const ext of JS_EXTS.slice(1)) {
+      const hit = this.analyzers.get(`${base}/index${ext}`);
+      if (hit) return hit;
+    }
+    return undefined;
+  }
+
+  private pyModule(from: string, spec: string): FileAnalyzer | undefined {
+    const dots = /^\.*/.exec(spec)![0].length;
+    const rest = spec.slice(dots).split(".").filter(Boolean).join("/");
+    const candidates: string[] = [];
+    if (dots > 0) {
+      let dir = path.posix.dirname(from);
+      for (let i = 1; i < dots; i++) dir = path.posix.dirname(dir);
+      candidates.push(path.posix.join(dir, rest));
+    } else {
+      // Absolute import: try from the repo root and every ancestor of the importing file.
+      let dir = path.posix.dirname(from);
+      for (;;) {
+        candidates.push(path.posix.join(dir === "." ? "" : dir, rest));
+        if (dir === "." || dir === "/" || dir === "") break;
+        dir = path.posix.dirname(dir);
+      }
+    }
+    for (const c of candidates) {
+      const hit = this.analyzers.get(`${c}.py`) ?? this.analyzers.get(`${c}/__init__.py`);
+      if (hit) return hit;
+    }
+    return undefined;
+  }
+
+  private goPackageFns(dir: string, name: string): { target: FileAnalyzer; defs: Node[] } | undefined {
+    for (const [rel, a] of this.analyzers) {
+      if (a.family !== "go" || path.posix.dirname(rel) !== dir || rel.endsWith("_test.go")) continue;
+      const defs = a.functionsNamed(name);
+      if (defs?.length) return { target: a, defs };
+    }
+    return undefined;
+  }
+
+  resolveCall(
+    from: FileAnalyzer,
+    call: CallShape,
+    qualifier: string[],
+    name: string,
+  ): { target: FileAnalyzer; defs: Node[] } | undefined {
+    const pick = (a: FileAnalyzer | undefined, fn: string) => {
+      const defs = a?.functionsNamed(fn);
+      return a && defs?.length ? { target: a, defs } : undefined;
+    };
+    switch (from.family) {
+      case "js":
+      case "py": {
+        const resolveSpec = (spec: string) =>
+          from.family === "js" ? this.jsModule(from.relPath, spec) : this.pyModule(from.relPath, spec);
+        if (qualifier.length === 0) {
+          const imp = from.imports.get(name);
+          if (!imp) return undefined;
+          const mod = resolveSpec(imp.spec);
+          if (imp.name === "*" || imp.name === "default") return pick(mod, name) ?? pick(mod, imp.name);
+          return pick(mod, imp.name);
+        }
+        const imp = from.imports.get(qualifier[0]!);
+        if (!imp) return undefined;
+        if (imp.name === "*" || imp.name === "default") return pick(resolveSpec(imp.spec), name);
+        // `from pkg import helpers` / `from . import helpers` → helpers.f(): pkg/helpers.py
+        if (from.family !== "py") return undefined;
+        const modSpec = imp.spec.endsWith(".") ? `${imp.spec}${imp.name}` : `${imp.spec}.${imp.name}`;
+        return pick(this.pyModule(from.relPath, modSpec), name);
+      }
+      case "go": {
+        const dir = path.posix.dirname(from.relPath);
+        if (qualifier.length === 0) return this.goPackageFns(dir, name);
+        const imp = from.imports.get(qualifier[0]!);
+        if (!imp || !this.goModule || !imp.spec.startsWith(`${this.goModule}/`)) return undefined;
+        return this.goPackageFns(imp.spec.slice(this.goModule.length + 1), name);
+      }
+      case "java": {
+        const cls = (call.typed ?? call.callee).split(".").slice(0, -1).pop()?.replace(/^new/, "").replace(/\(.*\)$/, "");
+        if (!cls) return undefined;
+        const a = this.javaClasses.get(cls);
+        return a && a !== from ? pick(a, name) : undefined;
+      }
+    }
+  }
+}
+
+/** Parse + analyze many files together (cross-file summaries). Returns hits by relPath. */
+export async function analyzeProject(
+  files: Array<{ relPath: string; lang: LangId; source: string }>,
+  cwes: Set<string>,
+  opts: { goModule?: string } = {},
+): Promise<{ hits: Map<string, EngineHit[]>; failed: string[] }> {
+  const project = new Project(cwes);
+  if (opts.goModule) project.setGoModule(opts.goModule);
+  const trees: Array<{ tree: Tree; parser: Parser }> = [];
+  const roots = new Map<string, Node>();
+  const failed: string[] = [];
+  try {
+    for (const f of files) {
+      try {
+        const parser = await parserFor(f.lang);
+        const tree = parser.parse(f.source);
+        if (!tree) {
+          parser.delete();
+          failed.push(f.relPath);
+          continue;
+        }
+        trees.push({ tree, parser });
+        roots.set(f.relPath, tree.rootNode);
+        project.add(f.relPath, f.lang, f.source, tree.rootNode);
+      } catch {
+        failed.push(f.relPath);
+      }
+    }
+    for (const [rel, a] of project.analyzers) {
+      try {
+        a.visit(roots.get(rel)!, new Map());
+        a.scanSecretFormats();
+        a.scanXxeFlags();
+      } catch {
+        failed.push(rel);
+      }
+    }
+    const hits = new Map<string, EngineHit[]>();
+    for (const [rel, a] of project.analyzers) {
+      const h = dedupe(a.hits);
+      if (h.length) hits.set(rel, h);
+    }
+    return { hits, failed };
+  } finally {
+    for (const { tree, parser } of trees) {
+      tree.delete();
+      parser.delete();
+    }
+  }
+}
+
+/** Analyze one source file on its own (no cross-file context). */
+export async function analyzeSource(lang: LangId, source: string, cwes: Set<string>): Promise<EngineHit[]> {
+  const { hits } = await analyzeProject([{ relPath: "input", lang, source }], cwes);
+  return hits.get("input") ?? [];
 }

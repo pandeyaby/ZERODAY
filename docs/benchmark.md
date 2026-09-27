@@ -164,7 +164,7 @@ All 10 CWEs, run over shallow clones (high-confidence findings, files per CWE):
 
 | Project | Code | Time | High-confidence files | Notes |
 |---------|------|------|-----------------------|-------|
-| OWASP Juice Shop (intentionally vulnerable) | 65k lines TS/JS | 2.3 s | CWE-89: 11 · CWE-22: 8 · CWE-79: 2 · CWE-918: 1 · CWE-601: 1 · CWE-94: 1 · CWE-798: 1 | Finds 6 of 8 well-known challenge routes (login / search SQLi, file-server traversal, redirect, SSRF, hard-coded key). Misses the sandboxed-`vm` and XML-upload flaws, which pass through helpers in other files. |
+| OWASP Juice Shop (intentionally vulnerable) | 65k lines TS/JS | ~3 s per CWE | CWE-89: 11 · CWE-22: 8 · CWE-79: 2 · CWE-918: 1 · CWE-601: 1 · CWE-94: 1 · CWE-798: 1 | Finds 7 of 8 well-known challenge routes: login / search SQLi, file-server traversal, redirect, SSRF, hard-coded key, and — since 0.9, as an *all candidates* configuration finding — the XML-upload XXE parser behind a helper in another file. Misses the sandboxed-`vm` order flaw inside a third-party library. |
 | Express (repo incl. examples) | 22k lines JS | 0.7 s | CWE-79: 15 · CWE-601: 3 · CWE-22: 1 | Example apps send request parameters in HTML responses — real reflections, in demo code. |
 | Flask | 18k lines Python | 0.5 s | none | |
 | Gin | 25k lines Go | 0.9 s | CWE-601: 1 | Framework trailing-slash redirect built from the request path — benign; a known false positive. |
@@ -172,8 +172,10 @@ All 10 CWEs, run over shallow clones (high-confidence findings, files per CWE):
 
 ## Limitations
 
-- **Intraprocedural plus same-file helpers.** Input that flows through a function in
-  another file is not followed (the two Juice Shop misses above).
+- **Helpers are followed up to 3 calls deep**, across files for relative imports
+  (JS/TS), module imports (Python), same / module-internal packages (Go) and
+  classes by name (Java). Flows through third-party libraries, callbacks,
+  framework dependency injection or reflection are not followed.
 - **Framework knowledge is pattern-based**: request sources and sinks are listed in
   [`src/locate/engine/specs.ts`](../src/locate/engine/specs.ts). Unlisted frameworks and
   wrappers are missed.

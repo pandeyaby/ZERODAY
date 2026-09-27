@@ -24,7 +24,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 export interface ResolvedAdvisory extends AdvisoryRef {
   category: string;
-  source: "vendored" | "nvd" | "ghsa" | "cwe-direct" | "explicit-cwe";
+  source: "vendored" | "nvd" | "ghsa" | "cwe-direct" | "explicit-cwe" | "osv";
   references?: string[];
 }
 

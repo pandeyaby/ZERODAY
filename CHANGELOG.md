@@ -3,6 +3,44 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## 0.9.0
+
+### Added
+- **Advisory matching** — `locate --rules --cve / --ghsa` answers *"which files
+  matter for this advisory?"*: public OSV advisory data (only the id is sent;
+  cached; nothing fetched with `--offline`) → pinned versions from lockfiles
+  (npm / yarn / pnpm, requirements / Poetry / Pipfile / uv, go.mod incl. the Go
+  toolchain, Maven incl. `${properties}` / Gradle) → verdict *affected /
+  possibly affected / not affected / not used* with the version to upgrade to →
+  calls to the vulnerable functions (from OSV Go symbols, the fix commit, or the
+  advisory text) ranked above imports and the lockfile line. CLI **Exposure**
+  block, `report.md` *Dependency exposure* table, `summary.advisoryMatch`.
+- **Cross-file tracking** — request input passed to a function imported from
+  another file is followed into it (JS/TS relative imports, Python module
+  imports, Go packages, Java classes); the finding lands in the right file and
+  names the origin (*Request input from routes/users.js line 2 …*).
+- **Baseline and diff mode** — stable finding fingerprints; `--baseline
+  <report.json>` marks findings new / unchanged (SARIF `baselineState`) and
+  `--fail-on-findings` then counts only new ones; `--changed-since <ref>` keeps
+  findings in files changed since the merge base.
+- **The GitHub Action works from any repository**
+  (`uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v0.9.0`): it runs
+  its own ZERODAY (the published `zeroday-cli` for release tags), scans the
+  caller's workspace, and adds `advisory`, `baseline`, `changed-since` and
+  `offline` inputs plus a `new-finding-count` output. Guide:
+  [`docs/github-action.md`](./docs/github-action.md).
+- CWE-611: libxml2 `NOENT` / `DTDLOAD` flags are a configuration candidate.
+
+### Changed
+- `locate --rules --cve` no longer fails for CVEs outside the bundled map: the
+  CWE comes from OSV, and dependency matching runs even when the CWE has no code
+  rules (instead of *NOT SCANNED*).
+- SARIF `partialFingerprints.primaryLocationLineHash` is now the stable
+  fingerprint (was CWE + file + rank). **Existing Code Scanning alerts from
+  ZERODAY are re-keyed once** on the first 0.9 upload.
+- Action: `run-unit-tests` now defaults to `false` (it runs ZERODAY's own test
+  suite); `working-directory` is deprecated and ignored for the CLI location.
+
 ## 0.8.0
 
 ### Added
