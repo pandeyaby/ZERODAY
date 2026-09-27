@@ -62,6 +62,24 @@ export function toHumanReport(
     lines.push(``);
   }
 
+  const hy = result.summary.hybrid;
+  if (hy) {
+    lines.push(`## Antares and ZERODAY's static pass`);
+    lines.push(``);
+    lines.push(
+      hy.contextSent
+        ? `ZERODAY's static pass (${hy.rulesCandidates} candidate file(s)${am ? `, dependency verdict ${am.verdict}` : ""}) was given to Antares as starting context; Antares explored and decided.`
+        : `ZERODAY's static pass found nothing to add; Antares ran without extra context.`,
+    );
+    lines.push(``);
+    lines.push(`| | Files |`);
+    lines.push(`|--|--|`);
+    lines.push(`| Both flagged | ${hy.agreed.map((f) => `\`${f}\``).join(", ") || "—"} |`);
+    lines.push(`| Antares only | ${hy.antaresOnly.map((f) => `\`${f}\``).join(", ") || "—"} |`);
+    lines.push(`| Rules only (not confirmed by Antares) | ${hy.rulesOnly.map((f) => `\`${f.filePath}${f.line ? `:${f.line}` : ""}\``).join(", ") || "—"} |`);
+    lines.push(``);
+  }
+
   lines.push(`## What files`);
   lines.push(``);
   if (result.rankedFiles.length === 0) {

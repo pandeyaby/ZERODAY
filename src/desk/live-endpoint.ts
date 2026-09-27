@@ -30,6 +30,7 @@ import { resolveLocateMode } from "../locate/live-guard";
 import { DEFAULT_ANTARES_MODEL, locate } from "../locate/index";
 import type { LocalizationResult } from "../locate/types";
 import { remoteInferenceAcked } from "../factory/provider";
+import { discoverLiveEndpoint } from "../locate/discover";
 
 export const DESK_ENDPOINT_SCHEMA = "zeroday-desk-endpoint/v1" as const;
 export const DESK_ENDPOINT_REL = path.join(".zeroday", "desk-endpoint.json");
@@ -602,15 +603,16 @@ export async function runLiveDoctor(
 
   if (!endpoint) {
     const loaded = loadLiveEndpointConfig({ cwd });
-    if (!loaded.config) {
-      throw new LiveEndpointError(
-        "No endpoint configured — save a preset first or pass endpoint",
-        "NO_CONFIG",
-      );
+    if (loaded.config) {
+      endpoint = loaded.config.endpoint;
+      model = model || loaded.config.model;
+      remoteInference = remoteInference || loaded.config.remoteInference;
+    } else {
+      // Nothing saved: look for a local Antares server (vLLM / Ollama / LM Studio).
+      const found = await discoverOrExplain(cwd, model, req.probeFetch);
+      endpoint = found.endpoint;
+      model = model || found.model;
     }
-    endpoint = loaded.config.endpoint;
-    model = model || loaded.config.model;
-    remoteInference = remoteInference || loaded.config.remoteInference;
   }
   model = model || DEFAULT_ANTARES_MODEL;
 
@@ -677,6 +679,23 @@ export async function runLiveDoctor(
   };
 }
 
+/** Zero-config: a local Antares server, or NO_CONFIG with what was checked. */
+async function discoverOrExplain(
+  cwd: string,
+  model: string | undefined,
+  fetchImpl?: typeof fetch,
+): Promise<{ endpoint: string; model: string }> {
+  try {
+    const d = await discoverLiveEndpoint({ cwd, env: {}, ...(model ? { model } : {}), ...(fetchImpl ? { fetchImpl } : {}) });
+    return { endpoint: d.endpoint, model: d.model };
+  } catch (e) {
+    throw new LiveEndpointError(
+      `No endpoint configured and none found locally — pick a preset or enter an endpoint.\n${(e as Error).message}`,
+      "NO_CONFIG",
+    );
+  }
+}
+
 function scanArtifactsForTokenLeak(
   paths: string[],
   tokenEnvVar?: string,
@@ -711,16 +730,16 @@ export async function runLiveLocate(
 
   if (!endpoint) {
     const loaded = loadLiveEndpointConfig({ cwd });
-    if (!loaded.config) {
-      throw new LiveEndpointError(
-        "No endpoint configured — save first",
-        "NO_CONFIG",
-      );
+    if (loaded.config) {
+      endpoint = loaded.config.endpoint;
+      model = model || loaded.config.model;
+      remoteInference = remoteInference || loaded.config.remoteInference;
+      tokenEnvVar = tokenEnvVar || loaded.config.tokenEnvVar;
+    } else {
+      const found = await discoverOrExplain(cwd, model, req.probeFetch);
+      endpoint = found.endpoint;
+      model = model || found.model;
     }
-    endpoint = loaded.config.endpoint;
-    model = model || loaded.config.model;
-    remoteInference = remoteInference || loaded.config.remoteInference;
-    tokenEnvVar = tokenEnvVar || loaded.config.tokenEnvVar;
   }
   model = model || DEFAULT_ANTARES_MODEL;
 

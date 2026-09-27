@@ -1376,7 +1376,7 @@ program
     "--recording <cassette.json>",
     "Replay redacted org CI cassette (Keyless K3) → mode=recording. Offline. Incompatible with --fixture / --rules / --from-sarif / --live / --endpoint.",
   )
-  .option("--live", "Force live official Antares CLI path (requires --endpoint)", false)
+  .option("--live", "Live Antares via the official CLI. Without --endpoint, uses the saved Desk endpoint or a local vLLM / Ollama / LM Studio server serving Antares", false)
   .option("--offline", "Skip NVD/GHSA network resolve", false)
   .option("--output <dir>", "Report output directory")
   .option(
@@ -1416,6 +1416,10 @@ program
     false,
   )
   .option(
+    "--no-context",
+    "Live: run Antares alone, without ZERODAY's static pass (dependency verdict, vulnerable functions, rules candidates) as starting context",
+  )
+  .option(
     "--fail-on-findings",
     "Exit 1 when ranked files are non-empty (with --baseline: only new findings count)",
     false,
@@ -1446,6 +1450,7 @@ program
     failOnIncomplete?: boolean;
     noFailOnIncomplete: boolean;
     noLiveRecovery: boolean;
+    context?: boolean;
     failOnFindings: boolean;
     json: boolean;
   }) => {
@@ -1490,7 +1495,9 @@ program
       undefined;
 
     const liveRequested = Boolean(opts.live || endpoint || opts.mockAntares);
-    const model = liveRequested
+    // --live without an endpoint: leave the model unset unless chosen, so
+    // discovery can pick the Antares model the local server actually serves.
+    const model = liveRequested && (endpoint || opts.mockAntares)
       ? resolveLiveModel(opts.model)
       : opts.model || process.env.ANTARES_MODEL;
 
@@ -1527,6 +1534,7 @@ program
         toolBudget,
         failOnIncomplete,
         liveRecovery: !opts.noLiveRecovery,
+        context: opts.context !== false,
         failOnFindings: opts.failOnFindings,
         remoteInference: opts.remoteInference,
         ...(opts.baseline ? { baseline: path.resolve(opts.baseline) } : {}),
@@ -1574,11 +1582,24 @@ program
           console.log("Ranked files:");
           for (const f of r.rankedFiles) {
             const state = f.baselineState ? `[${f.baselineState}] ` : "";
+            const both = f.sources?.includes("rules") ? "  ✓ rules agree" : "";
             console.log(
-              `  ${f.rank}. ${state}${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}`,
+              `  ${f.rank}. ${state}${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}${both}`,
             );
           }
           console.log("");
+          const hy = r.summary.hybrid;
+          if (hy) {
+            console.log(
+              `Context  : ${hy.contextSent ? `ZERODAY static pass sent to Antares (${hy.rulesCandidates} candidate(s))` : "nothing to add — Antares ran alone"}`,
+            );
+            console.log(`Agreement: ${hy.agreed.length} file(s) flagged by both Antares and rules`);
+            if (hy.rulesOnly.length) {
+              console.log("Rules only (Antares did not confirm — review or dismiss):");
+              for (const f of hy.rulesOnly.slice(0, 8)) console.log(`  - ${f.filePath}${f.line ? `:${f.line}` : ""}  ${f.title}`);
+            }
+            console.log("");
+          }
         } else if (r.summary.incompleteReason) {
           console.log(
             "No submission — incomplete localization (not a clean negative; findings not invented).",

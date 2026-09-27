@@ -37,6 +37,8 @@ export interface RankedFile {
   fingerprint?: string;
   /** With --baseline: whether the finding existed in the baseline report. */
   baselineState?: "new" | "unchanged";
+  /** Live hybrid runs: who flagged this file (Antares, and the rules pass too). */
+  sources?: Array<"antares" | "rules">;
 }
 
 export interface TraceStep {
@@ -101,6 +103,17 @@ export interface LocalizationResult {
      * affected = a lockfile pins an affected version; possibly-affected = only a
      * declared (unpinned) version matches; not-affected / not-used = checked, clean.
      */
+    /**
+     * Live runs with ZERODAY context (default): the static pass sent to Antares
+     * and where the two agree. Antares' ranking is kept as-is.
+     */
+    hybrid?: {
+      contextSent: boolean;
+      rulesCandidates: number;
+      agreed: string[];
+      antaresOnly: string[];
+      rulesOnly: Array<{ filePath: string; title: string; line?: number }>;
+    };
     advisoryMatch?: {
       verdict: "affected" | "possibly-affected" | "not-affected" | "not-used";
       advisoryIds: string[];
@@ -153,6 +166,11 @@ export interface LocateOptions {
   outputDir?: string;
   /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
+  /**
+   * Live: give Antares ZERODAY's static pass (dependency exposure, vulnerable
+   * functions, rules candidates) as starting context via `--query`. Default true.
+   */
+  context?: boolean;
   /**
    * CI / test: drive live locate via in-process mock Antares that POSTs to
    * `--endpoint` and parses Antares-shaped `<tool_call>` text. No GPU, no

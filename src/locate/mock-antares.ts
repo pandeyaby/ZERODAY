@@ -30,6 +30,8 @@ export interface MockAntaresQueryParams {
   fetchImpl?: typeof fetch;
   /** Max completion rounds (terminal + submit). Default toolBudget or 8. */
   maxRounds?: number;
+  /** Extra CWE-scoped instructions, as `antares query --query`. */
+  query?: string;
 }
 
 export interface MockAntaresQueryResult {
@@ -79,7 +81,8 @@ export async function runMockAntaresQuery(
 
   let prompt =
     `Antares mock query CWE=${params.cweId} snapshot=${params.snapshotPath}\n` +
-    `Emit <tool_call> JSON for terminal explore, then submit_vulnerable_files.\n`;
+    `Emit <tool_call> JSON for terminal explore, then submit_vulnerable_files.\n` +
+    (params.query?.trim() ? `${params.query.trim()}\n` : "");
 
   for (let round = 0; round < maxRounds; round++) {
     completionRounds += 1;

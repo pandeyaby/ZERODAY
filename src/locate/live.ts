@@ -35,6 +35,8 @@ export interface LiveLocateParams {
   antaresCliSource?: string;
   /** Antares --tool-budget (1–50). Defaults via resolveLiveToolBudget. */
   toolBudget?: number;
+  /** Extra CWE-scoped instructions (`antares query --query`): ZERODAY's static pass. */
+  query?: string;
 }
 
 export interface LiveLocateCliMeta {
@@ -161,6 +163,9 @@ export function runLiveAntaresCli(
 
   if (params.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(params.endpoint));
+  }
+  if (params.query?.trim()) {
+    args.push("--query", params.query);
   }
 
   const env = { ...process.env, ANTARES_MODEL: model };
