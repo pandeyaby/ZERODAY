@@ -72,4 +72,14 @@ describe("single version source", () => {
     assert.match(md, /\(https:\/\/osv\.dev\)/);
     assert.doesNotMatch(md, /\]\(\.\//);
   });
+
+  it("package-lock.json version matches package.json (npm install must not rewrite it)", () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")) as { version: string };
+    const lock = JSON.parse(fs.readFileSync(path.join(root, "package-lock.json"), "utf8")) as {
+      version: string;
+      packages: Record<string, { version?: string }>;
+    };
+    assert.equal(lock.version, pkg.version);
+    assert.equal(lock.packages[""]?.version, pkg.version);
+  });
 });

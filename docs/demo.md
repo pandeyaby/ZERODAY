@@ -20,7 +20,9 @@ ZERODAY checks and comment.
 Rehearse the browser part hands-free — it fails if anything on screen is wrong:
 
 ```bash
-node scripts/desk-ui-advisory-demo.mjs   # needs Playwright; screenshots → artifacts/desk-ui-demo/
+npm install --no-save playwright@1.56.1 && npx playwright install chromium   # once
+ZERODAY_DEMO_REPO=/path/to/your/demo-repo ZERODAY_DEMO_CWE=CWE-502 \
+  node scripts/desk-ui-advisory-demo.mjs   # screenshots → artifacts/desk-ui-demo/
 ```
 
 ## The script

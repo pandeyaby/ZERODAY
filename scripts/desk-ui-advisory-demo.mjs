@@ -8,11 +8,12 @@
  * ZERODAY_DEMO_REPO / ZERODAY_DEMO_CWE pick the second scan (default: the bundled
  * rules sample, CWE-89). A repo outside this checkout needs ZERODAY_UI_ROOTS.
  */
-import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PLAY_URL } from "./desk-ui-demo-helpers.mjs";
+import { loadChromium, PLAY_URL } from "./desk-ui-demo-helpers.mjs";
+
+const chromium = await loadChromium();
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = process.env.ZERODAY_DEMO_OUT || path.join(ROOT, "artifacts", "desk-ui-demo");
