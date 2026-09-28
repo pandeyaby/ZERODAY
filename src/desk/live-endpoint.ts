@@ -915,22 +915,8 @@ export function resolveValidateTarget(
     };
   }
 
-  const last = loaded.config?.lastGoodAntares;
-  if (last?.endpoint && last.model) {
-    return {
-      preset: "antares-1b",
-      endpoint: last.endpoint,
-      model: last.model,
-      remoteInference:
-        req.remoteInference === true || last.remoteInference === true,
-      tokenEnvVar:
-        sanitizeTokenEnvVar(req.tokenEnvVar) ||
-        last.tokenEnvVar ||
-        antaresDefault.tokenEnvVar,
-      source: "last-good-antares",
-    };
-  }
-
+  // A saved Antares config is the operator's current choice and wins over
+  // last-good; last-good only rescues a stray non-Antares save (llama3.2).
   const saved = loaded.config;
   if (
     saved &&
@@ -947,6 +933,22 @@ export function resolveValidateTarget(
         saved.tokenEnvVar ||
         antaresDefault.tokenEnvVar,
       source: "saved-antares",
+    };
+  }
+
+  const last = saved?.lastGoodAntares;
+  if (last?.endpoint && last.model) {
+    return {
+      preset: "antares-1b",
+      endpoint: last.endpoint,
+      model: last.model,
+      remoteInference:
+        req.remoteInference === true || last.remoteInference === true,
+      tokenEnvVar:
+        sanitizeTokenEnvVar(req.tokenEnvVar) ||
+        last.tokenEnvVar ||
+        antaresDefault.tokenEnvVar,
+      source: "last-good-antares",
     };
   }
 
