@@ -242,6 +242,26 @@ export function startWatchdog(state: PodState, zerodayBin: string, cwd = process
   return child.pid;
 }
 
+/**
+ * Stop the watchdog started by startWatchdog. It is spawned detached, so it
+ * leads its own process group; the bin launcher runs tsx → node inside that
+ * group, and killing only the launcher pid would leave them waiting for the
+ * deadline. Kill the whole group, falling back to the pid (e.g. Windows).
+ */
+export function stopWatchdog(pid: number): void {
+  try {
+    process.kill(-pid, "SIGTERM");
+    return;
+  } catch {
+    /* no such group, or unsupported */
+  }
+  try {
+    process.kill(pid, "SIGTERM");
+  } catch {
+    /* already exited */
+  }
+}
+
 export function minutesAlive(state: PodState, now = Date.now()): number {
   const end = state.deletedAt ? Date.parse(state.deletedAt) : now;
   return Math.max(0, (end - Date.parse(state.createdAt)) / 60_000);

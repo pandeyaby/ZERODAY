@@ -146,6 +146,7 @@ import {
   runpodKey,
   saveEndpoint as saveRunpodEndpoint,
   startWatchdog as startPodWatchdog,
+  stopWatchdog as stopPodWatchdog,
   waitReady as waitPodReady,
   writeState as writePodState,
   type PodState,
@@ -1068,13 +1069,7 @@ antares
       const done: PodState = { ...state, deletedAt: new Date().toISOString() };
       writePodState(done);
       forgetRunpodEndpoint(done);
-      if (state.watchdogPid) {
-        try {
-          process.kill(state.watchdogPid);
-        } catch {
-          /* already exited */
-        }
-      }
+      if (state.watchdogPid) stopPodWatchdog(state.watchdogPid);
       console.log(
         gone
           ? `Pod ${state.podId} deleted after ${podMinutesAlive(done).toFixed(0)} min (≈ ${fmtUsd(podCostSoFar(done))}).`
