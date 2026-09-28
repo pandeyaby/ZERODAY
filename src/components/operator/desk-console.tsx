@@ -502,7 +502,10 @@ export function DeskConsole() {
       )}
 
       {error && (
-        <div className="panel rounded-lg p-4 border-[var(--danger)]/40 text-sm text-[var(--danger)]">
+        <div
+          className="panel rounded-lg p-4 border-[var(--danger)]/40 text-sm text-[var(--danger)]"
+          data-testid="desk-error"
+        >
           {error}
         </div>
       )}
@@ -887,10 +890,16 @@ function LiveBrainPanel({
             data-testid="live-validate"
             onClick={() => {
               setValidateEmpty(null);
+              // Send the form's endpoint only when it targets Antares; otherwise
+              // omit it so the server prefers saved / last-good Antares /
+              // Antares-1B defaults (not a stray llama3.2 save).
+              const antaresForm =
+                /antares/i.test(model) && endpoint.trim() !== "";
               void post({
                 action: "validate",
-                // Omit endpoint/model so server prefers last-good Antares /
-                // Antares-1B defaults (not a stray llama3.2 save).
+                ...(antaresForm
+                  ? { endpoint: endpoint.trim(), model: model.trim(), preset }
+                  : {}),
                 remoteInference,
                 tokenEnvVar: tokenEnvVar.trim() || undefined,
                 repo: repo.trim() || "fixtures/locate/rules-sample",

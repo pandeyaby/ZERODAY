@@ -418,6 +418,51 @@ describe("live endpoint wizard (UI-3)", () => {
     assert.ok(isAntaresShaped(t.model));
   });
 
+  it("resolveValidateTarget prefers a saved Antares config over a stale last-good", () => {
+    // Operator saved a remote Antares host; last-good still points at an old
+    // local 350M server that is no longer running.
+    saveLiveEndpointConfig(
+      {
+        preset: "custom",
+        endpoint: "https://pod-8000.proxy.runpod.net/v1",
+        model: "fdtn-ai/antares-1b",
+        remoteInference: true,
+        lastGoodAntares: {
+          endpoint: "http://127.0.0.1:8000/v1",
+          model: "/models/antares-350m-official",
+          remoteInference: false,
+          updatedAt: new Date().toISOString(),
+        },
+      },
+      { cwd },
+    );
+    const t = resolveValidateTarget({ cwd });
+    assert.equal(t.source, "saved-antares");
+    assert.equal(t.endpoint, "https://pod-8000.proxy.runpod.net/v1");
+    assert.equal(t.model, "fdtn-ai/antares-1b");
+    assert.equal(t.remoteInference, true);
+  });
+
+  it("resolveValidateTarget uses the request endpoint over saved and last-good", () => {
+    saveLiveEndpointConfig(
+      {
+        preset: "antares-1b",
+        endpoint: "http://127.0.0.1:8000/v1",
+        model: "fdtn-ai/antares-1b",
+        remoteInference: false,
+      },
+      { cwd },
+    );
+    const t = resolveValidateTarget({
+      cwd,
+      endpoint: "https://pod-8000.proxy.runpod.net/v1",
+      model: "fdtn-ai/antares-1b",
+      remoteInference: true,
+    });
+    assert.equal(t.source, "request");
+    assert.equal(t.endpoint, "https://pod-8000.proxy.runpod.net/v1");
+  });
+
   it("resolveValidateTarget falls back to Antares-1B defaults when only llama is saved", () => {
     saveLiveEndpointConfig(
       {

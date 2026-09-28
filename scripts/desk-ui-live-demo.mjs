@@ -24,9 +24,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const ENDPOINT =
   process.env.ZERODAY_LIVE_ENDPOINT || "http://127.0.0.1:8000/v1";
-const MODEL =
-  process.env.ZERODAY_LIVE_MODEL ||
-  "/Users/abhinavpandey/Documents/GitHub/_zeroday-batch/antares-350m-official";
+const MODEL = process.env.ZERODAY_LIVE_MODEL || "fdtn-ai/antares-1b";
 const REPO = process.env.ZERODAY_LIVE_REPO || "fixtures/locate/rules-sample";
 const CWE = process.env.ZERODAY_LIVE_CWE || "CWE-89";
 
@@ -44,6 +42,21 @@ const context = await browser.newContext({
   recordVideo: { dir: OUT, size: { width: 1280, height: 800 } },
 });
 const page = await context.newPage();
+
+// "done" once the Results panel shows this advisory (ranked files, or the
+// "<advisory> → CWE-…" line when there are zero findings); "error" on the
+// Desk error panel or a live-endpoint failure. Keyed to the requested
+// advisory, not a fixed CWE.
+await page.addInitScript(() => {
+  window.resultState = (advisory) => {
+    const t = document.querySelector('[data-testid="desk-console"]')?.innerText || "";
+    if (document.querySelector('[data-testid="desk-error"]')) return "error";
+    if (/LiveEndpointError|ECONNREFUSED/i.test(t)) return "error";
+    if (document.querySelector('[data-testid="desk-ranked-files"]')) return "done";
+    const esc = advisory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`${esc}\\s*→`, "i").test(t) ? "done" : "pending";
+  };
+});
 
 try {
   console.log(`pace pause=${PAUSE_MS} dwell=${DWELL_MS}`);
@@ -146,16 +159,13 @@ try {
     spendConfirmed = true;
     log.push("spend-confirm clicked");
 
-    await showStep(page, "7 · Live locate running…", "Antares localizing CWE-89 on rules-sample");
+    await showStep(page, "7 · Live locate running…", `Antares localizing ${CWE} on ${REPO}`);
     try {
-      await page.waitForFunction(() => {
-        const t = document.querySelector('[data-testid="desk-console"]')?.innerText || "";
-        return (
-          /src\/(search|index)\.js/i.test(t) ||
-          (/Findings|Ranked/i.test(t) && /CWE-89/i.test(t)) ||
-          /LiveEndpointError|ECONNREFUSED/i.test(t)
-        );
-      }, { timeout: 240000 });
+      await page.waitForFunction(
+        (advisory) => resultState(advisory) !== "pending",
+        CWE,
+        { timeout: 240000 },
+      );
     } catch {
       log.push("timeout waiting for live locate");
     }
@@ -166,9 +176,7 @@ try {
       shotName: "live-06-locate-result.png",
       dwell: PAUSE_MS + DWELL_MS,
     });
-    const after = await page.locator('[data-testid="desk-console"]').innerText();
-    locateOk =
-      (/Findings|Ranked|src\//i.test(after) && !/LiveEndpointError|ECONNREFUSED/i.test(after));
+    locateOk = (await page.evaluate((advisory) => resultState(advisory), CWE)) === "done";
     log.push(locateOk ? "LIVE LOCATE SUCCESS" : "LIVE LOCATE FAIL/partial");
   } else {
     await shot(page, OUT, "live-05-doctor-blocked.png");
