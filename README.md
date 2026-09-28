@@ -243,16 +243,29 @@ ZERODAY also makes Antares more useful with no extra setup:
   Antares found, and which rules candidates Antares did not confirm
   (`--no-context` runs Antares alone).
 
-It is opt-in and **costs $**: you accept the Hugging Face terms for
-[`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) and serve
-`POST /v1/completions` (CUDA / vLLM — [`docs/runpod-antares.md`](./docs/runpod-antares.md);
-a measured A40 run took ~3 minutes and ~$0.02). ZERODAY never downloads weights
-and **never creates paid RunPod pods**. Non-loopback endpoints need
-`--remote-inference`. **No silent fixture fallback** if the endpoint is down.
+It is opt-in and **costs $**. One command starts it on your own RunPod
+account — you accept the Hugging Face terms for
+[`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) and export
+`RUNPOD_API_KEY` + `HF_TOKEN` (read from the environment, never saved):
 
 ```bash
-uv tool install cisco-antares-cli                     # the official Antares CLI
+npm run zeroday -- antares up          # installs the Antares CLI, starts a Secure A40 (~$0.50/hr),
+                                       # waits for the model, saves the endpoint; deleted after 30 min
+npm run zeroday -- scan --repo /path/to/authorized/repo     # anything: rules + Antares-picked CWEs
 npm run zeroday -- locate --cve CVE-2021-23337 --repo /path/to/authorized/repo --live
+npm run zeroday -- antares down        # delete the pod now (status: antares status)
+```
+
+ZERODAY never downloads weights to your machine and **never creates paid RunPod
+pods** unless you run `antares up` and confirm; every pod it creates has a
+deadline and a watchdog that deletes it. Already serving Antares yourself
+(vLLM / Ollama / LM Studio, or `docs/runpod-antares.md`)? `--live` finds it.
+Non-loopback endpoints need `--remote-inference` (`antares up` sets it for the pod
+it creates). **No silent fixture fallback** if the endpoint is down. Measured
+accuracy on real advisories: [`docs/antares-benchmark.md`](./docs/antares-benchmark.md).
+
+```bash
+uv tool install cisco-antares-cli                     # the official Antares CLI (antares up does this)
 npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
   --endpoint http://127.0.0.1:8000/v1 --model fdtn-ai/antares-1b   # explicit endpoint
 npm run zeroday -- antares doctor          # print-only checklist, no spend

@@ -870,6 +870,91 @@ program
     }
   });
 
+program
+  .command("scan")
+  .description(
+    "Scan a repository for anything — no CWE needed. Rules run every CWE they cover; Antares (when an endpoint is available) investigates the CWEs `antares plan` picks for this repo. Defensive localization only.",
+  )
+  .option("--repo <path>", "Repository to scan", ".")
+  .option("--output <dir>", "Report directory (default zeroday-reports/scan-<time>)")
+  .option("--max-cwes <n>", "CWEs Antares investigates, chosen for this repo (default 8)", "8")
+  .option("--cwe <ids>", "Antares CWEs to investigate instead of automatic selection (comma-separated)")
+  .option("--rules-only", "Don't use Antares even if one is available", false)
+  .option("--require-antares", "Fail if no Antares endpoint is available", false)
+  .option("--endpoint <url>", "Antares completions endpoint (default: discovered)")
+  .option("--model <id>", "Served model id")
+  .option("--remote-inference", "ACK: a non-loopback endpoint receives repository content", false)
+  .option("--json", "Print the result JSON", false)
+  .action(async (opts: {
+    repo: string;
+    output?: string;
+    maxCwes: string;
+    cwe?: string;
+    rulesOnly: boolean;
+    requireAntares: boolean;
+    endpoint?: string;
+    model?: string;
+    remoteInference: boolean;
+    json: boolean;
+  }) => {
+    try {
+      const { scanRepo } = await import("../src/locate/scan");
+      const a = await scanRepo({
+        repo: opts.repo,
+        ...(opts.output ? { outputDir: opts.output } : {}),
+        antares: opts.rulesOnly ? "off" : opts.requireAntares ? "require" : "auto",
+        maxCwes: Number(opts.maxCwes) || 8,
+        ...(opts.cwe ? { cwes: opts.cwe.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean) } : {}),
+        ...(opts.endpoint ? { endpoint: opts.endpoint } : {}),
+        ...(opts.model ? { model: opts.model } : {}),
+        remoteInference: opts.remoteInference,
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(a.result, null, 2));
+        return;
+      }
+      const s = a.result.summary.scan;
+      console.log("");
+      console.log("ZERODAY scan");
+      console.log("────────────");
+      console.log(`Target   : ${a.result.targetRepo}`);
+      console.log(`Rules    : ${s.cwesRules.length} CWEs`);
+      console.log(
+        s.antares
+          ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
+          : `Antares  : not used — ${s.antaresSkipped ?? "--rules-only"}`,
+      );
+      console.log("");
+      const rows = s.perCwe.filter((r) => r.rules || r.antares);
+      if (rows.length) {
+        console.log("By CWE     rules  antares  both");
+        for (const r of rows) {
+          console.log(`  ${r.cwe.padEnd(9)} ${String(r.rules).padStart(5)}  ${(r.antaresPlanned ? String(r.antares) : "—").padStart(7)}  ${(r.antaresPlanned ? String(r.both) : "—").padStart(4)}`);
+        }
+        console.log("");
+      }
+      if (a.result.rankedFiles.length) {
+        console.log("Files:");
+        for (const f of a.result.rankedFiles.slice(0, 25)) {
+          const who = (f.sources ?? []).length === 2 ? "antares+rules" : (f.sources ?? [])[0];
+          console.log(`  ${String(f.rank).padStart(2)}. ${f.filePath}  [${f.cweIds.join(",")}]  ${who}`);
+        }
+        if (a.result.rankedFiles.length > 25) console.log(`  … ${a.result.rankedFiles.length - 25} more in report.md`);
+      } else {
+        console.log("No candidates. Not proof the code is safe — rules cover specific patterns only.");
+      }
+      console.log("");
+      console.log(`Report   : ${a.reportPath}`);
+      console.log(`SARIF    : ${a.sarifPath}`);
+      console.log(`Evidence : ${a.manifestPath}`);
+      console.log("");
+      console.log("Localization only — candidates for human review, not proof of exploitability.");
+    } catch (e) {
+      console.error(`scan failed: ${(e as Error).message}`);
+      process.exitCode = 2;
+    }
+  });
+
 const antares = program
   .command("antares")
   .description(
