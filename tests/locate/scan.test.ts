@@ -42,6 +42,13 @@ describe("zeroday scan", () => {
     for (const k of ["ANTARES_ENDPOINT", "LOCATE_BASE_URL", "ZERODAY_ANTARES_BASE_URL"]) delete process.env[k];
     const cwd = process.cwd();
     process.chdir(out()); // no saved Desk endpoint here
+    // Nothing listening on the usual local ports, even on a machine that runs
+    // Antares in Ollama / vLLM / LM Studio.
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = ((input: Parameters<typeof fetch>[0], init?: RequestInit) =>
+      /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])[:/]/.test(String(input instanceof Request ? input.url : input))
+        ? Promise.reject(new TypeError("fetch failed (test: no local server)"))
+        : realFetch(input, init)) as typeof fetch;
     try {
       const a = await scanRepo({ repo, outputDir: out(), antares: "auto" });
       assert.equal(a.result.summary.scan.antares, null);
@@ -49,6 +56,7 @@ describe("zeroday scan", () => {
       assert.ok(a.result.warnings.some((w) => /Antares not used: .*zeroday antares up/.test(w)));
       await assert.rejects(scanRepo({ repo, outputDir: out(), antares: "require" }));
     } finally {
+      globalThis.fetch = realFetch;
       process.chdir(cwd);
       Object.assign(process.env, prev);
     }
