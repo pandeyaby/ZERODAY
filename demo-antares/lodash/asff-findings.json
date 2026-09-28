@@ -1,0 +1,61 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-85571e7ee6a93c81",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-94",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-94"
+      ],
+      "CreatedAt": "2026-09-28T18:31:10.020Z",
+      "UpdatedAt": "2026-09-28T18:31:10.020Z",
+      "Title": "CWE-94: Improper Control of Generation of Code ('Code Injection')",
+      "Description": "ZERODAY Antares localization candidate: src/email.js for CWE-94 (code-injection), rank 1. Antares submitted this file as a localization candidate.; Rules agree: `template` is the vulnerable function named by GHSA-35jh-r3h4-6jhm (advisory-text). Upgrade to 4.17.21 or later. [rule advisory/vulnerable-call] Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://src/email.js",
+          "Details": {
+            "Other": {
+              "FilePath": "src/email.js",
+              "CweId": "CWE-94",
+              "Category": "code-injection",
+              "Rank": "1",
+              "AdvisoryId": "CVE-2021-23337"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-94"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-94",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-94",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

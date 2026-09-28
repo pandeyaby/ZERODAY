@@ -1,0 +1,94 @@
+{
+  "mode": "live",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "targetRepo": "/Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/locate/demo-app",
+  "snapshotPath": "/var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-8wqiyR/repo",
+  "model": "fdtn-ai/antares-1b",
+  "generatedAt": "2026-09-28T18:30:52.013Z",
+  "rankedFiles": [
+    {
+      "filePath": "src/users.js",
+      "rank": 1,
+      "cweIds": [
+        "CWE-89"
+      ],
+      "title": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+      "evidence": [
+        {
+          "filePath": "src/users.js",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "src/users.js",
+          "startLine": 9,
+          "endLine": 9,
+          "excerpt": "  const sql = \"SELECT id, name, email FROM users WHERE name = '\" + name + \"'\";\n  return db.query(sql);\n}",
+          "note": "Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-89/sql-call]"
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares",
+        "rules"
+      ],
+      "fingerprint": "8303c8c909d4c7aecf594f1d"
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    }
+  ],
+  "warnings": [
+    "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+    "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+    "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+    "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+    "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+    "ZERODAY context sent to Antares (--query): 1 static candidate(s). Antares still explores and decides; files it did not confirm are listed as rules-only.",
+    "Read-only snapshot: 6 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-8wqiyR/repo",
+    "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+    "Local completions probe ok: GET https://zxqlprh3acxmcw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+    "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
+    "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 1,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "incompleteTips": [],
+    "recoveryAttempted": false,
+    "terminalCallBudget": 30,
+    "terminalCallsUsed": 1,
+    "hybrid": {
+      "contextSent": true,
+      "rulesCandidates": 1,
+      "agreed": [
+        "src/users.js"
+      ],
+      "antaresOnly": [],
+      "rulesOnly": []
+    }
+  },
+  "evidence": {
+    "runId": "cwe89",
+    "claimIds": [
+      "ev_claim_002"
+    ],
+    "vaultRelative": "evidence/"
+  }
+}

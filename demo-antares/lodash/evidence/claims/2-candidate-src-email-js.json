@@ -1,0 +1,6 @@
+{
+  "title": "Candidate: src/email.js",
+  "summary": "Improper Control of Generation of Code ('Code Injection') (rank 1)",
+  "cites": [],
+  "at": "2026-09-28T18:31:10.021Z"
+}

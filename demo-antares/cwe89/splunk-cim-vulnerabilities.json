@@ -1,0 +1,25 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/locate/demo-app",
+      "dvc": "zeroday-local",
+      "signature": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+      "severity": "informational",
+      "category": "sql-injection",
+      "xref": "CWE-89",
+      "signature_id": "zeroday-b8d0a2f8d14aea0e",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-89",
+      "file": "src/users.js",
+      "evidence": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-89/sql-call]",
+      "advisory": "CWE-89",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-28T18:30:52.013Z"
+    }
+  ]
+}
