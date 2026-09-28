@@ -69,3 +69,4 @@ yarn-error.log*
 
 # Downloaded benchmark suites (scripts/bench.ts)
 /.cache
+/bench/antares/results/runs/

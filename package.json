@@ -2,7 +2,7 @@
   "name": "zeroday",
   "version": "0.9.0",
   "private": true,
-  "description": "ZERODAY — defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate → SARIF). Not a Cisco product.",
+  "description": "ZERODAY \u2014 defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate \u2192 SARIF). Not a Cisco product.",
   "license": "Apache-2.0",
   "bin": {
     "zeroday": "./bin/zeroday.mjs"
@@ -57,7 +57,9 @@
     "upload-sarif": "tsx cli/index.ts upload-sarif",
     "draft-fix": "tsx cli/index.ts draft-fix",
     "classify": "tsx cli/index.ts classify",
-    "demo": "tsx cli/index.ts demo"
+    "demo": "tsx cli/index.ts demo",
+    "bench:antares": "tsx scripts/bench-antares.ts",
+    "bench:antares:report": "tsx scripts/bench-antares-report.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",
