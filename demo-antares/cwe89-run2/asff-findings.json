@@ -1,0 +1,61 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-b8d0a2f8d14aea0e",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-89",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-89"
+      ],
+      "CreatedAt": "2026-09-28T18:51:42.560Z",
+      "UpdatedAt": "2026-09-28T18:51:42.560Z",
+      "Title": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+      "Description": "ZERODAY Antares localization candidate: src/users.js for CWE-89 (sql-injection), rank 1. Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-89/sql-call] Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://src/users.js",
+          "Details": {
+            "Other": {
+              "FilePath": "src/users.js",
+              "CweId": "CWE-89",
+              "Category": "sql-injection",
+              "Rank": "1",
+              "AdvisoryId": "CWE-89"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-89"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-89",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-89",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

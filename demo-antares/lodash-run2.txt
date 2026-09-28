@@ -1,0 +1,46 @@
+$ ZERODAY_OSV_DIR=fixtures/advisories/osv npm run zeroday -- locate --cve CVE-2021-23337 --repo fixtures/advisory/npm-lodash --live --remote-inference --output demo-antares/lodash-run2
+started 2026-09-28 11:51:23 AM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts locate --cve CVE-2021-23337 --repo fixtures/advisory/npm-lodash --live --remote-inference --output demo-antares/lodash-run2
+
+
+ZERODAY locate
+──────────────
+Advisory : CVE-2021-23337 → CWE-94
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/advisory/npm-lodash
+Findings : 1
+Exposure : AFFECTED — GHSA-35jh-r3h4-6jhm, GHSA-r5fr-rjxr-66jc
+           ✗ lodash@4.17.15  package-lock.json  → upgrade to 4.17.21
+Functions: template, assignInWith, importsKeys, reForbiddenIdentifierChars, assignWith
+
+Ranked files:
+  1. src/email.js  [CWE-94]  Improper Control of Generation of Code ('Code Injection')  ✓ rules agree
+
+Context  : ZERODAY static pass sent to Antares (3 candidate(s))
+Agreement: 1 file(s) flagged by both Antares and rules
+Rules only (Antares did not confirm — review or dismiss):
+  - package-lock.json:11  Vulnerable dependency lodash@4.17.15
+  - src/cart.js:1  Imports lodash@4.17.15
+
+Artifacts:
+  JSON     /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/report.json
+  SARIF    /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/report.sarif
+  Report   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/report.md
+  Comment  /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/comment.md
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/asff-findings.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/xsoar-incidents.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/fortisiem-custom.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/evidence
+  Manifest /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/lodash-run2/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  1.69s user 0.92s system 6% cpu 38.694 total
+
+exit=0 elapsed=39s

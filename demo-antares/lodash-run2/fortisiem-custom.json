@@ -1,0 +1,21 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-94",
+      "filePath": "src/email.js",
+      "title": "Improper Control of Generation of Code ('Code Injection')",
+      "description": "Antares submitted this file as a localization candidate.; Rules agree: `template` is the vulnerable function named by GHSA-35jh-r3h4-6jhm (advisory-text). Upgrade to 4.17.21 or later. [rule advisory/vulnerable-call]",
+      "occurred": "2026-09-28T18:52:02.134Z",
+      "category": "code-injection",
+      "advisoryId": "CVE-2021-23337",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}

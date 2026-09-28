@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-94",
+              "name": "CWE-94",
+              "shortDescription": {
+                "text": "CWE-94 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-94. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/94.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-94"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-94",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Control of Generation of Code ('Code Injection') — rank 1. Antares submitted this file as a localization candidate.; Rules agree: `template` is the vulnerable function named by GHSA-35jh-r3h4-6jhm (advisory-text). Upgrade to 4.17.21 or later. [rule advisory/vulnerable-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/email.js",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "bf8f2f474a09798e9461606b",
+            "zeroday/v1": "bf8f2f474a09798e9461606b"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-94"
+            ],
+            "advisory": "CVE-2021-23337",
+            "mode": "live",
+            "likelihood_of_exploit": "Medium",
+            "exploration_steps": 1,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/advisory/npm-lodash"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cve",
+          "id": "CVE-2021-23337",
+          "cweId": "CWE-94",
+          "title": "Lodash versions prior to 4.17.21 are vulnerable to Command Injection via the template function."
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-28T18:52:02.134Z",
+        "summary": {
+          "findingCount": 1,
+          "incompleteReason": null,
+          "incompleteClass": null,
+          "incompleteTips": [],
+          "recoveryAttempted": false,
+          "terminalCallBudget": 30,
+          "terminalCallsUsed": 1,
+          "hybrid": {
+            "contextSent": true,
+            "rulesCandidates": 3,
+            "agreed": [
+              "src/email.js"
+            ],
+            "antaresOnly": [],
+            "rulesOnly": [
+              {
+                "filePath": "package-lock.json",
+                "title": "Vulnerable dependency lodash@4.17.15",
+                "line": 11
+              },
+              {
+                "filePath": "src/cart.js",
+                "title": "Imports lodash@4.17.15",
+                "line": 1
+              }
+            ]
+          },
+          "advisoryMatch": {
+            "verdict": "affected",
+            "advisoryIds": [
+              "GHSA-35jh-r3h4-6jhm",
+              "GHSA-r5fr-rjxr-66jc"
+            ],
+            "packages": [
+              {
+                "ecosystem": "npm",
+                "name": "lodash",
+                "installed": "4.17.15",
+                "file": "package-lock.json",
+                "affected": true,
+                "fixed": "4.17.21"
+              }
+            ],
+            "symbols": [
+              "template",
+              "assignInWith",
+              "importsKeys",
+              "reForbiddenIdentifierChars",
+              "assignWith"
+            ]
+          }
+        },
+        "explorationTrace": [
+          {
+            "step": 1,
+            "tool": "other",
+            "command": "antares query",
+            "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+          }
+        ],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+          "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+          "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+          "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+          "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+          "ZERODAY context sent to Antares (--query): 3 static candidate(s), dependency verdict affected. Antares still explores and decides; files it did not confirm are listed as rules-only.",
+          "Read-only snapshot: 5 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-oUrYlI/repo",
+          "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+          "Local completions probe ok: GET https://zxqlprh3acxmcw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+          "Resolved CVE-2021-23337 → CWE-94 (code-injection) via nvd",
+          "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+        ]
+      }
+    }
+  ]
+}

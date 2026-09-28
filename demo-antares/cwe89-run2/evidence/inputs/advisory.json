@@ -1,0 +1,11 @@
+{
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-89",
+    "cweId": "CWE-89",
+    "title": "Improper Neutralization of Special Elements used in an SQL Command"
+  },
+  "repo": "/Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/locate/demo-app",
+  "mode": "live",
+  "at": "2026-09-28T18:51:42.560Z"
+}

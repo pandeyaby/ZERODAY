@@ -1,0 +1,6 @@
+{
+  "title": "Candidate: src/users.js",
+  "summary": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') (rank 1)",
+  "cites": [],
+  "at": "2026-09-28T18:51:42.561Z"
+}

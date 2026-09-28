@@ -1,0 +1,26 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/advisory/npm-lodash",
+      "dvc": "zeroday-local",
+      "signature": "Improper Control of Generation of Code ('Code Injection')",
+      "severity": "informational",
+      "category": "code-injection",
+      "xref": "CWE-94",
+      "signature_id": "zeroday-85571e7ee6a93c81",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-94",
+      "file": "src/email.js",
+      "evidence": "Antares submitted this file as a localization candidate.; Rules agree: `template` is the vulnerable function named by GHSA-35jh-r3h4-6jhm (advisory-text). Upgrade to 4.17.21 or later. [rule advisory/vulnerable-call]",
+      "advisory": "CVE-2021-23337",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-28T18:52:02.134Z",
+      "cve": "CVE-2021-23337"
+    }
+  ]
+}

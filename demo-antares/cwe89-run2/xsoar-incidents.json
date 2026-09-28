@@ -1,0 +1,18 @@
+[
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "occurred": "2026-09-28T18:51:42.560Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-89/sql-call]",
+    "cwe": "CWE-89",
+    "file_path": "src/users.js",
+    "advisory_id": "CWE-89",
+    "rank": 1,
+    "category": "sql-injection",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  }
+]

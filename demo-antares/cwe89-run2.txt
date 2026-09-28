@@ -1,0 +1,40 @@
+$ npm run zeroday -- locate --cwe CWE-89 --repo fixtures/locate/demo-app --live --remote-inference --output demo-antares/cwe89-run2
+started 2026-09-28 11:51:23 AM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-89 --repo fixtures/locate/demo-app --live --remote-inference --output demo-antares/cwe89-run2
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-89 → CWE-89
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/fixtures/locate/demo-app
+Findings : 1
+
+Ranked files:
+  1. src/users.js  [CWE-89]  Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')  ✓ rules agree
+
+Context  : ZERODAY static pass sent to Antares (1 candidate(s))
+Agreement: 1 file(s) flagged by both Antares and rules
+
+Artifacts:
+  JSON     /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/report.json
+  SARIF    /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/report.sarif
+  Report   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/report.md
+  Comment  /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/comment.md
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/asff-findings.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/xsoar-incidents.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/fortisiem-custom.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/evidence
+  Manifest /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/cwe89-run2/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  1.39s user 0.92s system 12% cpu 19.120 total
+
+exit=0 elapsed=19s
