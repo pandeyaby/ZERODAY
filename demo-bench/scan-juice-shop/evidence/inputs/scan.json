@@ -1,0 +1,14 @@
+{
+  "repo": "/tmp/juice-shop",
+  "antaresCwes": [
+    "CWE-352",
+    "CWE-862",
+    "CWE-601",
+    "CWE-94",
+    "CWE-113",
+    "CWE-287",
+    "CWE-502",
+    "CWE-444"
+  ],
+  "at": "2026-09-28T21:25:03.514Z"
+}

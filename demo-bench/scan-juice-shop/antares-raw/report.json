@@ -1,0 +1,1378 @@
+{
+  "summary": {
+    "total_findings": 15,
+    "tool_call_count": 121,
+    "duration_seconds": 24.356581583153456,
+    "cwe_ids_triggered": [
+      "CWE-113",
+      "CWE-287",
+      "CWE-352",
+      "CWE-444",
+      "CWE-502",
+      "CWE-601",
+      "CWE-862",
+      "CWE-94"
+    ],
+    "failed_tool_calls": 13,
+    "retried_turns": 0,
+    "generation_errors": 0,
+    "failed_workers": 0,
+    "total_workers": 8,
+    "incomplete_reason": null
+  },
+  "findings": [
+    {
+      "title": "Improper Neutralization of CRLF Sequences in HTTP Headers ('HTTP Request/Response Splitting')",
+      "file_path": "frontend/src/app/Services/request.interceptor.ts",
+      "cwe_ids": [
+        "CWE-113"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": ""
+    },
+    {
+      "title": "Improper Authentication",
+      "file_path": "lib/utils.ts",
+      "cwe_ids": [
+        "CWE-287"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Improper Authentication",
+      "file_path": "routes/chat.ts",
+      "cwe_ids": [
+        "CWE-287"
+      ],
+      "submission_rank": 2,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Improper Authentication",
+      "file_path": "routes/verify.ts",
+      "cwe_ids": [
+        "CWE-287"
+      ],
+      "submission_rank": 3,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Improper Authentication",
+      "file_path": "routes/deluxe.ts",
+      "cwe_ids": [
+        "CWE-287"
+      ],
+      "submission_rank": 4,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Improper Authentication",
+      "file_path": "routes/authenticatedUsers.ts",
+      "cwe_ids": [
+        "CWE-287"
+      ],
+      "submission_rank": 5,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Cross-Site Request Forgery (CSRF)",
+      "file_path": "routes/updateUserProfile.ts",
+      "cwe_ids": [
+        "CWE-352"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
+      "file_path": "rsn/rsnUtil.ts",
+      "cwe_ids": [
+        "CWE-444"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": ""
+    },
+    {
+      "title": "Deserialization of Untrusted Data",
+      "file_path": "rsn/rsnUtil.ts",
+      "cwe_ids": [
+        "CWE-502"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "URL Redirection to Untrusted Site ('Open Redirect')",
+      "file_path": "routes/redirect.ts",
+      "cwe_ids": [
+        "CWE-601"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "Low"
+    },
+    {
+      "title": "Missing Authorization",
+      "file_path": "rsn/rsnUtil.ts",
+      "cwe_ids": [
+        "CWE-862"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "High"
+    },
+    {
+      "title": "Improper Control of Generation of Code ('Code Injection')",
+      "file_path": "rsn/rsnUtil.ts",
+      "cwe_ids": [
+        "CWE-94"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "Improper Control of Generation of Code ('Code Injection')",
+      "file_path": "rsn/rsnOutput.ts",
+      "cwe_ids": [
+        "CWE-94"
+      ],
+      "submission_rank": 2,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "Improper Control of Generation of Code ('Code Injection')",
+      "file_path": "rsn/rsn.ts",
+      "cwe_ids": [
+        "CWE-94"
+      ],
+      "submission_rank": 3,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "Improper Control of Generation of Code ('Code Injection')",
+      "file_path": "rsn/rsn-update.ts",
+      "cwe_ids": [
+        "CWE-94"
+      ],
+      "submission_rank": 4,
+      "likelihood_of_exploit": "Medium"
+    }
+  ],
+  "metadata": {
+    "schema_version": "1.0",
+    "request_id": "08dd66ac6e0f1f51",
+    "mode": "cwe_sweep",
+    "model": "fdtn-ai/antares-1b",
+    "backend": "remote",
+    "profile": null,
+    "cwe_ids": [
+      "CWE-352",
+      "CWE-862",
+      "CWE-601",
+      "CWE-94",
+      "CWE-113",
+      "CWE-287",
+      "CWE-502",
+      "CWE-444"
+    ],
+    "query": "ZERODAY static pre-analysis of this repository (may be incomplete or wrong):\n- CWE-601: routes/redirect.ts:18\n- CWE-94: routes/userProfile.ts:65, routes/captcha.ts:22, test/cypress/e2e/contact.spec.ts:267\nRead these first, but confirm each by reading the code, look beyond them, and submit only files you confirm.",
+    "target": "repo",
+    "terminal_call_budget": 15,
+    "allowed_sensitive_files": [],
+    "reproducibility": {
+      "request_hash": "08dd66ac6e0f1f512cb0debf14fb631cd58c521b8e909d3a694dd2a364aec353",
+      "deterministic_ordering": true,
+      "remote_provider_may_vary": true,
+      "safe_for_cache_reuse": false,
+      "cache_reuse_note": "Request identity excludes source contents and the deployed model revision."
+    },
+    "model_configuration": {
+      "settings": {
+        "model": "fdtn-ai/antares-1b",
+        "endpoint": "<configured>",
+        "ignore_paths": [],
+        "backend": "remote",
+        "context_window": 16384,
+        "remote_timeout_seconds": 300.0,
+        "api_key": null
+      },
+      "model_label": "fdtn-ai/antares-1b",
+      "backend": {
+        "class": "RemoteInferenceBackend",
+        "backend_name": "remote",
+        "model_id": "fdtn-ai/antares-1b",
+        "context_window": 16384,
+        "endpoint": "<configured>",
+        "timeout_seconds": 300.0,
+        "retry_count": 6,
+        "retry_delay": 5.0,
+        "max_tokens": 4096,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "repetition_penalty": null
+      },
+      "model_adapter": "antares",
+      "model_spec": null,
+      "selected_profile": null
+    },
+    "selection": {
+      "profile": {
+        "root": "repo",
+        "languages": {
+          "dockerfile": 0.004424778761061947,
+          "javascript": 0.01327433628318584,
+          "python": 0.004424778761061947,
+          "shell": 0.0029498525073746312,
+          "solidity": 0.025073746312684365,
+          "terraform": 0.016224188790560472,
+          "typescript": 0.9336283185840708
+        },
+        "frameworks": [
+          "express"
+        ],
+        "package_managers": [
+          "npm"
+        ],
+        "dependency_files": [
+          "frontend/package.json",
+          "package.json"
+        ],
+        "route_files": [
+          "data/static/codefixes/changeProductChallenge_1.ts",
+          "data/static/codefixes/changeProductChallenge_2.ts",
+          "data/static/codefixes/changeProductChallenge_3_correct.ts",
+          "data/static/codefixes/changeProductChallenge_4.ts",
+          "data/static/codefixes/exposedMetricsChallenge_1.ts",
+          "data/static/codefixes/exposedMetricsChallenge_2.ts",
+          "data/static/codefixes/exposedMetricsChallenge_3_correct.ts",
+          "routes/dataErasure.ts",
+          "server.ts"
+        ],
+        "auth_signals": [
+          "lib/insecurity.ts",
+          "lib/utils.ts",
+          "models/challenge.ts",
+          "routes/chat.ts",
+          "routes/deluxe.ts",
+          "server.ts",
+          "test/api/2fa.test.ts",
+          "test/api/basket.test.ts",
+          "test/api/feedback.test.ts",
+          "test/api/file-serving.test.ts"
+        ],
+        "data_store_signals": [
+          "data/datacreator.ts",
+          "data/static/codefixes/dbSchemaChallenge_1.ts",
+          "data/static/codefixes/dbSchemaChallenge_2_correct.ts",
+          "data/static/codefixes/dbSchemaChallenge_3.ts",
+          "data/static/codefixes/exposedMetricsChallenge_1.ts",
+          "data/static/codefixes/exposedMetricsChallenge_2.ts",
+          "data/static/codefixes/exposedMetricsChallenge_3_correct.ts",
+          "lib/challengeUtils.ts",
+          "lib/noUpdate.ts",
+          "models/address.ts",
+          "models/basket.ts",
+          "models/basketitem.ts",
+          "models/captcha.ts",
+          "models/card.ts",
+          "models/challenge.ts",
+          "models/challengeDependency.ts",
+          "models/complaint.ts",
+          "models/delivery.ts",
+          "models/feedback.ts",
+          "models/hint.ts",
+          "models/imageCaptcha.ts",
+          "models/index.ts",
+          "models/memory.ts",
+          "models/privacyRequests.ts",
+          "models/product.ts",
+          "models/quantity.ts",
+          "models/recycle.ts",
+          "models/relations.ts",
+          "models/securityAnswer.ts",
+          "models/securityQuestion.ts",
+          "models/user.ts",
+          "models/wallet.ts",
+          "routes/chat.ts",
+          "routes/continueCode.ts",
+          "routes/imageCaptcha.ts",
+          "routes/login.ts",
+          "routes/metrics.ts",
+          "server.ts",
+          "test/api/challenge.test.ts",
+          "test/api/feedback.test.ts",
+          "test/api/helpers/setup.ts"
+        ],
+        "template_signals": [
+          "frontend/src/assets/private/dat.gui.min.js",
+          "frontend/src/assets/private/stats.min.js"
+        ],
+        "file_io_signals": [
+          "frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+          "test/files/decrypt.py",
+          "test/files/decrypt_bruteforce.py",
+          "test/files/encrypt.py"
+        ],
+        "network_client_signals": [
+          "frontend/src/app/Services/basket.service.ts",
+          "lib/startup/validatePreconditions.ts",
+          "lib/webhook.ts",
+          "routes/profileImageUrlUpload.ts",
+          "test/api/chat.test.ts",
+          "test/api/internet-resources.test.ts"
+        ],
+        "deserialization_signals": [
+          "lib/scripts/lintConfig.ts",
+          "routes/fileUpload.ts",
+          "rsn/rsnUtil.ts",
+          "server.ts"
+        ],
+        "crypto_signals": [],
+        "native_code_signals": [],
+        "iac_signals": [
+          "Dockerfile",
+          "data/static/codefixes/iacLeakedKeyChallenge_1.tf",
+          "data/static/codefixes/iacLeakedKeyChallenge_2.tf",
+          "data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf",
+          "infrastructure/Dockerfile",
+          "infrastructure/terraform/main.tf",
+          "infrastructure/terraform/networking.tf",
+          "infrastructure/terraform/outputs.tf",
+          "infrastructure/terraform/variables.tf",
+          "terraform/main.tf",
+          "terraform/networking.tf",
+          "terraform/outputs.tf",
+          "terraform/variables.tf",
+          "test/smoke/Dockerfile"
+        ],
+        "secret_signals": [
+          "cypress.config.ts",
+          "data/datacreator.ts",
+          "data/static/codefixes/adminSectionChallenge_1_correct.ts",
+          "data/static/codefixes/adminSectionChallenge_2.ts",
+          "data/static/codefixes/adminSectionChallenge_3.ts",
+          "data/static/codefixes/adminSectionChallenge_4.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_1.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_2_correct.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_3.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_4.ts",
+          "data/static/codefixes/iacLeakedKeyChallenge_1.tf",
+          "data/static/codefixes/iacLeakedKeyChallenge_2.tf",
+          "data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf",
+          "data/static/codefixes/nftMintChallenge_1.sol",
+          "data/static/codefixes/nftMintChallenge_2.sol",
+          "data/static/codefixes/nftMintChallenge_3.sol",
+          "data/static/codefixes/nftMintChallenge_4_correct.sol",
+          "data/static/codefixes/nftUnlockChallenge_1.sol",
+          "data/static/codefixes/nftUnlockChallenge_2_correct.sol",
+          "data/static/codefixes/nftUnlockChallenge_3.sol",
+          "data/static/codefixes/nftUnlockChallenge_4.sol",
+          "data/static/web3-snippets/BEEToken.sol",
+          "data/static/web3-snippets/BeeFaucet.sol",
+          "data/static/web3-snippets/HoneyPotNFT.sol",
+          "data/static/web3-snippets/JuiceShopSBT.sol",
+          "frontend/src/app/Services/basket.service.spec.ts",
+          "frontend/src/app/Services/basket.service.ts",
+          "frontend/src/app/Services/two-factor-auth-service.spec.ts",
+          "frontend/src/app/Services/two-factor-auth-service.ts",
+          "frontend/src/app/oauth/oauth.component.spec.ts",
+          "frontend/src/app/oauth/oauth.component.ts",
+          "frontend/src/app/two-factor-auth-enter/two-factor-auth-enter.component.spec.ts",
+          "frontend/src/app/two-factor-auth-enter/two-factor-auth-enter.component.ts",
+          "frontend/src/app/two-factor-auth/two-factor-auth.component.spec.ts",
+          "frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+          "infrastructure/terraform/networking.tf",
+          "lib/insecurity.ts",
+          "lib/startup/validatePreconditions.ts",
+          "lib/utils.ts",
+          "lib/xml.ts",
+          "models/challenge.ts",
+          "models/index.ts",
+          "models/user.ts",
+          "routes/2fa.ts",
+          "routes/authenticatedUsers.ts",
+          "routes/changePassword.ts",
+          "routes/chat.ts",
+          "routes/currentUser.ts",
+          "routes/dataErasure.ts",
+          "routes/deluxe.ts",
+          "routes/login.ts",
+          "routes/nftMint.ts",
+          "routes/profileImageFileUpload.ts",
+          "routes/profileImageUrlUpload.ts",
+          "server.ts",
+          "terraform/networking.tf",
+          "test/api/2fa.test.ts",
+          "test/api/address.test.ts",
+          "test/api/angular-dist.test.ts",
+          "test/api/authenticated-users.test.ts",
+          "test/api/b2b-order.test.ts",
+          "test/api/basket-item.test.ts",
+          "test/api/basket.test.ts",
+          "test/api/chat.test.ts",
+          "test/api/data-export.test.ts",
+          "test/api/delivery.test.ts",
+          "test/api/deluxe.test.ts",
+          "test/api/erasure-request.test.ts",
+          "test/api/feedback.test.ts",
+          "test/api/file-serving.test.ts",
+          "test/api/file-upload.test.ts",
+          "test/api/helpers/auth.ts",
+          "test/api/login.test.ts",
+          "test/api/memory.test.ts",
+          "test/api/nftMint.test.ts",
+          "test/api/order-history.test.ts",
+          "test/api/password.test.ts",
+          "test/api/payment.test.ts",
+          "test/api/product-review.test.ts",
+          "test/api/profile-image-upload.test.ts",
+          "test/api/quantity.test.ts",
+          "test/api/security-answer.test.ts",
+          "test/cypress/support/commands.ts",
+          "test/server/insecurity.unit.test.ts",
+          "test/server/preconditionValidation.unit.test.ts"
+        ],
+        "request_input_signals": [
+          "data/static/codefixes/dbSchemaChallenge_1.ts",
+          "data/static/codefixes/dbSchemaChallenge_2_correct.ts",
+          "data/static/codefixes/dbSchemaChallenge_3.ts",
+          "data/static/codefixes/forgedReviewChallenge_1.ts",
+          "data/static/codefixes/forgedReviewChallenge_2_correct.ts",
+          "data/static/codefixes/forgedReviewChallenge_3.ts",
+          "frontend/src/app/Services/basket.service.spec.ts",
+          "frontend/src/app/Services/code-fixes.service.spec.ts",
+          "frontend/src/app/Services/complaint.service.spec.ts",
+          "frontend/src/app/Services/data-subject.service.spec.ts",
+          "frontend/src/app/Services/feedback.service.spec.ts",
+          "frontend/src/app/Services/hints.service.spec.ts",
+          "frontend/src/app/Services/security-answer.service.spec.ts",
+          "frontend/src/app/Services/two-factor-auth-service.spec.ts",
+          "lib/insecurity.ts",
+          "routes/2fa.ts",
+          "routes/address.ts",
+          "routes/basket.ts",
+          "routes/basketItems.ts",
+          "routes/captcha.ts",
+          "routes/chat.ts",
+          "routes/checkKeys.ts",
+          "routes/createProductReviews.ts",
+          "routes/currentUser.ts",
+          "routes/dataErasure.ts",
+          "routes/dataExport.ts",
+          "routes/delivery.ts",
+          "routes/deluxe.ts",
+          "routes/imageCaptcha.ts",
+          "routes/likeProductReviews.ts",
+          "routes/login.ts",
+          "routes/memory.ts",
+          "routes/nftMint.ts",
+          "routes/order.ts",
+          "routes/orderHistory.ts",
+          "routes/payment.ts",
+          "routes/profileImageUrlUpload.ts",
+          "routes/recycles.ts",
+          "server.ts",
+          "test/server/insecurity.unit.test.ts",
+          "test/server/redirect.unit.test.ts"
+        ],
+        "upload_signals": [
+          "server.ts",
+          "test/api/memory.test.ts",
+          "test/api/metrics.test.ts"
+        ],
+        "logging_signals": [
+          "data/datacreator.ts",
+          "data/static/codefixes/exposedMetricsChallenge_1.ts",
+          "data/static/codefixes/exposedMetricsChallenge_2.ts",
+          "data/static/codefixes/exposedMetricsChallenge_3_correct.ts",
+          "frontend/src/app/Services/basket.service.ts",
+          "frontend/src/app/oauth/oauth.component.ts",
+          "frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+          "lib/accuracy.ts",
+          "lib/antiCheat.ts",
+          "lib/challengeUtils.ts",
+          "lib/codingChallenges.ts",
+          "lib/scripts/lintConfig.ts",
+          "lib/startup/cleanupFtpFolder.ts",
+          "lib/startup/restoreOverwrittenFilesWithOriginals.ts",
+          "lib/startup/validateConfig.ts",
+          "lib/startup/validateDependencies.ts",
+          "lib/startup/validatePreconditions.ts",
+          "lib/utils.ts",
+          "lib/webhook.ts",
+          "package.json",
+          "routes/chat.ts",
+          "routes/countryMapping.ts",
+          "routes/languages.ts",
+          "routes/metrics.ts",
+          "routes/nftMint.ts",
+          "routes/profileImageFileUpload.ts",
+          "routes/profileImageUrlUpload.ts",
+          "rsn/rsn-update.ts",
+          "rsn/rsnOutput.ts",
+          "server.ts"
+        ],
+        "parser_signals": [],
+        "configuration_signals": [
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_1.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_2_correct.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_3.ts",
+          "data/static/codefixes/chatbotGreedyInjectionChallenge_4.ts",
+          "data/static/codefixes/exposedMetricsChallenge_1.ts",
+          "data/static/codefixes/exposedMetricsChallenge_2.ts",
+          "data/static/codefixes/exposedMetricsChallenge_3_correct.ts",
+          "lib/challengeUtils.ts",
+          "lib/is-heroku.ts",
+          "lib/is-windows.ts",
+          "lib/logger.ts",
+          "lib/startup/restoreOverwrittenFilesWithOriginals.ts",
+          "lib/startup/validateConfig.ts",
+          "lib/startup/validatePreconditions.ts",
+          "lib/utils.ts",
+          "lib/webhook.ts",
+          "routes/chat.ts",
+          "routes/nftMint.ts",
+          "routes/profileImageFileUpload.ts",
+          "routes/profileImageUrlUpload.ts",
+          "server.ts",
+          "test/api/nftMint.test.ts",
+          "test/server/configValidation.unit.test.ts",
+          "test/server/preconditionValidation.unit.test.ts"
+        ],
+        "cwe_evidence": {
+          "CWE-1050": [
+            "resource-consuming loop in frontend/src/assets/private/dat.gui.min.js",
+            "resource-consuming loop in lib/utils.ts",
+            "resource-consuming loop in routes/chat.ts",
+            "resource-consuming loop in server.ts",
+            "resource-consuming loop in test/api/chat.test.ts"
+          ],
+          "CWE-113": [
+            "HTTP header and message parsing in models/challenge.ts",
+            "HTTP header and message parsing in test/api/file-upload.test.ts",
+            "HTTP header and message parsing in test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-116": [
+            "contextual output encoding in data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-1333": [
+            "regular-expression processing in lib/codingChallenges.ts"
+          ],
+          "CWE-1336": [
+            "dynamic code or template generation in frontend/src/assets/private/three.js",
+            "dynamic code or template generation in lib/codingChallenges.ts",
+            "dynamic code or template generation in lib/xml.ts",
+            "dynamic code or template generation in routes/b2bOrder.ts",
+            "dynamic code or template generation in routes/captcha.ts"
+          ],
+          "CWE-177": [
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/hints.service.spec.ts",
+            "URL decoding and repeated parameter handling in lib/utils.ts",
+            "URL decoding and repeated parameter handling in routes/coupon.ts"
+          ],
+          "CWE-184": [
+            "unsafe or unauthenticated deserialization in lib/scripts/lintConfig.ts",
+            "unsafe or unauthenticated deserialization in routes/fileUpload.ts",
+            "unsafe or unauthenticated deserialization in rsn/rsnUtil.ts",
+            "unsafe or unauthenticated deserialization in server.ts"
+          ],
+          "CWE-20": [
+            "HTTP redirect destination handling in routes/profileImageFileUpload.ts",
+            "HTTP redirect destination handling in routes/profileImageUrlUpload.ts",
+            "HTTP redirect destination handling in routes/redirect.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/hints.service.spec.ts",
+            "URL decoding and repeated parameter handling in lib/utils.ts",
+            "URL decoding and repeated parameter handling in routes/coupon.ts",
+            "dynamic code or template generation in frontend/src/assets/private/three.js",
+            "dynamic code or template generation in lib/codingChallenges.ts",
+            "dynamic code or template generation in lib/xml.ts",
+            "dynamic code or template generation in routes/b2bOrder.ts",
+            "dynamic code or template generation in routes/captcha.ts"
+          ],
+          "CWE-200": [
+            "sensitive-data logging in frontend/src/app/oauth/oauth.component.ts",
+            "sensitive-data logging in frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+            "sensitive-data logging in lib/antiCheat.ts",
+            "sensitive-data logging in lib/startup/validatePreconditions.ts",
+            "sensitive-data logging in server.ts"
+          ],
+          "CWE-22": [
+            "user-influenced path construction in lib/scripts/lintConfig.ts",
+            "user-influenced path construction in lib/startup/validateConfig.ts",
+            "user-influenced path construction in routes/order.ts"
+          ],
+          "CWE-235": [
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/conversation-storage.service.ts",
+            "URL decoding and repeated parameter handling in frontend/src/app/Services/hints.service.spec.ts",
+            "URL decoding and repeated parameter handling in lib/utils.ts",
+            "URL decoding and repeated parameter handling in routes/coupon.ts"
+          ],
+          "CWE-250": [
+            "privilege and authorization controls in server.ts"
+          ],
+          "CWE-285": [
+            "authorization and access-control enforcement in server.ts"
+          ],
+          "CWE-287": [
+            "authentication gate in lib/insecurity.ts"
+          ],
+          "CWE-306": [
+            "authentication gate in lib/insecurity.ts"
+          ],
+          "CWE-330": [
+            "security-sensitive randomness in data/datacreator.ts",
+            "security-sensitive randomness in frontend/src/app/Services/conversation-storage.service.ts",
+            "security-sensitive randomness in lib/insecurity.ts",
+            "security-sensitive randomness in routes/captcha.ts"
+          ],
+          "CWE-338": [
+            "security-sensitive randomness in data/datacreator.ts",
+            "security-sensitive randomness in frontend/src/app/Services/conversation-storage.service.ts",
+            "security-sensitive randomness in lib/insecurity.ts",
+            "security-sensitive randomness in routes/captcha.ts"
+          ],
+          "CWE-345": [
+            "unsafe or unauthenticated deserialization in lib/scripts/lintConfig.ts",
+            "unsafe or unauthenticated deserialization in routes/fileUpload.ts",
+            "unsafe or unauthenticated deserialization in rsn/rsnUtil.ts",
+            "unsafe or unauthenticated deserialization in server.ts"
+          ],
+          "CWE-35": [
+            "user-influenced path construction in lib/scripts/lintConfig.ts",
+            "user-influenced path construction in lib/startup/validateConfig.ts",
+            "user-influenced path construction in routes/order.ts"
+          ],
+          "CWE-352": [
+            "anti-CSRF request protection in data/datacreator.ts",
+            "anti-CSRF request protection in frontend/src/app/Services/configuration.service.ts",
+            "anti-CSRF request protection in lib/config.schema.ts",
+            "anti-CSRF request protection in models/challenge.ts",
+            "anti-CSRF request protection in test/api/feedback.test.ts",
+            "anti-CSRF request protection in test/api/internet-resources.test.ts"
+          ],
+          "CWE-36": [
+            "user-influenced path construction in lib/scripts/lintConfig.ts",
+            "user-influenced path construction in lib/startup/validateConfig.ts",
+            "user-influenced path construction in routes/order.ts"
+          ],
+          "CWE-400": [
+            "regular-expression processing in lib/codingChallenges.ts",
+            "resource-consuming loop in frontend/src/assets/private/dat.gui.min.js",
+            "resource-consuming loop in lib/utils.ts",
+            "resource-consuming loop in routes/chat.ts",
+            "resource-consuming loop in server.ts",
+            "resource-consuming loop in test/api/chat.test.ts",
+            "unbounded request-body accumulation in test/api/chat.test.ts"
+          ],
+          "CWE-436": [
+            "HTTP header and message parsing in models/challenge.ts",
+            "HTTP header and message parsing in test/api/file-upload.test.ts",
+            "HTTP header and message parsing in test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-444": [
+            "HTTP header and message parsing in models/challenge.ts",
+            "HTTP header and message parsing in test/api/file-upload.test.ts",
+            "HTTP header and message parsing in test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-502": [
+            "unsafe or unauthenticated deserialization in lib/scripts/lintConfig.ts",
+            "unsafe or unauthenticated deserialization in routes/fileUpload.ts",
+            "unsafe or unauthenticated deserialization in rsn/rsnUtil.ts",
+            "unsafe or unauthenticated deserialization in server.ts"
+          ],
+          "CWE-532": [
+            "sensitive-data logging in frontend/src/app/oauth/oauth.component.ts",
+            "sensitive-data logging in frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+            "sensitive-data logging in lib/antiCheat.ts",
+            "sensitive-data logging in lib/startup/validatePreconditions.ts",
+            "sensitive-data logging in server.ts"
+          ],
+          "CWE-601": [
+            "HTTP redirect destination handling in routes/profileImageFileUpload.ts",
+            "HTTP redirect destination handling in routes/profileImageUrlUpload.ts",
+            "HTTP redirect destination handling in routes/redirect.ts"
+          ],
+          "CWE-732": [
+            "privilege and authorization controls in server.ts"
+          ],
+          "CWE-74": [
+            "contextual output encoding in data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-770": [
+            "unbounded request-body accumulation in test/api/chat.test.ts"
+          ],
+          "CWE-79": [
+            "contextual output encoding in data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-862": [
+            "authorization and access-control enforcement in server.ts",
+            "privilege and authorization controls in server.ts"
+          ],
+          "CWE-863": [
+            "authorization and access-control enforcement in server.ts",
+            "privilege and authorization controls in server.ts"
+          ],
+          "CWE-913": [
+            "unsafe or unauthenticated deserialization in lib/scripts/lintConfig.ts",
+            "unsafe or unauthenticated deserialization in routes/fileUpload.ts",
+            "unsafe or unauthenticated deserialization in rsn/rsnUtil.ts",
+            "unsafe or unauthenticated deserialization in server.ts"
+          ],
+          "CWE-94": [
+            "dynamic code or template generation in frontend/src/assets/private/three.js",
+            "dynamic code or template generation in lib/codingChallenges.ts",
+            "dynamic code or template generation in lib/xml.ts",
+            "dynamic code or template generation in routes/b2bOrder.ts",
+            "dynamic code or template generation in routes/captcha.ts"
+          ],
+          "CWE-95": [
+            "dynamic code or template generation in frontend/src/assets/private/three.js",
+            "dynamic code or template generation in lib/codingChallenges.ts",
+            "dynamic code or template generation in lib/xml.ts",
+            "dynamic code or template generation in routes/b2bOrder.ts",
+            "dynamic code or template generation in routes/captcha.ts"
+          ]
+        },
+        "cwe_evidence_files": {
+          "CWE-1050": [
+            "frontend/src/assets/private/dat.gui.min.js",
+            "lib/utils.ts",
+            "routes/chat.ts",
+            "server.ts",
+            "test/api/chat.test.ts"
+          ],
+          "CWE-113": [
+            "models/challenge.ts",
+            "test/api/file-upload.test.ts",
+            "test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-116": [
+            "data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-1333": [
+            "lib/codingChallenges.ts"
+          ],
+          "CWE-1336": [
+            "frontend/src/assets/private/three.js",
+            "lib/codingChallenges.ts",
+            "lib/xml.ts",
+            "routes/b2bOrder.ts",
+            "routes/captcha.ts"
+          ],
+          "CWE-177": [
+            "frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "frontend/src/app/Services/conversation-storage.service.ts",
+            "frontend/src/app/Services/hints.service.spec.ts",
+            "lib/utils.ts",
+            "routes/coupon.ts"
+          ],
+          "CWE-184": [
+            "lib/scripts/lintConfig.ts",
+            "routes/fileUpload.ts",
+            "rsn/rsnUtil.ts",
+            "server.ts"
+          ],
+          "CWE-20": [
+            "frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "frontend/src/app/Services/conversation-storage.service.ts",
+            "frontend/src/app/Services/hints.service.spec.ts",
+            "frontend/src/assets/private/three.js",
+            "lib/codingChallenges.ts",
+            "lib/utils.ts",
+            "lib/xml.ts",
+            "routes/b2bOrder.ts",
+            "routes/captcha.ts",
+            "routes/coupon.ts",
+            "routes/profileImageFileUpload.ts",
+            "routes/profileImageUrlUpload.ts",
+            "routes/redirect.ts"
+          ],
+          "CWE-200": [
+            "frontend/src/app/oauth/oauth.component.ts",
+            "frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+            "lib/antiCheat.ts",
+            "lib/startup/validatePreconditions.ts",
+            "server.ts"
+          ],
+          "CWE-22": [
+            "lib/scripts/lintConfig.ts",
+            "lib/startup/validateConfig.ts",
+            "routes/order.ts"
+          ],
+          "CWE-235": [
+            "frontend/src/app/Services/conversation-storage.service.spec.ts",
+            "frontend/src/app/Services/conversation-storage.service.ts",
+            "frontend/src/app/Services/hints.service.spec.ts",
+            "lib/utils.ts",
+            "routes/coupon.ts"
+          ],
+          "CWE-250": [
+            "server.ts"
+          ],
+          "CWE-285": [
+            "server.ts"
+          ],
+          "CWE-287": [
+            "lib/insecurity.ts"
+          ],
+          "CWE-306": [
+            "lib/insecurity.ts"
+          ],
+          "CWE-330": [
+            "data/datacreator.ts",
+            "frontend/src/app/Services/conversation-storage.service.ts",
+            "lib/insecurity.ts",
+            "routes/captcha.ts"
+          ],
+          "CWE-338": [
+            "data/datacreator.ts",
+            "frontend/src/app/Services/conversation-storage.service.ts",
+            "lib/insecurity.ts",
+            "routes/captcha.ts"
+          ],
+          "CWE-345": [
+            "lib/scripts/lintConfig.ts",
+            "routes/fileUpload.ts",
+            "rsn/rsnUtil.ts",
+            "server.ts"
+          ],
+          "CWE-35": [
+            "lib/scripts/lintConfig.ts",
+            "lib/startup/validateConfig.ts",
+            "routes/order.ts"
+          ],
+          "CWE-352": [
+            "data/datacreator.ts",
+            "frontend/src/app/Services/configuration.service.ts",
+            "lib/config.schema.ts",
+            "models/challenge.ts",
+            "test/api/feedback.test.ts",
+            "test/api/internet-resources.test.ts"
+          ],
+          "CWE-36": [
+            "lib/scripts/lintConfig.ts",
+            "lib/startup/validateConfig.ts",
+            "routes/order.ts"
+          ],
+          "CWE-400": [
+            "frontend/src/assets/private/dat.gui.min.js",
+            "lib/codingChallenges.ts",
+            "lib/utils.ts",
+            "routes/chat.ts",
+            "server.ts",
+            "test/api/chat.test.ts"
+          ],
+          "CWE-436": [
+            "models/challenge.ts",
+            "test/api/file-upload.test.ts",
+            "test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-444": [
+            "models/challenge.ts",
+            "test/api/file-upload.test.ts",
+            "test/api/profile-image-upload.test.ts"
+          ],
+          "CWE-502": [
+            "lib/scripts/lintConfig.ts",
+            "routes/fileUpload.ts",
+            "rsn/rsnUtil.ts",
+            "server.ts"
+          ],
+          "CWE-532": [
+            "frontend/src/app/oauth/oauth.component.ts",
+            "frontend/src/app/two-factor-auth/two-factor-auth.component.ts",
+            "lib/antiCheat.ts",
+            "lib/startup/validatePreconditions.ts",
+            "server.ts"
+          ],
+          "CWE-601": [
+            "routes/profileImageFileUpload.ts",
+            "routes/profileImageUrlUpload.ts",
+            "routes/redirect.ts"
+          ],
+          "CWE-732": [
+            "server.ts"
+          ],
+          "CWE-74": [
+            "data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-770": [
+            "test/api/chat.test.ts"
+          ],
+          "CWE-79": [
+            "data/static/codefixes/redirectChallenge_3.ts"
+          ],
+          "CWE-862": [
+            "server.ts"
+          ],
+          "CWE-863": [
+            "server.ts"
+          ],
+          "CWE-913": [
+            "lib/scripts/lintConfig.ts",
+            "routes/fileUpload.ts",
+            "rsn/rsnUtil.ts",
+            "server.ts"
+          ],
+          "CWE-94": [
+            "frontend/src/assets/private/three.js",
+            "lib/codingChallenges.ts",
+            "lib/xml.ts",
+            "routes/b2bOrder.ts",
+            "routes/captcha.ts"
+          ],
+          "CWE-95": [
+            "frontend/src/assets/private/three.js",
+            "lib/codingChallenges.ts",
+            "lib/xml.ts",
+            "routes/b2bOrder.ts",
+            "routes/captcha.ts"
+          ]
+        },
+        "cwe_evidence_scores": {
+          "CWE-1050": 110,
+          "CWE-113": 125,
+          "CWE-116": 120,
+          "CWE-1333": 110,
+          "CWE-1336": 90,
+          "CWE-177": 120,
+          "CWE-184": 115,
+          "CWE-20": 75,
+          "CWE-200": 75,
+          "CWE-22": 120,
+          "CWE-235": 105,
+          "CWE-250": 120,
+          "CWE-285": 100,
+          "CWE-287": 125,
+          "CWE-306": 90,
+          "CWE-330": 100,
+          "CWE-338": 120,
+          "CWE-345": 110,
+          "CWE-35": 110,
+          "CWE-352": 130,
+          "CWE-36": 105,
+          "CWE-400": 90,
+          "CWE-436": 120,
+          "CWE-444": 125,
+          "CWE-502": 125,
+          "CWE-532": 115,
+          "CWE-601": 125,
+          "CWE-732": 90,
+          "CWE-74": 80,
+          "CWE-770": 85,
+          "CWE-79": 115,
+          "CWE-862": 125,
+          "CWE-863": 115,
+          "CWE-913": 115,
+          "CWE-94": 125,
+          "CWE-95": 100
+        },
+        "confidence": 1.0
+      },
+      "intent": {
+        "scope": "auto",
+        "cwe_level": "all",
+        "mode": "explicit"
+      },
+      "selection_policy": "explicit_cwe_ids",
+      "selection_notes": [
+        "Exact user-supplied CWE IDs are preserved in request order; automatic limits and filters do not apply."
+      ],
+      "selection_tier_counts": {},
+      "taxonomy": {
+        "catalog": "MITRE CWE",
+        "version": "4.20",
+        "release_date": "2026-04-30",
+        "source_url": "https://cwe.mitre.org/data/xml/cwec_latest.xml.zip",
+        "archive_sha256": "3976f599e5e5200219a3108bb896d06e2a88fbb293369e1883cb423a5e9d7d50",
+        "entry_count": 969
+      },
+      "priority_baseline": null,
+      "automatic_limit": null,
+      "candidate_cwe_count": 8,
+      "omitted_candidate_count": 0,
+      "truncated": false,
+      "selected_checks": [
+        {
+          "check_id": "cwe-352",
+          "title": "Cross-Site Request Forgery (CSRF)",
+          "cwe_ids": [
+            "CWE-352"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Research Concepts",
+          "plain_language_summary": "The web application does not, or cannot, sufficiently verify whether a request was intentionally provided by the user who sent the request, which could have originated from an unauthorized actor.",
+          "why_it_matters": "Potential consequences include Confidentiality, Integrity, Availability, Non-Repudiation, Access Control; Gain Privileges or Assume Identity, Bypass Protection Mechanism, Read Application Data, Modify Application Data, DoS: Crash, Exit, or Restart (Likelihood of Exploit: Medium)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-862",
+          "title": "Missing Authorization",
+          "cwe_ids": [
+            "CWE-862"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Research Concepts",
+          "plain_language_summary": "The product does not perform an authorization check when an actor attempts to access a resource or perform an action.",
+          "why_it_matters": "Potential consequences include Confidentiality; Read Application Data, Read Files or Directories; Integrity; Modify Application Data, Modify Files or Directories; Access Control; Gain Privileges or Assume Identity, Bypass Protection Mechanism; Availability; D. (Likelihood of Exploit: High)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-601",
+          "title": "URL Redirection to Untrusted Site ('Open Redirect')",
+          "cwe_ids": [
+            "CWE-601"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Software Development",
+          "plain_language_summary": "The web application accepts a user-controlled input that specifies a link to an external site, and uses that link in a redirect.",
+          "why_it_matters": "Potential consequences include Access Control; Bypass Protection Mechanism, Gain Privileges or Assume Identity; Access Control, Confidentiality, Other; Bypass Protection Mechanism, Gain Privileges or Assume Identity, Other (Likelihood of Exploit: Low)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-94",
+          "title": "Improper Control of Generation of Code ('Code Injection')",
+          "cwe_ids": [
+            "CWE-94"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Software Development",
+          "plain_language_summary": "The product constructs all or part of a code segment using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the syntax or behavior of the intended code segment.",
+          "why_it_matters": "Potential consequences include Access Control; Bypass Protection Mechanism; Access Control; Gain Privileges or Assume Identity; Integrity, Confidentiality, Availability; Execute Unauthorized Code or Commands; Non-Repudiation; Hide Activities (Likelihood of Exploit: Medium)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-113",
+          "title": "Improper Neutralization of CRLF Sequences in HTTP Headers ('HTTP Request/Response Splitting')",
+          "cwe_ids": [
+            "CWE-113"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Research Concepts",
+          "plain_language_summary": "The product receives data from an HTTP agent/component (e.g., web server, proxy, browser, etc.), but it does not neutralize or incorrectly neutralizes CR and LF characters before the data is included in outgoing HTTP headers.",
+          "why_it_matters": "Potential consequences include Integrity, Access Control; Modify Application Data, Gain Privileges or Assume Identity",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-287",
+          "title": "Improper Authentication",
+          "cwe_ids": [
+            "CWE-287"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Research Concepts",
+          "plain_language_summary": "When an actor claims to have a given identity, the product does not prove or insufficiently proves that the claim is correct.",
+          "why_it_matters": "Potential consequences include Integrity, Confidentiality, Availability, Access Control; Read Application Data, Gain Privileges or Assume Identity, Execute Unauthorized Code or Commands (Likelihood of Exploit: High)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-502",
+          "title": "Deserialization of Untrusted Data",
+          "cwe_ids": [
+            "CWE-502"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Software Development",
+          "plain_language_summary": "The product deserializes untrusted data without sufficiently ensuring that the resulting data will be valid.",
+          "why_it_matters": "Potential consequences include Integrity; Modify Application Data, Unexpected State; Availability; DoS: Resource Consumption (CPU); Other; Varies by Context (Likelihood of Exploit: Medium)",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        },
+        {
+          "check_id": "cwe-444",
+          "title": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
+          "cwe_ids": [
+            "CWE-444"
+          ],
+          "score": 1.0,
+          "reasons": [
+            "Explicitly requested by user"
+          ],
+          "evidence": [
+            "language:dockerfile",
+            "language:javascript",
+            "language:python",
+            "language:shell",
+            "language:solidity",
+            "language:terraform",
+            "language:typescript",
+            "framework:express"
+          ],
+          "confidence": 1.0,
+          "worker_group": "Software Development",
+          "plain_language_summary": "The product acts as an intermediary HTTP agent (such as a proxy or firewall) in the data flow between two entities such as a client and server, but it does not interpret malformed HTTP requests or responses in ways that are consistent with how the messages wi.",
+          "why_it_matters": "Potential consequences include Integrity, Non-Repudiation, Access Control; Unexpected State, Hide Activities, Bypass Protection Mechanism",
+          "selection_tier": "",
+          "repository_evidence_score": 0,
+          "repository_specific_evidence_score": 0,
+          "repository_category_evidence_score": 0,
+          "repository_relationship_evidence_score": 0,
+          "repository_evidence_coverage": 0,
+          "taxonomy_priority_score": 0,
+          "ranking_score": 0,
+          "exact_platform_match": false,
+          "concrete_language_mismatch": false
+        }
+      ],
+      "selected_cwe_ids": [
+        "CWE-352",
+        "CWE-862",
+        "CWE-601",
+        "CWE-94",
+        "CWE-113",
+        "CWE-287",
+        "CWE-502",
+        "CWE-444"
+      ],
+      "explicit_cwe_ids": [
+        "CWE-352",
+        "CWE-862",
+        "CWE-601",
+        "CWE-94",
+        "CWE-113",
+        "CWE-287",
+        "CWE-502",
+        "CWE-444"
+      ],
+      "excluded_checks": []
+    }
+  },
+  "per_cwe_results": [
+    {
+      "cwe_id": "CWE-352",
+      "finding_count": 1,
+      "tool_call_count": 17,
+      "duration_seconds": 24.355653499951586,
+      "error_message": null,
+      "failed_tool_calls": 2,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-862",
+      "finding_count": 1,
+      "tool_call_count": 16,
+      "duration_seconds": 22.0388199579902,
+      "error_message": null,
+      "failed_tool_calls": 3,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-601",
+      "finding_count": 1,
+      "tool_call_count": 14,
+      "duration_seconds": 17.846130708931014,
+      "error_message": null,
+      "failed_tool_calls": 1,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-94",
+      "finding_count": 4,
+      "tool_call_count": 16,
+      "duration_seconds": 21.91516666696407,
+      "error_message": null,
+      "failed_tool_calls": 3,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-113",
+      "finding_count": 1,
+      "tool_call_count": 14,
+      "duration_seconds": 16.583201374858618,
+      "error_message": null,
+      "failed_tool_calls": 0,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-287",
+      "finding_count": 5,
+      "tool_call_count": 14,
+      "duration_seconds": 20.47165633412078,
+      "error_message": null,
+      "failed_tool_calls": 0,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-502",
+      "finding_count": 1,
+      "tool_call_count": 14,
+      "duration_seconds": 19.292893083998933,
+      "error_message": null,
+      "failed_tool_calls": 1,
+      "retried_turns": 0
+    },
+    {
+      "cwe_id": "CWE-444",
+      "finding_count": 1,
+      "tool_call_count": 16,
+      "duration_seconds": 22.43854787503369,
+      "error_message": null,
+      "failed_tool_calls": 3,
+      "retried_turns": 0
+    }
+  ]
+}

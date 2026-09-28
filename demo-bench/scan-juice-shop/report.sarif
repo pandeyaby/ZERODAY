@@ -1,0 +1,3955 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-287",
+              "name": "CWE-287",
+              "shortDescription": {
+                "text": "CWE-287 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-287. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/287.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-287"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-79",
+              "name": "CWE-79",
+              "shortDescription": {
+                "text": "CWE-79 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-79. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/79.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-79"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-601",
+              "name": "CWE-601",
+              "shortDescription": {
+                "text": "CWE-601 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-601. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/601.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-601"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-444",
+              "name": "CWE-444",
+              "shortDescription": {
+                "text": "CWE-444 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-444. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/444.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-444"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-502",
+              "name": "CWE-502",
+              "shortDescription": {
+                "text": "CWE-502 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-502. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/502.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-502"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-862",
+              "name": "CWE-862",
+              "shortDescription": {
+                "text": "CWE-862 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-862. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/862.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-862"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-94",
+              "name": "CWE-94",
+              "shortDescription": {
+                "text": "CWE-94 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-94. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/94.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-94"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-113",
+              "name": "CWE-113",
+              "shortDescription": {
+                "text": "CWE-113 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-113. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/113.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-113"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-352",
+              "name": "CWE-352",
+              "shortDescription": {
+                "text": "CWE-352 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-352. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/352.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-352"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-22",
+              "name": "CWE-22",
+              "shortDescription": {
+                "text": "CWE-22 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-22. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/22.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-22"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-918",
+              "name": "CWE-918",
+              "shortDescription": {
+                "text": "CWE-918 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-918. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/918.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-918"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-89",
+              "name": "CWE-89",
+              "shortDescription": {
+                "text": "CWE-89 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-89. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/89.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-89"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-798",
+              "name": "CWE-798",
+              "shortDescription": {
+                "text": "CWE-798 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-798. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/798.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-798"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-611",
+              "name": "CWE-611",
+              "shortDescription": {
+                "text": "CWE-611 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-611. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/611.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-611"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-287",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Authentication — Antares and rules — rank 1. CWE-79: Request input from line 191 (`req.body?.messages`) reaches this call. [rule cwe-79/xss-response]; Antares (CWE-287): Improper Authentication (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/chat.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 218,
+                  "endLine": 218
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-287|routes/chat.ts|1"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-287",
+              "CWE-79"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-601",
+          "ruleIndex": 2,
+          "level": "note",
+          "message": {
+            "text": "URL Redirection to Untrusted Site ('Open Redirect') — Antares and rules — rank 2. CWE-601: Request input from line 13 (`req.query`) reaches this call. [rule cwe-601/redirect]; Antares (CWE-601): URL Redirection to Untrusted Site ('Open Redirect') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/redirect.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-601|routes/redirect.ts|2"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-601"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-444",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling') — Antares — rank 3. Antares (CWE-444): Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling'); Antares (CWE-502): Deserialization of Untrusted Data; Antares (CWE-862): Missing Authorization; Antares (CWE-94): Improper Control of Generation of Code ('Code Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rsn/rsnUtil.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-444|rsn/rsnUtil.ts|3"
+          },
+          "properties": {
+            "submission_rank": 3,
+            "cwe_ids": [
+              "CWE-444",
+              "CWE-502",
+              "CWE-862",
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-113",
+          "ruleIndex": 7,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of CRLF Sequences in HTTP Headers ('HTTP Request/Response Splitting') — Antares — rank 4. Antares (CWE-113): Improper Neutralization of CRLF Sequences in HTTP Headers ('HTTP Request/Response Splitting') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/Services/request.interceptor.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-113|frontend/src/app/Services/request.interceptor.ts|4"
+          },
+          "properties": {
+            "submission_rank": 4,
+            "cwe_ids": [
+              "CWE-113"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-287",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Authentication — Antares — rank 5. Antares (CWE-287): Improper Authentication (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/utils.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-287|lib/utils.ts|5"
+          },
+          "properties": {
+            "submission_rank": 5,
+            "cwe_ids": [
+              "CWE-287"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-287",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Authentication — Antares — rank 6. Antares (CWE-287): Improper Authentication (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/authenticatedUsers.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-287|routes/authenticatedUsers.ts|6"
+          },
+          "properties": {
+            "submission_rank": 6,
+            "cwe_ids": [
+              "CWE-287"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-287",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Authentication — Antares — rank 7. Antares (CWE-287): Improper Authentication (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/deluxe.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-287|routes/deluxe.ts|7"
+          },
+          "properties": {
+            "submission_rank": 7,
+            "cwe_ids": [
+              "CWE-287"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-352",
+          "ruleIndex": 8,
+          "level": "note",
+          "message": {
+            "text": "Cross-Site Request Forgery (CSRF) — Antares — rank 8. Antares (CWE-352): Cross-Site Request Forgery (CSRF) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/updateUserProfile.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-352|routes/updateUserProfile.ts|8"
+          },
+          "properties": {
+            "submission_rank": 8,
+            "cwe_ids": [
+              "CWE-352"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-287",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Improper Authentication — Antares — rank 9. Antares (CWE-287): Improper Authentication (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/verify.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-287|routes/verify.ts|9"
+          },
+          "properties": {
+            "submission_rank": 9,
+            "cwe_ids": [
+              "CWE-287"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-94",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Improper Control of Generation of Code ('Code Injection') — Antares — rank 10. Antares (CWE-94): Improper Control of Generation of Code ('Code Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rsn/rsn-update.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-94|rsn/rsn-update.ts|10"
+          },
+          "properties": {
+            "submission_rank": 10,
+            "cwe_ids": [
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-94",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Improper Control of Generation of Code ('Code Injection') — Antares — rank 11. Antares (CWE-94): Improper Control of Generation of Code ('Code Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rsn/rsn.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-94|rsn/rsn.ts|11"
+          },
+          "properties": {
+            "submission_rank": 11,
+            "cwe_ids": [
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-94",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Improper Control of Generation of Code ('Code Injection') — Antares — rank 12. Antares (CWE-94): Improper Control of Generation of Code ('Code Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rsn/rsnOutput.ts",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-94|rsn/rsnOutput.ts|12"
+          },
+          "properties": {
+            "submission_rank": 12,
+            "cwe_ids": [
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 13. CWE-22: Request input from line 21 (`req.cookies.token`) reaches this call. [rule cwe-22/path-fs]; CWE-918: Request input from line 19 (`req.body.imageUrl`) reaches this call. [rule cwe-918/ssrf] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/profileImageUrlUpload.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 29,
+                  "endLine": 29
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/profileImageUrlUpload.ts|13"
+          },
+          "properties": {
+            "submission_rank": 13,
+            "cwe_ids": [
+              "CWE-22",
+              "CWE-918"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-79",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "Request input reflected into an HTTP response — Rules — rank 14. CWE-79: Request input from line 34 (`req.cookies.token`) reaches this call. [rule cwe-79/xss-response]; CWE-94: Request input from line 34 (`req.cookies.token`) reaches this call. [rule cwe-94/code-eval] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/userProfile.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 101,
+                  "endLine": 101
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-79|routes/userProfile.ts|14"
+          },
+          "properties": {
+            "submission_rank": 14,
+            "cwe_ids": [
+              "CWE-79",
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 15. CWE-89: Request input from line 3 (`req.query.q`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/dbSchemaChallenge_1.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/dbSchemaChallenge_1.ts|15"
+          },
+          "properties": {
+            "submission_rank": 15,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Private key in source — Rules — rank 16. CWE-798: Credential-shaped literal — rotate it and move it to a secret store. [rule cwe-798/private-key] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/insecurity.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|lib/insecurity.ts|16"
+          },
+          "properties": {
+            "submission_rank": 16,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-611",
+          "ruleIndex": 13,
+          "level": "note",
+          "message": {
+            "text": "XML parsed with entity substitution / DTD loading enabled — Rules — rank 17. CWE-611: libxml2 NOENT / DTDLOAD flags resolve external entities — review whether untrusted XML reaches this parser. [rule cwe-611/libxml-entity-flags] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/xml.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-611|lib/xml.ts|17"
+          },
+          "properties": {
+            "submission_rank": 17,
+            "cwe_ids": [
+              "CWE-611"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 18. CWE-22: Request input from line 14 (`req.params`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/fileServer.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 32,
+                  "endLine": 32
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/fileServer.ts|18"
+          },
+          "properties": {
+            "submission_rank": 18,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 19. CWE-89: Request input from line 18 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginAdminChallenge_1.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginAdminChallenge_1.ts|19"
+          },
+          "properties": {
+            "submission_rank": 19,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 20. CWE-798: `privateKey` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/nft-unlock/nft-unlock.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 74,
+                  "endLine": 74
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/nft-unlock/nft-unlock.component.spec.ts|20"
+          },
+          "properties": {
+            "submission_rank": 20,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-94",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Dynamic code evaluated with eval / vm — Rules — rank 21. CWE-94: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-94/code-eval] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/captcha.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 22,
+                  "endLine": 22
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-94|routes/captcha.ts|21"
+          },
+          "properties": {
+            "submission_rank": 21,
+            "cwe_ids": [
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 22. CWE-22: Request input from line 10 (`req.params`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/keyServer.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/keyServer.ts|22"
+          },
+          "properties": {
+            "submission_rank": 22,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Dynamic code evaluated with eval / vm — Rules — rank 23. CWE-94: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-94/code-eval]; CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/contact.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 267,
+                  "endLine": 267
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/contact.spec.ts|23"
+          },
+          "properties": {
+            "submission_rank": 23,
+            "cwe_ids": [
+              "CWE-798",
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 24. CWE-89: Request input from line 15 (`req.body.password`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginAdminChallenge_2.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 15,
+                  "endLine": 16
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginAdminChallenge_2.ts|24"
+          },
+          "properties": {
+            "submission_rank": 24,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 25. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/oauth/oauth.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 91,
+                  "endLine": 91
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/oauth/oauth.component.spec.ts|25"
+          },
+          "properties": {
+            "submission_rank": 25,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-79",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "HTML built from dynamic input assigned to innerHTML — Rules — rank 26. CWE-79: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-79/xss-dom-assign] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-79|frontend/src/assets/private/dat.gui.min.js|26"
+          },
+          "properties": {
+            "submission_rank": 26,
+            "cwe_ids": [
+              "CWE-79"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 27. CWE-22: Request input from line 10 (`req.params`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/logfileServer.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/logfileServer.ts|27"
+          },
+          "properties": {
+            "submission_rank": 27,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 28. CWE-89: Request input from line 18 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginBenderChallenge_1.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginBenderChallenge_1.ts|28"
+          },
+          "properties": {
+            "submission_rank": 28,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 29. CWE-798: `token` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/payment/payment.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 351,
+                  "endLine": 351
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/payment/payment.component.spec.ts|29"
+          },
+          "properties": {
+            "submission_rank": 29,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-79",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "HTML built from dynamic input assigned to innerHTML — Rules — rank 30. CWE-79: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-79/xss-dom-assign] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/hacking-instructor/index.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 126,
+                  "endLine": 126
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-79|frontend/src/hacking-instructor/index.ts|30"
+          },
+          "properties": {
+            "submission_rank": 30,
+            "cwe_ids": [
+              "CWE-79"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 31. CWE-22: Request input from line 34 (`req.cookies.token`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/profileImageFileUpload.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 42,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/profileImageFileUpload.ts|31"
+          },
+          "properties": {
+            "submission_rank": 31,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 32. CWE-89: Request input from line 15 (`req.body.password`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginBenderChallenge_3.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 15,
+                  "endLine": 16
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginBenderChallenge_3.ts|32"
+          },
+          "properties": {
+            "submission_rank": 32,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 33. CWE-798: `privateKey` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/Services/keys.service.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 68,
+                  "endLine": 68
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/Services/keys.service.spec.ts|33"
+          },
+          "properties": {
+            "submission_rank": 33,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 34. CWE-89: Request input from line 15 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginBenderChallenge_4.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 15,
+                  "endLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginBenderChallenge_4.ts|34"
+          },
+          "properties": {
+            "submission_rank": 34,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 35. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/Services/two-factor-auth-service.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 68,
+                  "endLine": 68
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/Services/two-factor-auth-service.spec.ts|35"
+          },
+          "properties": {
+            "submission_rank": 35,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 36. CWE-22: Request input from line 10 (`req.params`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/quarantineServer.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/quarantineServer.ts|36"
+          },
+          "properties": {
+            "submission_rank": 36,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 37. CWE-89: Request input from line 15 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginJimChallenge_2.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 15,
+                  "endLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginJimChallenge_2.ts|37"
+          },
+          "properties": {
+            "submission_rank": 37,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 38. CWE-798: `secret` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/two-factor-auth/two-factor-auth.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 243,
+                  "endLine": 243
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|frontend/src/app/two-factor-auth/two-factor-auth.component.spec.ts|38"
+          },
+          "properties": {
+            "submission_rank": 38,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 39. CWE-22: Request input from line 71 (`req.body.key`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/vulnCodeFixes.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 81,
+                  "endLine": 81
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/vulnCodeFixes.ts|39"
+          },
+          "properties": {
+            "submission_rank": 39,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 40. CWE-89: Request input from line 18 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/loginJimChallenge_4.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/loginJimChallenge_4.ts|40"
+          },
+          "properties": {
+            "submission_rank": 40,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-22",
+          "ruleIndex": 9,
+          "level": "note",
+          "message": {
+            "text": "Request input used as a filesystem path — Rules — rank 41. CWE-22: Request input from line 71 (`req.body.key`) reaches this call. [rule cwe-22/path-fs] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/vulnCodeSnippet.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 90,
+                  "endLine": 90
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-22|routes/vulnCodeSnippet.ts|41"
+          },
+          "properties": {
+            "submission_rank": 41,
+            "cwe_ids": [
+              "CWE-22"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 42. CWE-798: `secret` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/2fa.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 42,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/2fa.test.ts|42"
+          },
+          "properties": {
+            "submission_rank": 42,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 43. CWE-89: Request input from line 3 (`req.query.q`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/static/codefixes/unionSqlInjectionChallenge_1.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|data/static/codefixes/unionSqlInjectionChallenge_1.ts|43"
+          },
+          "properties": {
+            "submission_rank": 43,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 44. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/address.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/address.test.ts|44"
+          },
+          "properties": {
+            "submission_rank": 44,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 45. CWE-89: Request input from line 34 (`req.body.email`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/login.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 34,
+                  "endLine": 34
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|routes/login.ts|45"
+          },
+          "properties": {
+            "submission_rank": 45,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 46. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/authenticated-users.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 37,
+                  "endLine": 37
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/authenticated-users.test.ts|46"
+          },
+          "properties": {
+            "submission_rank": 46,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-89",
+          "ruleIndex": 11,
+          "level": "note",
+          "message": {
+            "text": "SQL query built from dynamic input — Rules — rank 47. CWE-89: Request input from line 21 (`req.query.q`) reaches this call. [rule cwe-89/sql-call] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/search.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 23,
+                  "endLine": 23
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-89|routes/search.ts|47"
+          },
+          "properties": {
+            "submission_rank": 47,
+            "cwe_ids": [
+              "CWE-89"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 48. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/basket-item.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 23,
+                  "endLine": 23
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/basket-item.test.ts|48"
+          },
+          "properties": {
+            "submission_rank": 48,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 49. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/basket.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 32,
+                  "endLine": 32
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/basket.test.ts|49"
+          },
+          "properties": {
+            "submission_rank": 49,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 50. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/chat.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 261,
+                  "endLine": 261
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/chat.test.ts|50"
+          },
+          "properties": {
+            "submission_rank": 50,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 51. CWE-798: `privateKey` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/checkKeys.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/checkKeys.test.ts|51"
+          },
+          "properties": {
+            "submission_rank": 51,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 52. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/data-export.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 53,
+                  "endLine": 53
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/data-export.test.ts|52"
+          },
+          "properties": {
+            "submission_rank": 52,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 53. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/delivery.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/delivery.test.ts|53"
+          },
+          "properties": {
+            "submission_rank": 53,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 54. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/deluxe.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/deluxe.test.ts|54"
+          },
+          "properties": {
+            "submission_rank": 54,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 55. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/erasure-request.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/erasure-request.test.ts|55"
+          },
+          "properties": {
+            "submission_rank": 55,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 56. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/feedback.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 117,
+                  "endLine": 117
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/feedback.test.ts|56"
+          },
+          "properties": {
+            "submission_rank": 56,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 57. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/login.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/login.test.ts|57"
+          },
+          "properties": {
+            "submission_rank": 57,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 58. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/memory.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 32,
+                  "endLine": 32
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/memory.test.ts|58"
+          },
+          "properties": {
+            "submission_rank": 58,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 59. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/order-history.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/order-history.test.ts|59"
+          },
+          "properties": {
+            "submission_rank": 59,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 60. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/password.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/password.test.ts|60"
+          },
+          "properties": {
+            "submission_rank": 60,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 61. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/payment.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 20,
+                  "endLine": 20
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/payment.test.ts|61"
+          },
+          "properties": {
+            "submission_rank": 61,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 62. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/product-review.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 101,
+                  "endLine": 101
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/product-review.test.ts|62"
+          },
+          "properties": {
+            "submission_rank": 62,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 63. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/profile-image-upload.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 31,
+                  "endLine": 31
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/profile-image-upload.test.ts|63"
+          },
+          "properties": {
+            "submission_rank": 63,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 64. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/quantity.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/quantity.test.ts|64"
+          },
+          "properties": {
+            "submission_rank": 64,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 65. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/user-profile.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/user-profile.test.ts|65"
+          },
+          "properties": {
+            "submission_rank": 65,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 66. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/api/user.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 52,
+                  "endLine": 52
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/api/user.test.ts|66"
+          },
+          "properties": {
+            "submission_rank": 66,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 67. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/administration.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/administration.spec.ts|67"
+          },
+          "properties": {
+            "submission_rank": 67,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 68. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/b2bOrder.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/b2bOrder.spec.ts|68"
+          },
+          "properties": {
+            "submission_rank": 68,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 69. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/basket.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4,
+                  "endLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/basket.spec.ts|69"
+          },
+          "properties": {
+            "submission_rank": 69,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 70. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/changePassword.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/changePassword.spec.ts|70"
+          },
+          "properties": {
+            "submission_rank": 70,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 71. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/chatbot.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 8
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/chatbot.spec.ts|71"
+          },
+          "properties": {
+            "submission_rank": 71,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 72. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/complain.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/complain.spec.ts|72"
+          },
+          "properties": {
+            "submission_rank": 72,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 73. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/dataErasure.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/dataErasure.spec.ts|73"
+          },
+          "properties": {
+            "submission_rank": 73,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 74. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/dataExport.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/dataExport.spec.ts|74"
+          },
+          "properties": {
+            "submission_rank": 74,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 75. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/deluxe.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4,
+                  "endLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/deluxe.spec.ts|75"
+          },
+          "properties": {
+            "submission_rank": 75,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 76. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/noSql.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 8
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/noSql.spec.ts|76"
+          },
+          "properties": {
+            "submission_rank": 76,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 77. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/passwordHashLeak.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/passwordHashLeak.spec.ts|77"
+          },
+          "properties": {
+            "submission_rank": 77,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 78. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/profile.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/profile.spec.ts|78"
+          },
+          "properties": {
+            "submission_rank": 78,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 79. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/register.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 10,
+                  "endLine": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/register.spec.ts|79"
+          },
+          "properties": {
+            "submission_rank": 79,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 80. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/restApi.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4,
+                  "endLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/restApi.spec.ts|80"
+          },
+          "properties": {
+            "submission_rank": 80,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 81. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/search.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 56,
+                  "endLine": 56
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/search.spec.ts|81"
+          },
+          "properties": {
+            "submission_rank": 81,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 82. CWE-798: `password` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/cypress/e2e/totpSetup.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/cypress/e2e/totpSetup.spec.ts|82"
+          },
+          "properties": {
+            "submission_rank": 82,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 83. CWE-798: `token` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/server/currentUser.unit.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 31,
+                  "endLine": 31
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/server/currentUser.unit.test.ts|83"
+          },
+          "properties": {
+            "submission_rank": 83,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-798",
+          "ruleIndex": 12,
+          "level": "note",
+          "message": {
+            "text": "Hard-coded credential — Rules — rank 84. CWE-798: `ALCHEMY_API_KEY` is assigned a string literal — move secrets to configuration or a secret store. [rule cwe-798/hardcoded-credential] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/server/preconditionValidation.unit.test.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 80,
+                  "endLine": 80
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-798|test/server/preconditionValidation.unit.test.ts|84"
+          },
+          "properties": {
+            "submission_rank": 84,
+            "cwe_ids": [
+              "CWE-798"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///tmp/juice-shop"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cwe",
+          "id": "SCAN",
+          "cweId": "CWE-89",
+          "title": "Scan: 15 CWEs"
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-28T21:25:03.514Z",
+        "summary": {
+          "findingCount": 84,
+          "needs_human": true,
+          "incompleteReason": null,
+          "terminalCallBudget": 0,
+          "terminalCallsUsed": 121,
+          "scan": {
+            "cwesRules": [
+              "CWE-89",
+              "CWE-79",
+              "CWE-22",
+              "CWE-78",
+              "CWE-94",
+              "CWE-502",
+              "CWE-918",
+              "CWE-611",
+              "CWE-798",
+              "CWE-601"
+            ],
+            "cwesAntares": [
+              "CWE-352",
+              "CWE-862",
+              "CWE-601",
+              "CWE-94",
+              "CWE-113",
+              "CWE-287",
+              "CWE-502",
+              "CWE-444"
+            ],
+            "perCwe": [
+              {
+                "cwe": "CWE-89",
+                "rules": 11,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-79",
+                "rules": 4,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-22",
+                "rules": 8,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-78",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-94",
+                "rules": 3,
+                "antares": 4,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-502",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-918",
+                "rules": 1,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-611",
+                "rules": 1,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-798",
+                "rules": 48,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-601",
+                "rules": 1,
+                "antares": 1,
+                "both": 1,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-352",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-862",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-113",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-287",
+                "rules": 0,
+                "antares": 5,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-444",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              }
+            ],
+            "antares": {
+              "endpoint": "https://698frdbr9mnz72-8000.proxy.runpod.net/v1",
+              "model": "fdtn-ai/antares-1b",
+              "source": "Using saved endpoint https://698frdbr9mnz72-8000.proxy.runpod.net/v1 (model fdtn-ai/antares-1b; remote-inference ACK from saved Desk config)",
+              "seconds": 25,
+              "toolCalls": 121,
+              "failedToolCalls": 13,
+              "incomplete": null
+            }
+          }
+        },
+        "explorationTrace": [],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "ZERODAY rules findings for 8 planned CWE(s) sent to Antares as starting context (--query).",
+          "Read-only snapshot: 1269 files (destroyed after run)",
+          "Localization only: candidates for human review — not proof of exploitability."
+        ]
+      }
+    }
+  ]
+}

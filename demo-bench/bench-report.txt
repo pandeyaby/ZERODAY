@@ -1,0 +1,29 @@
+$ npm run bench:antares:report
+
+> zeroday@0.9.0 bench:antares:report
+> tsx scripts/bench-antares-report.ts
+
+108 run(s) → docs/antares-benchmark.md
+# Antares localization benchmark (real advisories)
+
+36 published GitHub-reviewed advisories across 12 CWEs, one project each, newest first (published 2026-06-23 … 2026-09-24). Each repository is checked out at the **parent of the fix commit** (no history), every arm is given **only the CWE**, and a run scores a hit when a file the fix changed (tests excluded) is ranked. Cases: [`bench/antares/cases.json`](../bench/antares/cases.json) · curation: [`bench/antares/curate.py`](../bench/antares/curate.py) · runner: `npm run bench:antares`.
+
+Model: `fdtn-ai/antares-1b` via `cisco-antares-cli`.
+
+## CWEs the rules engine covers (89, 79, 22, 78, 94, 502, 918, 601)
+
+| Arm | Cases | Runs | Hit@1 | Hit@3 | Recall | Precision | No answer | Incomplete / failed | Median time | Median tool calls |
+|-----|------:|-----:|------:|------:|-------:|----------:|----------:|--------------------:|------------:|------------------:|
+| ZERODAY rules | 24 | 24 | **21%** | **29%** | 28% | 22% | 5 | 0 | 6.3s | — |
+| Antares-1B alone | 24 | 24 | **25%** | **29%** | 24% | 22% | 0 | 0 | 43.9s | 32 |
+| Antares-1B + ZERODAY context | 24 | 24 | **29%** | **33%** | 26% | 28% | 0 | 0 | 43.2s | 29 |
+
+## CWEs only a model can attempt (862 missing authorization, 287 authentication, 1333 ReDoS, 1321 prototype pollution)
+
+| Arm | Cases | Runs | Hit@1 | Hit@3 | Recall | Precision | No answer | Incomplete / failed | Median time | Median tool calls |
+|-----|------:|-----:|------:|------:|-------:|----------:|----------:|--------------------:|------------:|------------------:|
+| ZERODAY rules | 12 | 12 | **0%** | **0%** | 0% | — | 12 | 0 | 0.5s | — |
+| Antares-1B alone | 12 | 12 | **25%** | **33%** | 42% | 23% | 0 | 0 | 43.2s | 30 |
+| Antares-1B + ZERODAY context | 12 | 12 | **8%** | **8%** | 8% | 8% | 0 | 0 | 45.6s | 32 |
+
+exit=0

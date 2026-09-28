@@ -1,0 +1,8 @@
+$ npm run zeroday -- antares status
+at 2026-09-28 03:20:25 PM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts antares status
+
+Last pod 698frdbr9mnz72 was deleted at 2026-09-28T22:20:25.599Z (119 min, ≈ $0.97).
+exit=0
