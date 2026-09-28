@@ -201,7 +201,7 @@ const out = a[a.indexOf("--output") + 1];
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
   findings: [{ file_path: "src/users.js", submission_rank: 1, cwe_ids: ["CWE-89"], title: "SQL built from request input", rationale: "name reaches db.query" }],
-  summary: { total_findings: 1 },
+  summary: { total_findings: 1, tool_call_count: 13, failed_tool_calls: 1, duration_seconds: 15.1 },
   exploration_trace: [{ step: 1, tool: "grep", command: "grep -rn query src" }, { step: 2, tool: "submit_vulnerable_files", command: "submit" }],
 }));
 `,
@@ -231,5 +231,6 @@ fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
     assert.ok(r.warnings.some((w) => /Endpoint discovered: Found vLLM at http:\/\/127\.0\.0\.1:8000\/v1/.test(w)));
     assert.deepEqual(r.summary.hybrid?.agreed, ["src/users.js"]);
     assert.equal(r.rankedFiles[0]!.evidence.some((e) => /^Rules agree:/.test(e.note)), true);
+    assert.equal(r.summary.terminalCallsUsed, 13, "Antares' own tool_call_count, not the trace length");
   });
 });

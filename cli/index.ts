@@ -1558,6 +1558,9 @@ program
         if (r.summary.changedSince) {
           console.log(`Diff     : ${r.summary.changedSince.changedFiles} file(s) changed since ${r.summary.changedSince.ref} (${r.summary.changedSince.droppedFindings} finding(s) elsewhere hidden)`);
         }
+        if (r.mode === "live" && r.summary.terminalCallsUsed > 0) {
+          console.log(`Explored : ${r.summary.terminalCallsUsed} Antares tool call(s) (budget ${r.summary.terminalCallBudget})`);
+        }
         if (r.summary.incompleteReason) {
           console.log(`Incomplete: yes [${r.summary.incompleteClass ?? "unknown"}]`);
         }
