@@ -130,6 +130,26 @@ import {
 } from "../src/lib/path-policy.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  DEFAULT_GPUS as RUNPOD_DEFAULT_GPUS,
+  DEFAULT_MAX_MINUTES as RUNPOD_DEFAULT_MAX_MINUTES,
+  DEFAULT_MODEL as RUNPOD_DEFAULT_MODEL,
+  createPod as createRunpodPod,
+  deletePod as deleteRunpodPod,
+  ensureAntaresCli,
+  forgetEndpoint as forgetRunpodEndpoint,
+  getPod as getRunpodPod,
+  hfToken,
+  minutesAlive as podMinutesAlive,
+  costSoFar as podCostSoFar,
+  readState as readPodState,
+  runpodKey,
+  saveEndpoint as saveRunpodEndpoint,
+  startWatchdog as startPodWatchdog,
+  waitReady as waitPodReady,
+  writeState as writePodState,
+  type PodState,
+} from "../src/antares/runpod";
 
 const BASE = process.env.ZERODAY_URL || "http://127.0.0.1:3333";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -853,8 +873,175 @@ program
 const antares = program
   .command("antares")
   .description(
-    "Opt-in live Antares helpers (print-only by default — never auto-provisions GPUs)",
+    "Live Antares: `up` starts Antares-1B on your RunPod account (confirmed, capped, auto-deleted), `down` / `status`, `doctor` checklist",
   );
+
+function fmtUsd(n: number | null): string {
+  return n === null ? "unknown" : `$${n.toFixed(2)}`;
+}
+
+async function confirm(question: string): Promise<boolean> {
+  if (!process.stdin.isTTY) return false;
+  const rl = (await import("node:readline")).createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>((r) => rl.question(question, r));
+  rl.close();
+  return /^y(es)?$/i.test(answer.trim());
+}
+
+antares
+  .command("up")
+  .description(
+    "Start Antares-1B on a RunPod Secure GPU with your RUNPOD_API_KEY + HF_TOKEN; saves the endpoint so `locate --live` and the Desk use it. Deleted automatically at --max-minutes.",
+  )
+  .option("--max-minutes <n>", "Delete the pod after this many minutes", String(RUNPOD_DEFAULT_MAX_MINUTES))
+  .option("--gpu <names>", `GPU types in order of preference (comma-separated; default ${RUNPOD_DEFAULT_GPUS.join(", ")})`)
+  .option("--model <id>", "Hugging Face model id", RUNPOD_DEFAULT_MODEL)
+  .option("--yes", "Don't ask for confirmation (also installs the Antares CLI if missing)", false)
+  .action(async (opts: { maxMinutes: string; gpu?: string; model: string; yes: boolean }) => {
+    const maxMinutes = Number(opts.maxMinutes);
+    if (!Number.isFinite(maxMinutes) || maxMinutes < 5 || maxMinutes > 240) {
+      console.error("--max-minutes must be between 5 and 240.");
+      process.exitCode = 2;
+      return;
+    }
+    try {
+      const existing = readPodState();
+      if (existing && !existing.deletedAt && (await getRunpodPod(existing.podId)).exists) {
+        console.log(`Antares is already up: ${existing.endpoint} (pod ${existing.podId}, deleted automatically at ${new Date(existing.deadline).toLocaleTimeString()}).`);
+        console.log("Stop it with: zeroday antares down");
+        return;
+      }
+      runpodKey();
+      hfToken();
+      const gpus = opts.gpu ? opts.gpu.split(",").map((g) => g.trim()).filter(Boolean) : RUNPOD_DEFAULT_GPUS;
+      console.log("");
+      console.log("ZERODAY antares up");
+      console.log("──────────────────");
+      console.log(`Creates a RunPod Secure Cloud pod on YOUR account: ${gpus[0]}${gpus.length > 1 ? ` (or ${gpus.slice(1).join(" / ")})` : ""}, vLLM serving ${opts.model}.`);
+      console.log(`Typical rate ~$0.50/hr. The pod is deleted automatically after ${maxMinutes} minutes, or now with: zeroday antares down`);
+      console.log("Repository content you scan is sent to this pod for inference. Your keys are read from the environment and never saved.");
+      if (!opts.yes && !(await confirm("Create it? [y/N] "))) {
+        console.log("Cancelled — nothing created.");
+        process.exitCode = 1;
+        return;
+      }
+      const cli = ensureAntaresCli(true);
+      console.log(cli.detail);
+      if (!cli.ok) {
+        process.exitCode = 2;
+        return;
+      }
+      const state = await createRunpodPod({ gpus, model: opts.model, maxMinutes });
+      writePodState(state);
+      state.watchdogPid = startPodWatchdog(state, path.join(REPO_ROOT, "bin", "zeroday.mjs"));
+      writePodState(state);
+      console.log(`Pod ${state.podId} created${state.costPerHr !== null ? ` at ${fmtUsd(state.costPerHr)}/hr` : ""}; auto-delete at ${new Date(state.deadline).toLocaleTimeString()}.`);
+      console.log("Waiting for Antares to load (usually 3–8 minutes)…");
+      const t0 = Date.now();
+      let lastMsg = "";
+      const ready = await waitPodReady(state, {
+        onTick: (m) => {
+          if (m !== lastMsg) console.log(`  ${Math.round((Date.now() - t0) / 1000)}s  ${m}`);
+          lastMsg = m;
+        },
+      });
+      if (!ready) {
+        console.error("Antares did not come up within 15 minutes — deleting the pod.");
+        const gone = await deleteRunpodPod(state.podId);
+        writePodState({ ...state, deletedAt: new Date().toISOString() });
+        console.error(gone ? "Pod deleted." : `Pod ${state.podId} may still exist — delete it in the RunPod console.`);
+        process.exitCode = 2;
+        return;
+      }
+      const info = await getRunpodPod(state.podId);
+      const readyState: PodState = { ...state, readyAt: new Date().toISOString(), gpu: info.gpu ?? state.gpu, costPerHr: info.costPerHr ?? state.costPerHr };
+      writePodState(readyState);
+      saveRunpodEndpoint(readyState);
+      console.log("");
+      console.log(`Antares is up: ${readyState.endpoint}  (${readyState.gpu ?? "GPU"}, ready in ${Math.round((Date.now() - t0) / 60000)} min)`);
+      console.log("Saved as your Antares endpoint. Next:");
+      console.log("  zeroday locate --cwe CWE-89 --repo <path> --live      # one CWE");
+      console.log("  zeroday scan --repo <path>                              # anything");
+      console.log("  zeroday antares down                                    # stop paying");
+    } catch (e) {
+      console.error((e as Error).message);
+      process.exitCode = 2;
+    }
+  });
+
+antares
+  .command("down")
+  .description("Delete the pod started by `antares up` and forget its endpoint")
+  .action(async () => {
+    const state = readPodState();
+    if (!state || state.deletedAt) {
+      console.log("No running pod from `zeroday antares up`.");
+      return;
+    }
+    try {
+      const gone = await deleteRunpodPod(state.podId);
+      const done: PodState = { ...state, deletedAt: new Date().toISOString() };
+      writePodState(done);
+      forgetRunpodEndpoint(done);
+      if (state.watchdogPid) {
+        try {
+          process.kill(state.watchdogPid);
+        } catch {
+          /* already exited */
+        }
+      }
+      console.log(
+        gone
+          ? `Pod ${state.podId} deleted after ${podMinutesAlive(done).toFixed(0)} min (≈ ${fmtUsd(podCostSoFar(done))}).`
+          : `Delete requested for ${state.podId}, but RunPod still reports it — check the RunPod console.`,
+      );
+      if (!gone) process.exitCode = 2;
+    } catch (e) {
+      console.error((e as Error).message);
+      process.exitCode = 2;
+    }
+  });
+
+antares
+  .command("status")
+  .description("Show the pod started by `antares up`: endpoint, minutes, cost so far, auto-delete time")
+  .action(async () => {
+    const state = readPodState();
+    if (!state || state.deletedAt) {
+      console.log(state ? `Last pod ${state.podId} was deleted at ${state.deletedAt} (${podMinutesAlive(state).toFixed(0)} min, ≈ ${fmtUsd(podCostSoFar(state))}).` : "No pod from `zeroday antares up`.");
+      return;
+    }
+    const info = await getRunpodPod(state.podId).catch(() => ({ exists: true as boolean, desiredStatus: "unknown" }));
+    console.log(`Pod      : ${state.podId} (${info.exists ? (info as { desiredStatus?: string }).desiredStatus ?? "running" : "gone"})`);
+    console.log(`Endpoint : ${state.endpoint}`);
+    console.log(`Running  : ${podMinutesAlive(state).toFixed(0)} min · ≈ ${fmtUsd(podCostSoFar(state))} so far`);
+    console.log(`Deletes  : ${new Date(state.deadline).toLocaleString()} (watchdog pid ${state.watchdogPid ?? "—"})`);
+  });
+
+antares
+  .command("watchdog", { hidden: true })
+  .requiredOption("--pod <id>")
+  .requiredOption("--at <iso>")
+  .action(async (opts: { pod: string; at: string }) => {
+    const wait = Date.parse(opts.at) - Date.now();
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    const state = readPodState();
+    if (state && state.podId === opts.pod && state.deletedAt) return;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const gone = await deleteRunpodPod(opts.pod);
+        if (state && state.podId === opts.pod) {
+          const done = { ...state, deletedAt: new Date().toISOString() };
+          writePodState(done);
+          forgetRunpodEndpoint(done);
+        }
+        if (gone) return;
+      } catch {
+        /* retry */
+      }
+      await new Promise((r) => setTimeout(r, 30_000));
+    }
+  });
 
 antares
   .command("doctor")
