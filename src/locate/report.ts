@@ -69,7 +69,7 @@ export function toHumanReport(
     lines.push(
       hy.contextSent
         ? `ZERODAY's static pass (${hy.rulesCandidates} candidate file(s)${am ? `, dependency verdict ${am.verdict}` : ""}) was given to Antares as starting context; Antares explored and decided.`
-        : `ZERODAY's static pass found nothing to add; Antares ran without extra context.`,
+        : `Antares ran on its own; ZERODAY's static pass (${hy.rulesCandidates} candidate file(s)) ran separately on the same snapshot and is compared here.`,
     );
     lines.push(``);
     lines.push(`| | Files |`);

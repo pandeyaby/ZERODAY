@@ -39,6 +39,10 @@ documented in [`github-action.md`](./github-action.md) follow the same rules.
 
 ## Experimental
 
+New in 0.10 and experimental while they settle: `scan`, `antares up` /
+`down` / `status`, `locate --samples`, `locate --context`, and the
+`summary.hybrid` / `summary.samples` fields of `report.json`.
+
 Every other command (`factory`, `inventory`, `paired-probe`, `prove-doors`,
 `report`, `evidence-pack`, the Desk web UI and its HTTP API, …) can change or be
 removed in any 0.x release. `zeroday --help` lists them under

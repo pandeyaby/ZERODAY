@@ -166,7 +166,7 @@ reviewable comment:
 ```yaml
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v0.9.0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v0.10.0
         with:
           mode: rules
           repo: .
@@ -236,12 +236,14 @@ ZERODAY also makes Antares more useful with no extra setup:
 - **Finds your server.** `locate --live` with no `--endpoint` uses the Desk's
   saved endpoint, or a local vLLM (:8000), Ollama (:11434) or LM Studio (:1234)
   that serves an Antares model — loopback only, `GET /v1/models` only.
-- **Gives Antares a head start.** Before Antares explores, ZERODAY runs its own
-  static pass — the advisory's lockfile verdict, vulnerable functions and rules
-  candidates — and passes it through the official CLI's `--query`. Antares
-  still decides; the result shows which files **both** flagged, which only
-  Antares found, and which rules candidates Antares did not confirm
-  (`--no-context` runs Antares alone).
+- **Shows rules and Antares side by side.** ZERODAY's static pass runs on the
+  same snapshot and the result marks which files **both** flagged, which only
+  Antares found, and which rules candidates Antares did not confirm. On real
+  advisories the two lists together catch more than either alone.
+- **Merges runs.** Antares-1B varies from run to run; `--samples 2` runs it
+  twice and ranks files by votes, which lifted top-3 hits from 32% to 47% on
+  the benchmark. (`--context` also sends the rules findings to Antares as
+  starting context — it did not help there, so it is off by default.)
 
 It is opt-in and **costs $**. One command starts it on your own RunPod
 account — you accept the Hugging Face terms for

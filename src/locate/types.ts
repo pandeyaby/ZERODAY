@@ -107,6 +107,8 @@ export interface LocalizationResult {
      * Live runs with ZERODAY context (default): the static pass sent to Antares
      * and where the two agree. Antares' ranking is kept as-is.
      */
+    /** Live `--samples N`: runs merged and how many ranked each file. */
+    samples?: { runs: number; votes: Record<string, number> };
     hybrid?: {
       contextSent: boolean;
       rulesCandidates: number;
@@ -167,10 +169,13 @@ export interface LocateOptions {
   /** OpenAI-compatible completions URL — implies live; never combined with --fixture */
   endpoint?: string;
   /**
-   * Live: give Antares ZERODAY's static pass (dependency exposure, vulnerable
-   * functions, rules candidates) as starting context via `--query`. Default true.
+   * Live: also send ZERODAY's static pass (dependency exposure, vulnerable
+   * functions, rules candidates) to Antares via `--query`. Default false — the
+   * static pass is always compared with Antares' answer afterwards.
    */
   context?: boolean;
+  /** Live: run Antares N times (1–5) and merge by vote. Default 1. */
+  samples?: number;
   /**
    * CI / test: drive live locate via in-process mock Antares that POSTs to
    * `--endpoint` and parses Antares-shaped `<tool_call>` text. No GPU, no

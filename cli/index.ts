@@ -881,6 +881,8 @@ program
   .option("--max-cwes <n>", "CWEs Antares investigates, chosen for this repo (default 8)", "8")
   .option("--cwe <ids>", "Antares CWEs to investigate instead of automatic selection (comma-separated)")
   .option("--rules-only", "Don't use Antares even if one is available", false)
+  .option("--context", "Also send the rules findings to Antares as starting context (off by default; they are always compared)", false)
+  .option("--samples <n>", "Antares sweeps merged by vote (1–5; default 2 — Antares-1B varies run to run)", "2")
   .option("--require-antares", "Fail if no Antares endpoint is available", false)
   .option("--endpoint <url>", "Antares completions endpoint (default: discovered)")
   .option("--model <id>", "Served model id")
@@ -892,6 +894,8 @@ program
     maxCwes: string;
     cwe?: string;
     rulesOnly: boolean;
+    context: boolean;
+    samples: string;
     requireAntares: boolean;
     endpoint?: string;
     model?: string;
@@ -904,6 +908,8 @@ program
         repo: opts.repo,
         ...(opts.output ? { outputDir: opts.output } : {}),
         antares: opts.rulesOnly ? "off" : opts.requireAntares ? "require" : "auto",
+        context: opts.context,
+        samples: Number(opts.samples) || 2,
         maxCwes: Number(opts.maxCwes) || 8,
         ...(opts.cwe ? { cwes: opts.cwe.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean) } : {}),
         ...(opts.endpoint ? { endpoint: opts.endpoint } : {}),
@@ -922,7 +928,7 @@ program
       console.log(`Rules    : ${s.cwesRules.length} CWEs`);
       console.log(
         s.antares
-          ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
+          ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.samples} run(s) merged, ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
           : `Antares  : not used — ${s.antaresSkipped ?? "--rules-only"}`,
       );
       console.log("");
@@ -1683,9 +1689,11 @@ program
     false,
   )
   .option(
-    "--no-context",
-    "Live: run Antares alone, without ZERODAY's static pass (dependency verdict, vulnerable functions, rules candidates) as starting context",
+    "--context",
+    "Live: also send ZERODAY's static pass (dependency verdict, vulnerable functions, rules candidates) to Antares as starting context. Off by default; the rules are always compared afterwards",
+    false,
   )
+  .option("--samples <n>", "Live: run Antares N times (1–5) and merge by vote — Antares-1B answers vary run to run", "1")
   .option(
     "--fail-on-findings",
     "Exit 1 when ranked files are non-empty (with --baseline: only new findings count)",
@@ -1717,7 +1725,8 @@ program
     failOnIncomplete?: boolean;
     noFailOnIncomplete: boolean;
     noLiveRecovery: boolean;
-    context?: boolean;
+    context: boolean;
+    samples: string;
     failOnFindings: boolean;
     json: boolean;
   }) => {
@@ -1801,7 +1810,8 @@ program
         toolBudget,
         failOnIncomplete,
         liveRecovery: !opts.noLiveRecovery,
-        context: opts.context !== false,
+        context: opts.context === true,
+        samples: Number(opts.samples) || 1,
         failOnFindings: opts.failOnFindings,
         remoteInference: opts.remoteInference,
         ...(opts.baseline ? { baseline: path.resolve(opts.baseline) } : {}),
@@ -1853,16 +1863,18 @@ program
           for (const f of r.rankedFiles) {
             const state = f.baselineState ? `[${f.baselineState}] ` : "";
             const both = f.sources?.includes("rules") ? "  ✓ rules agree" : "";
+            const votes = r.summary.samples ? `  (${r.summary.samples.votes[f.filePath] ?? 0}/${r.summary.samples.runs} runs)` : "";
             console.log(
-              `  ${f.rank}. ${state}${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}${both}`,
+              `  ${f.rank}. ${state}${f.filePath}  [${f.cweIds.join(",")}]  ${f.title}${both}${votes}`,
             );
           }
           console.log("");
           const hy = r.summary.hybrid;
           if (hy) {
             console.log(
-              `Context  : ${hy.contextSent ? `ZERODAY static pass sent to Antares (${hy.rulesCandidates} candidate(s))` : "nothing to add — Antares ran alone"}`,
+              `Rules    : ${hy.rulesCandidates} candidate(s) — ${hy.contextSent ? "sent to Antares as starting context (--context)" : "compared with Antares' answer (not sent)"}`,
             );
+            if (r.summary.samples) console.log(`Samples  : ${r.summary.samples.runs} Antares runs merged by vote`);
             console.log(`Agreement: ${hy.agreed.length} file(s) flagged by both Antares and rules`);
             if (hy.rulesOnly.length) {
               console.log("Rules only (Antares did not confirm — review or dismiss):");
