@@ -3,7 +3,7 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 0.11.0
 
 ### Supply chain
 - **Signed releases with SBOMs** ([`docs/verify-release.md`](./docs/verify-release.md)).
