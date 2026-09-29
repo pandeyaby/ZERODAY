@@ -4,7 +4,7 @@
  * removes or retypes a field fails here before it reaches a release.
  */
 
-import { describe, it } from "node:test";
+import { before, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -17,6 +17,12 @@ import { assertValidReport as assertValid, validateReport as validate } from "./
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const out = () => fs.mkdtempSync(path.join(os.tmpdir(), "zd-schema-"));
+
+// Recorded OSV advisories and an empty cache: the CVE case must not depend on the network or ~/.cache.
+before(() => {
+  process.env.ZERODAY_OSV_DIR = path.join(root, "fixtures/advisories/osv");
+  process.env.ZERODAY_CACHE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-cache-"));
+});
 
 describe("report.json schema (zeroday.report/v1)", () => {
   it("rules mode on a CWE", async () => {
