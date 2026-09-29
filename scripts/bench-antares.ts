@@ -5,7 +5,7 @@
  * vulnerable code, no history), then located three ways:
  *   rules   — ZERODAY's static engine alone (keyless)
  *   antares — Antares-1B alone (`antares query --cwe`)
- *   hybrid  — Antares-1B with ZERODAY's static pass as starting context
+ *   hybrid  — Antares-1B with ZERODAY's static pass sent as context (--context)
  * Ground truth: the non-test source files the fix commit changed. Only the CWE
  * is given to every arm — never the advisory text or the fix.
  *
@@ -58,6 +58,8 @@ interface RunResult {
   toolCalls?: number;
   incomplete?: string | null;
   agreed?: string[];
+  /** Hybrid arm: whether the static pass had anything to send (no rules findings → identical to Antares alone). */
+  contextSent?: boolean;
   model?: string;
   at: string;
 }
@@ -134,7 +136,7 @@ async function runArm(c: Case, repo: string, arm: Arm, run: number): Promise<Run
       ...score(c, ranked),
       seconds: Math.round((Date.now() - t0) / 100) / 10,
       ...(arm === "rules" ? {} : { toolCalls: result.summary.terminalCallsUsed, incomplete: result.summary.incompleteReason ?? null, model: result.model }),
-      ...(result.summary.hybrid ? { agreed: result.summary.hybrid.agreed } : {}),
+      ...(result.summary.hybrid ? { agreed: result.summary.hybrid.agreed, contextSent: result.summary.hybrid.contextSent } : {}),
     };
   } catch (e) {
     return { ...base, ok: false, error: (e as Error).message.slice(0, 500), ranked: [], firstHitRank: null, hitAt1: false, hitAt3: false, recall: 0, precision: null, seconds: Math.round((Date.now() - t0) / 100) / 10 };

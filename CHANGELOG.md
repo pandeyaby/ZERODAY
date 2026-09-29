@@ -39,7 +39,10 @@ All notable changes to ZERODAY. The stable surface is defined in
   vulnerable functions, rules candidates) is passed to Antares via the official
   `antares query --query`; results mark files both flagged (`sources`,
   `summary.hybrid`), list rules candidates Antares did not confirm, and live
-  CVE / GHSA runs now show the dependency verdict. `--no-context` opts out.
+  CVE / GHSA runs now show the dependency verdict. Sending the static pass to
+  Antares as context (`--context`) is opt-in: on the benchmark it did not help.
+- **`--samples N`** runs Antares N times and merges files by vote
+  (`summary.samples`); on the benchmark 2 runs lifted top-3 hits from 32% to 47%.
 - CWE-502 / CWE-94 rules for ML model loading: `torch.load` without
   `weights_only=True`, `numpy.load(allow_pickle=True)`, joblib /
   `pandas.read_pickle`, Keras `load_model(safe_mode=False)`, Hugging Face

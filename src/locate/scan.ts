@@ -5,8 +5,8 @@
  * 2. When an Antares endpoint is available (`antares up`, saved Desk endpoint,
  *    local vLLM / Ollama / LM Studio, or ANTARES_ENDPOINT), the official CLI
  *    picks the CWEs that fit this repository (`antares plan`, local, no
- *    inference) and investigates them in parallel (`antares sweep`), with the
- *    rules findings as starting context (`--query`).
+ *    inference) and investigates them in parallel (`antares sweep`). The rules
+ *    findings are sent as starting context only with `context: true`.
  * 3. One ranked list: files both flagged first, then Antares-only, then
  *    rules-only — each with the CWEs and who flagged it — plus a per-CWE table,
  *    SARIF, report.md and a hash-verified evidence folder.
@@ -39,6 +39,8 @@ export interface ScanOptions {
   cwes?: string[];
   workers?: number;
   toolBudget?: number;
+  /** Also send the rules findings to Antares via --query (default off; always compared). */
+  context?: boolean;
 }
 
 export interface ScanCweRow {
@@ -158,7 +160,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
 
         antaresCwes = opts.cwes?.length ? opts.cwes : antaresPlan(cli.binary, snap.snapshotPath, opts.maxCwes ?? 8);
         if (!antaresCwes.length) throw new Error("antares plan selected no CWEs for this repository");
-        const query = scanContext(rulesByCwe, antaresCwes);
+        const query = opts.context === true ? scanContext(rulesByCwe, antaresCwes) : "";
         const rawDir = path.join(outputDir, "antares-raw");
         const args = [
           "sweep",

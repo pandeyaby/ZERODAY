@@ -1,6 +1,7 @@
 /**
  * Zero-config Antares: endpoint discovery for `--live`, and hybrid runs where
- * ZERODAY's static pass is Antares' starting context (`antares query --query`).
+ * ZERODAY's static pass is compared with Antares' answer (and, with --context,
+ * sent as starting context via `antares query --query`); --samples merges runs.
  * No GPU, no weights: a loopback completions mock and a fake `antares` binary.
  */
 
@@ -11,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { discoverLiveEndpoint, DiscoveryError } from "../../src/locate/discover.ts";
-import { contextQuery } from "../../src/locate/hybrid.ts";
+import { contextQuery, mergeSamples } from "../../src/locate/hybrid.ts";
 import { locate } from "../../src/locate/index.ts";
 import { startMockCompletionsServer } from "../../src/locate/mock-completions.ts";
 import type { LocalizationResult } from "../../src/locate/types.ts";
@@ -136,7 +137,7 @@ describe("hybrid context (ZERODAY static pass → Antares)", () => {
     assert.equal(contextQuery({ kind: "cwe", id: "CWE-89", cweId: "CWE-89" }, { rankedFiles: [], summary: {} } as unknown as LocalizationResult), "");
   });
 
-  it("sends the static pass to Antares and marks agreement (mock Antares)", async () => {
+  it("--context sends the static pass to Antares and marks agreement (mock Antares)", async () => {
     const server = await startMockCompletionsServer();
     try {
       const out = fs.mkdtempSync(path.join(os.tmpdir(), "zd-hybrid-"));
@@ -149,6 +150,7 @@ describe("hybrid context (ZERODAY static pass → Antares)", () => {
         outputDir: out,
         liveRecovery: false,
         failOnIncomplete: false,
+        context: true,
       });
       assert.match(server.posts[0]!.prompt ?? "", /ZERODAY pre-analysis for CWE-89/);
       assert.match(server.posts[0]!.prompt ?? "", /src\/users\.js:\d+/);
@@ -158,12 +160,13 @@ describe("hybrid context (ZERODAY static pass → Antares)", () => {
       assert.deepEqual(result.rankedFiles.find((f) => f.filePath === "src/users.js")?.sources, ["antares", "rules"]);
       assert.deepEqual(result.rankedFiles.find((f) => f.filePath === "src/app.js")?.sources, ["antares"]);
       assert.ok(result.warnings.some((w) => /ZERODAY context sent to Antares/.test(w)));
+      assert.equal(result.summary.hybrid?.contextSent, true);
     } finally {
       await server.close();
     }
   });
 
-  it("--no-context runs Antares alone", async () => {
+  it("by default Antares runs alone and the rules are compared afterwards", async () => {
     const server = await startMockCompletionsServer();
     try {
       const { result } = await locate({
@@ -175,10 +178,11 @@ describe("hybrid context (ZERODAY static pass → Antares)", () => {
         outputDir: fs.mkdtempSync(path.join(os.tmpdir(), "zd-hybrid-")),
         liveRecovery: false,
         failOnIncomplete: false,
-        context: false,
       });
       assert.doesNotMatch(server.posts[0]!.prompt ?? "", /ZERODAY pre-analysis/);
-      assert.equal(result.summary.hybrid, undefined);
+      assert.equal(result.summary.hybrid?.contextSent, false);
+      assert.deepEqual(result.summary.hybrid?.agreed, ["src/users.js"], "agreement still marked");
+      assert.ok(result.warnings.some((w) => /compared, not sent/.test(w)));
     } finally {
       await server.close();
     }
@@ -210,7 +214,7 @@ fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
     return { bin, argvFile };
   }
 
-  it("--live with no endpoint: discovers the server, passes --query to antares", async () => {
+  it("--live with no endpoint: discovers the server; --query only with --context; --samples merges by vote", async () => {
     const { bin, argvFile } = fakeAntares();
     const artifacts = await locate({
       repo: demoApp,
@@ -225,12 +229,48 @@ fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
     const argv = JSON.parse(fs.readFileSync(argvFile, "utf8")) as string[];
     assert.equal(argv[argv.indexOf("--endpoint") + 1], "http://127.0.0.1:8000/v1/completions");
     assert.equal(argv[argv.indexOf("--model") + 1], "fdtn-ai/antares-1b");
-    assert.match(argv[argv.indexOf("--query") + 1]!, /ZERODAY pre-analysis for CWE-89[\s\S]*src\/users\.js/);
+    assert.equal(argv.includes("--query"), false, "no context by default");
     const r = artifacts.result;
     assert.equal(r.mode, "live");
     assert.ok(r.warnings.some((w) => /Endpoint discovered: Found vLLM at http:\/\/127\.0\.0\.1:8000\/v1/.test(w)));
     assert.deepEqual(r.summary.hybrid?.agreed, ["src/users.js"]);
     assert.equal(r.rankedFiles[0]!.evidence.some((e) => /^Rules agree:/.test(e.note)), true);
     assert.equal(r.summary.terminalCallsUsed, 13, "Antares' own tool_call_count, not the trace length");
+
+    const withCtx = await locate({
+      repo: demoApp,
+      advisory: "CWE-89",
+      live: true,
+      context: true,
+      samples: 2,
+      antaresCliSource: bin,
+      probeFetch: modelsFetch({ "http://127.0.0.1:8000": ["fdtn-ai/antares-1b"] }),
+      outputDir: fs.mkdtempSync(path.join(os.tmpdir(), "zd-live-")),
+      liveRecovery: false,
+      failOnIncomplete: false,
+    });
+    const argv2 = JSON.parse(fs.readFileSync(argvFile, "utf8")) as string[];
+    assert.match(argv2[argv2.indexOf("--query") + 1]!, /ZERODAY pre-analysis for CWE-89[\s\S]*src\/users\.js/);
+    assert.deepEqual(withCtx.result.summary.samples, { runs: 2, votes: { "src/users.js": 2 } });
+    assert.equal(withCtx.result.summary.terminalCallsUsed, 26);
+  });
+});
+
+describe("--samples: merge Antares runs by vote", () => {
+  it("ranks files found in more runs first, then by best rank", () => {
+    const run = (files: string[], incomplete: string | null = null) =>
+      ({
+        mode: "live",
+        rankedFiles: files.map((f, i) => ({ filePath: f, rank: i + 1, cweIds: ["CWE-22"], title: "t", evidence: [{ filePath: f, note: "n" }] })),
+        explorationTrace: [],
+        warnings: [],
+        summary: { findingCount: files.length, terminalCallsUsed: 10, terminalCallBudget: 30, incompleteReason: incomplete },
+      }) as unknown as LocalizationResult;
+    const m = mergeSamples([run(["a.js", "b.js"]), run(["c.js", "b.js"]), run([], "no submit")]);
+    assert.deepEqual(m.rankedFiles.map((f) => f.filePath), ["b.js", "a.js", "c.js"]);
+    assert.deepEqual(m.summary.samples, { runs: 3, votes: { "b.js": 2, "a.js": 1, "c.js": 1 } });
+    assert.match(m.rankedFiles[0]!.evidence.at(-1)!.note, /2 of 3 runs/);
+    assert.equal(m.summary.terminalCallsUsed, 30);
+    assert.equal(m.summary.incompleteReason, null, "complete when any run submitted");
   });
 });

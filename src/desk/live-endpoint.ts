@@ -162,7 +162,7 @@ const SPEND_BANNER =
 const HONESTY = [
   "Keyless stays default; live is opt-in with an explicit human click + spend banner",
   "Antares explores the repo with find / grep / cat tool calls and submits the files it believes are vulnerable — for any CWE",
-  "ZERODAY gives Antares its static pass (dependency verdict, vulnerable functions, rules candidates) as starting context, then shows where they agree",
+  "ZERODAY's rules run on the same snapshot and the result shows where they and Antares agree — together they catch more than either alone",
   "No endpoint saved? ZERODAY looks for a local vLLM / Ollama / LM Studio serving Antares",
   "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — never a random chat model",
   "Non-loopback requires remote-inference ACK (UI checkbox)",

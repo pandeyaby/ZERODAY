@@ -67,7 +67,7 @@ export function contextQuery(advisory: AdvisoryRef, rules: LocalizationResult): 
  * Marks each Antares file with `sources` and records agreement in
  * `summary.hybrid`; carries the dependency verdict over. Antares' ranking stays.
  */
-export function mergeHybrid(result: LocalizationResult, ctx: AntaresContext): void {
+export function mergeHybrid(result: LocalizationResult, ctx: AntaresContext, opts: { contextSent?: boolean } = {}): void {
   const rulesByPath = new Map(ctx.rules.rankedFiles.map((f) => [f.filePath, f]));
   const antaresPaths = new Set(result.rankedFiles.map((f) => f.filePath));
   const agreed: string[] = [];
@@ -81,7 +81,7 @@ export function mergeHybrid(result: LocalizationResult, ctx: AntaresContext): vo
   }
   const rulesOnly: RankedFile[] = ctx.rules.rankedFiles.filter((f) => !antaresPaths.has(f.filePath));
   result.summary.hybrid = {
-    contextSent: ctx.query.length > 0,
+    contextSent: opts.contextSent ?? ctx.query.length > 0,
     rulesCandidates: ctx.rules.rankedFiles.length,
     agreed,
     antaresOnly: result.rankedFiles.filter((f) => !rulesByPath.has(f.filePath)).map((f) => f.filePath),
@@ -94,4 +94,43 @@ export function mergeHybrid(result: LocalizationResult, ctx: AntaresContext): vo
   if (ctx.rules.summary.advisoryMatch && !result.summary.advisoryMatch) {
     result.summary.advisoryMatch = ctx.rules.summary.advisoryMatch;
   }
+}
+
+/**
+ * Several Antares runs on the same snapshot, merged by vote: files ranked in
+ * more runs first, then by best rank. Each file notes how many runs ranked it.
+ */
+export function mergeSamples(runs: LocalizationResult[]): LocalizationResult {
+  const base = runs[0]!;
+  const byPath = new Map<string, { file: RankedFile; votes: number; best: number }>();
+  for (const r of runs) {
+    for (const f of r.rankedFiles) {
+      const cur = byPath.get(f.filePath);
+      if (!cur) byPath.set(f.filePath, { file: { ...f, evidence: [...f.evidence] }, votes: 1, best: f.rank });
+      else {
+        cur.votes += 1;
+        cur.best = Math.min(cur.best, f.rank);
+      }
+    }
+  }
+  const ordered = [...byPath.values()].sort((a, b) => b.votes - a.votes || a.best - b.best || a.file.filePath.localeCompare(b.file.filePath));
+  const rankedFiles = ordered.map((e, i) => ({
+    ...e.file,
+    rank: i + 1,
+    evidence: [...e.file.evidence, { filePath: e.file.filePath, note: `Antares ranked this file in ${e.votes} of ${runs.length} runs.` }],
+  }));
+  const allIncomplete = runs.every((r) => r.summary.incompleteReason);
+  return {
+    ...base,
+    rankedFiles,
+    explorationTrace: runs.flatMap((r) => r.explorationTrace),
+    warnings: [...base.warnings, `Merged ${runs.length} Antares runs by vote (--samples ${runs.length}).`],
+    summary: {
+      ...base.summary,
+      findingCount: rankedFiles.length,
+      terminalCallsUsed: runs.reduce((n, r) => n + r.summary.terminalCallsUsed, 0),
+      incompleteReason: allIncomplete ? base.summary.incompleteReason : null,
+      samples: { runs: runs.length, votes: Object.fromEntries(ordered.map((e) => [e.file.filePath, e.votes])) },
+    },
+  };
 }

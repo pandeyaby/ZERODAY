@@ -1548,7 +1548,7 @@ function DeskResultPanel({ result }: { result: DeskResult }) {
               <p className="text-xs text-[var(--muted)]">
                 {result.hybrid.contextSent
                   ? `Static pass (${result.hybrid.rulesCandidates} candidate file(s)) given to Antares as starting context — Antares explored and decided.`
-                  : "Static pass had nothing to add — Antares ran alone."}
+                  : `Antares ran on its own; ZERODAY rules (${result.hybrid.rulesCandidates} candidate file(s)) ran separately and are compared.`}
               </p>
               <p className="text-xs mt-1">
                 Both flagged: <span className="font-mono">{result.hybrid.agreed.join(", ") || "—"}</span>

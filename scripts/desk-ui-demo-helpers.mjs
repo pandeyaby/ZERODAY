@@ -11,16 +11,16 @@ export const DWELL_MS = Number(
 );
 
 /**
- * Playwright is not a ZERODAY dependency (only these demo scripts use it).
- * Install once: npm install --no-save playwright@1.56.1 && npx playwright install chromium
+ * Playwright is a dev dependency used only by these demo scripts; its browser
+ * is a separate one-time download: npx playwright install chromium
  */
 export async function loadChromium() {
   try {
     return (await import("playwright")).chromium;
   } catch {
     console.error(
-      "These Desk demo scripts need Playwright, which ZERODAY does not install.\n" +
-        "  npm install --no-save playwright@1.56.1 && npx playwright install chromium",
+      "These Desk demo scripts need Playwright (a dev dependency): run npm install, then\n" +
+        "  npx playwright install chromium",
     );
     process.exit(2);
   }

@@ -27,7 +27,7 @@ import {
   adaptAntaresReport,
 } from "./live";
 import { discoverLiveEndpoint, type DiscoveredEndpoint } from "./discover";
-import { buildAntaresContext, mergeHybrid } from "./hybrid";
+import { buildAntaresContext, mergeHybrid, mergeSamples } from "./hybrid";
 import { normalizeCompletionsEndpoint } from "./completions";
 import { runMockAntaresQuery } from "./mock-antares";
 import {
@@ -380,12 +380,13 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       const liveBudget = resolveLiveToolBudget(options.toolBudget);
       const antaresRawDir = path.join(outputDir, "antares-raw");
 
-      // ZERODAY's static pass on the same snapshot becomes Antares' starting context.
-      const hybridCtx =
-        options.context !== false
-          ? await buildAntaresContext(advisory, snap.snapshotPath, { offline: options.offline === true })
-          : undefined;
-      const liveQuery = hybridCtx?.query || undefined;
+      // ZERODAY's static pass on the same snapshot: always compared with Antares'
+      // answer afterwards; sent to Antares as starting context only with
+      // --context (on the real-advisory benchmark it did not raise hits and
+      // lowered recall — docs/antares-benchmark.md).
+      const hybridCtx = await buildAntaresContext(advisory, snap.snapshotPath, { offline: options.offline === true });
+      const liveQuery = options.context === true ? hybridCtx.query || undefined : undefined;
+      const samples = Math.max(1, Math.min(5, Math.round(options.samples ?? 1)));
 
       if (wantMockAntares) {
         const mock = await runMockAntaresQuery({
@@ -429,20 +430,28 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
           );
         }
       } else {
-        result = runLiveAntaresCliWithRecovery(
-          {
-            advisory,
-            repo,
-            snapshotPath: snap.snapshotPath,
-            outputDir: antaresRawDir,
-            endpoint,
-            model: liveModel,
-            toolBudget: liveBudget,
-            antaresCliSource: options.antaresCliSource,
-            ...(liveQuery ? { query: liveQuery } : {}),
-          },
-          { recovery: options.liveRecovery !== false },
-        );
+        // Antares-1B answers vary run to run; several runs merged by vote find
+        // the fixed file more often than one (docs/antares-benchmark.md).
+        const runs: LocalizationResult[] = [];
+        for (let i = 1; i <= samples; i++) {
+          runs.push(
+            runLiveAntaresCliWithRecovery(
+              {
+                advisory,
+                repo,
+                snapshotPath: snap.snapshotPath,
+                outputDir: samples === 1 ? antaresRawDir : path.join(antaresRawDir, `run-${i}`),
+                endpoint,
+                model: liveModel,
+                toolBudget: liveBudget,
+                antaresCliSource: options.antaresCliSource,
+                ...(liveQuery ? { query: liveQuery } : {}),
+              },
+              { recovery: options.liveRecovery !== false },
+            ),
+          );
+        }
+        result = samples === 1 ? runs[0]! : mergeSamples(runs);
       }
       if (result.mode !== "live") {
         throw new Error(
@@ -451,16 +460,14 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         );
       }
       result.snapshotPath = snap.snapshotPath;
-      if (hybridCtx) {
-        mergeHybrid(result, hybridCtx);
-        result.warnings.push(
-          liveQuery
-            ? `ZERODAY context sent to Antares (--query): ${hybridCtx.rules.rankedFiles.length} static candidate(s)` +
-                (hybridCtx.rules.summary.advisoryMatch ? `, dependency verdict ${hybridCtx.rules.summary.advisoryMatch.verdict}` : "") +
-                ". Antares still explores and decides; files it did not confirm are listed as rules-only."
-            : "ZERODAY static pass found nothing to add; Antares ran without extra context.",
-        );
-      }
+      mergeHybrid(result, hybridCtx, { contextSent: Boolean(liveQuery) });
+      result.warnings.push(
+        liveQuery
+          ? `ZERODAY context sent to Antares (--context): ${hybridCtx.rules.rankedFiles.length} static candidate(s)` +
+              (hybridCtx.rules.summary.advisoryMatch ? `, dependency verdict ${hybridCtx.rules.summary.advisoryMatch.verdict}` : "") +
+              ". Antares still explores and decides; files it did not confirm are listed as rules-only."
+          : `Antares ran on its own; ZERODAY rules ran separately (${hybridCtx.rules.rankedFiles.length} candidate(s)) and are compared, not sent.`,
+      );
       result.warnings.push(
         `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
       );
