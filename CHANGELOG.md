@@ -5,6 +5,14 @@ All notable changes to ZERODAY. The stable surface is defined in
 
 ## Unreleased
 
+### Supply chain
+- **Signed releases with SBOMs** ([`docs/verify-release.md`](./docs/verify-release.md)).
+  The Docker image is signed with cosign (keyless, GitHub OIDC → Sigstore),
+  carries a GitHub build-provenance attestation, and has BuildKit's SPDX SBOM and
+  SLSA provenance attached. The release also ships a CycloneDX SBOM of the CLI
+  tarball's runtime dependencies and `SHA256SUMS`, both attested. No signing keys
+  or new secrets.
+
 ### Docs
 - **Live `--samples 2` benchmark row** in [`docs/antares-benchmark.md`](./docs/antares-benchmark.md):
   Antares-1B with two runs merged, run live on all 36 advisories (RunPod A40,

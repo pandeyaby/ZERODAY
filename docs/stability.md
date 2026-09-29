@@ -55,3 +55,9 @@ removed in any 0.x release. `zeroday --help` lists them under
   [`CHANGELOG.md`](../CHANGELOG.md), and — where practical — keeps working with a
   deprecation warning for one minor release first.
 - **From 1.0:** breaking changes only in a new major version.
+
+## Release integrity
+
+Release artifacts (Docker image, CLI tarball, SBOMs) are signed or attested by
+the release workflow; how to check them: [`verify-release.md`](./verify-release.md).
+This is part of the stable surface: later releases keep shipping them.

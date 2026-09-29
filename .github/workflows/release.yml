@@ -1,9 +1,12 @@
 # Release on a version tag (vX.Y.Z):
 #   - verify: tag matches package.json, typecheck + tests
-#   - Docker image → ghcr.io/<owner>/zeroday:<version> + :latest (GITHUB_TOKEN)
+#   - Docker image → ghcr.io/<owner>/zeroday:<version> + :latest (GITHUB_TOKEN),
+#     with BuildKit SBOM + provenance, a keyless cosign signature and a GitHub
+#     build-provenance attestation
 #   - npm package zeroday-cli (only when the NPM_TOKEN secret is set; with provenance)
-#   - GitHub release with the npm tarball attached
-# Never runs on pull requests. No GPU / HF / RunPod.
+#   - GitHub release: npm tarball, CycloneDX SBOM, SHA256SUMS, each attested
+# Signing is keyless (GitHub OIDC → Sigstore): no signing keys or extra secrets.
+# How to verify: docs/verify-release.md. Never runs on pull requests. No GPU / HF / RunPod.
 
 name: Release
 
@@ -45,14 +48,18 @@ jobs:
       - run: npm test
 
   docker:
-    name: Docker image → GHCR
+    name: Docker image → GHCR (signed, SBOM, provenance)
     needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
         with:
@@ -60,17 +67,40 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build + push
-        run: |
-          set -euo pipefail
-          image="ghcr.io/$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')/zeroday"
-          docker build \
-            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
-            --label "org.opencontainers.image.version=${{ needs.verify.outputs.version }}" \
-            --label "org.opencontainers.image.licenses=Apache-2.0" \
-            -t "$image:${{ needs.verify.outputs.version }}" -t "$image:latest" .
-          docker push "$image:${{ needs.verify.outputs.version }}"
-          docker push "$image:latest"
+      - name: Image name
+        id: image
+        run: echo "name=ghcr.io/$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')/zeroday" >> "$GITHUB_OUTPUT"
+
+      - name: Build + push (SBOM + provenance attached to the image)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          sbom: true
+          provenance: mode=max
+          tags: |
+            ${{ steps.image.outputs.name }}:${{ needs.verify.outputs.version }}
+            ${{ steps.image.outputs.name }}:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.verify.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - uses: sigstore/cosign-installer@v3
+
+      - name: Sign image (keyless, by digest)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "${{ steps.image.outputs.name }}@${DIGEST}"
+
+      - name: GitHub build-provenance attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ steps.image.outputs.name }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
 
   npm:
     name: npm package + GitHub release
@@ -79,6 +109,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v4
 
@@ -100,6 +131,24 @@ jobs:
           npx --no-install zeroday --version
           npx --no-install zeroday mvp
 
+      - name: CycloneDX SBOM + checksums for the packed CLI
+        run: |
+          set -euo pipefail
+          tgz="$(ls "$PWD"/dist/zeroday-cli-*.tgz)"
+          version="$(node -p 'require("./package.json").version')"
+          # SBOM of exactly what `npm install zeroday-cli` resolves (runtime deps, no scripts).
+          # The folder name becomes the SBOM's root component name.
+          work="$(mktemp -d)" && tar -xzf "$tgz" -C "$work" && mv "$work/package" "$work/zeroday-cli"
+          (cd "$work/zeroday-cli" && npm install --omit=dev --ignore-scripts --no-audit --no-fund >/dev/null \
+            && npm sbom --sbom-format cyclonedx --omit dev) > "dist/zeroday-cli-${version}.cdx.json"
+          node -e 'const b=require(process.argv[1]); if(!b.components?.length) process.exit(1); console.log(`SBOM: ${b.components.length} components`)' "$PWD/dist/zeroday-cli-${version}.cdx.json"
+          (cd dist && sha256sum "zeroday-cli-${version}.tgz" "zeroday-cli-${version}.cdx.json" > SHA256SUMS && cat SHA256SUMS)
+
+      - name: GitHub build-provenance attestation (tarball + SBOM)
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-checksums: dist/SHA256SUMS
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -114,6 +163,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/zeroday-cli-*.tgz \
+          gh release create "${GITHUB_REF_NAME}" dist/zeroday-cli-*.tgz dist/zeroday-cli-*.cdx.json dist/SHA256SUMS \
             --title "ZERODAY ${GITHUB_REF_NAME}" \
-            --notes "See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md)."
+            --notes "See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md). Verify these files and the Docker image: [docs/verify-release.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/verify-release.md)."

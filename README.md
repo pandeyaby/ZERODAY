@@ -59,6 +59,9 @@ npx zeroday-cli locate --cwe CWE-89 --repo . --rules --offline
 docker run --rm -p 127.0.0.1:3000:3000 ghcr.io/pandeyaby/zeroday   # Desk web UI → http://localhost:3000
 ```
 
+Releases are signed and ship SBOMs (keyless Sigstore, GitHub build provenance, CycloneDX / SPDX):
+[`docs/verify-release.md`](./docs/verify-release.md).
+
 ### Scan your own repo (keyless)
 
 ```bash
