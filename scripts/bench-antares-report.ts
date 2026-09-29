@@ -147,7 +147,7 @@ lines.push("## What this shows");
 lines.push("");
 lines.push(
   "- **Antares reaches weaknesses the rules cannot model.** On missing authorization, authentication, ReDoS and prototype pollution the rules find nothing; Antares-1B finds the fixed file in some of them (tables below).\n" +
-    "- **Antares-1B varies from run to run**, so merging runs by vote (`--samples 2`) lifts top-3 hits well above a single run. Rank-1 hits stay about the same.\n" +
+    "- **Antares-1B varies from run to run**, so ZERODAY runs it twice and merges by vote (`--samples 2`, the default for `scan`). Run live on every case, that raised the fixed file to rank 1 in 36% of cases (25% for a single run) and to the top 3 in 42% (32%). It is one pass per case, so expect a few points of noise either way.\n" +
     "- **Rules and Antares complement each other** — the fixed file is more often in the top 3 of *either* list than of one. `scan` and `locate --live` show both, and mark where they agree.\n" +
     "- **Sending the rules findings to Antares as context did not help** (fewer hits and lower recall where context was sent), so it is off by default (`--context` opts in). Runs where the rules had nothing to send are identical to Antares alone; the gap on model-only CWEs is run-to-run variation, which shows how noisy single runs are.",
 );

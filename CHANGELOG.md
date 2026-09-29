@@ -3,6 +3,14 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+### Docs
+- **Live `--samples 2` benchmark row** in [`docs/antares-benchmark.md`](./docs/antares-benchmark.md):
+  Antares-1B with two runs merged, run live on all 36 advisories (RunPod A40,
+  2026-09-28), ranks the fixed file first in 36% of cases and in the top 3 in
+  42% (single run: 25% / 32%; rules: 14% / 19%).
+
 ## 0.10.0
 
 ### Security
