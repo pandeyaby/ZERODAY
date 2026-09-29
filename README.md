@@ -12,7 +12,23 @@ read first — with the line, the code and the reason — and writes standard
 **SARIF** for GitHub Code Scanning, IDEs and SIEMs. It runs on your machine: no
 API keys, no GPU, your source never leaves it.
 
-<img src="./docs/images/desk-advisory.png" alt="ZERODAY Desk: CVE-2021-23337 — lodash 4.17.15 affected, upgrade to 4.17.21; src/email.js calls the vulnerable template() and ranks first; a file that only imports lodash ranks last" width="620">
+For the weaknesses rules can't model — missing authorization, broken
+authentication, ReDoS — one command starts
+[Antares-1B](https://cisco-foundation-ai.github.io/antares/) on your own GPU
+account, and `zeroday scan` puts both answers side by side.
+
+<a href="./docs/media/zeroday-demo.mp4"><img src="./docs/images/zeroday-demo-poster.png" alt="ZERODAY + Antares-1B demo video (3:28): antares up, then rules vs Antares on a real Traefik authentication advisory — rules say NOT SCANNED, Antares ranks the file the real fix changed first — then a whole-repo scan, the benchmark, and antares down" width="720"></a>
+
+▶ **[Watch the 3-minute demo](./docs/media/zeroday-demo.mp4)** — every run in it is real:
+`antares up` on a RunPod A40 (ready in 2 minutes), a real authentication-bypass
+advisory, a scan of OWASP Juice Shop, and the benchmark below. Total GPU cost: $0.53.
+
+| Fixed file ranked #1 · [36 real advisories](./docs/antares-benchmark.md) | Hit@1 | Top 3 |
+|---|---:|---:|
+| ZERODAY rules alone | 14% | 19% |
+| Antares-1B, one run | 25% | 32% |
+| **Antares-1B, two runs merged (the default)** | **36%** | **42%** |
+| Antares-1B on the 4 weakness types rules can't scan (rules: 0%) | 25% | 25% |
 
 **How it decides.** By default there is no AI model involved: `--rules` parses
 JavaScript/TypeScript, Python, Java and Go with tree-sitter and traces request
@@ -92,7 +108,8 @@ Parameterized queries in the same app are not flagged.
 |------|------|------------|----------|
 | Rules (keyless analysis) | `--rules` | 10 CWEs, below — JS/TS, Python, Java, Go | Nothing |
 | Import existing findings | `--from-sarif <file>` | Any CWE in a CodeQL / Semgrep / generic SARIF 2.1 file | A SARIF file |
-| Live model | `--endpoint <url>` | Any CWE, CVE or GHSA | A local OpenAI-compatible `/v1/completions` server — [`docs/local-brain.md`](./docs/local-brain.md) |
+| Scan for anything | `scan` | Every rules CWE, plus the CWEs Antares picks for your repo | Nothing (rules) · Antares for the rest |
+| Live Antares | `--live` | Any CWE, CVE or GHSA | `antares up` (your RunPod account), or a local vLLM / Ollama / LM Studio — [below](#when-you-want-live-antares) |
 | Demo | `--fixture` | Bundled CWE-89 demo | Nothing |
 
 Rules mode parses JavaScript/TypeScript, Python, Java and Go into syntax trees
@@ -150,6 +167,7 @@ Every run writes one folder (default `zeroday-reports/<advisory>-<timestamp>/`, 
 | File | Use it for |
 |------|------------|
 | `report.sarif` | GitHub Code Scanning (`upload-sarif`), IDE SARIF viewers |
+| `report.json` | Machine-readable result, format `zeroday.report/v1` — [JSON Schema](./docs/schemas/zeroday.report.v1.schema.json) |
 | `report.md` | Human-readable ranked files with evidence lines |
 | `comment.md` | Paste-ready pull-request comment |
 | `evidence/manifest.json` | SHA-256 evidence vault — check with `npm run zeroday -- verify --from <dir>` |
@@ -188,6 +206,8 @@ Org setup and spend gates: [`docs/org-ops-runbook.md`](./docs/org-ops-runbook.md
 ## Desk (web UI)
 
 The same scans in a browser:
+
+<img src="./docs/images/desk-advisory.png" alt="ZERODAY Desk: CVE-2021-23337 — lodash 4.17.15 affected, upgrade to 4.17.21; src/email.js calls the vulnerable template() and ranks first; a file that only imports lodash ranks last" width="620">
 
 ```bash
 npm run play
@@ -243,10 +263,12 @@ ZERODAY also makes Antares more useful with no extra setup:
   same snapshot and the result marks which files **both** flagged, which only
   Antares found, and which rules candidates Antares did not confirm. On real
   advisories the two lists together catch more than either alone.
-- **Merges runs.** Antares-1B varies from run to run; `--samples 2` runs it
-  twice and ranks files by votes, which lifted top-3 hits from 32% to 47% on
-  the benchmark. (`--context` also sends the rules findings to Antares as
-  starting context — it did not help there, so it is off by default.)
+- **Merges runs.** Antares-1B varies from run to run, so ZERODAY runs it twice
+  and ranks files by votes (`--samples 2`, the default for `scan`). Run live on
+  36 real advisories, that put the fixed file first in 36% of cases, against
+  25% for a single run and 14% for the rules alone. (`--context` also sends the
+  rules findings to Antares as starting context — it did not help there, so it
+  is off by default.)
 
 It is opt-in and **costs $**. One command starts it on your own RunPod
 account — you accept the Hugging Face terms for
@@ -290,10 +312,12 @@ details: [`docs/paths.md`](./docs/paths.md#live-antares-opt-in) ·
 
 | Want | Go here |
 |------|---------|
-| 3-minute demo script | [`docs/demo.md`](./docs/demo.md) |
+| Demo video · 3-minute live demo script | [`docs/media/zeroday-demo.mp4`](./docs/media/zeroday-demo.mp4) · [`docs/demo.md`](./docs/demo.md) |
+| Antares accuracy on real advisories | [`docs/antares-benchmark.md`](./docs/antares-benchmark.md) |
 | GitHub Action guide | [`docs/github-action.md`](./docs/github-action.md) |
 | Accuracy numbers and how they're measured | [`docs/benchmark.md`](./docs/benchmark.md) |
-| Stable commands, outputs, exit codes | [`docs/stability.md`](./docs/stability.md) · [`CHANGELOG.md`](./CHANGELOG.md) |
+| Stable commands, outputs, exit codes, `report.json` schema | [`docs/stability.md`](./docs/stability.md) · [`CHANGELOG.md`](./CHANGELOG.md) |
+| Verify a release (signatures, SBOMs) | [`docs/verify-release.md`](./docs/verify-release.md) |
 | Every mode and flag | [`docs/paths.md`](./docs/paths.md) |
 | Desk security model | [`docs/desk-security.md`](./docs/desk-security.md) |
 | Trust, reproducibility, DIPTYCH | [`docs/trust.md`](./docs/trust.md) |

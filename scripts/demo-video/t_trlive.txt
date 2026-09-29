@@ -1,0 +1,15 @@
+ZERODAY locate
+──────────────
+Advisory : CWE-287 → CWE-287
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : traefik (vulnerable snapshot, GHSA-6765-c87h-8mrf)
+Findings : 2
+Explored : 65 Antares tool call(s)
+
+Ranked files:
+  1. pkg/middlewares/auth/basic_auth.go  [CWE-287]  (1/2 runs)
+  2. pkg/middlewares/auth/forward.go  [CWE-287]  (1/2 runs)
+
+Samples  : 2 Antares runs merged by vote
+Live Antares path complete — report.sarif is from real inference.

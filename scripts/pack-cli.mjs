@@ -47,6 +47,8 @@ const EXCLUDE = new Set([
   "src/app",
   "src/components",
   "docs/images",
+  "docs/media",
+  "scripts/demo-video",
   "data/st3gg",
 ]);
 
@@ -62,7 +64,8 @@ export function absoluteReadmeLinks(md, version) {
   const raw = `https://raw.githubusercontent.com/pandeyaby/ZERODAY/${ref}/`;
   return md
     .replace(/(!\[[^\]]*\]\(|<img [^>]*src=")\.\/([^)"]+)/g, (_m, pre, rel) => `${pre}${raw}${rel}`)
-    .replace(/(\]\()\.\/([^)]+)/g, (_m, pre, rel) => `${pre}${blob}${rel}`);
+    .replace(/(\]\()\.\/([^)]+)/g, (_m, pre, rel) => `${pre}${blob}${rel}`)
+    .replace(/(<a [^>]*href=")\.\/([^"]+)/g, (_m, pre, rel) => `${pre}${blob}${rel}`);
 }
 
 function copy(rel) {

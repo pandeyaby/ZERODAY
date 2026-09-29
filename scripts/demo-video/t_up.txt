@@ -1,0 +1,16 @@
+ZERODAY antares up
+──────────────────
+Creates a RunPod Secure Cloud pod on YOUR account: NVIDIA A40 (or NVIDIA L40S / NVIDIA RTX A6000),
+vLLM serving fdtn-ai/antares-1b.
+Typical rate ~$0.50/hr. The pod is deleted automatically after 120 minutes, or now with: zeroday antares down
+Repository content you scan is sent to this pod for inference. Your keys are read from the environment and never saved.
+Pod 8kdejcznx45ypw created at $0.49/hr; auto-delete at 7:32:02 PM.
+Waiting for Antares to load (usually 3–8 minutes)…
+  0s  HTTP 404 (image pulling / model loading)
+  21s  HTTP 502 (image pulling / model loading)
+
+Antares is up: https://8kdejcznx45ypw-8000.proxy.runpod.net/v1  (NVIDIA A40, ready in 2 min)
+Saved as your Antares endpoint. Next:
+  zeroday locate --cwe CWE-89 --repo <path> --live      # one CWE
+  zeroday scan --repo <path>                              # anything
+  zeroday antares down                                    # stop paying

@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pandeyaby/ZERODAY/blob/main/docs/schemas/zeroday.report.v1.schema.json",
+  "title": "ZERODAY report.json (zeroday.report/v1)",
+  "description": "Written by `zeroday locate`, `zeroday scan` and `zeroday operate --from` as <output>/report.json. Stable from 1.0 (docs/stability.md): new optional fields may be added; required fields are not removed or retyped within v1. Consumers should ignore fields they do not know. Localization only: candidates for human review, not proof of exploitability.",
+  "type": "object",
+  "required": ["schema", "mode", "advisory", "targetRepo", "model", "generatedAt", "rankedFiles", "explorationTrace", "warnings", "posture", "summary"],
+  "properties": {
+    "schema": { "const": "zeroday.report/v1" },
+    "mode": {
+      "description": "rules = in-repo syntax-tree analysis · live = Antares · fixture = recorded Antares run · ingest = third-party SARIF · recording = redacted CI cassette replay · agent = coding-agent submission",
+      "enum": ["fixture", "live", "agent", "rules", "ingest", "recording"]
+    },
+    "advisory": {
+      "type": "object",
+      "required": ["kind", "id", "cweId"],
+      "properties": {
+        "kind": { "enum": ["cwe", "cve", "ghsa"] },
+        "id": { "type": "string", "minLength": 1 },
+        "cweId": { "type": "string", "description": "Primary CWE the run investigated. For `scan`, the first CWE of the run." },
+        "title": { "type": "string" }
+      }
+    },
+    "targetRepo": { "type": "string" },
+    "snapshotPath": { "type": "string" },
+    "model": { "type": "string", "description": "e.g. zeroday/rules-heuristics or fdtn-ai/antares-1b" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "rankedFiles": {
+      "description": "Most important first. Tests, fixtures and vendored code rank after application code.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/rankedFile" }
+    },
+    "explorationTrace": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "tool", "command", "summary"],
+        "properties": {
+          "step": { "type": "integer" },
+          "tool": { "enum": ["grep", "find", "cat", "ls", "other", "submit"] },
+          "command": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "posture": {
+      "type": "object",
+      "required": ["localizationOnly", "notExploitProof", "noAutoMerge", "noPoC"],
+      "properties": {
+        "localizationOnly": { "const": true },
+        "notExploitProof": { "const": true },
+        "noAutoMerge": { "const": true },
+        "noPoC": { "const": true }
+      }
+    },
+    "summary": { "$ref": "#/$defs/summary" },
+    "evidence": {
+      "description": "Evidence vault written alongside the report; check it with `zeroday verify --from <dir>`.",
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "rankedFile": {
+      "type": "object",
+      "required": ["filePath", "rank", "cweIds", "title", "evidence"],
+      "properties": {
+        "filePath": { "type": "string", "description": "Repository-relative path" },
+        "rank": { "type": "integer", "minimum": 1 },
+        "cweIds": { "type": "array", "items": { "type": "string" } },
+        "title": { "type": "string" },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["filePath", "note"],
+            "properties": {
+              "filePath": { "type": "string" },
+              "startLine": { "type": "integer" },
+              "endLine": { "type": "integer" },
+              "excerpt": { "type": "string" },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "likelihoodOfExploit": { "type": "string", "description": "MITRE taxonomy metadata when known, not model confidence" },
+        "fingerprint": { "type": "string", "description": "Stable across runs (CWE + file + title + flagged line text); used by --baseline" },
+        "baselineState": { "enum": ["new", "unchanged"] },
+        "sources": { "type": "array", "items": { "enum": ["antares", "rules"] }, "description": "Who flagged the file" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["findingCount", "incompleteReason", "terminalCallBudget", "terminalCallsUsed"],
+      "properties": {
+        "findingCount": { "type": "integer", "minimum": 0 },
+        "incompleteReason": { "type": ["string", "null"], "description": "Why a live run is incomplete; null when complete" },
+        "incompleteClass": { "enum": ["no_submit", "budget_exhausted", "timeout", "endpoint_error", "parse_failure", "unknown", null] },
+        "incompleteTips": { "type": "array", "items": { "type": "string" } },
+        "recoveryAttempted": { "type": "boolean" },
+        "unsupportedCwe": { "type": "boolean", "description": "Rules mode has no rules for this CWE: NOT scanned, never a clean result" },
+        "terminalCallBudget": { "type": "integer", "minimum": 0 },
+        "terminalCallsUsed": { "type": "integer", "minimum": 0 },
+        "baseline": {
+          "type": "object",
+          "required": ["file", "new", "unchanged", "absent"],
+          "properties": {
+            "file": { "type": "string" },
+            "new": { "type": "integer" },
+            "unchanged": { "type": "integer" },
+            "absent": { "type": "integer" }
+          }
+        },
+        "changedSince": {
+          "type": "object",
+          "required": ["ref", "changedFiles", "droppedFindings"],
+          "properties": {
+            "ref": { "type": "string" },
+            "changedFiles": { "type": "integer" },
+            "droppedFindings": { "type": "integer" }
+          }
+        },
+        "advisoryMatch": {
+          "type": "object",
+          "required": ["verdict", "advisoryIds", "packages", "symbols"],
+          "properties": {
+            "verdict": { "enum": ["affected", "possibly-affected", "not-affected", "not-used"] },
+            "advisoryIds": { "type": "array", "items": { "type": "string" } },
+            "packages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["ecosystem", "name", "installed", "file", "affected"],
+                "properties": {
+                  "ecosystem": { "type": "string" },
+                  "name": { "type": "string" },
+                  "installed": { "type": "string" },
+                  "file": { "type": "string" },
+                  "affected": { "type": "boolean" },
+                  "fixed": { "type": "string" }
+                }
+              }
+            },
+            "symbols": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "samples": {
+          "type": "object",
+          "required": ["runs", "votes"],
+          "properties": {
+            "runs": { "type": "integer", "minimum": 1 },
+            "votes": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "file path → runs that ranked it" }
+          }
+        },
+        "hybrid": {
+          "type": "object",
+          "required": ["contextSent", "rulesCandidates", "agreed", "antaresOnly", "rulesOnly"],
+          "properties": {
+            "contextSent": { "type": "boolean" },
+            "rulesCandidates": { "type": "integer" },
+            "agreed": { "type": "array", "items": { "type": "string" } },
+            "antaresOnly": { "type": "array", "items": { "type": "string" } },
+            "rulesOnly": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["filePath", "title"],
+                "properties": { "filePath": { "type": "string" }, "title": { "type": "string" }, "line": { "type": "integer" } }
+              }
+            }
+          }
+        },
+        "scan": { "$ref": "#/$defs/scan" }
+      }
+    },
+    "scan": {
+      "description": "`zeroday scan` only",
+      "type": "object",
+      "required": ["cwesRules", "cwesAntares", "perCwe", "antares"],
+      "properties": {
+        "cwesRules": { "type": "array", "items": { "type": "string" } },
+        "cwesAntares": { "type": "array", "items": { "type": "string" } },
+        "perCwe": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["cwe", "rules", "antares", "both", "antaresPlanned"],
+            "properties": {
+              "cwe": { "type": "string" },
+              "rules": { "type": "integer" },
+              "antares": { "type": "integer" },
+              "both": { "type": "integer" },
+              "antaresPlanned": { "type": "boolean" }
+            }
+          }
+        },
+        "antares": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["endpoint", "model", "source", "seconds", "toolCalls", "failedToolCalls", "incomplete", "samples"],
+              "properties": {
+                "endpoint": { "type": "string" },
+                "model": { "type": "string" },
+                "source": { "type": "string" },
+                "seconds": { "type": "number" },
+                "toolCalls": { "type": ["integer", "null"] },
+                "failedToolCalls": { "type": ["integer", "null"] },
+                "incomplete": { "type": ["string", "null"] },
+                "samples": { "type": "integer", "minimum": 1 }
+              }
+            }
+          ]
+        },
+        "antaresSkipped": { "type": "string", "description": "Why Antares was not used (scan --antares auto)" }
+      }
+    }
+  }
+}

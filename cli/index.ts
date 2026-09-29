@@ -3541,7 +3541,7 @@ live
 
 // Stability contract (docs/stability.md): these commands, their documented
 // flags, output files and exit codes follow semver. Everything else may change.
-const STABLE_COMMANDS = new Set(["mvp", "locate", "verify", "operate", "doctor"]);
+const STABLE_COMMANDS = new Set(["mvp", "locate", "scan", "antares", "verify", "operate", "doctor"]);
 for (const cmd of program.commands) {
   cmd.helpGroup(
     STABLE_COMMANDS.has(cmd.name())

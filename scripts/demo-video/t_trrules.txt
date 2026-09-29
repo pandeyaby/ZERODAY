@@ -1,0 +1,10 @@
+ZERODAY locate
+──────────────
+Advisory : CWE-287 → CWE-287
+Mode     : rules
+Target   : traefik (vulnerable snapshot, GHSA-6765-c87h-8mrf)
+Findings : 0
+
+NOT SCANNED — rules mode has no heuristics for CWE-287.
+Zero findings here is NOT a clean result:
+the repo was not checked for this CWE.

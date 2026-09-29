@@ -1,0 +1,18 @@
+ZERODAY locate
+──────────────
+Advisory : CVE-2021-23337 → CWE-94
+Mode     : rules
+Target   : fixtures/advisory/npm-lodash
+Findings : 3
+Exposure : AFFECTED — GHSA-35jh-r3h4-6jhm, GHSA-r5fr-rjxr-66jc
+           ✗ lodash@4.17.15  package-lock.json  → upgrade to 4.17.21
+Functions: template, assignInWith, importsKeys, reForbiddenIdentifierChars, assignWith
+
+Ranked files:
+  1. src/email.js  [CWE-94]  Calls `template` from lodash@4.17.15
+  2. package-lock.json  [CWE-94]  Vulnerable dependency lodash@4.17.15
+  3. src/cart.js  [CWE-94]  Imports lodash@4.17.15
+
+Artifacts: report.json · report.sarif · report.md · evidence/manifest.json
+
+Posture: localization only · not exploit proof · no PoC · no auto-merge

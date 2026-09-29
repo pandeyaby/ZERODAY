@@ -6,6 +6,7 @@
  * Optional live Antares remains on `zeroday locate --live`.
  */
 
+import { reportJson } from "../locate/report-schema";
 import fs from "node:fs";
 import path from "node:path";
 import { resolveAdvisory } from "../locate/resolve";
@@ -442,7 +443,7 @@ export async function operate(options: OperateOptions): Promise<OperateArtifacts
       },
     };
 
-    fs.writeFileSync(jsonPath, JSON.stringify(resultWithEvidence, null, 2));
+    fs.writeFileSync(jsonPath, reportJson(resultWithEvidence));
     fs.writeFileSync(sarifPath, JSON.stringify(toSarif(result), null, 2));
     fs.writeFileSync(
       reportPath,
