@@ -17,9 +17,9 @@ authentication, ReDoS — one command starts
 [Antares-1B](https://cisco-foundation-ai.github.io/antares/) on your own GPU
 account, and `zeroday scan` puts both answers side by side.
 
-<a href="./docs/media/zeroday-demo.mp4"><img src="./docs/images/zeroday-demo-poster.png" alt="ZERODAY + Antares-1B demo video (3:28): antares up, then rules vs Antares on a real Traefik authentication advisory — rules say NOT SCANNED, Antares ranks the file the real fix changed first — then a whole-repo scan, the benchmark, and antares down" width="720"></a>
+https://github.com/user-attachments/assets/abe2599a-498b-44f1-aa0e-84495c77ced5
 
-▶ **[Watch the 3-minute demo](./docs/media/zeroday-demo.mp4)** — every run in it is real:
+▶ **The 3-minute demo** ([download MP4](./docs/media/zeroday-demo.mp4)) — every run in it is real:
 `antares up` on a RunPod A40 (ready in 2 minutes), a real authentication-bypass
 advisory, a scan of OWASP Juice Shop, and the benchmark below. Total GPU cost: $0.53.
 
