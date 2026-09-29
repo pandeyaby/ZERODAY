@@ -6,6 +6,7 @@
  *   rules   — ZERODAY's static engine alone (keyless)
  *   antares — Antares-1B alone (`antares query --cwe`)
  *   hybrid  — Antares-1B with ZERODAY's static pass sent as context (--context)
+ *   antares2 — Antares-1B, two runs merged by vote (--samples 2)
  * Ground truth: the non-test source files the fix commit changed. Only the CWE
  * is given to every arm — never the advisory text or the fix.
  *
@@ -23,7 +24,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { locate } from "../src/locate/index";
 
-type Arm = "rules" | "antares" | "hybrid";
+type Arm = "rules" | "antares" | "hybrid" | "antares2";
 
 interface Case {
   id: string;
@@ -126,7 +127,7 @@ async function runArm(c: Case, repo: string, arm: Arm, run: number): Promise<Run
       offline: true,
       ...(arm === "rules"
         ? { rules: true }
-        : { live: true, context: arm === "hybrid", remoteInference, failOnIncomplete: false }),
+        : { live: true, context: arm === "hybrid", samples: arm === "antares2" ? 2 : 1, remoteInference, failOnIncomplete: false }),
     });
     const ranked = [...result.rankedFiles].sort((a, b) => a.rank - b.rank).map((f) => f.filePath);
     return {

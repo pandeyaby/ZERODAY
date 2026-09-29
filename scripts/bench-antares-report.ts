@@ -44,10 +44,11 @@ const outFile = path.resolve(flag("--out") ?? path.join(ROOT, "docs/antares-benc
 const cases = (JSON.parse(fs.readFileSync(path.join(ROOT, "bench/antares/cases.json"), "utf8")) as { cases: Case[] }).cases;
 const byId = new Map(cases.map((c) => [c.id, c]));
 const runs = (JSON.parse(fs.readFileSync(inFile, "utf8")) as { runs: Run[] }).runs.filter((r) => byId.has(r.caseId));
-const ARMS = ["rules", "antares", "hybrid"].filter((a) => runs.some((r) => r.arm === a));
+const ARMS = ["rules", "antares", "antares2", "hybrid"].filter((a) => runs.some((r) => r.arm === a));
 const LABEL: Record<string, string> = {
   rules: "ZERODAY rules",
   antares: "Antares-1B alone",
+  antares2: "Antares-1B `--samples 2` (live)",
   hybrid: "Antares-1B + ZERODAY context",
 };
 
