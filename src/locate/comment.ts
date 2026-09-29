@@ -6,7 +6,11 @@ import type { LocalizationResult } from "./types";
 
 export function toPullRequestComment(result: LocalizationResult): string {
   const lines: string[] = [];
-  lines.push("## ZERODAY Antares localization (CI)");
+  lines.push(
+    result.mode === "live" || result.mode === "fixture"
+      ? "## ZERODAY Antares localization (CI)"
+      : "## ZERODAY localization (CI)",
+  );
   lines.push("");
   lines.push(
     "> **Human review required.** File-level localization candidates — **not** proof of exploitability. " +
@@ -21,7 +25,7 @@ export function toPullRequestComment(result: LocalizationResult): string {
       : result.mode === "live"
         ? "live Antares — local completions endpoint"
         : result.mode === "rules"
-          ? "rules — thin in-repo heuristics (not Antares F1)"
+          ? "rules — static analysis of syntax trees; no model involved"
           : result.mode === "ingest"
             ? "ingest — third-party SARIF file (not Antares/rules discovery)"
             : result.mode === "recording"

@@ -4,10 +4,12 @@ Operator scaffold for serving **`fdtn-ai/antares-1b`** on a **RunPod GPU pod**
 via an OpenAI-compatible API that exposes **`POST /v1/completions`** (required by
 `cisco-antares-cli` / ZERODAY live locate).
 
-> **ZERODAY never creates or starts paid RunPod pods.** This doc +
-> `npm run zeroday -- antares doctor` (wraps
-> `scripts/runpod-vllm-antares.sh --print-only`) only print commands you run
-> yourself on a pod you already provisioned.
+> **One command:** `npm run zeroday -- antares up` creates the pod described
+> here on your own account (after you confirm), waits for Antares, saves the
+> endpoint and deletes the pod at a deadline (`--max-minutes`, default 30);
+> `antares down` deletes it sooner. Otherwise ZERODAY never creates or starts
+> paid RunPod pods — this doc + `npm run zeroday -- antares doctor` (wraps
+> `scripts/runpod-vllm-antares.sh --print-only`) print the manual steps.
 
 ## Why RunPod (not Mac MPS)
 

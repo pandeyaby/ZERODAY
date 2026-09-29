@@ -1,0 +1,674 @@
+{
+ "schema": "zeroday.antares-bench.cases/v1",
+ "source": "OSV bulk export (GitHub-reviewed advisories); ground truth = non-test source files changed by the single fix commit",
+ "selection": {
+  "perCwe": 3,
+  "newestFirst": true,
+  "srcFilesChanged": "1-3",
+  "treeFiles": "30-3000",
+  "oneCasePerRepo": true
+ },
+ "cases": [
+  {
+   "id": "GHSA-q2vg-7qgx-x5fc",
+   "cve": "CVE-2026-72811",
+   "cwe": "CWE-89",
+   "ecosystem": "Go",
+   "package": "github.com/siyuan-note/siyuan/kernel",
+   "published": "2026-09-03",
+   "summary": "SiYuan: SQL injection in backlink/mention search via unescaped stored and client input (publish mode): first-order (client keyword) and second-order (stored doc",
+   "repo": "https://github.com/siyuan-note/siyuan",
+   "fixCommit": "1a5b3431d5ab3036b19c1cc79486fedd6906fb57",
+   "vulnerableCommit": "96791ff35971b654d377048537cc8d2ffeef1988",
+   "groundTruth": [
+    "kernel/model/backlink.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 2574,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-p6gw-4frg-j7jw",
+   "cve": "CVE-2026-55509",
+   "cwe": "CWE-89",
+   "ecosystem": "PyPI",
+   "package": "wsgidav",
+   "published": "2026-08-28",
+   "summary": "WsgiDAV MySQL provider has a blind SQL injection",
+   "repo": "https://github.com/mar10/wsgidav",
+   "fixCommit": "6f35776c9188f130ab044ce557015d51aaa83500",
+   "vulnerableCommit": "67abdbd7d622fcf29aefdfbd0c9910de9e0c8b3d",
+   "groundTruth": [
+    "wsgidav/samples/mysql_dav_provider.py"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 195,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-v8fg-2rw7-q452",
+   "cve": "CVE-2026-69240",
+   "cwe": "CWE-89",
+   "ecosystem": "npm",
+   "package": "sequelize",
+   "published": "2026-08-03",
+   "summary": "Sequelize: SQL Injection (Oracle DB)",
+   "repo": "https://github.com/sequelize/sequelize",
+   "fixCommit": "5deadd2410ae9136a21fb652db206d27bb715f26",
+   "vulnerableCommit": "b9e71a7af57568dd85b8a2fdaac59b96ce0f0e95",
+   "groundTruth": [
+    "src/dialects/postgres/connection-manager.js",
+    "src/sql-string.js"
+   ],
+   "changedFiles": 18,
+   "treeFiles": 529,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-6rf4-v2fh-m6p4",
+   "cve": "CVE-2026-59167",
+   "cwe": "CWE-79",
+   "ecosystem": "npm",
+   "package": "suneditor",
+   "published": "2026-09-24",
+   "summary": "SunEditor: Critical XSS vulnerability - sanitizer bypass",
+   "repo": "https://github.com/JiHong88/suneditor",
+   "fixCommit": "a94ace269c7102bfb6de58a27a6547bc4eb09045",
+   "vulnerableCommit": "d943fe581be00ba1218a367d9b302c015a7c3771",
+   "groundTruth": [
+    "src/lib/core.js"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 205,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-xpjq-3w4w-w5wr",
+   "cve": "CVE-2026-86062",
+   "cwe": "CWE-79",
+   "ecosystem": "PyPI",
+   "package": "lightrag-hku",
+   "published": "2026-09-22",
+   "summary": "lightrag-hku: Stored Cross-Site Scripting (XSS) in the LightRAG WebUI chat/answer renderer via ingested content",
+   "repo": "https://github.com/HKUDS/LightRAG",
+   "fixCommit": "8bf032a5200f293b482dd945d436e25cd08bd953",
+   "vulnerableCommit": "a1cd6b44d25cb20665859a0e0f1bc5bbfce460a9",
+   "groundTruth": [
+    "lightrag_webui/src/components/retrieval/ChatMessage.tsx",
+    "lightrag_webui/src/utils/markdownSanitizeSchema.ts"
+   ],
+   "changedFiles": 5,
+   "treeFiles": 806,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-3rm2-h79c-8qw6",
+   "cve": "CVE-2026-84992",
+   "cwe": "CWE-79",
+   "ecosystem": "npm",
+   "package": "md-editor-v3",
+   "published": "2026-09-18",
+   "summary": "md-editor-v3: XSS via fenced-code language rendering bypass",
+   "repo": "https://github.com/imzbf/md-editor-v3",
+   "fixCommit": "2c07360420e74087f5bc63032ab155d93e0a0b10",
+   "vulnerableCommit": "bea48ec0ba51c19deda9486eb06050b5b8f50b51",
+   "groundTruth": [
+    "packages/MdEditor/layouts/Content/composition/useCopyCode.ts",
+    "packages/MdEditor/layouts/Content/composition/useMarkdownIt.ts",
+    "packages/MdEditor/layouts/Content/markdownIt/code/index.ts"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 231,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-g28h-2cmm-rj9x",
+   "cve": null,
+   "cwe": "CWE-22",
+   "ecosystem": "PyPI",
+   "package": "langchain-nvidia-ai-endpoints",
+   "published": "2026-09-24",
+   "summary": "langchain-nvidia-ai-endpoints has local file disclosure through VLM image inputs",
+   "repo": "https://github.com/langchain-ai/langchain-nvidia",
+   "fixCommit": "b483c7cad07dd9d5fd0fee2668238c4a08825d86",
+   "vulnerableCommit": "7ebc4cb23a756cd54931b6deb8c6f0450f32ff02",
+   "groundTruth": [
+    "libs/ai-endpoints/langchain_nvidia_ai_endpoints/_utils.py",
+    "libs/ai-endpoints/langchain_nvidia_ai_endpoints/chat_models.py",
+    "libs/ai-endpoints/langchain_nvidia_ai_endpoints/reranking.py"
+   ],
+   "changedFiles": 9,
+   "treeFiles": 191,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-vr5f-w35q-98jp",
+   "cve": "CVE-2026-63445",
+   "cwe": "CWE-22",
+   "ecosystem": "Go",
+   "package": "github.com/perses/perses",
+   "published": "2026-09-18",
+   "summary": "Perses's unvalidated project parameter enables filesystem path traversal",
+   "repo": "https://github.com/perses/perses",
+   "fixCommit": "75e5471040ccb5674ea8d25c2aa16c80ccb70b2a",
+   "vulnerableCommit": "ae51c3b6dda160d48696a2974cc485f79a0f73ab",
+   "groundTruth": [
+    "internal/api/toolbox/list.go"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 1319,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-cv3r-c5h8-f4g5",
+   "cve": "CVE-2026-61560",
+   "cwe": "CWE-22",
+   "ecosystem": "npm",
+   "package": "@zereight/mcp-gitlab",
+   "published": "2026-09-16",
+   "summary": "@zereight/mcp-gitlab: Unauthenticated arbitrary file read via `upload_markdown` enables PAT exfiltration and full account takeover",
+   "repo": "https://github.com/zereight/gitlab-mcp",
+   "fixCommit": "e436ee4ad067b64584ec9312c9e9c9a2641c1976",
+   "vulnerableCommit": "404a993ef5f86e99db693e8075fdb3a63625f1bd",
+   "groundTruth": [
+    "index.ts"
+   ],
+   "changedFiles": 7,
+   "treeFiles": 269,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-jpf4-98qj-qr67",
+   "cve": "CVE-2026-76802",
+   "cwe": "CWE-78",
+   "ecosystem": "Go",
+   "package": "github.com/projectdiscovery/nuclei/v3",
+   "published": "2026-09-22",
+   "summary": "Nuclei: Arbitrary Command Execution via DAST Code Signature Bypass",
+   "repo": "https://github.com/projectdiscovery/nuclei",
+   "fixCommit": "1c440e755a97471c56fb0276ee8a8c4132974645",
+   "vulnerableCommit": "c041bf292262baa68232351001001ab2bb1d9538",
+   "groundTruth": [
+    "pkg/catalog/loader/loader.go"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 1148,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-q69g-4hcv-6jg4",
+   "cve": "CVE-2026-71538",
+   "cwe": "CWE-78",
+   "ecosystem": "npm",
+   "package": "@cyclonedx/cyclonedx-npm",
+   "published": "2026-09-17",
+   "summary": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows",
+   "repo": "https://github.com/CycloneDX/cyclonedx-node-npm",
+   "fixCommit": "15d3beb5bcd2b0b6eccfdf31192f5103b3f12c0f",
+   "vulnerableCommit": "ee61a4416b45410dae2e5e65a97aebff6cac24f5",
+   "groundTruth": [
+    "src/npmRunner.ts"
+   ],
+   "changedFiles": 4,
+   "treeFiles": 1059,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-4x45-gxvp-6283",
+   "cve": "CVE-2026-59960",
+   "cwe": "CWE-78",
+   "ecosystem": "npm",
+   "package": "@argos-ci/core",
+   "published": "2026-09-10",
+   "summary": "@argos-ci/core: CI Branch Name OS Command Injection",
+   "repo": "https://github.com/argos-ci/argos-javascript",
+   "fixCommit": "8355f3af3be3f4fe361d58a688d21535cf672717",
+   "vulnerableCommit": "1787fe78cba46f408493e02114150f2d73f47fa4",
+   "groundTruth": [
+    "packages/core/src/ci-environment/git.ts"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 540,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-756x-9hf6-q4h4",
+   "cve": "CVE-2026-62675",
+   "cwe": "CWE-94",
+   "ecosystem": "PyPI",
+   "package": "omnigent",
+   "published": "2026-09-02",
+   "summary": "Omnigent: Uploaded Agent Bundle Allows Authenticated Runner RCE via Python Callable Tools",
+   "repo": "https://github.com/omnigent-ai/omnigent",
+   "fixCommit": "1f3f398f41cbf97b905133c21e848621c21da6e0",
+   "vulnerableCommit": "1a05b7b139ef504bf2be89bf37918abe104fb95c",
+   "groundTruth": [
+    "omnigent/server/bundles.py"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 2647,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-mw6r-2hvm-4rp2",
+   "cve": "CVE-2026-55546",
+   "cwe": "CWE-94",
+   "ecosystem": "PyPI",
+   "package": "qwed-mcp",
+   "published": "2026-08-25",
+   "summary": "qwed-mcp has Unsafe SymPy `parse_expr()` Remote Code Execution via Unsanitized Math Expression Input",
+   "repo": "https://github.com/QWED-AI/qwed-mcp",
+   "fixCommit": "362e61892052e250c56cb1ee852024d6f98c467b",
+   "vulnerableCommit": "54ac682699407310b5a71fbaed8c33f581b84301",
+   "groundTruth": [
+    "src/qwed_mcp/engines/math_engine.py",
+    "src/qwed_mcp/engines/safe_parser.py"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 36,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-3496-9g83-7v6x",
+   "cve": "CVE-2026-59894",
+   "cwe": "CWE-94",
+   "ecosystem": "PyPI",
+   "package": "sqlparse",
+   "published": "2026-08-17",
+   "summary": "sqlparse: Generated Python and PHP snippets allow SQL string breakout through unescaped backslashes",
+   "repo": "https://github.com/andialbrecht/sqlparse",
+   "fixCommit": "53ff44b53e27cff78259acc1af015506fea60f63",
+   "vulnerableCommit": "e7d95d494cebc66fd220198ea2eb2cf94a8bb5fe",
+   "groundTruth": [
+    "sqlparse/filters/output.py"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 88,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-2vh9-42vm-xmv2",
+   "cve": "CVE-2025-66455",
+   "cwe": "CWE-502",
+   "ecosystem": "PyPI",
+   "package": "lmdeploy",
+   "published": "2026-09-18",
+   "summary": "LMDeploy has Remote Code Execution\u00a0by Pickle Deserialization via handle_zmq_recv in lmdeploy/lmdeploy/pytorch/disagg/conn/engine_conn.py",
+   "repo": "https://github.com/InternLM/lmdeploy",
+   "fixCommit": "f05b4ad8bf2e2d84101a1d63b3c44fadd99223b2",
+   "vulnerableCommit": "eb94bd8cb4155eb055e2404d8304a7af089a6099",
+   "groundTruth": [
+    "lmdeploy/pytorch/disagg/conn/engine_conn.py"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 1735,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-rhp5-r9x4-f5g2",
+   "cve": "CVE-2026-78683",
+   "cwe": "CWE-502",
+   "ecosystem": "PyPI",
+   "package": "nltk",
+   "published": "2026-09-08",
+   "summary": "NLTK: Unsafe Pickle Deserialization in TransitionParser Allows Remote Code Execution",
+   "repo": "https://github.com/nltk/nltk",
+   "fixCommit": "f26b3753038d937b68145daf15e9636f8451053c",
+   "vulnerableCommit": "8493007b3ec04bfa132ed5ca9cbecf127ecc9eda",
+   "groundTruth": [
+    "nltk/parse/transitionparser.py",
+    "nltk/picklesec.py",
+    "nltk/tokenize/punkt.py"
+   ],
+   "changedFiles": 5,
+   "treeFiles": 570,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-w6w4-rjh9-9r58",
+   "cve": "CVE-2026-55223",
+   "cwe": "CWE-502",
+   "ecosystem": "Maven",
+   "package": "com.mchange:c3p0",
+   "published": "2026-07-23",
+   "summary": "c3p0 can, in combination with other libraries, compose to a \"sink\" for deserialization gadgets",
+   "repo": "https://github.com/swaldman/c3p0",
+   "fixCommit": "7b022c4b6694dabc6204254dc917af9c38f2cb27",
+   "vulnerableCommit": "e604f8d7599e185803a7fa6584f7076331cbc847",
+   "groundTruth": [
+    "beanInfo/src/com/mchange/v2/c3p0/beaninfo/C3P0BeanInfoGen.java"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 232,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-h7vf-4x9w-h99v",
+   "cve": "CVE-2026-85732",
+   "cwe": "CWE-918",
+   "ecosystem": "Go",
+   "package": "oras.land/oras-go/v2",
+   "published": "2026-09-17",
+   "summary": "oras-go: Blind SSRF via unvalidated Link header URL in pagination allows internal network probing",
+   "repo": "https://github.com/oras-project/oras-go",
+   "fixCommit": "31da1963f8c327dd089cd29faeae95cf0fc50842",
+   "vulnerableCommit": "adab2f25ea95ef4e6e41f50db9266a6701399422",
+   "groundTruth": [
+    "registry/remote/utils.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 190,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-p2w3-6x73-2f6x",
+   "cve": "CVE-2026-73087",
+   "cwe": "CWE-918",
+   "ecosystem": "Go",
+   "package": "github.com/amir20/dozzle",
+   "published": "2026-09-08",
+   "summary": "Dozzle: SSRF guard bypass via IPv6 transition addresses (6to4/NAT64/Teredo) in webhook notification dispatcher",
+   "repo": "https://github.com/amir20/dozzle",
+   "fixCommit": "8cf7ccd5ee041ecaea92b49951793d4d2393761f",
+   "vulnerableCommit": "a9395e9f73161da9583e82ebaf78012355ce980d",
+   "groundTruth": [
+    "internal/notification/dispatcher/webhook.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 522,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-998g-7v5w-cr7g",
+   "cve": "CVE-2026-63642",
+   "cwe": "CWE-918",
+   "ecosystem": "npm",
+   "package": "magicmirror",
+   "published": "2026-08-18",
+   "summary": "MagicMirror newsfeed Socket.IO notification allows blind server-side request forgery",
+   "repo": "https://github.com/MagicMirrorOrg/MagicMirror",
+   "fixCommit": "58c2a5e675a7d367b64d72e1d35680d202ff5c9f",
+   "vulnerableCommit": "d203fefed18ebe2827bcda7fc0b35072056ab769",
+   "groundTruth": [
+    "js/ip_access_control.js",
+    "js/server.js"
+   ],
+   "changedFiles": 4,
+   "treeFiles": 445,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-h5g6-xmh4-hc37",
+   "cve": "CVE-2026-55252",
+   "cwe": "CWE-601",
+   "ecosystem": "Go",
+   "package": "github.com/openrundev/openrun",
+   "published": "2026-07-09",
+   "summary": "OpenRun: Redirect URL validation bypass using \u00a0//host\u00a0 paths leads to Open Redirect",
+   "repo": "https://github.com/openrundev/openrun",
+   "fixCommit": "709da784fcf1311c85f30f3542cfa3601a78bbf0",
+   "vulnerableCommit": "c247d6a1c55d51178a528708f0cf654a94c93590",
+   "groundTruth": [
+    "internal/app/handler.go"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 479,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-8w27-c4vc-88q9",
+   "cve": "CVE-2026-49826",
+   "cwe": "CWE-601",
+   "ecosystem": "Go",
+   "package": "github.com/concourse/concourse",
+   "published": "2026-07-01",
+   "summary": "Concourse login flow has an open redirect issue",
+   "repo": "https://github.com/concourse/concourse",
+   "fixCommit": "ac60be5f0435b6592f5a4fcc089050d72ad2452c",
+   "vulnerableCommit": "095f8811af19676e0edea5427eeb2fea5adb0e50",
+   "groundTruth": [
+    "skymarshal/skyserver/skyserver.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 2796,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-xxhq-69mf-w8cr",
+   "cve": "CVE-2026-52802",
+   "cwe": "CWE-601",
+   "ecosystem": "Go",
+   "package": "gogs.io/gogs",
+   "published": "2026-06-23",
+   "summary": "Gogs has an Open Redirect via redirect_to",
+   "repo": "https://github.com/gogs/gogs",
+   "fixCommit": "c5da9631dc75f692f313373ae229c4d47ba6517f",
+   "vulnerableCommit": "11e19f28b5c82466fd1689c94344ef4313ee986c",
+   "groundTruth": [
+    "internal/urlx/urlx.go"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 2648,
+   "rulesCoverCwe": true
+  },
+  {
+   "id": "GHSA-89vx-jh4q-vg3w",
+   "cve": "CVE-2026-63116",
+   "cwe": "CWE-862",
+   "ecosystem": "npm",
+   "package": "@deepstream/server",
+   "published": "2026-09-22",
+   "summary": "deepstream: PATCH_MULTI action bypasses Valve permission system allowing unauthorized record writes",
+   "repo": "https://github.com/deepstreamIO/deepstream.io",
+   "fixCommit": "1c2adde6581c53ef47e204364bc740bc3c2e2e2a",
+   "vulnerableCommit": "3abde8de3df91e1b6d18f719d9e38e94bfa314f6",
+   "groundTruth": [
+    "src/services/permission/valve/rules-map.ts"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 269,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-w89x-c962-c44g",
+   "cve": "CVE-2026-77637",
+   "cwe": "CWE-862",
+   "ecosystem": "Go",
+   "package": "github.com/cloudreve/Cloudreve/v4",
+   "published": "2026-09-22",
+   "summary": "Cloudreve: Privilege Scope Bypass: State-Mutating Admin Operations Accessible via Read-Only OAuth Scope",
+   "repo": "https://github.com/cloudreve/cloudreve",
+   "fixCommit": "bce08f88e9d8f881e78fd18e7a6598b31922c492",
+   "vulnerableCommit": "c278c6af39de0ffde7e125481c674931826a3ab9",
+   "groundTruth": [
+    "routers/router.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 491,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-4h97-p9wq-chqj",
+   "cve": "CVE-2026-71322",
+   "cwe": "CWE-862",
+   "ecosystem": "PyPI",
+   "package": "lemur",
+   "published": "2026-08-18",
+   "summary": "Lemur: Missing authorization check on POST /certificates/<id>/export for plugins with requires_key = False",
+   "repo": "https://github.com/Netflix/lemur",
+   "fixCommit": "5683bbea8b10cce07f9a8abf1e4a7d3b2031c585",
+   "vulnerableCommit": "e9ade7dad5c9bc1369a831554ed6df3277c9cbae",
+   "groundTruth": [
+    "lemur/certificates/views.py"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 575,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-vq6g-g6c7-5f2j",
+   "cve": "CVE-2026-57175",
+   "cwe": "CWE-287",
+   "ecosystem": "PyPI",
+   "package": "social-auth-core",
+   "published": "2026-09-24",
+   "summary": "social-auth-core has an Improper Authentication issue",
+   "repo": "https://github.com/python-social-auth/social-core",
+   "fixCommit": "5c72f71125bc60e4411f09e2a9f998de5da7fcb6",
+   "vulnerableCommit": "7a9a8608bbaa57ecd38d5491ce2d7bc6ccfc6582",
+   "groundTruth": [
+    "social_core/backends/saml.py"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 370,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-v667-gc2r-2xm7",
+   "cve": "CVE-2026-55445",
+   "cwe": "CWE-287",
+   "ecosystem": "npm",
+   "package": "@whyour/qinglong",
+   "published": "2026-08-20",
+   "summary": "Qinglong has an incomplete fix for CVE-2026-3965: Improper Authentication",
+   "repo": "https://github.com/whyour/qinglong",
+   "fixCommit": "6bec52dca158481258315ba0fc2f11206df7b719",
+   "vulnerableCommit": "ce599d306f81e3ebb0f6eaa5b540d701a6d4085d",
+   "groundTruth": [
+    "back/loaders/express.ts"
+   ],
+   "changedFiles": 1,
+   "treeFiles": 230,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-6765-c87h-8mrf",
+   "cve": "CVE-2026-71326",
+   "cwe": "CWE-287",
+   "ecosystem": "Go",
+   "package": "github.com/traefik/traefik/v3",
+   "published": "2026-08-06",
+   "summary": "Traefik: BasicAuth singleflight key collision allows authenticated identity spoofing",
+   "repo": "https://github.com/traefik/traefik",
+   "fixCommit": "b5ace8eb5d6779980567f5e75efd2d9e08b7e350",
+   "vulnerableCommit": "c25bed34075eaa8a23dfbefcf1ebbb1c032aaf4b",
+   "groundTruth": [
+    "pkg/middlewares/auth/basic_auth.go"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 2042,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-jx63-h26r-8cph",
+   "cve": "CVE-2026-58270",
+   "cwe": "CWE-1333",
+   "ecosystem": "npm",
+   "package": "@sync-in/server",
+   "published": "2026-09-22",
+   "summary": "Sync-in Server has a ReDoS via Unsanitized Regex in Sync Diff `pathFilters`",
+   "repo": "https://github.com/Sync-in/server",
+   "fixCommit": "b1dcaa1d1c1bb17ab6c31a404cc9cead7efdd979",
+   "vulnerableCommit": "629055ffb124ee49f5720807748a21640446b797",
+   "groundTruth": [
+    "backend/src/applications/sync/dtos/sync-operations.dto.ts",
+    "backend/src/applications/sync/utils/functions.ts"
+   ],
+   "changedFiles": 5,
+   "treeFiles": 1456,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-29g2-3rmr-qm68",
+   "cve": "CVE-2026-66062",
+   "cwe": "CWE-1333",
+   "ecosystem": "npm",
+   "package": "@sveltejs/kit",
+   "published": "2026-08-07",
+   "summary": "SvelteKit: ReDoS (O(n^2)) in content negotiation \u2014 unauthenticated DoS via the Accept header",
+   "repo": "https://github.com/sveltejs/kit",
+   "fixCommit": "82712fc02c24b1dcf5b25d7a52129cd8455f04f5",
+   "vulnerableCommit": "b27c82f9c6896d7127a4023a8b1868c68e4a27b9",
+   "groundTruth": [
+    "packages/kit/src/utils/http.js"
+   ],
+   "changedFiles": 3,
+   "treeFiles": 2787,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-8j4g-w8fx-2239",
+   "cve": "CVE-2026-69207",
+   "cwe": "CWE-1333",
+   "ecosystem": "npm",
+   "package": "hono",
+   "published": "2026-08-03",
+   "summary": "Hono: ReDoS in CORS middleware via Access-Control-Request-Headers",
+   "repo": "https://github.com/honojs/hono",
+   "fixCommit": "93fc250d8b4df58ea542cb945171de8013d5e6d5",
+   "vulnerableCommit": "51db3131d5e97076327edaa0afdb60ebb77c264f",
+   "groundTruth": [
+    "src/middleware/cors/index.ts"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 482,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-8cw4-87c7-c6xx",
+   "cve": "CVE-2026-85063",
+   "cwe": "CWE-1321",
+   "ecosystem": "npm",
+   "package": "csv-parse",
+   "published": "2026-09-08",
+   "summary": "node-csv: Prototype replacement still reachable via columns path",
+   "repo": "https://github.com/adaltas/node-csv",
+   "fixCommit": "eb4d1484589c976dcb977db8dd0b90e015a6f66e",
+   "vulnerableCommit": "1d4ed3b24327d65dae4610f3ec643de8ce56d3fb",
+   "groundTruth": [
+    "packages/csv-parse/lib/api/index.js"
+   ],
+   "changedFiles": 2,
+   "treeFiles": 622,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-vmg4-6gfg-83qx",
+   "cve": "CVE-2026-71553",
+   "cwe": "CWE-1321",
+   "ecosystem": "npm",
+   "package": "apostrophe",
+   "published": "2026-09-02",
+   "summary": "ApostropheCMS: 2nd-order prototype pollution via PATCH leading to single-request persistent DoS",
+   "repo": "https://github.com/apostrophecms/apostrophe",
+   "fixCommit": "5a3746aaed49761e171c2cbfe793267c959829fd",
+   "vulnerableCommit": "1135516a1a4a8f9638641c460488a43d8af20081",
+   "groundTruth": [
+    "packages/apostrophe/modules/@apostrophecms/util/index.js"
+   ],
+   "changedFiles": 4,
+   "treeFiles": 2212,
+   "rulesCoverCwe": false
+  },
+  {
+   "id": "GHSA-3rrr-jr9j-h3q3",
+   "cve": "CVE-2026-71437",
+   "cwe": "CWE-1321",
+   "ecosystem": "npm",
+   "package": "mermaid",
+   "published": "2026-08-06",
+   "summary": "Mermaid Architecture diagrams are vulnerable to prototype pollution",
+   "repo": "https://github.com/mermaid-js/mermaid",
+   "fixCommit": "99af3fc35ef0a9a9c8c6314521344d67523ddccf",
+   "vulnerableCommit": "2337f7ecd629c8e777684a2edff341976230ad67",
+   "groundTruth": [
+    "packages/mermaid/src/diagrams/architecture/architectureDb.ts",
+    "packages/mermaid/src/diagrams/architecture/architectureRenderer.ts",
+    "packages/mermaid/src/diagrams/architecture/architectureTypes.ts"
+   ],
+   "changedFiles": 6,
+   "treeFiles": 1700,
+   "rulesCoverCwe": false
+  }
+ ]
+}

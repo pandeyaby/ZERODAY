@@ -17,6 +17,29 @@ All notable changes to ZERODAY. The stable surface is defined in
   fields only; anti-framing headers added.
 
 ### Added
+- **`zeroday antares up | down | status`:** Antares-1B on a RunPod Secure GPU
+  in one command with your `RUNPOD_API_KEY` + `HF_TOKEN` (never saved) —
+  confirms first, installs `cisco-antares-cli` if missing, waits until the
+  model answers, saves the endpoint for `--live` / scan / the Desk, and a
+  detached watchdog deletes the pod at `--max-minutes` (default 30).
+- **`zeroday scan --repo <path>`:** scan for anything, no CWE — rules run all
+  10 CWEs; with Antares available, `antares plan` picks the CWEs that fit the
+  repository and `antares sweep` investigates them with the rules findings as
+  context. One ranked list (both / Antares only / rules only), per-CWE table,
+  SARIF, report.md, verifiable evidence.
+- **Antares benchmark on real advisories** ([`docs/antares-benchmark.md`](./docs/antares-benchmark.md)):
+  36 recent GitHub-reviewed advisories across 12 CWEs (4 the rules cannot
+  model), vulnerable commit = fix parent, ground truth = fixed files; arms
+  rules / Antares alone / Antares + ZERODAY context (`npm run bench:antares`).
+- **Antares with no setup:** `locate --live` without `--endpoint` finds the
+  Desk's saved endpoint (last good Antares first) or a local vLLM / Ollama /
+  LM Studio serving an Antares model (loopback, `GET /v1/models` only), and the
+  Desk's Live brain does the same when nothing is saved.
+- **Hybrid Antares runs:** ZERODAY's static pass (dependency verdict,
+  vulnerable functions, rules candidates) is passed to Antares via the official
+  `antares query --query`; results mark files both flagged (`sources`,
+  `summary.hybrid`), list rules candidates Antares did not confirm, and live
+  CVE / GHSA runs now show the dependency verdict. `--no-context` opts out.
 - CWE-502 / CWE-94 rules for ML model loading: `torch.load` without
   `weights_only=True`, `numpy.load(allow_pickle=True)`, joblib /
   `pandas.read_pickle`, Keras `load_model(safe_mode=False)`, Hugging Face
@@ -33,6 +56,8 @@ All notable changes to ZERODAY. The stable surface is defined in
   (*Verify it yourself*, *Demo data*).
 
 ### Fixed
+- PR comments and SARIF rule text said "Antares localization" for runs where no
+  model was involved (rules / ingest / recording).
 - Advisory matching no longer reports a fix commit's regression test
   (`test_…`) as the vulnerable function.
 

@@ -24,9 +24,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const ENDPOINT =
   process.env.ZERODAY_LIVE_ENDPOINT || "http://127.0.0.1:8000/v1";
-const MODEL =
-  process.env.ZERODAY_LIVE_MODEL ||
-  "/Users/abhinavpandey/Documents/GitHub/_zeroday-batch/antares-350m-official";
+const MODEL = process.env.ZERODAY_LIVE_MODEL || "fdtn-ai/antares-1b";
 const REPO = process.env.ZERODAY_LIVE_REPO || "fixtures/locate/rules-sample";
 const CWE = process.env.ZERODAY_LIVE_CWE || "CWE-89";
 
@@ -45,6 +43,21 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 
+// "done" once the Results panel shows this advisory (ranked files, or the
+// "<advisory> → CWE-…" line when there are zero findings); "error" on the
+// Desk error panel or a live-endpoint failure. Keyed to the requested
+// advisory, not a fixed CWE.
+await page.addInitScript(() => {
+  window.resultState = (advisory) => {
+    const t = document.querySelector('[data-testid="desk-console"]')?.innerText || "";
+    if (document.querySelector('[data-testid="desk-error"]')) return "error";
+    if (/LiveEndpointError|ECONNREFUSED/i.test(t)) return "error";
+    if (document.querySelector('[data-testid="desk-ranked-files"]')) return "done";
+    const esc = advisory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`${esc}\\s*→`, "i").test(t) ? "done" : "pending";
+  };
+});
+
 try {
   console.log(`pace pause=${PAUSE_MS} dwell=${DWELL_MS}`);
   console.log(`endpoint=${ENDPOINT} model=${MODEL}`);
@@ -59,10 +72,9 @@ try {
     shotName: "live-01-panel.png",
   });
 
-  const p350 = page.locator('[data-testid="preset-antares-350m-ollama"]');
-  const p1b = page.locator('[data-testid="preset-antares-1b"]');
-  if (await p350.count()) await p350.click();
-  else if (await p1b.count()) await p1b.click();
+  // Antares-1B unless ZERODAY_LIVE_PRESET=antares-350m-ollama.
+  const preset = page.locator(`[data-testid="preset-${process.env.ZERODAY_LIVE_PRESET || "antares-1b"}"]`);
+  if (await preset.count()) await preset.click();
   await sleep(DWELL_MS);
 
   await page.locator('[data-testid="live-endpoint"]').fill(ENDPOINT);
@@ -80,12 +92,16 @@ try {
     if (t.includes("cwe")) await input.fill(CWE);
   }
 
-  // loopback — remote ack should stay off
+  // Remote ACK only for a non-loopback endpoint (e.g. a RunPod proxy) — shown on screen.
+  const isLoopback = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:|\/)/.test(ENDPOINT);
   const remote = page.locator('[data-testid="remote-inference-ack"]');
-  if ((await remote.count()) && (await remote.isChecked())) await remote.uncheck();
+  if (await remote.count()) {
+    if (isLoopback && (await remote.isChecked())) await remote.uncheck();
+    if (!isLoopback && !(await remote.isChecked())) await remote.check();
+  }
 
   await step(page, OUT, {
-    title: "2 · Point at local Antares",
+    title: isLoopback ? "2 · Point at local Antares" : "2 · Point at your Antares host (remote inference acknowledged)",
     detail: `${ENDPOINT} · ${CWE} · ${REPO}`,
     shotName: "live-02-configured.png",
   });
@@ -143,16 +159,13 @@ try {
     spendConfirmed = true;
     log.push("spend-confirm clicked");
 
-    await showStep(page, "7 · Live locate running…", "Antares localizing CWE-89 on rules-sample");
+    await showStep(page, "7 · Live locate running…", `Antares localizing ${CWE} on ${REPO}`);
     try {
-      await page.waitForFunction(() => {
-        const t = document.querySelector('[data-testid="desk-console"]')?.innerText || "";
-        return (
-          /src\/(search|index)\.js/i.test(t) ||
-          (/Findings|Ranked/i.test(t) && /CWE-89/i.test(t)) ||
-          /LiveEndpointError|ECONNREFUSED/i.test(t)
-        );
-      }, { timeout: 240000 });
+      await page.waitForFunction(
+        (advisory) => resultState(advisory) !== "pending",
+        CWE,
+        { timeout: 240000 },
+      );
     } catch {
       log.push("timeout waiting for live locate");
     }
@@ -163,9 +176,7 @@ try {
       shotName: "live-06-locate-result.png",
       dwell: PAUSE_MS + DWELL_MS,
     });
-    const after = await page.locator('[data-testid="desk-console"]').innerText();
-    locateOk =
-      (/Findings|Ranked|src\//i.test(after) && !/LiveEndpointError|ECONNREFUSED/i.test(after));
+    locateOk = (await page.evaluate((advisory) => resultState(advisory), CWE)) === "done";
     log.push(locateOk ? "LIVE LOCATE SUCCESS" : "LIVE LOCATE FAIL/partial");
   } else {
     await shot(page, OUT, "live-05-doctor-blocked.png");

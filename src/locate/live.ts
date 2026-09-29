@@ -35,6 +35,8 @@ export interface LiveLocateParams {
   antaresCliSource?: string;
   /** Antares --tool-budget (1–50). Defaults via resolveLiveToolBudget. */
   toolBudget?: number;
+  /** Extra CWE-scoped instructions (`antares query --query`): ZERODAY's static pass. */
+  query?: string;
 }
 
 export interface LiveLocateCliMeta {
@@ -161,6 +163,9 @@ export function runLiveAntaresCli(
 
   if (params.endpoint) {
     args.push("--endpoint", normalizeCompletionsEndpoint(params.endpoint));
+  }
+  if (params.query?.trim()) {
+    args.push("--query", params.query);
   }
 
   const env = { ...process.env, ANTARES_MODEL: model };
@@ -366,8 +371,10 @@ export function adaptAntaresReport(
   const terminalCallBudget = Number(
     metadata.terminal_call_budget ?? metadata.tool_budget ?? toolBudget,
   );
+  // cisco-antares-cli 0.1 reports `summary.tool_call_count`; the trace itself
+  // stays in Antares' private history, so the trace length is only a fallback.
   const terminalCallsUsed = Number(
-    summary.terminal_calls_used ?? explorationTrace.length,
+    summary.terminal_calls_used ?? summary.tool_call_count ?? explorationTrace.length,
   );
 
   // Antares may populate findings[] / total_findings even when the explore

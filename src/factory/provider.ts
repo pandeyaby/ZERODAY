@@ -16,7 +16,7 @@ export const REMOTE_INFERENCE_REQUIRED =
 
 export const REMOTE_DOCS_HINT =
   "See docs/runpod-antares.md (recommended CUDA path) and docs/remote-antares-vllm.md " +
-  "(host-agnostic). Scaffold only — ZERODAY never creates paid GPU pods.";
+  "(host-agnostic). ZERODAY creates a paid GPU pod only via `zeroday antares up` (confirmed, capped, auto-deleted).";
 
 /** @deprecated Use REMOTE_DOCS_HINT — kept as alias for older imports/tests */
 export const NEBIUS_DOCS_HINT = REMOTE_DOCS_HINT;

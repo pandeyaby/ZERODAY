@@ -26,6 +26,8 @@ import {
   runLiveAntaresCliWithRecovery,
   adaptAntaresReport,
 } from "./live";
+import { discoverLiveEndpoint, type DiscoveredEndpoint } from "./discover";
+import { buildAntaresContext, mergeHybrid } from "./hybrid";
 import { normalizeCompletionsEndpoint } from "./completions";
 import { runMockAntaresQuery } from "./mock-antares";
 import {
@@ -122,7 +124,7 @@ export interface LocateArtifacts {
 }
 
 export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
-  const endpointRaw =
+  let endpointRaw =
     options.endpoint ||
     process.env.LOCATE_BASE_URL ||
     process.env.ZERODAY_ANTARES_BASE_URL ||
@@ -133,6 +135,22 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     options.mockAntares === true ||
     process.env.ZERODAY_MOCK_ANTARES === "1" ||
     options.antaresCliSource === "in-process-mock";
+
+  // Zero-config Antares: --live without an endpoint finds one (saved Desk
+  // endpoint, then local vLLM / Ollama / LM Studio). Fails closed with guidance.
+  let discovered: DiscoveredEndpoint | undefined;
+  if (options.live && !endpointRaw && !wantMockAntares && !options.fixture) {
+    discovered = await discoverLiveEndpoint({
+      model: options.model,
+      ...(options.probeFetch ? { fetchImpl: options.probeFetch } : {}),
+    });
+    endpointRaw = discovered.endpoint;
+    options = {
+      ...options,
+      model: options.model ?? discovered.model,
+      remoteInference: options.remoteInference || discovered.remoteInference === true,
+    };
+  }
 
   // Live when --live / --endpoint; rules when --rules; ingest when --from-sarif;
   // recording when --recording; fixture when --fixture or default. Mixed doors refuse closed.
@@ -362,6 +380,13 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       const liveBudget = resolveLiveToolBudget(options.toolBudget);
       const antaresRawDir = path.join(outputDir, "antares-raw");
 
+      // ZERODAY's static pass on the same snapshot becomes Antares' starting context.
+      const hybridCtx =
+        options.context !== false
+          ? await buildAntaresContext(advisory, snap.snapshotPath, { offline: options.offline === true })
+          : undefined;
+      const liveQuery = hybridCtx?.query || undefined;
+
       if (wantMockAntares) {
         const mock = await runMockAntaresQuery({
           snapshotPath: snap.snapshotPath,
@@ -371,6 +396,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
           model: liveModel,
           toolBudget: liveBudget,
           fetchImpl: options.probeFetch,
+          ...(liveQuery ? { query: liveQuery } : {}),
         });
         const rawReport = JSON.parse(
           fs.readFileSync(mock.reportPath, "utf8"),
@@ -413,6 +439,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
             model: liveModel,
             toolBudget: liveBudget,
             antaresCliSource: options.antaresCliSource,
+            ...(liveQuery ? { query: liveQuery } : {}),
           },
           { recovery: options.liveRecovery !== false },
         );
@@ -424,12 +451,23 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         );
       }
       result.snapshotPath = snap.snapshotPath;
+      if (hybridCtx) {
+        mergeHybrid(result, hybridCtx);
+        result.warnings.push(
+          liveQuery
+            ? `ZERODAY context sent to Antares (--query): ${hybridCtx.rules.rankedFiles.length} static candidate(s)` +
+                (hybridCtx.rules.summary.advisoryMatch ? `, dependency verdict ${hybridCtx.rules.summary.advisoryMatch.verdict}` : "") +
+                ". Antares still explores and decides; files it did not confirm are listed as rules-only."
+            : "ZERODAY static pass found nothing to add; Antares ran without extra context.",
+        );
+      }
       result.warnings.push(
         `Read-only snapshot: ${snap.fileCount} files at ${snap.snapshotPath}`,
       );
       result.warnings.push(...snap.warnings);
       result.warnings.push(sb.detail);
       result.warnings.push(probeDetail);
+      if (discovered) result.warnings.push(`Endpoint discovered: ${discovered.detail}`);
       result.warnings.push(
         `Resolved ${advisory.id} → ${advisory.cweId} (${resolvedCategory}) via ${resolvedSource}`,
       );

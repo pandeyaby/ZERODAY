@@ -224,19 +224,52 @@ paired-probe calibration layer (`npm run paired-probe`) — is in
 
 ## When you want live Antares
 
-Not the default, and it **costs $**: you accept the Hugging Face terms for
-[`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b), serve
-`POST /v1/completions` yourself (CUDA / vLLM —
-[`docs/runpod-antares.md`](./docs/runpod-antares.md)), then point ZERODAY at it.
-ZERODAY never downloads weights and **never creates paid RunPod pods**.
-Non-loopback endpoints need `--remote-inference`. **No silent fixture fallback**
-if the endpoint is down.
+[Antares](https://cisco-foundation-ai.github.io/antares/) is Cisco Foundation AI's
+model for file-level vulnerability localization: it explores a repository with
+`find` / `grep` / `cat` tool calls and submits the files it believes are
+vulnerable, for **any** CWE. ZERODAY is the harness around it: a read-only
+snapshot, a tool budget, fail-closed checks, SARIF / PR comment / evidence
+hashes, and a human gate.
+
+ZERODAY also makes Antares more useful with no extra setup:
+
+- **Finds your server.** `locate --live` with no `--endpoint` uses the Desk's
+  saved endpoint, or a local vLLM (:8000), Ollama (:11434) or LM Studio (:1234)
+  that serves an Antares model — loopback only, `GET /v1/models` only.
+- **Gives Antares a head start.** Before Antares explores, ZERODAY runs its own
+  static pass — the advisory's lockfile verdict, vulnerable functions and rules
+  candidates — and passes it through the official CLI's `--query`. Antares
+  still decides; the result shows which files **both** flagged, which only
+  Antares found, and which rules candidates Antares did not confirm
+  (`--no-context` runs Antares alone).
+
+It is opt-in and **costs $**. One command starts it on your own RunPod
+account — you accept the Hugging Face terms for
+[`fdtn-ai/antares-1b`](https://huggingface.co/fdtn-ai/antares-1b) and export
+`RUNPOD_API_KEY` + `HF_TOKEN` (read from the environment, never saved):
 
 ```bash
+npm run zeroday -- antares up          # installs the Antares CLI, starts a Secure A40 (~$0.50/hr),
+                                       # waits for the model, saves the endpoint; deleted after 30 min
+npm run zeroday -- scan --repo /path/to/authorized/repo     # anything: rules + Antares-picked CWEs
+npm run zeroday -- locate --cve CVE-2021-23337 --repo /path/to/authorized/repo --live
+npm run zeroday -- antares down        # delete the pod now (status: antares status)
+```
+
+ZERODAY never downloads weights to your machine and **never creates paid RunPod
+pods** unless you run `antares up` and confirm; every pod it creates has a
+deadline and a watchdog that deletes it. Already serving Antares yourself
+(vLLM / Ollama / LM Studio, or `docs/runpod-antares.md`)? `--live` finds it.
+Non-loopback endpoints need `--remote-inference` (`antares up` sets it for the pod
+it creates). **No silent fixture fallback** if the endpoint is down. Measured
+accuracy on real advisories: [`docs/antares-benchmark.md`](./docs/antares-benchmark.md).
+
+```bash
+uv tool install cisco-antares-cli                     # the official Antares CLI (antares up does this)
+npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
+  --endpoint http://127.0.0.1:8000/v1 --model fdtn-ai/antares-1b   # explicit endpoint
 npm run zeroday -- antares doctor          # print-only checklist, no spend
 npm run zeroday -- doctor --local-brain    # any local OpenAI-compatible brain
-npm run zeroday -- locate --cwe CWE-89 --repo /path/to/authorized/repo \
-  --endpoint http://127.0.0.1:8000/v1 --model fdtn-ai/antares-1b
 # or: bash scripts/quickstart-live.sh /path/to/repo CWE-89
 ```
 
@@ -244,7 +277,6 @@ Arbitrary local models ≠ Antares File F1 — see
 [`docs/local-brain.md`](./docs/local-brain.md). Install, HF access and RunPod
 details: [`docs/paths.md`](./docs/paths.md#live-antares-opt-in) ·
 [`docs/trust.md`](./docs/trust.md#when-you-want-live-antares-door-b--opt-in-gpu-brain) ·
-[Antares site](https://cisco-foundation-ai.github.io/antares/) ·
 [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
 
 ---

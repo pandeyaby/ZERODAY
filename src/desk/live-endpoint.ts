@@ -30,6 +30,7 @@ import { resolveLocateMode } from "../locate/live-guard";
 import { DEFAULT_ANTARES_MODEL, locate } from "../locate/index";
 import type { LocalizationResult } from "../locate/types";
 import { remoteInferenceAcked } from "../factory/provider";
+import { discoverLiveEndpoint } from "../locate/discover";
 
 export const DESK_ENDPOINT_SCHEMA = "zeroday-desk-endpoint/v1" as const;
 export const DESK_ENDPOINT_REL = path.join(".zeroday", "desk-endpoint.json");
@@ -160,9 +161,10 @@ const SPEND_BANNER =
 
 const HONESTY = [
   "Keyless stays default; live is opt-in with an explicit human click + spend banner",
-  "UI-2 “No live Antares” meant validate/CI didn’t exercise spend — live path already exists via locate --endpoint + doctor; UI-3 makes it first-class in Desk Console",
-  "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — not a random chat model (llama3.2)",
-  "Reuses --endpoint / live-guard / doctor — no new inference engines",
+  "Antares explores the repo with find / grep / cat tool calls and submits the files it believes are vulnerable — for any CWE",
+  "ZERODAY gives Antares its static pass (dependency verdict, vulnerable functions, rules candidates) as starting context, then shows where they agree",
+  "No endpoint saved? ZERODAY looks for a local vLLM / Ollama / LM Studio serving Antares",
+  "Validate live (≤60s) applies Antares-1B defaults / last-good Antares — never a random chat model",
   "Non-loopback requires remote-inference ACK (UI checkbox)",
   "HF / auth tokens stay in env (tokenEnvVar name only in config) — never written to reports/SARIF",
   "No auto RunPod · no PoC · needs_human · private",
@@ -236,7 +238,14 @@ export interface LiveLocateResult {
     filePath: string;
     title: string;
     cweIds: string[];
+    line?: number;
+    excerpt?: string;
+    note?: string;
+    sources?: Array<"antares" | "rules">;
   }>;
+  /** Hybrid run: ZERODAY's static pass given to Antares, and agreement. */
+  hybrid?: NonNullable<LocalizationResult["summary"]["hybrid"]>;
+  exposure?: NonNullable<LocalizationResult["summary"]["advisoryMatch"]>;
   outputDir: string;
   paths: { json: string; sarif: string; report: string };
   endpoint: string;
@@ -602,15 +611,16 @@ export async function runLiveDoctor(
 
   if (!endpoint) {
     const loaded = loadLiveEndpointConfig({ cwd });
-    if (!loaded.config) {
-      throw new LiveEndpointError(
-        "No endpoint configured — save a preset first or pass endpoint",
-        "NO_CONFIG",
-      );
+    if (loaded.config) {
+      endpoint = loaded.config.endpoint;
+      model = model || loaded.config.model;
+      remoteInference = remoteInference || loaded.config.remoteInference;
+    } else {
+      // Nothing saved: look for a local Antares server (vLLM / Ollama / LM Studio).
+      const found = await discoverOrExplain(cwd, model, req.probeFetch);
+      endpoint = found.endpoint;
+      model = model || found.model;
     }
-    endpoint = loaded.config.endpoint;
-    model = model || loaded.config.model;
-    remoteInference = remoteInference || loaded.config.remoteInference;
   }
   model = model || DEFAULT_ANTARES_MODEL;
 
@@ -677,6 +687,23 @@ export async function runLiveDoctor(
   };
 }
 
+/** Zero-config: a local Antares server, or NO_CONFIG with what was checked. */
+async function discoverOrExplain(
+  cwd: string,
+  model: string | undefined,
+  fetchImpl?: typeof fetch,
+): Promise<{ endpoint: string; model: string }> {
+  try {
+    const d = await discoverLiveEndpoint({ cwd, env: {}, ...(model ? { model } : {}), ...(fetchImpl ? { fetchImpl } : {}) });
+    return { endpoint: d.endpoint, model: d.model };
+  } catch (e) {
+    throw new LiveEndpointError(
+      `No endpoint configured and none found locally — pick a preset or enter an endpoint.\n${(e as Error).message}`,
+      "NO_CONFIG",
+    );
+  }
+}
+
 function scanArtifactsForTokenLeak(
   paths: string[],
   tokenEnvVar?: string,
@@ -711,16 +738,16 @@ export async function runLiveLocate(
 
   if (!endpoint) {
     const loaded = loadLiveEndpointConfig({ cwd });
-    if (!loaded.config) {
-      throw new LiveEndpointError(
-        "No endpoint configured — save first",
-        "NO_CONFIG",
-      );
+    if (loaded.config) {
+      endpoint = loaded.config.endpoint;
+      model = model || loaded.config.model;
+      remoteInference = remoteInference || loaded.config.remoteInference;
+      tokenEnvVar = tokenEnvVar || loaded.config.tokenEnvVar;
+    } else {
+      const found = await discoverOrExplain(cwd, model, req.probeFetch);
+      endpoint = found.endpoint;
+      model = model || found.model;
     }
-    endpoint = loaded.config.endpoint;
-    model = model || loaded.config.model;
-    remoteInference = remoteInference || loaded.config.remoteInference;
-    tokenEnvVar = tokenEnvVar || loaded.config.tokenEnvVar;
   }
   model = model || DEFAULT_ANTARES_MODEL;
 
@@ -808,12 +835,21 @@ export async function runLiveLocate(
     advisory: artifacts.result.advisory.id,
     cweId: artifacts.result.advisory.cweId,
     findingCount: artifacts.result.summary.findingCount,
-    rankedFiles: artifacts.result.rankedFiles.map((f) => ({
-      rank: f.rank,
-      filePath: f.filePath,
-      title: f.title,
-      cweIds: f.cweIds,
-    })),
+    rankedFiles: artifacts.result.rankedFiles.map((f) => {
+      const ev = f.evidence?.[0];
+      return {
+        rank: f.rank,
+        filePath: f.filePath,
+        title: f.title,
+        cweIds: f.cweIds,
+        ...(ev?.startLine ? { line: ev.startLine } : {}),
+        ...(ev?.excerpt ? { excerpt: ev.excerpt.slice(0, 400) } : {}),
+        ...(ev?.note ? { note: ev.note } : {}),
+        ...(f.sources ? { sources: f.sources } : {}),
+      };
+    }),
+    ...(artifacts.result.summary.hybrid ? { hybrid: artifacts.result.summary.hybrid } : {}),
+    ...(artifacts.result.summary.advisoryMatch ? { exposure: artifacts.result.summary.advisoryMatch } : {}),
     outputDir: artifacts.outputDir,
     paths,
     endpoint: normalizeCompletionsEndpoint(endpoint).replace(
@@ -879,22 +915,8 @@ export function resolveValidateTarget(
     };
   }
 
-  const last = loaded.config?.lastGoodAntares;
-  if (last?.endpoint && last.model) {
-    return {
-      preset: "antares-1b",
-      endpoint: last.endpoint,
-      model: last.model,
-      remoteInference:
-        req.remoteInference === true || last.remoteInference === true,
-      tokenEnvVar:
-        sanitizeTokenEnvVar(req.tokenEnvVar) ||
-        last.tokenEnvVar ||
-        antaresDefault.tokenEnvVar,
-      source: "last-good-antares",
-    };
-  }
-
+  // A saved Antares config is the operator's current choice and wins over
+  // last-good; last-good only rescues a stray non-Antares save (llama3.2).
   const saved = loaded.config;
   if (
     saved &&
@@ -911,6 +933,22 @@ export function resolveValidateTarget(
         saved.tokenEnvVar ||
         antaresDefault.tokenEnvVar,
       source: "saved-antares",
+    };
+  }
+
+  const last = saved?.lastGoodAntares;
+  if (last?.endpoint && last.model) {
+    return {
+      preset: "antares-1b",
+      endpoint: last.endpoint,
+      model: last.model,
+      remoteInference:
+        req.remoteInference === true || last.remoteInference === true,
+      tokenEnvVar:
+        sanitizeTokenEnvVar(req.tokenEnvVar) ||
+        last.tokenEnvVar ||
+        antaresDefault.tokenEnvVar,
+      source: "last-good-antares",
     };
   }
 
