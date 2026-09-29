@@ -59,7 +59,8 @@
     "classify": "tsx cli/index.ts classify",
     "demo": "tsx cli/index.ts demo",
     "bench:antares": "tsx scripts/bench-antares.ts",
-    "bench:antares:report": "tsx scripts/bench-antares-report.ts"
+    "bench:antares:report": "tsx scripts/bench-antares-report.ts",
+    "bench:antares:fixdates": "tsx scripts/bench-antares-fixdates.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

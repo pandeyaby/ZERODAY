@@ -5,6 +5,15 @@ All notable changes to ZERODAY. The stable surface is defined in
 
 ## Unreleased
 
+### Benchmark
+- **Error bars, File F1 and training-data overlap** in
+  [`docs/antares-benchmark.md`](./docs/antares-benchmark.md): 95% intervals
+  (bootstrap over cases) for Hit@1 / Hit@3; File F1 computed as on the
+  Antares-1B model card (0.239 for a single run here, 0.209 on the card's VLoc
+  Bench); fix-commit dates for all 36 cases (`npm run bench:antares:fixdates`)
+  checked against the model's 2025-04-10 data cutoff. 35 of 36 fixes postdate
+  it; the one that does not is named and a table leaves it out.
+
 ### Wording
 - **No implied affiliations.** PR comments, `report.md`, exports, the CLI,
   the Desk and the docs no longer call findings "Foundry Detector-lane
