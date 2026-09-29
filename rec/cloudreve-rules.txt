@@ -1,0 +1,38 @@
+$ npm run zeroday -- locate --cwe CWE-862 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g --rules --output rec/cloudreve-rules
+started 2026-09-28 06:12:51 PM PDT
+
+> zeroday@0.10.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-862 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g --rules --output rec/cloudreve-rules
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-862 → CWE-862
+Mode     : rules
+Model    : zeroday/rules-heuristics
+Target   : /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g
+Findings : 0
+
+NOT SCANNED — rules mode has no heuristics for CWE-862.
+Zero findings here is NOT a clean result: the repo was not checked for this CWE.
+Rules-mode CWEs: CWE-89, CWE-79, CWE-22, CWE-78, CWE-94, CWE-502, CWE-918, CWE-611, CWE-798, CWE-601. For other CWEs use --endpoint (live brain) or --from-sarif.
+
+Artifacts:
+  JSON     /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/report.json
+  SARIF    /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/report.sarif
+  Report   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/report.md
+  Comment  /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/comment.md
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/asff-findings.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/xsoar-incidents.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/fortisiem-custom.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/evidence
+  Manifest /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-rules/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Rules path complete — in-repo syntax-tree analysis (not Antares F1; not exploitability). Accuracy: docs/benchmark.md
+Live Antares (opt-in): locate --endpoint … · Fixture smoke: locate --fixture / npm run mvp · Ingest: locate --from-sarif …
+  0.30s user 0.16s system 104% cpu 0.433 total
+exit=2

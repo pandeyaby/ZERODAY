@@ -1,0 +1,53 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-862",
+      "filePath": "pkg/auth/jwt.go",
+      "title": "Missing Authorization",
+      "description": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "occurred": "2026-09-29T01:13:26.227Z",
+      "category": "missing-authorization",
+      "advisoryId": "CWE-862",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    },
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-862",
+      "filePath": "pkg/filemanager/fs/dbfs/dbfs.go",
+      "title": "Missing Authorization",
+      "description": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "occurred": "2026-09-29T01:13:26.227Z",
+      "category": "missing-authorization",
+      "advisoryId": "CWE-862",
+      "rank": 2,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    },
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-862",
+      "filePath": "pkg/filemanager/fs/dbfs/upload.go",
+      "title": "Missing Authorization",
+      "description": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "occurred": "2026-09-29T01:13:26.227Z",
+      "category": "missing-authorization",
+      "advisoryId": "CWE-862",
+      "rank": 3,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}

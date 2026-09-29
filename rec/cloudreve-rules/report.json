@@ -1,0 +1,55 @@
+{
+  "mode": "rules",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-862",
+    "cweId": "CWE-862"
+  },
+  "targetRepo": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g",
+  "model": "zeroday/rules-heuristics",
+  "generatedAt": "2026-09-29T01:12:52.002Z",
+  "rankedFiles": [],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "rules:unsupported-cwe",
+      "summary": "No rules pack for CWE-862; repo NOT scanned for it (not a clean negative)."
+    },
+    {
+      "step": 2,
+      "tool": "submit",
+      "command": "submit_vulnerable_files",
+      "summary": "Not scanned: no rules for CWE-862."
+    }
+  ],
+  "warnings": [
+    "Rules mode: in-repo syntax-tree analysis + heuristics — not Antares inference and not Antares File F1.",
+    "Localization only: ranked files are candidates for human review — not proof of exploitability.",
+    "No Semgrep binary dependency; Docker not required (CI-safe). Source code never leaves the machine; for CVE / GHSA ids only public advisory metadata is read from api.osv.dev (cached; none with --offline).",
+    "No PoC / exploit / payload content is emitted.",
+    "NOT SCANNED: no rules heuristics registered for CWE-862. Supported: CWE-89, CWE-79, CWE-22, CWE-78, CWE-94, CWE-502, CWE-918, CWE-611, CWE-798, CWE-601. Zero findings is not a clean negative.",
+    "Read-only snapshot: 481 files (destroyed after run)",
+    "Resolved CWE-862 → CWE-862 (missing-authorization) via cwe-direct",
+    "Rules mode is container-free (no Docker / no Semgrep) — CI-safe keyless localize."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 0,
+    "incompleteReason": null,
+    "unsupportedCwe": true,
+    "terminalCallBudget": 2,
+    "terminalCallsUsed": 2
+  },
+  "snapshotPath": "/var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-8DpYU0/repo",
+  "evidence": {
+    "runId": "cloudreve-rules",
+    "claimIds": [],
+    "vaultRelative": "evidence/"
+  }
+}

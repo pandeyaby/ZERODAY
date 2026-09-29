@@ -1,0 +1,175 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-b23c8bdb6c9d5619",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-862",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-862"
+      ],
+      "CreatedAt": "2026-09-29T01:13:26.227Z",
+      "UpdatedAt": "2026-09-29T01:13:26.227Z",
+      "Title": "CWE-862: Missing Authorization",
+      "Description": "ZERODAY Antares localization candidate: pkg/auth/jwt.go for CWE-862 (missing-authorization), rank 1. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://pkg/auth/jwt.go",
+          "Details": {
+            "Other": {
+              "FilePath": "pkg/auth/jwt.go",
+              "CweId": "CWE-862",
+              "Category": "missing-authorization",
+              "Rank": "1",
+              "AdvisoryId": "CWE-862"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-862"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-862",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-862",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-5b55f459d15a5b3b",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-862",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-862"
+      ],
+      "CreatedAt": "2026-09-29T01:13:26.227Z",
+      "UpdatedAt": "2026-09-29T01:13:26.227Z",
+      "Title": "CWE-862: Missing Authorization",
+      "Description": "ZERODAY Antares localization candidate: pkg/filemanager/fs/dbfs/dbfs.go for CWE-862 (missing-authorization), rank 2. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://pkg/filemanager/fs/dbfs/dbfs.go",
+          "Details": {
+            "Other": {
+              "FilePath": "pkg/filemanager/fs/dbfs/dbfs.go",
+              "CweId": "CWE-862",
+              "Category": "missing-authorization",
+              "Rank": "2",
+              "AdvisoryId": "CWE-862"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-862"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-862",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-862",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-d3510038aae7ca55",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-862",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-862"
+      ],
+      "CreatedAt": "2026-09-29T01:13:26.227Z",
+      "UpdatedAt": "2026-09-29T01:13:26.227Z",
+      "Title": "CWE-862: Missing Authorization",
+      "Description": "ZERODAY Antares localization candidate: pkg/filemanager/fs/dbfs/upload.go for CWE-862 (missing-authorization), rank 3. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://pkg/filemanager/fs/dbfs/upload.go",
+          "Details": {
+            "Other": {
+              "FilePath": "pkg/filemanager/fs/dbfs/upload.go",
+              "CweId": "CWE-862",
+              "Category": "missing-authorization",
+              "Rank": "3",
+              "AdvisoryId": "CWE-862"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-862"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-862",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-862",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "mode": "live",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-862",
+    "cweId": "CWE-862"
+  },
+  "targetRepo": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g",
+  "snapshotPath": "/var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-SOUIeC/repo",
+  "model": "fdtn-ai/antares-1b",
+  "generatedAt": "2026-09-29T01:13:26.227Z",
+  "rankedFiles": [
+    {
+      "filePath": "pkg/auth/jwt.go",
+      "rank": 1,
+      "cweIds": [
+        "CWE-862"
+      ],
+      "title": "Missing Authorization",
+      "evidence": [
+        {
+          "filePath": "pkg/auth/jwt.go",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "pkg/auth/jwt.go",
+          "note": "Antares ranked this file in 1 of 2 runs."
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares"
+      ],
+      "fingerprint": "20841a0fb54ca74242a05fc4"
+    },
+    {
+      "filePath": "pkg/filemanager/fs/dbfs/dbfs.go",
+      "rank": 2,
+      "cweIds": [
+        "CWE-862"
+      ],
+      "title": "Missing Authorization",
+      "evidence": [
+        {
+          "filePath": "pkg/filemanager/fs/dbfs/dbfs.go",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "pkg/filemanager/fs/dbfs/dbfs.go",
+          "note": "Antares ranked this file in 1 of 2 runs."
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares"
+      ],
+      "fingerprint": "29b66e64688e959a9c118682"
+    },
+    {
+      "filePath": "pkg/filemanager/fs/dbfs/upload.go",
+      "rank": 3,
+      "cweIds": [
+        "CWE-862"
+      ],
+      "title": "Missing Authorization",
+      "evidence": [
+        {
+          "filePath": "pkg/filemanager/fs/dbfs/upload.go",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "pkg/filemanager/fs/dbfs/upload.go",
+          "note": "Antares ranked this file in 1 of 2 runs."
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares"
+      ],
+      "fingerprint": "fa1163d78453d77b1dc3bc42"
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    },
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    }
+  ],
+  "warnings": [
+    "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+    "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+    "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+    "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+    "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+    "Merged 2 Antares runs by vote (--samples 2).",
+    "Antares ran on its own; ZERODAY rules ran separately (0 candidate(s)) and are compared, not sent.",
+    "Read-only snapshot: 481 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-SOUIeC/repo",
+    "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+    "Local completions probe ok: GET https://8kdejcznx45ypw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+    "Endpoint discovered: Using saved endpoint https://8kdejcznx45ypw-8000.proxy.runpod.net/v1 (model fdtn-ai/antares-1b; remote-inference ACK from saved Desk config)",
+    "Resolved CWE-862 → CWE-862 (missing-authorization) via cwe-direct",
+    "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 3,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "incompleteTips": [],
+    "recoveryAttempted": false,
+    "terminalCallBudget": 30,
+    "terminalCallsUsed": 63,
+    "samples": {
+      "runs": 2,
+      "votes": {
+        "pkg/auth/jwt.go": 1,
+        "pkg/filemanager/fs/dbfs/dbfs.go": 1,
+        "pkg/filemanager/fs/dbfs/upload.go": 1
+      }
+    },
+    "hybrid": {
+      "contextSent": false,
+      "rulesCandidates": 0,
+      "agreed": [],
+      "antaresOnly": [
+        "pkg/auth/jwt.go",
+        "pkg/filemanager/fs/dbfs/dbfs.go",
+        "pkg/filemanager/fs/dbfs/upload.go"
+      ],
+      "rulesOnly": []
+    }
+  },
+  "evidence": {
+    "runId": "cloudreve-live",
+    "claimIds": [
+      "ev_claim_002",
+      "ev_claim_003",
+      "ev_claim_004"
+    ],
+    "vaultRelative": "evidence/"
+  }
+}

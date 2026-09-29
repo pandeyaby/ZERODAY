@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.10.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-862",
+              "name": "CWE-862",
+              "shortDescription": {
+                "text": "CWE-862 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-862. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/862.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-862"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-862",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Missing Authorization — rank 1. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/auth/jwt.go",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "20841a0fb54ca74242a05fc4",
+            "zeroday/v1": "20841a0fb54ca74242a05fc4"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-862"
+            ],
+            "advisory": "CWE-862",
+            "mode": "live",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 2,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-862",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Missing Authorization — rank 2. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/filemanager/fs/dbfs/dbfs.go",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "29b66e64688e959a9c118682",
+            "zeroday/v1": "29b66e64688e959a9c118682"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-862"
+            ],
+            "advisory": "CWE-862",
+            "mode": "live",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 2,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-862",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Missing Authorization — rank 3. Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/filemanager/fs/dbfs/upload.go",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "fa1163d78453d77b1dc3bc42",
+            "zeroday/v1": "fa1163d78453d77b1dc3bc42"
+          },
+          "properties": {
+            "submission_rank": 3,
+            "cwe_ids": [
+              "CWE-862"
+            ],
+            "advisory": "CWE-862",
+            "mode": "live",
+            "likelihood_of_exploit": "High",
+            "exploration_steps": 2,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cwe",
+          "id": "CWE-862",
+          "cweId": "CWE-862"
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-29T01:13:26.227Z",
+        "summary": {
+          "findingCount": 3,
+          "incompleteReason": null,
+          "incompleteClass": null,
+          "incompleteTips": [],
+          "recoveryAttempted": false,
+          "terminalCallBudget": 30,
+          "terminalCallsUsed": 63,
+          "samples": {
+            "runs": 2,
+            "votes": {
+              "pkg/auth/jwt.go": 1,
+              "pkg/filemanager/fs/dbfs/dbfs.go": 1,
+              "pkg/filemanager/fs/dbfs/upload.go": 1
+            }
+          },
+          "hybrid": {
+            "contextSent": false,
+            "rulesCandidates": 0,
+            "agreed": [],
+            "antaresOnly": [
+              "pkg/auth/jwt.go",
+              "pkg/filemanager/fs/dbfs/dbfs.go",
+              "pkg/filemanager/fs/dbfs/upload.go"
+            ],
+            "rulesOnly": []
+          }
+        },
+        "explorationTrace": [
+          {
+            "step": 1,
+            "tool": "other",
+            "command": "antares query",
+            "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+          },
+          {
+            "step": 1,
+            "tool": "other",
+            "command": "antares query",
+            "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+          }
+        ],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+          "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+          "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+          "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+          "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+          "Merged 2 Antares runs by vote (--samples 2).",
+          "Antares ran on its own; ZERODAY rules ran separately (0 candidate(s)) and are compared, not sent.",
+          "Read-only snapshot: 481 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-SOUIeC/repo",
+          "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+          "Local completions probe ok: GET https://8kdejcznx45ypw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+          "Endpoint discovered: Using saved endpoint https://8kdejcznx45ypw-8000.proxy.runpod.net/v1 (model fdtn-ai/antares-1b; remote-inference ACK from saved Desk config)",
+          "Resolved CWE-862 → CWE-862 (missing-authorization) via cwe-direct",
+          "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+$ npm run bench:antares -- --arms antares2 --remote-inference
+started 2026-09-28 05:34:08 PM PDT
+
+> zeroday@0.10.0 bench:antares
+> tsx scripts/bench-antares.ts --arms antares2 --remote-inference
+
+CWE-89    GHSA-q2vg-7qgx-x5fc antares2 #1 hit@1=- hit@3=- files=1 70.9s calls=48
+CWE-89    GHSA-p6gw-4frg-j7jw antares2 #1 hit@1=Y hit@3=Y files=1 29.5s calls=33
+CWE-89    GHSA-v8fg-2rw7-q452 antares2 #1 hit@1=Y hit@3=Y files=10 41.5s calls=38
+CWE-79    GHSA-6rf4-v2fh-m6p4 antares2 #1 hit@1=Y hit@3=Y files=8 92.6s calls=52
+CWE-79    GHSA-xpjq-3w4w-w5wr antares2 #1 hit@1=- hit@3=- files=9 108.3s calls=70
+CWE-79    GHSA-3rm2-h79c-8qw6 antares2 #1 hit@1=- hit@3=- files=2 52.7s calls=53
+CWE-22    GHSA-g28h-2cmm-rj9x antares2 #1 hit@1=Y hit@3=Y files=1 93.3s calls=55
+CWE-22    GHSA-vr5f-w35q-98jp antares2 #1 hit@1=- hit@3=- files=2 60.2s calls=59
+CWE-22    GHSA-cv3r-c5h8-f4g5 antares2 #1 hit@1=Y hit@3=Y files=3 36.6s calls=34
+CWE-78    GHSA-jpf4-98qj-qr67 antares2 #1 hit@1=- hit@3=- files=1 57s calls=55
+CWE-78    GHSA-q69g-4hcv-6jg4 antares2 #1 hit@1=Y hit@3=Y files=1 33.1s calls=33
+CWE-78    GHSA-4x45-gxvp-6283 antares2 #1 hit@1=Y hit@3=Y files=7 45.6s calls=46
+CWE-94    GHSA-756x-9hf6-q4h4 antares2 #1 hit@1=- hit@3=- files=2 83.2s calls=67
+CWE-94    GHSA-mw6r-2hvm-4rp2 antares2 #1 hit@1=- hit@3=- files=6 35.7s calls=38
+CWE-94    GHSA-3496-9g83-7v6x antares2 #1 hit@1=- hit@3=Y files=2 62.8s calls=71
+CWE-502   GHSA-2vh9-42vm-xmv2 antares2 #1 hit@1=- hit@3=- files=2 53.4s calls=50
+CWE-502   GHSA-rhp5-r9x4-f5g2 antares2 #1 hit@1=Y hit@3=Y files=2 68.1s calls=69
+CWE-502   GHSA-w6w4-rjh9-9r58 antares2 #1 hit@1=- hit@3=- files=1 72.7s calls=68
+CWE-918   GHSA-h7vf-4x9w-h99v antares2 #1 hit@1=- hit@3=- files=2 73.3s calls=70
+CWE-918   GHSA-p2w3-6x73-2f6x antares2 #1 hit@1=Y hit@3=Y files=7 49.3s calls=48
+CWE-918   GHSA-998g-7v5w-cr7g antares2 #1 hit@1=- hit@3=- files=6 54.3s calls=58
+CWE-601   GHSA-h5g6-xmh4-hc37 antares2 #1 hit@1=Y hit@3=Y files=2 68.1s calls=66
+CWE-601   GHSA-8w27-c4vc-88q9 antares2 #1 hit@1=- hit@3=Y files=2 83.4s calls=63
+CWE-601   GHSA-xxhq-69mf-w8cr antares2 #1 hit@1=- hit@3=- files=1 50.7s calls=36
+CWE-862   GHSA-89vx-jh4q-vg3w antares2 #1 hit@1=- hit@3=- files=4 81.7s calls=49
+CWE-862   GHSA-w89x-c962-c44g antares2 #1 hit@1=Y hit@3=Y files=3 75.8s calls=75
+CWE-862   GHSA-4h97-p9wq-chqj antares2 #1 hit@1=- hit@3=- files=4 58.4s calls=56
+CWE-287   GHSA-vq6g-g6c7-5f2j antares2 #1 hit@1=- hit@3=- files=12 55.6s calls=48
+CWE-287   GHSA-v667-gc2r-2xm7 antares2 #1 hit@1=- hit@3=- files=2 49.9s calls=50
+CWE-287   GHSA-6765-c87h-8mrf antares2 #1 hit@1=Y hit@3=Y files=2 91.6s calls=66
+CWE-1333  GHSA-jx63-h26r-8cph antares2 #1 hit@1=- hit@3=- files=1 57.8s calls=58
+CWE-1333  GHSA-29g2-3rmr-qm68 antares2 #1 hit@1=- hit@3=- files=5 79.3s calls=74
+CWE-1333  GHSA-8j4g-w8fx-2239 antares2 #1 hit@1=- hit@3=- files=2 51.9s calls=53
+CWE-1321  GHSA-8cw4-87c7-c6xx antares2 #1 hit@1=Y hit@3=Y files=2 53s calls=52
+CWE-1321  GHSA-vmg4-6gfg-83qx antares2 #1 hit@1=- hit@3=- files=10 44.9s calls=41
+CWE-1321  GHSA-3rrr-jr9j-h3q3 antares2 #1 hit@1=- hit@3=- files=5 66.2s calls=65
+
+216 run(s) in bench/antares/results/results.json — summarize: npm run bench:antares:report
+npm run bench:antares -- --arms antares2 --remote-inference  193.16s user 160.38s system 15% cpu 37:22.71 total
+exit=0 finished 06:11:31 PM PDT

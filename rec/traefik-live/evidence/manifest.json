@@ -1,0 +1,237 @@
+{
+  "schemaVersion": "zeroday-evidence-manifest/v1",
+  "runId": "traefik-live",
+  "createdAt": "2026-09-29T01:15:10.401Z",
+  "updatedAt": "2026-09-29T01:15:10.405Z",
+  "entries": [
+    {
+      "id": "ev_input_001",
+      "kind": "input",
+      "title": "Locate inputs",
+      "summary": "CWE-287 → CWE-287 (live)",
+      "relativePath": "evidence/inputs/advisory.json",
+      "sha256": "779fa9b7313902c599e48a179dc24487f78e108cddd6e8d839006b8b002f3590",
+      "createdAt": "2026-09-29T01:15:10.401Z",
+      "tags": [
+        "input",
+        "locate"
+      ]
+    },
+    {
+      "id": "ev_claim_002",
+      "kind": "claim",
+      "title": "Candidate: pkg/middlewares/auth/basic_auth.go",
+      "summary": "Improper Authentication (rank 1)",
+      "relativePath": "evidence/claims/2-candidate-pkg-middlewares-auth-basic-auth-go.json",
+      "sha256": "5aa81d5621d405a02293dda0a3f9247cd18503f37b992e2ae8a16cc2a04d48e3",
+      "createdAt": "2026-09-29T01:15:10.401Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_003",
+      "kind": "claim",
+      "title": "Candidate: pkg/middlewares/auth/forward.go",
+      "summary": "Improper Authentication (rank 2)",
+      "relativePath": "evidence/claims/3-candidate-pkg-middlewares-auth-forward-go.json",
+      "sha256": "f7967f04071fa578812f27c39f50584a8de0798cfd93a4ae825301e4fd2b4baa",
+      "createdAt": "2026-09-29T01:15:10.401Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_artifact_004",
+      "kind": "artifact",
+      "title": "report.json",
+      "summary": "Run artifact report.json",
+      "relativePath": "report.json",
+      "sha256": "612d31334259b427c8c649311c361707556cb77e706c6f29ce4621131c897f4e",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_005",
+      "kind": "artifact",
+      "title": "report.sarif",
+      "summary": "Run artifact report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "484fdeb773bb5534d03b441ea0099b4077074ef811fe615a6b4cb105f1634182",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_006",
+      "kind": "artifact",
+      "title": "report.md",
+      "summary": "Run artifact report.md",
+      "relativePath": "report.md",
+      "sha256": "96bf56e66b7d9455709fabc79274125238843e0a70840bb231e51560df0fa70d",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_007",
+      "kind": "artifact",
+      "title": "comment.md",
+      "summary": "Run artifact comment.md",
+      "relativePath": "comment.md",
+      "sha256": "16a6061fa4b87102132d5541733facc399aadc0805d77498a33a806535a332cf",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_008",
+      "kind": "artifact",
+      "title": "report.sarif",
+      "summary": "Run artifact report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "484fdeb773bb5534d03b441ea0099b4077074ef811fe615a6b4cb105f1634182",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_009",
+      "kind": "artifact",
+      "title": "asff-findings.json",
+      "summary": "Run artifact asff-findings.json",
+      "relativePath": "asff-findings.json",
+      "sha256": "98321d5526152806c226c426f4a534f8b472d82b6a9eadbcb574a8e1443d034e",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_010",
+      "kind": "artifact",
+      "title": "splunk-cim-vulnerabilities.json",
+      "summary": "Run artifact splunk-cim-vulnerabilities.json",
+      "relativePath": "splunk-cim-vulnerabilities.json",
+      "sha256": "de1e28057679aeec26240f7c1834a1ef8a3dbff3c3c6d1c3be914d1851fa12fd",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_011",
+      "kind": "artifact",
+      "title": "xsoar-incidents.json",
+      "summary": "Run artifact xsoar-incidents.json",
+      "relativePath": "xsoar-incidents.json",
+      "sha256": "0e7f878fbbd2bc67183886fcbc5113e8cfc7f20876e194a0778f70b56872b2d2",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_012",
+      "kind": "artifact",
+      "title": "fortisiem-custom.json",
+      "summary": "Run artifact fortisiem-custom.json",
+      "relativePath": "fortisiem-custom.json",
+      "sha256": "08a2b46c4645121d98389ddd8b0d11773400d955c15610f92f3ae1d5afdb59f8",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_013",
+      "kind": "artifact",
+      "title": "crowdstrike-hec-events.ndjson",
+      "summary": "Run artifact crowdstrike-hec-events.ndjson",
+      "relativePath": "crowdstrike-hec-events.ndjson",
+      "sha256": "ffb05681cef1cd520396888c2b5c497f48de689ab0be9fc662698e5511558a77",
+      "createdAt": "2026-09-29T01:15:10.405Z",
+      "tags": [
+        "artifact"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "report.json",
+      "relativePath": "report.json",
+      "sha256": "612d31334259b427c8c649311c361707556cb77e706c6f29ce4621131c897f4e",
+      "bytes": 4455
+    },
+    {
+      "name": "report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "484fdeb773bb5534d03b441ea0099b4077074ef811fe615a6b4cb105f1634182",
+      "bytes": 7221
+    },
+    {
+      "name": "report.md",
+      "relativePath": "report.md",
+      "sha256": "96bf56e66b7d9455709fabc79274125238843e0a70840bb231e51560df0fa70d",
+      "bytes": 4301
+    },
+    {
+      "name": "comment.md",
+      "relativePath": "comment.md",
+      "sha256": "16a6061fa4b87102132d5541733facc399aadc0805d77498a33a806535a332cf",
+      "bytes": 1828
+    },
+    {
+      "name": "report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "484fdeb773bb5534d03b441ea0099b4077074ef811fe615a6b4cb105f1634182",
+      "bytes": 7221
+    },
+    {
+      "name": "asff-findings.json",
+      "relativePath": "asff-findings.json",
+      "sha256": "98321d5526152806c226c426f4a534f8b472d82b6a9eadbcb574a8e1443d034e",
+      "bytes": 3953
+    },
+    {
+      "name": "splunk-cim-vulnerabilities.json",
+      "relativePath": "splunk-cim-vulnerabilities.json",
+      "sha256": "de1e28057679aeec26240f7c1834a1ef8a3dbff3c3c6d1c3be914d1851fa12fd",
+      "bytes": 1744
+    },
+    {
+      "name": "xsoar-incidents.json",
+      "relativePath": "xsoar-incidents.json",
+      "sha256": "0e7f878fbbd2bc67183886fcbc5113e8cfc7f20876e194a0778f70b56872b2d2",
+      "bytes": 1183
+    },
+    {
+      "name": "fortisiem-custom.json",
+      "relativePath": "fortisiem-custom.json",
+      "sha256": "08a2b46c4645121d98389ddd8b0d11773400d955c15610f92f3ae1d5afdb59f8",
+      "bytes": 1422
+    },
+    {
+      "name": "crowdstrike-hec-events.ndjson",
+      "relativePath": "crowdstrike-hec-events.ndjson",
+      "sha256": "ffb05681cef1cd520396888c2b5c497f48de689ab0be9fc662698e5511558a77",
+      "bytes": 1062
+    }
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "keylessDefault": true,
+    "offlineVerifiable": true
+  }
+}

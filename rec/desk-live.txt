@@ -1,0 +1,37 @@
+$ ZERODAY_LIVE_ENDPOINT=https://8kdejcznx45ypw-8000.proxy.runpod.net/v1 ZERODAY_LIVE_MODEL=fdtn-ai/antares-1b ZERODAY_LIVE_REPO=/tmp/juice-shop ZERODAY_LIVE_CWE=CWE-601 npm run demo:desk:live
+started 2026-09-28 06:15:44 PM PDT
+
+> zeroday@0.10.0 demo:desk:live
+> node scripts/desk-ui-live-demo.mjs
+
+pace pause=4200 dwell=2800
+endpoint=https://8kdejcznx45ypw-8000.proxy.runpod.net/v1 model=fdtn-ai/antares-1b
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-01-panel.png
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-02-configured.png
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-03-saved.png
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-04-doctor.png
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-05-spend-banner.png
+screenshot: /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/live-06-locate-result.png
+{
+  "pass": true,
+  "doctorOk": true,
+  "locateOk": true,
+  "spendConfirmed": true,
+  "pace": {
+    "PAUSE_MS": 4200,
+    "DWELL_MS": 2800
+  },
+  "endpoint": "https://8kdejcznx45ypw-8000.proxy.runpod.net/v1",
+  "model": "fdtn-ai/antares-1b",
+  "video": "/Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/desk-console-live-antares-demo.webm",
+  "runPod": false,
+  "log": [
+    "clicked live-validate",
+    "doctor GREEN",
+    "spend-confirm clicked",
+    "LIVE LOCATE SUCCESS",
+    "video /Users/abhinavpandey/code/ZERODAY/artifacts/desk-ui-demo/desk-console-live-antares-demo.webm (9992805 bytes)"
+  ]
+}
+env ZERODAY_LIVE_ENDPOINT=$EP ZERODAY_LIVE_MODEL=fdtn-ai/antares-1b   npm run  107.03s user 20.70s system 70% cpu 3:01.21 total
+exit=0

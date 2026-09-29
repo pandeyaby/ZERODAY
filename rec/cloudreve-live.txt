@@ -1,0 +1,43 @@
+$ npm run zeroday -- locate --cwe CWE-862 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g --live --samples 2 --remote-inference --output rec/cloudreve-live
+started 2026-09-28 06:12:52 PM PDT
+
+> zeroday@0.10.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-862 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g --live --samples 2 --remote-inference --output rec/cloudreve-live
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-862 → CWE-862
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g
+Findings : 3
+Explored : 63 Antares tool call(s) (budget 30)
+
+Ranked files:
+  1. pkg/auth/jwt.go  [CWE-862]  Missing Authorization  (1/2 runs)
+  2. pkg/filemanager/fs/dbfs/dbfs.go  [CWE-862]  Missing Authorization  (1/2 runs)
+  3. pkg/filemanager/fs/dbfs/upload.go  [CWE-862]  Missing Authorization  (1/2 runs)
+
+Rules    : 0 candidate(s) — compared with Antares' answer (not sent)
+Samples  : 2 Antares runs merged by vote
+Agreement: 0 file(s) flagged by both Antares and rules
+
+Artifacts:
+  JSON     /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/report.json
+  SARIF    /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/report.sarif
+  Report   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/report.md
+  Comment  /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/comment.md
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/asff-findings.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/xsoar-incidents.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/fortisiem-custom.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/evidence
+  Manifest /Users/abhinavpandey/code/ZERODAY/rec/cloudreve-live/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  3.31s user 2.50s system 8% cpu 1:10.64 total
+exit=0

@@ -1,0 +1,44 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf",
+      "dvc": "zeroday-local",
+      "signature": "Improper Authentication",
+      "severity": "informational",
+      "category": "authentication",
+      "xref": "CWE-287",
+      "signature_id": "zeroday-9839efa28a7b2e12",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-287",
+      "file": "pkg/middlewares/auth/basic_auth.go",
+      "evidence": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "advisory": "CWE-287",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-29T01:14:35.801Z"
+    },
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf",
+      "dvc": "zeroday-local",
+      "signature": "Improper Authentication",
+      "severity": "informational",
+      "category": "authentication",
+      "xref": "CWE-287",
+      "signature_id": "zeroday-9fe4d828ba34732a",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-287",
+      "file": "pkg/middlewares/auth/forward.go",
+      "evidence": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "advisory": "CWE-287",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-29T01:14:35.801Z"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-862: Missing Authorization",
+    "occurred": "2026-09-29T01:13:26.227Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+    "cwe": "CWE-862",
+    "file_path": "pkg/auth/jwt.go",
+    "advisory_id": "CWE-862",
+    "rank": 1,
+    "category": "missing-authorization",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  },
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-862: Missing Authorization",
+    "occurred": "2026-09-29T01:13:26.227Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+    "cwe": "CWE-862",
+    "file_path": "pkg/filemanager/fs/dbfs/dbfs.go",
+    "advisory_id": "CWE-862",
+    "rank": 2,
+    "category": "missing-authorization",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  },
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-862: Missing Authorization",
+    "occurred": "2026-09-29T01:13:26.227Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+    "cwe": "CWE-862",
+    "file_path": "pkg/filemanager/fs/dbfs/upload.go",
+    "advisory_id": "CWE-862",
+    "rank": 3,
+    "category": "missing-authorization",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-287",
+    "cweId": "CWE-287"
+  },
+  "repo": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf",
+  "mode": "rules",
+  "at": "2026-09-29T01:14:03.476Z"
+}

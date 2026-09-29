@@ -1,0 +1,37 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-287",
+      "filePath": "pkg/middlewares/auth/basic_auth.go",
+      "title": "Improper Authentication",
+      "description": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "occurred": "2026-09-29T01:14:35.801Z",
+      "category": "authentication",
+      "advisoryId": "CWE-287",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    },
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-287",
+      "filePath": "pkg/middlewares/auth/forward.go",
+      "title": "Improper Authentication",
+      "description": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "occurred": "2026-09-29T01:14:35.801Z",
+      "category": "authentication",
+      "advisoryId": "CWE-287",
+      "rank": 2,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}

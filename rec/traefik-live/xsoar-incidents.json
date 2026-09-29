@@ -1,0 +1,34 @@
+[
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-287: Improper Authentication",
+    "occurred": "2026-09-29T01:14:35.801Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+    "cwe": "CWE-287",
+    "file_path": "pkg/middlewares/auth/basic_auth.go",
+    "advisory_id": "CWE-287",
+    "rank": 1,
+    "category": "authentication",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  },
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-287: Improper Authentication",
+    "occurred": "2026-09-29T01:14:35.801Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+    "cwe": "CWE-287",
+    "file_path": "pkg/middlewares/auth/forward.go",
+    "advisory_id": "CWE-287",
+    "rank": 2,
+    "category": "authentication",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  }
+]

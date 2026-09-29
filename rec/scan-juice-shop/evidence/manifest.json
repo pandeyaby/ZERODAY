@@ -1,0 +1,1229 @@
+{
+  "schemaVersion": "zeroday-evidence-manifest/v1",
+  "runId": "scan-juice-shop",
+  "createdAt": "2026-09-29T01:12:51.458Z",
+  "updatedAt": "2026-09-29T01:12:51.464Z",
+  "entries": [
+    {
+      "id": "ev_input_001",
+      "kind": "input",
+      "title": "Scan inputs",
+      "summary": "15 CWEs",
+      "relativePath": "evidence/inputs/scan.json",
+      "sha256": "2ed7bafb592c5fc72e5b3694b418b7fc0e9f09680216141587c309234cb5cb8f",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "tags": [
+        "input",
+        "scan"
+      ]
+    },
+    {
+      "id": "ev_claim_002",
+      "kind": "claim",
+      "title": "Candidate: lib/insecurity.ts",
+      "summary": "CWE-287, CWE-798, CWE-862 (rank 1)",
+      "relativePath": "evidence/claims/2-candidate-lib-insecurity-ts.json",
+      "sha256": "f0fe284747f4318980403b19335aa48af50702f855f5a0e51de0483fa04016fe",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_003",
+      "kind": "claim",
+      "title": "Candidate: routes/redirect.ts",
+      "summary": "CWE-601, CWE-862 (rank 2)",
+      "relativePath": "evidence/claims/3-candidate-routes-redirect-ts.json",
+      "sha256": "9e5299f08ae908a2d03874bb031c0ffd0aa4eb97b0c60f6c4426e75e391964b8",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_004",
+      "kind": "claim",
+      "title": "Candidate: routes/userProfile.ts",
+      "summary": "CWE-79, CWE-94 (rank 3)",
+      "relativePath": "evidence/claims/4-candidate-routes-userprofile-ts.json",
+      "sha256": "a84f715496e329eaeb10baf8fd493bfa6598d5a9d292417150f08b6d8cb1317e",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_005",
+      "kind": "claim",
+      "title": "Candidate: rsn/rsnUtil.ts",
+      "summary": "CWE-113, CWE-502 (rank 4)",
+      "relativePath": "evidence/claims/5-candidate-rsn-rsnutil-ts.json",
+      "sha256": "872f2a2ac673cc233adf413e12b8e44eca5a00521080ac53f5f781b6b584aa98",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_006",
+      "kind": "claim",
+      "title": "Candidate: routes/updateUserProfile.ts",
+      "summary": "CWE-352 (rank 5)",
+      "relativePath": "evidence/claims/6-candidate-routes-updateuserprofile-ts.json",
+      "sha256": "1de826df1f127ac8c4db65352531620f5b83d4b1f9f71c55ebc02b333210aa7b",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_007",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/basket/basket.component.ts",
+      "summary": "CWE-601 (rank 6)",
+      "relativePath": "evidence/claims/7-candidate-frontend-src-app-basket-basket-compone.json",
+      "sha256": "5fba30168979bd589137b3aa8540dbffa41c31266ee2fb96ba5e2f02ca61eb5e",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_008",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/login/login.component.ts",
+      "summary": "CWE-601 (rank 7)",
+      "relativePath": "evidence/claims/8-candidate-frontend-src-app-login-login-component.json",
+      "sha256": "762e8a3e1bc61265e989f23d46e1a1f76ac70f022e20864c17fad7296351d096",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_009",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/order-completion/order-completion.component.ts",
+      "summary": "CWE-601 (rank 8)",
+      "relativePath": "evidence/claims/9-candidate-frontend-src-app-order-completion-orde.json",
+      "sha256": "e9a03badad85504a979b9653756304c5fba24bcb729c8a97b9b461664b4c6c69",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_010",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/order-history/order-history.component.ts",
+      "summary": "CWE-601 (rank 9)",
+      "relativePath": "evidence/claims/10-candidate-frontend-src-app-order-history-order-h.json",
+      "sha256": "95446b344998607d005aa200a5113641d0040855db5505107d15d9d58c8e4cda",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_011",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/Services/chat.service.ts",
+      "summary": "CWE-502 (rank 10)",
+      "relativePath": "evidence/claims/11-candidate-frontend-src-app-services-chat-service.json",
+      "sha256": "43525c65614444a6ef167dd9da9aba2c60afe52ced6f2b88f10914ecbc9ef80d",
+      "createdAt": "2026-09-29T01:12:51.459Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_012",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/web3-sandbox/web3-sandbox.component.html",
+      "summary": "CWE-94 (rank 11)",
+      "relativePath": "evidence/claims/12-candidate-frontend-src-app-web3-sandbox-web3-san.json",
+      "sha256": "0e3e9a48348d0d9a6003fa5bf949afcae3c5f706ee6c27a52583fc73f237c362",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_013",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/web3-sandbox/web3-sandbox.component.ts",
+      "summary": "CWE-94 (rank 12)",
+      "relativePath": "evidence/claims/13-candidate-frontend-src-app-web3-sandbox-web3-san.json",
+      "sha256": "1f7d12d6f1ca8fd8dce67914314e727498275a886e65130956b3b56b141db66f",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_014",
+      "kind": "claim",
+      "title": "Candidate: lib/challengeUtils.ts",
+      "summary": "CWE-352 (rank 13)",
+      "relativePath": "evidence/claims/14-candidate-lib-challengeutils-ts.json",
+      "sha256": "423fbf0a8fabe190024ccfbb958349b00452e1313ef39aaed3601b894788072b",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_015",
+      "kind": "claim",
+      "title": "Candidate: lib/utils.ts",
+      "summary": "CWE-287 (rank 14)",
+      "relativePath": "evidence/claims/15-candidate-lib-utils-ts.json",
+      "sha256": "f69e6324d8d54915ba241806e877e73d9eb2f3ead2ff7e7ff05bd17b0761fa34",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_016",
+      "kind": "claim",
+      "title": "Candidate: models/challenge.ts",
+      "summary": "CWE-352 (rank 15)",
+      "relativePath": "evidence/claims/16-candidate-models-challenge-ts.json",
+      "sha256": "4b1a1ae2852f300f996198b332e9ec57e5148880a381f30a0b7db374e83bde3b",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_017",
+      "kind": "claim",
+      "title": "Candidate: rsn/rsn.ts",
+      "summary": "CWE-444 (rank 16)",
+      "relativePath": "evidence/claims/17-candidate-rsn-rsn-ts.json",
+      "sha256": "5d829707892566deafda03989177ac898065a159e50033d80704aa447d8d8692",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_018",
+      "kind": "claim",
+      "title": "Candidate: rsn/rsnOutput.ts",
+      "summary": "CWE-113 (rank 17)",
+      "relativePath": "evidence/claims/18-candidate-rsn-rsnoutput-ts.json",
+      "sha256": "bfaba83b492583ebee43440ccc6ec21f7d66c499f4b72b818b7408ec1dfeb07d",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_019",
+      "kind": "claim",
+      "title": "Candidate: routes/profileImageUrlUpload.ts",
+      "summary": "CWE-22, CWE-918 (rank 18)",
+      "relativePath": "evidence/claims/19-candidate-routes-profileimageurlupload-ts.json",
+      "sha256": "9d939f7c8b3fc8f509c0ee6e4ea4253f8068412d05865af0a173fdec8a51a78a",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_020",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/dbSchemaChallenge_1.ts",
+      "summary": "CWE-89 (rank 19)",
+      "relativePath": "evidence/claims/20-candidate-data-static-codefixes-dbschemachalleng.json",
+      "sha256": "40ee6e864a520064eccbd8d2622efc3964635708a792d4bd5215890cc1a84ee1",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_021",
+      "kind": "claim",
+      "title": "Candidate: lib/xml.ts",
+      "summary": "CWE-611 (rank 20)",
+      "relativePath": "evidence/claims/21-candidate-lib-xml-ts.json",
+      "sha256": "ff5bba80ec3e6074381bdbe81335a3d0c0e9d1324f19c1ec59396f2c6dd2eb53",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_022",
+      "kind": "claim",
+      "title": "Candidate: routes/chat.ts",
+      "summary": "CWE-79 (rank 21)",
+      "relativePath": "evidence/claims/22-candidate-routes-chat-ts.json",
+      "sha256": "5f54580370d03cc38d780e85a890152b7d187ed0681c698fd6148e8b7d6e9bbc",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_023",
+      "kind": "claim",
+      "title": "Candidate: routes/fileServer.ts",
+      "summary": "CWE-22 (rank 22)",
+      "relativePath": "evidence/claims/23-candidate-routes-fileserver-ts.json",
+      "sha256": "ca036fba954077d2301c544b581a29d5a26c51fa31c9974f96bb87f3a4c8c859",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_024",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginAdminChallenge_1.ts",
+      "summary": "CWE-89 (rank 23)",
+      "relativePath": "evidence/claims/24-candidate-data-static-codefixes-loginadminchalle.json",
+      "sha256": "b924149c1a750e599fc0f0e2344f4e68d03b91714f79e086cce1fc9971767696",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_025",
+      "kind": "claim",
+      "title": "Candidate: routes/captcha.ts",
+      "summary": "CWE-94 (rank 24)",
+      "relativePath": "evidence/claims/25-candidate-routes-captcha-ts.json",
+      "sha256": "30f123026dabb02714d61489a2b0a5dc23d75c071d2aeae1208c5fc50e76146e",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_026",
+      "kind": "claim",
+      "title": "Candidate: routes/keyServer.ts",
+      "summary": "CWE-22 (rank 25)",
+      "relativePath": "evidence/claims/26-candidate-routes-keyserver-ts.json",
+      "sha256": "d287e58bd765043494fa8f971236babd571d1de37995350b4ed9a7540207daa2",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_027",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginAdminChallenge_2.ts",
+      "summary": "CWE-89 (rank 26)",
+      "relativePath": "evidence/claims/27-candidate-data-static-codefixes-loginadminchalle.json",
+      "sha256": "04228846ae825359d46aaab5cc8fb928ca06787190568224b8021c3b02d95168",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_028",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/hacking-instructor/index.ts",
+      "summary": "CWE-79 (rank 27)",
+      "relativePath": "evidence/claims/28-candidate-frontend-src-hacking-instructor-index-.json",
+      "sha256": "05a9b3d11a2507c1cea80a5f90701d9b17ddd86b5f871f60ec2aaf674e06a70e",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_029",
+      "kind": "claim",
+      "title": "Candidate: routes/logfileServer.ts",
+      "summary": "CWE-22 (rank 28)",
+      "relativePath": "evidence/claims/29-candidate-routes-logfileserver-ts.json",
+      "sha256": "4c6a4c849c73bb7d00d70275bbfdb879be8a3dc3a7cc1682c9fef13632be3a23",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_030",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginBenderChallenge_1.ts",
+      "summary": "CWE-89 (rank 29)",
+      "relativePath": "evidence/claims/30-candidate-data-static-codefixes-loginbenderchall.json",
+      "sha256": "836c72d25632323683aef2d55c333a97d8cc48b484929afc925b7595a7bfc4db",
+      "createdAt": "2026-09-29T01:12:51.460Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_031",
+      "kind": "claim",
+      "title": "Candidate: routes/profileImageFileUpload.ts",
+      "summary": "CWE-22 (rank 30)",
+      "relativePath": "evidence/claims/31-candidate-routes-profileimagefileupload-ts.json",
+      "sha256": "3170ddd81c2fe0bcfa9f92b454a3af9048b6707d33f86a670391326adb036faa",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_032",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginBenderChallenge_3.ts",
+      "summary": "CWE-89 (rank 31)",
+      "relativePath": "evidence/claims/32-candidate-data-static-codefixes-loginbenderchall.json",
+      "sha256": "de87bf44f58766a2978c400610e5e83c94ee01c11d64a0cd76a58a4648ef99a8",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_033",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginBenderChallenge_4.ts",
+      "summary": "CWE-89 (rank 32)",
+      "relativePath": "evidence/claims/33-candidate-data-static-codefixes-loginbenderchall.json",
+      "sha256": "0003f9ff3b912895ba36a379836170d3e643aa539582d1fa56dea4127154c22a",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_034",
+      "kind": "claim",
+      "title": "Candidate: routes/quarantineServer.ts",
+      "summary": "CWE-22 (rank 33)",
+      "relativePath": "evidence/claims/34-candidate-routes-quarantineserver-ts.json",
+      "sha256": "d8c4855386ac224a7f6bb72f0b2e43c9b80ade5455beebe7fca73ebb54071866",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_035",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginJimChallenge_2.ts",
+      "summary": "CWE-89 (rank 34)",
+      "relativePath": "evidence/claims/35-candidate-data-static-codefixes-loginjimchalleng.json",
+      "sha256": "5e507904c190c65171d0c253ce012b56d66111b579bb6db85a525a8b0804609c",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_036",
+      "kind": "claim",
+      "title": "Candidate: routes/vulnCodeFixes.ts",
+      "summary": "CWE-22 (rank 35)",
+      "relativePath": "evidence/claims/36-candidate-routes-vulncodefixes-ts.json",
+      "sha256": "780a08bc884ef29fd917ef53c27dfadc02e26098f6b940085289c66dffffaf78",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_037",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/loginJimChallenge_4.ts",
+      "summary": "CWE-89 (rank 36)",
+      "relativePath": "evidence/claims/37-candidate-data-static-codefixes-loginjimchalleng.json",
+      "sha256": "eb32f526f9a6cd89db1b3eecfb51ac14f17c8b94321c9c169dced6311c99ab8a",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_038",
+      "kind": "claim",
+      "title": "Candidate: routes/vulnCodeSnippet.ts",
+      "summary": "CWE-22 (rank 37)",
+      "relativePath": "evidence/claims/38-candidate-routes-vulncodesnippet-ts.json",
+      "sha256": "f6156646fca61fa3e01f7433ff48ed2711dc0296b4f6e17bc4166d6adb727c40",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_039",
+      "kind": "claim",
+      "title": "Candidate: data/static/codefixes/unionSqlInjectionChallenge_1.ts",
+      "summary": "CWE-89 (rank 38)",
+      "relativePath": "evidence/claims/39-candidate-data-static-codefixes-unionsqlinjectio.json",
+      "sha256": "34e4d4f1cb2b1abb27584fc00f25b38ba6e42b60beb2df6b0878b932a5915cda",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_040",
+      "kind": "claim",
+      "title": "Candidate: routes/login.ts",
+      "summary": "CWE-89 (rank 39)",
+      "relativePath": "evidence/claims/40-candidate-routes-login-ts.json",
+      "sha256": "9f39932f01d47f0e2a1099d955fb622c6c42130199ebfe4dde39c4a951f8998e",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_041",
+      "kind": "claim",
+      "title": "Candidate: routes/search.ts",
+      "summary": "CWE-89 (rank 40)",
+      "relativePath": "evidence/claims/41-candidate-routes-search-ts.json",
+      "sha256": "c89319262c793780aabdbc53c31385f72f0aaac7b0ae677e8c20f6bb5a2ad134",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_042",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/nft-unlock/nft-unlock.component.spec.ts",
+      "summary": "CWE-798 (rank 41)",
+      "relativePath": "evidence/claims/42-candidate-frontend-src-app-nft-unlock-nft-unlock.json",
+      "sha256": "f8da195769e24c350228c0945cbbdebd0890f02714c2a7029951216a9354e697",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_043",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/contact.spec.ts",
+      "summary": "CWE-798, CWE-94 (rank 42)",
+      "relativePath": "evidence/claims/43-candidate-test-cypress-e2e-contact-spec-ts.json",
+      "sha256": "d7ea714413174a574d18e35215c6dbc3d07b8272595a7142251a697b5f750e73",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_044",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/oauth/oauth.component.spec.ts",
+      "summary": "CWE-798 (rank 43)",
+      "relativePath": "evidence/claims/44-candidate-frontend-src-app-oauth-oauth-component.json",
+      "sha256": "5c579cfeab3c1ca7d900ee3b8f517f4aed83ed8c34d48011be656140c5ec50fb",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_045",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/payment/payment.component.spec.ts",
+      "summary": "CWE-798 (rank 44)",
+      "relativePath": "evidence/claims/45-candidate-frontend-src-app-payment-payment-compo.json",
+      "sha256": "30124c8521577fdc21ef34b48f4b24484f0554a5a760830a30df26f150e186e7",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_046",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/assets/private/dat.gui.min.js",
+      "summary": "CWE-79 (rank 45)",
+      "relativePath": "evidence/claims/46-candidate-frontend-src-assets-private-dat-gui-mi.json",
+      "sha256": "e6b0d4b2c8b5be6ed63683ba26f2b0d2cc031ad6bdfc165cc6d0b7ea999904ca",
+      "createdAt": "2026-09-29T01:12:51.461Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_047",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/Services/keys.service.spec.ts",
+      "summary": "CWE-798 (rank 46)",
+      "relativePath": "evidence/claims/47-candidate-frontend-src-app-services-keys-service.json",
+      "sha256": "802cc64261d5b6c3cae3549869930b09fbee57ecbe148f64aba1ead5d0580971",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_048",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/Services/two-factor-auth-service.spec.ts",
+      "summary": "CWE-798 (rank 47)",
+      "relativePath": "evidence/claims/48-candidate-frontend-src-app-services-two-factor-a.json",
+      "sha256": "bbe8bb2d738a4e85f9beaa8767438d606d04b6cf0a2bee819b0e74c6afb8c7b0",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_049",
+      "kind": "claim",
+      "title": "Candidate: frontend/src/app/two-factor-auth/two-factor-auth.component.spec.ts",
+      "summary": "CWE-798 (rank 48)",
+      "relativePath": "evidence/claims/49-candidate-frontend-src-app-two-factor-auth-two-f.json",
+      "sha256": "3f628633203ded626656684ee5c4d1ab2c493221e99e318320f7864cb5f0b397",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_050",
+      "kind": "claim",
+      "title": "Candidate: test/api/2fa.test.ts",
+      "summary": "CWE-798 (rank 49)",
+      "relativePath": "evidence/claims/50-candidate-test-api-2fa-test-ts.json",
+      "sha256": "cf59034a745129ee49a728108d502231703a5c102acee9d94ee0a73aa5a02377",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_051",
+      "kind": "claim",
+      "title": "Candidate: test/api/address.test.ts",
+      "summary": "CWE-798 (rank 50)",
+      "relativePath": "evidence/claims/51-candidate-test-api-address-test-ts.json",
+      "sha256": "f9f450ad4d5a398639d3bdc10257935789776358565d84b64c859a95843e08a0",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_052",
+      "kind": "claim",
+      "title": "Candidate: test/api/authenticated-users.test.ts",
+      "summary": "CWE-798 (rank 51)",
+      "relativePath": "evidence/claims/52-candidate-test-api-authenticated-users-test-ts.json",
+      "sha256": "76269d400ea92f095624fa7751d475c1ae5fc03360c71b6df07b0e8727451453",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_053",
+      "kind": "claim",
+      "title": "Candidate: test/api/basket-item.test.ts",
+      "summary": "CWE-798 (rank 52)",
+      "relativePath": "evidence/claims/53-candidate-test-api-basket-item-test-ts.json",
+      "sha256": "0f9b05d20442543bbb285122122ff874d32f00dbbf6f4f7532a8672305ea7e4b",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_054",
+      "kind": "claim",
+      "title": "Candidate: test/api/basket.test.ts",
+      "summary": "CWE-798 (rank 53)",
+      "relativePath": "evidence/claims/54-candidate-test-api-basket-test-ts.json",
+      "sha256": "2d917622196cf68c00b0cb1a852aed3affbbd35a3a7a4e6d3efa446d31337ee8",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_055",
+      "kind": "claim",
+      "title": "Candidate: test/api/chat.test.ts",
+      "summary": "CWE-798 (rank 54)",
+      "relativePath": "evidence/claims/55-candidate-test-api-chat-test-ts.json",
+      "sha256": "3734bb4e2e87c84a6d2c4ad54f6bdfc1c2277a8e67ad95c49f76a9703138c258",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_056",
+      "kind": "claim",
+      "title": "Candidate: test/api/checkKeys.test.ts",
+      "summary": "CWE-798 (rank 55)",
+      "relativePath": "evidence/claims/56-candidate-test-api-checkkeys-test-ts.json",
+      "sha256": "2ba5cac0abb2a0e56c3e96d21d04d539c8eafc2a5804b3b42ac718453ca26138",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_057",
+      "kind": "claim",
+      "title": "Candidate: test/api/data-export.test.ts",
+      "summary": "CWE-798 (rank 56)",
+      "relativePath": "evidence/claims/57-candidate-test-api-data-export-test-ts.json",
+      "sha256": "9b7548eb1fea54658ca9c29f73fdfb9c809811697d64169c8f558c11e8e936a4",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_058",
+      "kind": "claim",
+      "title": "Candidate: test/api/delivery.test.ts",
+      "summary": "CWE-798 (rank 57)",
+      "relativePath": "evidence/claims/58-candidate-test-api-delivery-test-ts.json",
+      "sha256": "bcf93b7a322a7898c3f77718a90b2b1635c23b914838c73f2fc5b96c67223e17",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_059",
+      "kind": "claim",
+      "title": "Candidate: test/api/deluxe.test.ts",
+      "summary": "CWE-798 (rank 58)",
+      "relativePath": "evidence/claims/59-candidate-test-api-deluxe-test-ts.json",
+      "sha256": "ad8927fe7dcd7cbdac954a735111e8a3b7a4741bbf21e4a44abedb80ddf2fdd4",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_060",
+      "kind": "claim",
+      "title": "Candidate: test/api/erasure-request.test.ts",
+      "summary": "CWE-798 (rank 59)",
+      "relativePath": "evidence/claims/60-candidate-test-api-erasure-request-test-ts.json",
+      "sha256": "1e9a14a497c812b5641b096a05c3ea1d76188cbe1d26c80e484127082b0c6672",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_061",
+      "kind": "claim",
+      "title": "Candidate: test/api/feedback.test.ts",
+      "summary": "CWE-798 (rank 60)",
+      "relativePath": "evidence/claims/61-candidate-test-api-feedback-test-ts.json",
+      "sha256": "f5676767a513dcce47649f00229bbe3fd1f318744b91a2f55a01988460822b30",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_062",
+      "kind": "claim",
+      "title": "Candidate: test/api/login.test.ts",
+      "summary": "CWE-798 (rank 61)",
+      "relativePath": "evidence/claims/62-candidate-test-api-login-test-ts.json",
+      "sha256": "76c10858bfb2e9fbfa8067d1a468d7e2846dff2bfd4b9a89fa78c1b4843cc8b8",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_063",
+      "kind": "claim",
+      "title": "Candidate: test/api/memory.test.ts",
+      "summary": "CWE-798 (rank 62)",
+      "relativePath": "evidence/claims/63-candidate-test-api-memory-test-ts.json",
+      "sha256": "cb79cf9b651addf859d1c3d49d3c78c8f645f572b42b39ec1392647acb879e24",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_064",
+      "kind": "claim",
+      "title": "Candidate: test/api/order-history.test.ts",
+      "summary": "CWE-798 (rank 63)",
+      "relativePath": "evidence/claims/64-candidate-test-api-order-history-test-ts.json",
+      "sha256": "701e20e00d901c5ef863a7ccdc49373703fb80fc95ddf46df3ae76af7e5d0161",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_065",
+      "kind": "claim",
+      "title": "Candidate: test/api/password.test.ts",
+      "summary": "CWE-798 (rank 64)",
+      "relativePath": "evidence/claims/65-candidate-test-api-password-test-ts.json",
+      "sha256": "23416a100a8972a2f24b5d5876ae6e0c709e272f080bfbb8edb95975342b5b39",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_066",
+      "kind": "claim",
+      "title": "Candidate: test/api/payment.test.ts",
+      "summary": "CWE-798 (rank 65)",
+      "relativePath": "evidence/claims/66-candidate-test-api-payment-test-ts.json",
+      "sha256": "a25bba8c3e2b47bbd5c929170ddc89f39b379b9d4550239215187c6c7ca0f9c3",
+      "createdAt": "2026-09-29T01:12:51.462Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_067",
+      "kind": "claim",
+      "title": "Candidate: test/api/product-review.test.ts",
+      "summary": "CWE-798 (rank 66)",
+      "relativePath": "evidence/claims/67-candidate-test-api-product-review-test-ts.json",
+      "sha256": "fcc5eef3d3f900390255fbf84798cef255e7909103743d8ccc5f6fd9110d011b",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_068",
+      "kind": "claim",
+      "title": "Candidate: test/api/profile-image-upload.test.ts",
+      "summary": "CWE-798 (rank 67)",
+      "relativePath": "evidence/claims/68-candidate-test-api-profile-image-upload-test-ts.json",
+      "sha256": "87a27e217eeb803caacca2969894d872aaef917c8cbff0cb7c9556efe7f8d1b6",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_069",
+      "kind": "claim",
+      "title": "Candidate: test/api/quantity.test.ts",
+      "summary": "CWE-798 (rank 68)",
+      "relativePath": "evidence/claims/69-candidate-test-api-quantity-test-ts.json",
+      "sha256": "151a969f246bc9582ebe7e5f435a15ecd9ff285f76a85a532b7d7afd785fd4e2",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_070",
+      "kind": "claim",
+      "title": "Candidate: test/api/user-profile.test.ts",
+      "summary": "CWE-798 (rank 69)",
+      "relativePath": "evidence/claims/70-candidate-test-api-user-profile-test-ts.json",
+      "sha256": "de48fcb75945fec02ccadeb932e5d06437ee7743b6e6b67b5743e92484ec4f03",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_071",
+      "kind": "claim",
+      "title": "Candidate: test/api/user.test.ts",
+      "summary": "CWE-798 (rank 70)",
+      "relativePath": "evidence/claims/71-candidate-test-api-user-test-ts.json",
+      "sha256": "8f93e0cafebfd7d4f264ba12a64387359ff282304f0df7b39d407dd0c1e2d998",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_072",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/administration.spec.ts",
+      "summary": "CWE-798 (rank 71)",
+      "relativePath": "evidence/claims/72-candidate-test-cypress-e2e-administration-spec-t.json",
+      "sha256": "a3005d699bc89b1096a8fdf9260b8dfb638e8ecee0c1500b44797b09fb145b23",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_073",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/b2bOrder.spec.ts",
+      "summary": "CWE-798 (rank 72)",
+      "relativePath": "evidence/claims/73-candidate-test-cypress-e2e-b2border-spec-ts.json",
+      "sha256": "cb2fb94b34fd676bf72a6006fc0276108bf7a608233b900ee920f8d247d5351d",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_074",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/basket.spec.ts",
+      "summary": "CWE-798 (rank 73)",
+      "relativePath": "evidence/claims/74-candidate-test-cypress-e2e-basket-spec-ts.json",
+      "sha256": "36a1e237d68f67b16e1604eecc72a2cb40cb91b94f395ce002c5c477e90a628a",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_075",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/changePassword.spec.ts",
+      "summary": "CWE-798 (rank 74)",
+      "relativePath": "evidence/claims/75-candidate-test-cypress-e2e-changepassword-spec-t.json",
+      "sha256": "33328c47359890d9f3a78f7bdfc9b2de540d93262fb772b55ebb43e76cb39ae8",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_076",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/chatbot.spec.ts",
+      "summary": "CWE-798 (rank 75)",
+      "relativePath": "evidence/claims/76-candidate-test-cypress-e2e-chatbot-spec-ts.json",
+      "sha256": "bc41019d5d8b5dcb34d1670962fd2959a6d05bca577a52f3f41408bb7821aa0a",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_077",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/complain.spec.ts",
+      "summary": "CWE-798 (rank 76)",
+      "relativePath": "evidence/claims/77-candidate-test-cypress-e2e-complain-spec-ts.json",
+      "sha256": "71e041e97727aa3a5b4ae13e85469367b4688d46f9dd7f5cc84de9ac03128d81",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_078",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/dataErasure.spec.ts",
+      "summary": "CWE-798 (rank 77)",
+      "relativePath": "evidence/claims/78-candidate-test-cypress-e2e-dataerasure-spec-ts.json",
+      "sha256": "9d5e118e9513db07c2accc1974460754e7ff8feb85da0b88ef38fdd96b5c6777",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_079",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/dataExport.spec.ts",
+      "summary": "CWE-798 (rank 78)",
+      "relativePath": "evidence/claims/79-candidate-test-cypress-e2e-dataexport-spec-ts.json",
+      "sha256": "24ac6da162f5448e733e4780ea0c9f822c167149d4e6871925f86341b09fbce5",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_080",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/deluxe.spec.ts",
+      "summary": "CWE-798 (rank 79)",
+      "relativePath": "evidence/claims/80-candidate-test-cypress-e2e-deluxe-spec-ts.json",
+      "sha256": "222b1e27267d859b7811630644a94f0feb22813feebfc7581f6875900cf5e467",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_081",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/noSql.spec.ts",
+      "summary": "CWE-798 (rank 80)",
+      "relativePath": "evidence/claims/81-candidate-test-cypress-e2e-nosql-spec-ts.json",
+      "sha256": "98aae4a8ccba6e62bfd26d12e63387f6716d6d810d1489a432605cbb1f8e6c7d",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_082",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/passwordHashLeak.spec.ts",
+      "summary": "CWE-798 (rank 81)",
+      "relativePath": "evidence/claims/82-candidate-test-cypress-e2e-passwordhashleak-spec.json",
+      "sha256": "93c0d633dc604d0cf66307705d86e635e6d542c01832e13c7ca4cb53ea7018dc",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_083",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/profile.spec.ts",
+      "summary": "CWE-798 (rank 82)",
+      "relativePath": "evidence/claims/83-candidate-test-cypress-e2e-profile-spec-ts.json",
+      "sha256": "b55ff5f47fb40dd84afc90ddef8226af23b9dd1a5e95ccd92cb6001c42594fd3",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_084",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/register.spec.ts",
+      "summary": "CWE-798 (rank 83)",
+      "relativePath": "evidence/claims/84-candidate-test-cypress-e2e-register-spec-ts.json",
+      "sha256": "38935b65e3f8459d490af0f901376c65433af4456ab4e3fa363bf3151e79c7f5",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_085",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/restApi.spec.ts",
+      "summary": "CWE-798 (rank 84)",
+      "relativePath": "evidence/claims/85-candidate-test-cypress-e2e-restapi-spec-ts.json",
+      "sha256": "12f4bd4348a4fd8b70f7326cbe6ebbf21571484fec8b9c10a2b48e211e87eb78",
+      "createdAt": "2026-09-29T01:12:51.463Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_086",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/search.spec.ts",
+      "summary": "CWE-798 (rank 85)",
+      "relativePath": "evidence/claims/86-candidate-test-cypress-e2e-search-spec-ts.json",
+      "sha256": "e005673e04ae8eb514cd04f94225da89aaaf951173c1e33022a1770be66badf6",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_087",
+      "kind": "claim",
+      "title": "Candidate: test/cypress/e2e/totpSetup.spec.ts",
+      "summary": "CWE-798 (rank 86)",
+      "relativePath": "evidence/claims/87-candidate-test-cypress-e2e-totpsetup-spec-ts.json",
+      "sha256": "358e2d3f8eeb7fbc1afd56b2dc4d285a7bef183186aa5c401ef39b9d2d63ebb4",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_088",
+      "kind": "claim",
+      "title": "Candidate: test/server/currentUser.unit.test.ts",
+      "summary": "CWE-798 (rank 87)",
+      "relativePath": "evidence/claims/88-candidate-test-server-currentuser-unit-test-ts.json",
+      "sha256": "820e9f3424855027e49c1eaf54e4bb907070d76cf2c16cbf2b2d52bdb0e76145",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_089",
+      "kind": "claim",
+      "title": "Candidate: test/server/preconditionValidation.unit.test.ts",
+      "summary": "CWE-798 (rank 88)",
+      "relativePath": "evidence/claims/89-candidate-test-server-preconditionvalidation-uni.json",
+      "sha256": "3acbfbe7a2dd10c4e8aaebcba9c04694089199077381dd41f1f92f430d89cf3d",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_artifact_090",
+      "kind": "artifact",
+      "title": "report.json",
+      "summary": "Run artifact report.json",
+      "relativePath": "report.json",
+      "sha256": "027e8c16c2698725f24b4dc149c9241ab205c135a52a10c09d2cc28991db7e97",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_091",
+      "kind": "artifact",
+      "title": "report.sarif",
+      "summary": "Run artifact report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "f04cf6401c5a60d439f19e124a8ec36afda80068eb7a32dcd84b513550989c60",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_092",
+      "kind": "artifact",
+      "title": "report.md",
+      "summary": "Run artifact report.md",
+      "relativePath": "report.md",
+      "sha256": "b6086d056447544a202bc74fb0fda025227c0c4981caeb1199d322d4085697e5",
+      "createdAt": "2026-09-29T01:12:51.464Z",
+      "tags": [
+        "artifact"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "report.json",
+      "relativePath": "report.json",
+      "sha256": "027e8c16c2698725f24b4dc149c9241ab205c135a52a10c09d2cc28991db7e97",
+      "bytes": 66244
+    },
+    {
+      "name": "report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "f04cf6401c5a60d439f19e124a8ec36afda80068eb7a32dcd84b513550989c60",
+      "bytes": 140710
+    },
+    {
+      "name": "report.md",
+      "relativePath": "report.md",
+      "sha256": "b6086d056447544a202bc74fb0fda025227c0c4981caeb1199d322d4085697e5",
+      "bytes": 33674
+    }
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "keylessDefault": true,
+    "offlineVerifiable": true
+  }
+}

@@ -1,0 +1,42 @@
+$ npm run zeroday -- locate --cwe CWE-287 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf --live --samples 2 --remote-inference --output rec/traefik-live
+started 2026-09-28 06:14:03 PM PDT
+
+> zeroday@0.10.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-287 --repo /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf --live --samples 2 --remote-inference --output rec/traefik-live
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-287 → CWE-287
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf
+Findings : 2
+Explored : 65 Antares tool call(s) (budget 30)
+
+Ranked files:
+  1. pkg/middlewares/auth/basic_auth.go  [CWE-287]  Improper Authentication  (1/2 runs)
+  2. pkg/middlewares/auth/forward.go  [CWE-287]  Improper Authentication  (1/2 runs)
+
+Rules    : 0 candidate(s) — compared with Antares' answer (not sent)
+Samples  : 2 Antares runs merged by vote
+Agreement: 0 file(s) flagged by both Antares and rules
+
+Artifacts:
+  JSON     /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/report.json
+  SARIF    /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/report.sarif
+  Report   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/report.md
+  Comment  /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/comment.md
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/asff-findings.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/xsoar-incidents.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/fortisiem-custom.json
+  Export   /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/evidence
+  Manifest /Users/abhinavpandey/code/ZERODAY/rec/traefik-live/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  3.49s user 5.51s system 13% cpu 1:07.00 total
+exit=0

@@ -1,0 +1,63 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g",
+      "dvc": "zeroday-local",
+      "signature": "Missing Authorization",
+      "severity": "informational",
+      "category": "missing-authorization",
+      "xref": "CWE-862",
+      "signature_id": "zeroday-b23c8bdb6c9d5619",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-862",
+      "file": "pkg/auth/jwt.go",
+      "evidence": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "advisory": "CWE-862",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-29T01:13:26.227Z"
+    },
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g",
+      "dvc": "zeroday-local",
+      "signature": "Missing Authorization",
+      "severity": "informational",
+      "category": "missing-authorization",
+      "xref": "CWE-862",
+      "signature_id": "zeroday-5b55f459d15a5b3b",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-862",
+      "file": "pkg/filemanager/fs/dbfs/dbfs.go",
+      "evidence": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "advisory": "CWE-862",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-29T01:13:26.227Z"
+    },
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-w89x-c962-c44g",
+      "dvc": "zeroday-local",
+      "signature": "Missing Authorization",
+      "severity": "informational",
+      "category": "missing-authorization",
+      "xref": "CWE-862",
+      "signature_id": "zeroday-d3510038aae7ca55",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-862",
+      "file": "pkg/filemanager/fs/dbfs/upload.go",
+      "evidence": "Antares submitted this file as a localization candidate.; Antares ranked this file in 1 of 2 runs.",
+      "advisory": "CWE-862",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-29T01:13:26.227Z"
+    }
+  ]
+}

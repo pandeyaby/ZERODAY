@@ -1,0 +1,129 @@
+{
+  "mode": "live",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-287",
+    "cweId": "CWE-287"
+  },
+  "targetRepo": "/Users/abhinavpandey/.cache/zeroday/bench-antares/GHSA-6765-c87h-8mrf",
+  "snapshotPath": "/var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-mFNxRf/repo",
+  "model": "fdtn-ai/antares-1b",
+  "generatedAt": "2026-09-29T01:14:35.801Z",
+  "rankedFiles": [
+    {
+      "filePath": "pkg/middlewares/auth/basic_auth.go",
+      "rank": 1,
+      "cweIds": [
+        "CWE-287"
+      ],
+      "title": "Improper Authentication",
+      "evidence": [
+        {
+          "filePath": "pkg/middlewares/auth/basic_auth.go",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "pkg/middlewares/auth/basic_auth.go",
+          "note": "Antares ranked this file in 1 of 2 runs."
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares"
+      ],
+      "fingerprint": "e0b9cc2f6028796089ecd36d"
+    },
+    {
+      "filePath": "pkg/middlewares/auth/forward.go",
+      "rank": 2,
+      "cweIds": [
+        "CWE-287"
+      ],
+      "title": "Improper Authentication",
+      "evidence": [
+        {
+          "filePath": "pkg/middlewares/auth/forward.go",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "pkg/middlewares/auth/forward.go",
+          "note": "Antares ranked this file in 1 of 2 runs."
+        }
+      ],
+      "likelihoodOfExploit": "High",
+      "sources": [
+        "antares"
+      ],
+      "fingerprint": "31ea6ecb289fc6245af89a8f"
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    },
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    }
+  ],
+  "warnings": [
+    "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+    "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+    "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+    "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+    "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+    "Merged 2 Antares runs by vote (--samples 2).",
+    "Antares ran on its own; ZERODAY rules ran separately (0 candidate(s)) and are compared, not sent.",
+    "Read-only snapshot: 2015 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-mFNxRf/repo",
+    "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+    "Local completions probe ok: GET https://8kdejcznx45ypw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+    "Endpoint discovered: Using saved endpoint https://8kdejcznx45ypw-8000.proxy.runpod.net/v1 (model fdtn-ai/antares-1b; remote-inference ACK from saved Desk config)",
+    "Resolved CWE-287 → CWE-287 (authentication) via cwe-direct",
+    "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 2,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "incompleteTips": [],
+    "recoveryAttempted": false,
+    "terminalCallBudget": 30,
+    "terminalCallsUsed": 65,
+    "samples": {
+      "runs": 2,
+      "votes": {
+        "pkg/middlewares/auth/basic_auth.go": 1,
+        "pkg/middlewares/auth/forward.go": 1
+      }
+    },
+    "hybrid": {
+      "contextSent": false,
+      "rulesCandidates": 0,
+      "agreed": [],
+      "antaresOnly": [
+        "pkg/middlewares/auth/basic_auth.go",
+        "pkg/middlewares/auth/forward.go"
+      ],
+      "rulesOnly": []
+    }
+  },
+  "evidence": {
+    "runId": "traefik-live",
+    "claimIds": [
+      "ev_claim_002",
+      "ev_claim_003"
+    ],
+    "vaultRelative": "evidence/"
+  }
+}

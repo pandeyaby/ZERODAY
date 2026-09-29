@@ -1,0 +1,11 @@
+$ npm run zeroday -- antares status
+at 2026-09-28 05:34:07 PM PDT
+
+> zeroday@0.10.0 zeroday
+> tsx cli/index.ts antares status
+
+Pod      : 8kdejcznx45ypw (RUNNING)
+Endpoint : https://8kdejcznx45ypw-8000.proxy.runpod.net/v1
+Running  : 2 min · ≈ $0.02 so far
+Deletes  : 9/28/2026, 7:32:02 PM (watchdog pid 13542)
+npm run zeroday -- antares status  0.34s user 0.06s system 46% cpu 0.877 total
