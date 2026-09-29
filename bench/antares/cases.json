@@ -25,7 +25,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 2574,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-23T08:48:39+08:00"
   },
   {
    "id": "GHSA-p6gw-4frg-j7jw",
@@ -43,7 +44,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 195,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-27T08:28:42+02:00"
   },
   {
    "id": "GHSA-v8fg-2rw7-q452",
@@ -62,7 +64,8 @@
    ],
    "changedFiles": 18,
    "treeFiles": 529,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2024-10-02T14:01:50+02:00"
   },
   {
    "id": "GHSA-6rf4-v2fh-m6p4",
@@ -80,7 +83,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 205,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-15T23:58:42+09:00"
   },
   {
    "id": "GHSA-xpjq-3w4w-w5wr",
@@ -99,7 +103,8 @@
    ],
    "changedFiles": 5,
    "treeFiles": 806,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-20T12:45:13+08:00"
   },
   {
    "id": "GHSA-3rm2-h79c-8qw6",
@@ -119,7 +124,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 231,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-17T17:00:29+08:00"
   },
   {
    "id": "GHSA-g28h-2cmm-rj9x",
@@ -139,7 +145,8 @@
    ],
    "changedFiles": 9,
    "treeFiles": 191,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-23T11:44:23-07:00"
   },
   {
    "id": "GHSA-vr5f-w35q-98jp",
@@ -157,7 +164,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 1319,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-15T10:28:55+02:00"
   },
   {
    "id": "GHSA-cv3r-c5h8-f4g5",
@@ -175,7 +183,8 @@
    ],
    "changedFiles": 7,
    "treeFiles": 269,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-22T23:17:46+09:00"
   },
   {
    "id": "GHSA-jpf4-98qj-qr67",
@@ -193,7 +202,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 1148,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-19T20:25:46+05:30"
   },
   {
    "id": "GHSA-q69g-4hcv-6jg4",
@@ -211,7 +221,8 @@
    ],
    "changedFiles": 4,
    "treeFiles": 1059,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-07T13:26:11+02:00"
   },
   {
    "id": "GHSA-4x45-gxvp-6283",
@@ -229,7 +240,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 540,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-21T10:23:04+02:00"
   },
   {
    "id": "GHSA-756x-9hf6-q4h4",
@@ -247,7 +259,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 2647,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-26T19:59:21+00:00"
   },
   {
    "id": "GHSA-mw6r-2hvm-4rp2",
@@ -266,7 +279,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 36,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-13T19:01:24+05:30"
   },
   {
    "id": "GHSA-3496-9g83-7v6x",
@@ -284,7 +298,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 88,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-08-10T06:34:07+02:00"
   },
   {
    "id": "GHSA-2vh9-42vm-xmv2",
@@ -293,7 +308,7 @@
    "ecosystem": "PyPI",
    "package": "lmdeploy",
    "published": "2026-09-18",
-   "summary": "LMDeploy has Remote Code Execution\u00a0by Pickle Deserialization via handle_zmq_recv in lmdeploy/lmdeploy/pytorch/disagg/conn/engine_conn.py",
+   "summary": "LMDeploy has Remote Code Execution by Pickle Deserialization via handle_zmq_recv in lmdeploy/lmdeploy/pytorch/disagg/conn/engine_conn.py",
    "repo": "https://github.com/InternLM/lmdeploy",
    "fixCommit": "f05b4ad8bf2e2d84101a1d63b3c44fadd99223b2",
    "vulnerableCommit": "eb94bd8cb4155eb055e2404d8304a7af089a6099",
@@ -302,7 +317,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 1735,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-08-13T01:06:48+08:00"
   },
   {
    "id": "GHSA-rhp5-r9x4-f5g2",
@@ -322,7 +338,8 @@
    ],
    "changedFiles": 5,
    "treeFiles": 570,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-01T11:46:35+02:00"
   },
   {
    "id": "GHSA-w6w4-rjh9-9r58",
@@ -340,7 +357,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 232,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-05-31T21:42:28-03:00"
   },
   {
    "id": "GHSA-h7vf-4x9w-h99v",
@@ -358,7 +376,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 190,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-07-10T08:41:33-06:00"
   },
   {
    "id": "GHSA-p2w3-6x73-2f6x",
@@ -376,7 +395,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 522,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-08-04T12:33:51-07:00"
   },
   {
    "id": "GHSA-998g-7v5w-cr7g",
@@ -395,7 +415,8 @@
    ],
    "changedFiles": 4,
    "treeFiles": 445,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-01T10:26:16-05:00"
   },
   {
    "id": "GHSA-h5g6-xmh4-hc37",
@@ -404,7 +425,7 @@
    "ecosystem": "Go",
    "package": "github.com/openrundev/openrun",
    "published": "2026-07-09",
-   "summary": "OpenRun: Redirect URL validation bypass using \u00a0//host\u00a0 paths leads to Open Redirect",
+   "summary": "OpenRun: Redirect URL validation bypass using  //host  paths leads to Open Redirect",
    "repo": "https://github.com/openrundev/openrun",
    "fixCommit": "709da784fcf1311c85f30f3542cfa3601a78bbf0",
    "vulnerableCommit": "c247d6a1c55d51178a528708f0cf654a94c93590",
@@ -413,7 +434,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 479,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-02T09:34:36-07:00"
   },
   {
    "id": "GHSA-8w27-c4vc-88q9",
@@ -431,7 +453,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 2796,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-05-26T11:05:12-04:00"
   },
   {
    "id": "GHSA-xxhq-69mf-w8cr",
@@ -449,7 +472,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 2648,
-   "rulesCoverCwe": true
+   "rulesCoverCwe": true,
+   "fixDate": "2026-06-05T09:59:34-04:00"
   },
   {
    "id": "GHSA-89vx-jh4q-vg3w",
@@ -467,7 +491,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 269,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-06-28T23:05:04-04:00"
   },
   {
    "id": "GHSA-w89x-c962-c44g",
@@ -485,7 +510,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 491,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-07-15T15:01:10+08:00"
   },
   {
    "id": "GHSA-4h97-p9wq-chqj",
@@ -503,7 +529,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 575,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-07-01T17:02:14-07:00"
   },
   {
    "id": "GHSA-vq6g-g6c7-5f2j",
@@ -521,7 +548,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 370,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-06-20T19:49:36+02:00"
   },
   {
    "id": "GHSA-v667-gc2r-2xm7",
@@ -539,7 +567,8 @@
    ],
    "changedFiles": 1,
    "treeFiles": 230,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-03-01T18:02:21+08:00"
   },
   {
    "id": "GHSA-6765-c87h-8mrf",
@@ -557,7 +586,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 2042,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-07-28T15:10:07+02:00"
   },
   {
    "id": "GHSA-jx63-h26r-8cph",
@@ -576,7 +606,8 @@
    ],
    "changedFiles": 5,
    "treeFiles": 1456,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-06-18T17:24:25+02:00"
   },
   {
    "id": "GHSA-29g2-3rmr-qm68",
@@ -585,7 +616,7 @@
    "ecosystem": "npm",
    "package": "@sveltejs/kit",
    "published": "2026-08-07",
-   "summary": "SvelteKit: ReDoS (O(n^2)) in content negotiation \u2014 unauthenticated DoS via the Accept header",
+   "summary": "SvelteKit: ReDoS (O(n^2)) in content negotiation — unauthenticated DoS via the Accept header",
    "repo": "https://github.com/sveltejs/kit",
    "fixCommit": "82712fc02c24b1dcf5b25d7a52129cd8455f04f5",
    "vulnerableCommit": "b27c82f9c6896d7127a4023a8b1868c68e4a27b9",
@@ -594,7 +625,8 @@
    ],
    "changedFiles": 3,
    "treeFiles": 2787,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-07-29T16:43:16-06:00"
   },
   {
    "id": "GHSA-8j4g-w8fx-2239",
@@ -612,7 +644,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 482,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-08-03T10:36:35+09:00"
   },
   {
    "id": "GHSA-8cw4-87c7-c6xx",
@@ -630,7 +663,8 @@
    ],
    "changedFiles": 2,
    "treeFiles": 622,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-08-02T22:12:39+02:00"
   },
   {
    "id": "GHSA-vmg4-6gfg-83qx",
@@ -648,7 +682,8 @@
    ],
    "changedFiles": 4,
    "treeFiles": 2212,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-08-12T14:40:53-04:00"
   },
   {
    "id": "GHSA-3rrr-jr9j-h3q3",
@@ -668,7 +703,8 @@
    ],
    "changedFiles": 6,
    "treeFiles": 1700,
-   "rulesCoverCwe": false
+   "rulesCoverCwe": false,
+   "fixDate": "2026-08-04T22:33:48+09:00"
   }
  ]
 }
