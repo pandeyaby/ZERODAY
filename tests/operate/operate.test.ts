@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 import { operate, validateOperatorSubmission } from "../../src/operate/index.ts";
 import { defaultFixtureRepo } from "../../src/locate/index.ts";
 import { verifyRunDir } from "../../src/evidence/vault.ts";
+import { assertValidReport } from "../locate/report-schema.helper.ts";
 
 describe("operate (keyless agent operator)", () => {
   it("fixture path writes full artifact + evidence pack", async () => {
@@ -21,6 +22,7 @@ describe("operate (keyless agent operator)", () => {
     assert.equal(artifacts.result.mode, "agent");
     assert.ok(artifacts.result.summary.findingCount >= 1);
     assert.ok(fs.existsSync(artifacts.jsonPath));
+    assertValidReport(artifacts.jsonPath);
     assert.ok(fs.existsSync(artifacts.sarifPath));
     assert.ok(fs.existsSync(artifacts.reportPath));
     assert.ok(fs.existsSync(artifacts.commentPath));

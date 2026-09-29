@@ -98,17 +98,12 @@ export interface LocalizationResult {
     baseline?: { file: string; new: number; unchanged: number; absent: number };
     /** With --changed-since: findings limited to files changed since the ref. */
     changedSince?: { ref: string; changedFiles: number; droppedFindings: number };
-    /**
-     * Rules mode, CVE / GHSA only: dependency exposure from OSV advisory data.
-     * affected = a lockfile pins an affected version; possibly-affected = only a
-     * declared (unpinned) version matches; not-affected / not-used = checked, clean.
-     */
-    /**
-     * Live runs with ZERODAY context (default): the static pass sent to Antares
-     * and where the two agree. Antares' ranking is kept as-is.
-     */
     /** Live `--samples N`: runs merged and how many ranked each file. */
     samples?: { runs: number; votes: Record<string, number> };
+    /**
+     * Live runs: the rules pass compared with Antares' answer (and sent to it
+     * only with --context), and where the two agree. Antares' ranking is kept.
+     */
     hybrid?: {
       contextSent: boolean;
       rulesCandidates: number;
@@ -116,6 +111,11 @@ export interface LocalizationResult {
       antaresOnly: string[];
       rulesOnly: Array<{ filePath: string; title: string; line?: number }>;
     };
+    /**
+     * Rules mode, CVE / GHSA only: dependency exposure from OSV advisory data.
+     * affected = a lockfile pins an affected version; possibly-affected = only a
+     * declared (unpinned) version matches; not-affected / not-used = checked, clean.
+     */
     advisoryMatch?: {
       verdict: "affected" | "possibly-affected" | "not-affected" | "not-used";
       advisoryIds: string[];

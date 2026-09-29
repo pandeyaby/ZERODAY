@@ -63,14 +63,15 @@ describe("single version source", () => {
 
   it("npm README links point at the release tag (npmjs.com has no repo around it)", () => {
     const md = absoluteReadmeLinks(
-      '<img src="./docs/images/a.png" width="1">\n![x](./docs/images/b.png)\n[`docs/demo.md`](./docs/demo.md) · [ext](https://osv.dev)',
+      '<a href="./docs/media/v.mp4"><img src="./docs/images/a.png" width="1"></a>\n![x](./docs/images/b.png)\n[`docs/demo.md`](./docs/demo.md) · [ext](https://osv.dev)',
       "1.2.3",
     );
     assert.match(md, /src="https:\/\/raw\.githubusercontent\.com\/pandeyaby\/ZERODAY\/v1\.2\.3\/docs\/images\/a\.png"/);
     assert.match(md, /\(https:\/\/raw\.githubusercontent\.com\/pandeyaby\/ZERODAY\/v1\.2\.3\/docs\/images\/b\.png\)/);
     assert.match(md, /\(https:\/\/github\.com\/pandeyaby\/ZERODAY\/blob\/v1\.2\.3\/docs\/demo\.md\)/);
+    assert.match(md, /href="https:\/\/github\.com\/pandeyaby\/ZERODAY\/blob\/v1\.2\.3\/docs\/media\/v\.mp4"/);
     assert.match(md, /\(https:\/\/osv\.dev\)/);
-    assert.doesNotMatch(md, /\]\(\.\//);
+    assert.doesNotMatch(md, /\]\(\.\/|="\.\//);
   });
 
   it("package-lock.json version matches package.json (npm install must not rewrite it)", () => {

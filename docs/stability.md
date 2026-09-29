@@ -7,20 +7,27 @@ on. Everything else is marked experimental and may change in any 0.x release.
 
 | Command | What is stable |
 |---------|----------------|
-| `zeroday locate` | Flags `--cwe` `--cve` `--ghsa` `--map-cwe` `--repo` `--rules` `--from-sarif` `--endpoint` `--fixture` `--offline` `--output` `--json` `--fail-on-findings` `--baseline` `--changed-since`; output files below; exit codes |
+| `zeroday locate` | Flags `--cwe` `--cve` `--ghsa` `--map-cwe` `--repo` `--rules` `--live` `--samples` `--endpoint` `--model` `--remote-inference` `--from-sarif` `--fixture` `--offline` `--output` `--json` `--fail-on-findings` `--baseline` `--changed-since`; output files below; exit codes |
+| `zeroday scan` | Flags `--repo` `--output` `--max-cwes` `--cwe` `--rules-only` `--samples` `--require-antares` `--endpoint` `--model` `--remote-inference` `--json`; `report.json` / `report.sarif` / `report.md` / `evidence/`; exit codes |
+| `zeroday antares up` / `down` / `status` | `up`: `--max-minutes` `--gpu` `--model` `--yes`; the pod is always capped and deleted at `--max-minutes`; keys are read from `RUNPOD_API_KEY` / `HF_TOKEN` and never written to disk. Exit codes |
 | `zeroday verify` | `--from <dir>`; PASS / FAIL result and exit code |
 | `zeroday operate` | `--cwe` `--repo` `--emit-brief` `--from` `--output` `--fixture`; submission schema `zeroday-operator-submission/v1` |
 | `zeroday doctor` | `--json` `--out`; `zeroday.doctor/v1` JSON |
 | `zeroday mvp` | Runs and prints PASS / FAIL (self-test) |
 
+Endpoint discovery for `locate --live` / `scan` (environment → saved endpoint →
+local vLLM / Ollama / LM Studio) is stable in what it looks at; the order may
+gain new sources. A non-loopback endpoint always needs `--remote-inference` (or
+`ZERODAY_REMOTE_INFERENCE_ACK=1`), because repository content is sent to it.
+
 `zeroday --help` lists these under **Core commands (stable)**.
 
-### Output files (`locate --output <dir>`)
+### Output files (`locate` / `scan --output <dir>`)
 
 | File | Contract |
 |------|----------|
 | `report.sarif` | SARIF 2.1.0. `runs[0].tool.driver.version` is the ZERODAY version |
-| `report.json` | `LocalizationResult` — fields in [`src/locate/types.ts`](../src/locate/types.ts). New optional fields may be added; existing fields are not removed or retyped. Since 0.9: `rankedFiles[].fingerprint` / `baselineState`, `summary.baseline`, `summary.changedSince`, `summary.advisoryMatch` |
+| `report.json` | Format `zeroday.report/v1` (the `schema` field), JSON Schema: [`schemas/zeroday.report.v1.schema.json`](./schemas/zeroday.report.v1.schema.json). Also written by `scan` (adds `summary.scan`) and `operate --from`. New optional fields may be added; required fields are not removed or retyped within v1. Ignore fields you don't know. Every report ZERODAY's tests produce is validated against the schema |
 | `report.md`, `comment.md` | Human-readable; wording may change |
 | `evidence/manifest.json` | Hash manifest checked by `zeroday verify` |
 
@@ -29,8 +36,8 @@ on. Everything else is marked experimental and may change in any 0.x release.
 | Code | Meaning |
 |------|---------|
 | `0` | Completed (`verify`: all hashes match) |
-| `1` | `locate`: candidates found and `--fail-on-findings` was set (with `--baseline`: new candidates only) · `verify`: FAIL (hash or schema mismatch) |
-| `2` | Not scanned (rules mode has no rules for the CWE), incomplete live run, or error |
+| `1` | `locate`: candidates found and `--fail-on-findings` was set (with `--baseline`: new candidates only) · `verify`: FAIL (hash or schema mismatch) · `antares up`: cancelled at the prompt |
+| `2` | Not scanned (rules mode has no rules for the CWE), incomplete live run, Antares required but unavailable, or error |
 
 ### GitHub Action
 
@@ -39,13 +46,11 @@ documented in [`github-action.md`](./github-action.md) follow the same rules.
 
 ## Experimental
 
-New in 0.10 and experimental while they settle: `scan`, `antares up` /
-`down` / `status`, `locate --samples`, `locate --context`, and the
-`summary.hybrid` / `summary.samples` fields of `report.json`.
-
-Every other command (`factory`, `inventory`, `paired-probe`, `prove-doors`,
+`locate --context` / `scan --context` (sending the rules findings to Antares;
+it did not help in the [benchmark](./antares-benchmark.md)), `antares doctor`,
+and every other command (`factory`, `inventory`, `paired-probe`, `prove-doors`,
 `report`, `evidence-pack`, the Desk web UI and its HTTP API, …) can change or be
-removed in any 0.x release. `zeroday --help` lists them under
+removed in any minor release. `zeroday --help` lists them under
 **Advanced / experimental commands**.
 
 ## Changes to the stable surface

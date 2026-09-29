@@ -12,6 +12,7 @@
  *    SARIF, report.md and a hash-verified evidence folder.
  */
 
+import { reportJson } from "./report-schema";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -351,7 +352,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
     const jsonPath = path.join(outputDir, "report.json");
     const sarifPath = path.join(outputDir, "report.sarif");
     const reportPath = path.join(outputDir, "report.md");
-    fs.writeFileSync(jsonPath, JSON.stringify(result, null, 2));
+    fs.writeFileSync(jsonPath, reportJson(result));
     fs.writeFileSync(sarifPath, JSON.stringify(toSarif(result), null, 2));
     fs.writeFileSync(reportPath, scanReport(result));
     const vault = new EvidenceVault(outputDir, path.basename(outputDir));

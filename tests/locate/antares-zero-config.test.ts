@@ -16,6 +16,7 @@ import { contextQuery, mergeSamples } from "../../src/locate/hybrid.ts";
 import { locate } from "../../src/locate/index.ts";
 import { startMockCompletionsServer } from "../../src/locate/mock-completions.ts";
 import type { LocalizationResult } from "../../src/locate/types.ts";
+import { assertValidReport } from "./report-schema.helper.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const demoApp = path.join(root, "fixtures/locate/demo-app");
@@ -236,6 +237,7 @@ fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
     assert.deepEqual(r.summary.hybrid?.agreed, ["src/users.js"]);
     assert.equal(r.rankedFiles[0]!.evidence.some((e) => /^Rules agree:/.test(e.note)), true);
     assert.equal(r.summary.terminalCallsUsed, 13, "Antares' own tool_call_count, not the trace length");
+    assertValidReport(artifacts.jsonPath);
 
     const withCtx = await locate({
       repo: demoApp,
@@ -253,6 +255,7 @@ fs.writeFileSync(path.join(out, "report.json"), JSON.stringify({
     assert.match(argv2[argv2.indexOf("--query") + 1]!, /ZERODAY pre-analysis for CWE-89[\s\S]*src\/users\.js/);
     assert.deepEqual(withCtx.result.summary.samples, { runs: 2, votes: { "src/users.js": 2 } });
     assert.equal(withCtx.result.summary.terminalCallsUsed, 26);
+    assertValidReport(withCtx.jsonPath);
   });
 });
 

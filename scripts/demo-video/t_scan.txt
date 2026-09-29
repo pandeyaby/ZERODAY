@@ -1,0 +1,20 @@
+ZERODAY scan
+────────────
+Target   : juice-shop
+Rules    : 10 CWEs
+Antares  : fdtn-ai/antares-1b — 8 CWEs picked for this repo
+           (CWE-352, CWE-862, CWE-601, CWE-94, CWE-113, CWE-287, CWE-502, CWE-444)
+           2 run(s) merged, 253 tool calls, 46s
+
+Files:
+   1. lib/insecurity.ts  [CWE-287,CWE-798,CWE-862]  antares+rules
+   2. routes/redirect.ts  [CWE-601,CWE-862]  antares+rules
+   3. routes/userProfile.ts  [CWE-79,CWE-94]  antares+rules
+   4. rsn/rsnUtil.ts  [CWE-113,CWE-502]  antares
+   5. routes/updateUserProfile.ts  [CWE-352]  antares
+   6. frontend/src/app/basket/basket.component.ts  [CWE-601]  antares
+  18. routes/profileImageUrlUpload.ts  [CWE-22,CWE-918]  rules
+  … 88 files in report.md · SARIF · evidence manifest
+
+Localization only — candidates for human review, not proof of exploitability.
+   total 1:00

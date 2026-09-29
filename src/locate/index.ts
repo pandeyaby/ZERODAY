@@ -3,6 +3,7 @@
  * Does not reimplement Antares. Does not download weights.
  */
 
+import { reportJson } from "./report-schema";
 import fs from "node:fs";
 import path from "node:path";
 import { resolveAdvisory } from "./resolve";
@@ -589,7 +590,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       },
     };
 
-    fs.writeFileSync(jsonPath, JSON.stringify(resultWithEvidence, null, 2));
+    fs.writeFileSync(jsonPath, reportJson(resultWithEvidence));
     fs.writeFileSync(sarifPath, JSON.stringify(toSarif(result), null, 2));
     fs.writeFileSync(
       reportPath,

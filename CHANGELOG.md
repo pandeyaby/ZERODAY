@@ -3,6 +3,26 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+### Stable surface (toward 1.0)
+- **`report.json` has a published format:** every report now starts with
+  `"schema": "zeroday.report/v1"`, described by
+  [`docs/schemas/zeroday.report.v1.schema.json`](./docs/schemas/zeroday.report.v1.schema.json).
+  Tests validate the reports of every mode (rules, CVE with dependency exposure,
+  not scanned, recorded, baseline / changed-since, live Antares with
+  `--samples` / `--context`, `scan`, `operate`) against it.
+- **`scan` and `antares up` / `down` / `status` are stable**, as are
+  `locate --live`, `--samples`, `--model` and `--remote-inference`
+  ([`docs/stability.md`](./docs/stability.md)). `--context` and
+  `antares doctor` stay experimental.
+
+### Docs
+- **Demo video in the repository** ([`docs/media/zeroday-demo.mp4`](./docs/media/zeroday-demo.mp4), 3:28),
+  linked from the top of the README with the benchmark table. Built from the
+  real 2026-09-28 recording session; the scripts that make it are in
+  [`scripts/demo-video/`](./scripts/demo-video/). Not in the npm package.
+
 ## 0.11.0
 
 ### Supply chain
