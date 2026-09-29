@@ -882,6 +882,7 @@ program
   .option("--cwe <ids>", "Antares CWEs to investigate instead of automatic selection (comma-separated)")
   .option("--rules-only", "Don't use Antares even if one is available", false)
   .option("--context", "Also send the rules findings to Antares as starting context (off by default; they are always compared)", false)
+  .option("--samples <n>", "Antares sweeps merged by vote (1–5; default 2 — Antares-1B varies run to run)", "2")
   .option("--require-antares", "Fail if no Antares endpoint is available", false)
   .option("--endpoint <url>", "Antares completions endpoint (default: discovered)")
   .option("--model <id>", "Served model id")
@@ -894,6 +895,7 @@ program
     cwe?: string;
     rulesOnly: boolean;
     context: boolean;
+    samples: string;
     requireAntares: boolean;
     endpoint?: string;
     model?: string;
@@ -907,6 +909,7 @@ program
         ...(opts.output ? { outputDir: opts.output } : {}),
         antares: opts.rulesOnly ? "off" : opts.requireAntares ? "require" : "auto",
         context: opts.context,
+        samples: Number(opts.samples) || 2,
         maxCwes: Number(opts.maxCwes) || 8,
         ...(opts.cwe ? { cwes: opts.cwe.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean) } : {}),
         ...(opts.endpoint ? { endpoint: opts.endpoint } : {}),
@@ -925,7 +928,7 @@ program
       console.log(`Rules    : ${s.cwesRules.length} CWEs`);
       console.log(
         s.antares
-          ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
+          ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.samples} run(s) merged, ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
           : `Antares  : not used — ${s.antaresSkipped ?? "--rules-only"}`,
       );
       console.log("");

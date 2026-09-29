@@ -23,6 +23,7 @@ import { normalizeCompletionsEndpoint } from "./completions";
 import { adaptAntaresReport, detectAntaresCli } from "./live";
 import { toSarif } from "./sarif";
 import { EvidenceVault } from "../evidence/vault";
+import { isLowPriorityPath } from "./test-paths";
 import type { LocalizationResult, RankedFile } from "./types";
 
 export interface ScanOptions {
@@ -39,6 +40,8 @@ export interface ScanOptions {
   cwes?: string[];
   workers?: number;
   toolBudget?: number;
+  /** Antares sweeps merged by vote (1–5). Default 2. */
+  samples?: number;
   /** Also send the rules findings to Antares via --query (default off; always compared). */
   context?: boolean;
 }
@@ -64,6 +67,8 @@ export interface ScanSummary {
     toolCalls: number | null;
     failedToolCalls: number | null;
     incomplete: string | null;
+    /** Sweeps run and merged by vote. */
+    samples: number;
   };
   antaresSkipped?: string;
 }
@@ -136,6 +141,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
 
     // 2 · Antares, when available
     let antaresFiles: RankedFile[] = [];
+    let antaresVotes = new Map<string, number>();
     let antaresInfo: ScanSummary["antares"] = null;
     let antaresCwes: string[] = [];
     let skipped: string | undefined;
@@ -161,56 +167,86 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         antaresCwes = opts.cwes?.length ? opts.cwes : antaresPlan(cli.binary, snap.snapshotPath, opts.maxCwes ?? 8);
         if (!antaresCwes.length) throw new Error("antares plan selected no CWEs for this repository");
         const query = opts.context === true ? scanContext(rulesByCwe, antaresCwes) : "";
-        const rawDir = path.join(outputDir, "antares-raw");
-        const args = [
-          "sweep",
-          snap.snapshotPath,
-          "--cwe",
-          antaresCwes.join(","),
-          "--endpoint",
-          normalizeCompletionsEndpoint(endpoint),
-          "--model",
-          model,
-          "--output",
-          rawDir,
-          "--report-format",
-          "json",
-          "--no-tui",
-          "--workers",
-          String(opts.workers ?? 8),
-          ...(opts.toolBudget ? ["--tool-budget", String(opts.toolBudget)] : []),
-          ...(query ? ["--query", query] : []),
-        ];
+        // Antares-1B varies run to run; merging runs by vote lifted top-3 hits
+        // from 32% to 47% on the real-advisory benchmark — two sweeps by default.
+        const samples = Math.max(1, Math.min(5, Math.round(opts.samples ?? 2)));
         const t0 = Date.now();
-        const run = spawnSync(cli.binary, args, {
-          encoding: "utf8",
-          env: { ...process.env, ANTARES_MODEL: model },
-          timeout: 60 * 60 * 1000,
-          maxBuffer: 64 * 1024 * 1024,
-        });
-        const reportPath = path.join(rawDir, "report.json");
-        if (!fs.existsSync(reportPath)) {
-          throw new Error(`antares sweep produced no report.json (exit ${run.status}): ${`${run.stderr}\n${run.stdout}`.trim().slice(0, 1200)}`);
+        const perRun: RankedFile[][] = [];
+        let toolCalls = 0, failed = 0, anyCounts = false;
+        let incomplete: string | null = null;
+        for (let i = 1; i <= samples; i++) {
+          const rawDir = samples === 1 ? path.join(outputDir, "antares-raw") : path.join(outputDir, "antares-raw", `run-${i}`);
+          const args = [
+            "sweep",
+            snap.snapshotPath,
+            "--cwe",
+            antaresCwes.join(","),
+            "--endpoint",
+            normalizeCompletionsEndpoint(endpoint),
+            "--model",
+            model,
+            "--output",
+            rawDir,
+            "--report-format",
+            "json",
+            "--no-tui",
+            "--workers",
+            String(opts.workers ?? 8),
+            ...(opts.toolBudget ? ["--tool-budget", String(opts.toolBudget)] : []),
+            ...(query ? ["--query", query] : []),
+          ];
+          const run = spawnSync(cli.binary, args, {
+            encoding: "utf8",
+            env: { ...process.env, ANTARES_MODEL: model },
+            timeout: 60 * 60 * 1000,
+            maxBuffer: 64 * 1024 * 1024,
+          });
+          const reportPath = path.join(rawDir, "report.json");
+          if (!fs.existsSync(reportPath)) {
+            throw new Error(`antares sweep produced no report.json (exit ${run.status}): ${`${run.stderr}\n${run.stdout}`.trim().slice(0, 1200)}`);
+          }
+          const raw = JSON.parse(fs.readFileSync(reportPath, "utf8")) as Record<string, unknown>;
+          const adapted = adaptAntaresReport(raw, {
+            advisory: { kind: "cwe", id: antaresCwes[0]!, cweId: antaresCwes[0]! },
+            repo,
+            snapshotPath: snap.snapshotPath,
+            outputDir: rawDir,
+            endpoint,
+            model,
+          });
+          perRun.push(adapted.rankedFiles);
+          const s = (raw.summary ?? {}) as Record<string, unknown>;
+          if (typeof s.tool_call_count === "number") {
+            toolCalls += s.tool_call_count;
+            anyCounts = true;
+          }
+          if (typeof s.failed_tool_calls === "number") failed += s.failed_tool_calls;
+          if (typeof s.incomplete_reason === "string") incomplete = s.incomplete_reason;
         }
-        const raw = JSON.parse(fs.readFileSync(reportPath, "utf8")) as Record<string, unknown>;
-        const adapted = adaptAntaresReport(raw, {
-          advisory: { kind: "cwe", id: antaresCwes[0]!, cweId: antaresCwes[0]! },
-          repo,
-          snapshotPath: snap.snapshotPath,
-          outputDir: rawDir,
-          endpoint,
-          model,
-        });
-        antaresFiles = adapted.rankedFiles;
-        const s = (raw.summary ?? {}) as Record<string, unknown>;
+        // One entry per file: CWEs from every run, votes = runs that flagged it.
+        const byFile = new Map<string, { file: RankedFile; votes: number; cwes: Set<string> }>();
+        for (const files of perRun) {
+          for (const f of new Map(files.map((x) => [x.filePath, x])).values()) {
+            const e = byFile.get(f.filePath);
+            if (e) {
+              e.votes += 1;
+              for (const c of f.cweIds) e.cwes.add(c);
+            } else byFile.set(f.filePath, { file: f, votes: 1, cwes: new Set(f.cweIds) });
+          }
+          // Same file under several CWEs within one run: keep every CWE.
+          for (const f of files) for (const c of f.cweIds) byFile.get(f.filePath)!.cwes.add(c);
+        }
+        antaresVotes = new Map([...byFile].map(([p, e]) => [p, e.votes]));
+        antaresFiles = [...byFile.values()].map((e) => ({ ...e.file, cweIds: [...e.cwes].sort() }));
         antaresInfo = {
           endpoint: endpoint.replace(/\/completions$/, ""),
           model,
           source,
           seconds: Math.round((Date.now() - t0) / 1000),
-          toolCalls: typeof s.tool_call_count === "number" ? s.tool_call_count : null,
-          failedToolCalls: typeof s.failed_tool_calls === "number" ? s.failed_tool_calls : null,
-          incomplete: typeof s.incomplete_reason === "string" ? s.incomplete_reason : null,
+          toolCalls: anyCounts ? toolCalls : null,
+          failedToolCalls: anyCounts ? failed : null,
+          incomplete,
+          samples,
         };
         if (query) warnings.push(`ZERODAY rules findings for ${antaresCwes.length} planned CWE(s) sent to Antares as starting context (--query).`);
       } catch (e) {
@@ -245,9 +281,12 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
       m.antares.push(f);
     }
     const tier = (m: Merged) => (m.sources.size === 2 ? 0 : m.sources.has("antares") ? 1 : 2);
+    // Application code before tests / fixtures / vendored code; within each, both > Antares > rules.
     const ordered = [...merged.values()].sort(
       (a, b) =>
+        Number(isLowPriorityPath(a.filePath)) - Number(isLowPriorityPath(b.filePath)) ||
         tier(a) - tier(b) ||
+        (antaresVotes.get(b.filePath) ?? 0) - (antaresVotes.get(a.filePath) ?? 0) ||
         Math.min(...a.rules.map((r) => r.rank), 99) - Math.min(...b.rules.map((r) => r.rank), 99) ||
         b.cwes.size - a.cwes.size ||
         a.filePath.localeCompare(b.filePath),
@@ -263,7 +302,10 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         sources: [...m.sources].sort() as Array<"antares" | "rules">,
         evidence: [
           ...m.rules.map((r) => ({ ...r.evidence[0]!, note: `${r.cweIds[0]}: ${r.evidence[0]?.note ?? r.title}` })),
-          ...m.antares.map((a) => ({ filePath: a.filePath, note: `Antares (${a.cweIds.join(", ")}): ${a.title}` })),
+          ...m.antares.map((a) => ({
+            filePath: a.filePath,
+            note: `Antares (${a.cweIds.join(", ")}): ${a.title}${antaresInfo && antaresInfo.samples > 1 ? ` — in ${antaresVotes.get(a.filePath) ?? 1} of ${antaresInfo.samples} runs` : ""}`,
+          })),
         ],
       };
     });

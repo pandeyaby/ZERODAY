@@ -5,6 +5,7 @@
 
 import type { EvidenceSpan, RankedFile, TraceStep } from "../types";
 import { readFileLines, type WalkedFile } from "./walk";
+import { isLowPriorityPath } from "../test-paths";
 
 export interface RuleHit {
   ruleId: string;
@@ -200,6 +201,12 @@ export function hitsToRankedFiles(hits: RuleHit[], cweId: string): RankedFile[] 
     });
   }
 
-  ranked.sort((a, b) => b.score - a.score || a.file.filePath.localeCompare(b.file.filePath));
+  // Application code before tests / fixtures / vendored code, then by score.
+  ranked.sort(
+    (a, b) =>
+      Number(isLowPriorityPath(a.file.filePath)) - Number(isLowPriorityPath(b.file.filePath)) ||
+      b.score - a.score ||
+      a.file.filePath.localeCompare(b.file.filePath),
+  );
   return ranked.map((r, i) => ({ ...r.file, rank: i + 1 }));
 }
