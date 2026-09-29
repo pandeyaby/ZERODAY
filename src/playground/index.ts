@@ -134,7 +134,7 @@ function summarizeSarif(sarif: SarifLog): SarifSummary {
       uri: r.locations?.[0]?.physicalLocation?.artifactLocation?.uri,
     })),
     posture:
-      "SARIF note severity · detector-lane candidate · not exploit proof",
+      "SARIF note severity · candidate for human review · not exploit proof",
   };
 }
 

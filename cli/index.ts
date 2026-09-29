@@ -1927,7 +1927,7 @@ program
         }
         console.log("");
         console.log(
-          "Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge",
+          "Posture: localization only · candidate for human review · not exploit proof · no PoC · no auto-merge",
         );
         if (r.mode === "fixture") {
           const live = detectAntaresCli();

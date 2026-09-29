@@ -5,6 +5,15 @@ All notable changes to ZERODAY. The stable surface is defined in
 
 ## Unreleased
 
+### Wording
+- **No implied affiliations.** PR comments, `report.md`, exports, the CLI,
+  the Desk and the docs no longer call findings "Foundry Detector-lane
+  candidates" or list "sister pieces"; they say *candidates for human review*.
+  The footer no longer says "Powered by … Antares" on runs that used no
+  model: it names ZERODAY as an independent project (not affiliated with
+  Cisco) and says live mode uses Antares. Patch drafts still credit Project
+  CodeGuard guidance, without implying an approval.
+
 ### Stable surface (toward 1.0)
 - **`report.json` has a published format:** every report now starts with
   `"schema": "zeroday.report/v1"`, described by

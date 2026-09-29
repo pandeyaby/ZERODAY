@@ -196,7 +196,7 @@ function draftForFile(
   lines.push(``);
   lines.push(`---`);
   lines.push(
-    `_Project CodeGuard: https://project-codeguard.org/ · Foundry Security Spec roles compose separately._`,
+    `_Project CodeGuard: https://project-codeguard.org/ (independent project; ZERODAY is not affiliated)._`,
   );
   lines.push(``);
   return lines.join("\n");

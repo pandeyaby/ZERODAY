@@ -66,7 +66,7 @@ Start with print-only checklists: `zeroday doctor` (local Ollama/vLLM/LM Studio)
 
 ## Is localization exploitability?
 
-No. Findings are detector-lane candidates. Human review required (`needs_human: true`). No auto-merge. ZERODAY never writes exploits, PoCs, payloads, or attack procedures.
+No. Findings are candidates for human review. Human review required (`needs_human: true`). No auto-merge. ZERODAY never writes exploits, PoCs, payloads, or attack procedures.
 
 ## Does ZERODAY push to Splunk / XSOAR / Security Hub?
 
@@ -74,7 +74,7 @@ No. Local files only (SARIF, Splunk CIM JSON, ASFF, …). Your team owns ingest 
 
 ## Are you a Cisco / Splunk partner product?
 
-No. Not an official Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, AWS, or RunPod product. Sister tools — Antares, Foundry Security Spec, Project CodeGuard — compose; they do not make ZERODAY a partnership claim.
+No. Not an official Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, AWS, or RunPod product. ZERODAY uses Antares and follows Project CodeGuard guidance for patch drafts; those are independent projects and ZERODAY is not affiliated with them.
 
 ## Can I get a PoC?
 

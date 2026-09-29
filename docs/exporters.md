@@ -15,7 +15,7 @@ ZERODAY projects `report.json` into **local files** only. Your platform team own
 
 ## Posture
 
-- Detector-lane **candidates** (Foundry) — human triage for true-positive
+- **Candidates** only — human triage for true-positive
 - Never invent CVEs, CVSS, line numbers, or exploit flags
 - Omit `StartLine` / SARIF `region` when unknown
 - Severity is informational / note

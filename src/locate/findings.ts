@@ -1,6 +1,6 @@
 /**
  * Internal finding model — single source for all defender exporters.
- * Localization notes / Foundry Detector-lane CANDIDATES only.
+ * Localization notes / CANDIDATES for human review only.
  * True-positive waits for human triage. Never mark exploited.
  */
 

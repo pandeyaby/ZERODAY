@@ -263,7 +263,7 @@ runs:
           echo "- Findings (localization candidates): **${COUNT}**"
           echo "- SARIF: \`${SARIF}\`"
           echo "- Also written: asff / splunk / xsoar / fortisiem / crowdstrike local projections"
-          echo "- Posture: detector-lane candidate · localization only · not exploitability proof · no auto-merge"
+          echo "- Posture: candidate for human review · localization only · not exploitability proof · no auto-merge"
           echo "- Live Antares: workstation opt-in only after human GPU spend approval"
           echo "- PR comment: fail-closed on \`pull_request\` when \`post-comment=true\`"
         } >> "$GITHUB_STEP_SUMMARY"

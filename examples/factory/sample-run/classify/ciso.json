@@ -1,6 +1,6 @@
 {
   "schema": "zeroday-ciso-v1",
-  "generatedAt": "2026-09-10T21:46:43.500Z",
+  "generatedAt": "2026-09-29T21:30:35.867Z",
   "classification": "software_defect",
   "finding_class": "software_defect",
   "east_west_suspected": false,
@@ -18,7 +18,7 @@
     "telemetryInputOnly": true
   },
   "inputs": {
-    "locateReport": "/workspace/examples/factory/sample-run/locate/report.json",
+    "locateReport": "<repo>/report.json",
     "advisoryId": "CWE-89",
     "cweId": "CWE-89"
   },

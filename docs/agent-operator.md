@@ -56,4 +56,4 @@ npm run zeroday -- sweep ./app --endpoint http://127.0.0.1:8000/v1 --max-cwes 5
 Without `--endpoint`, `zeroday sweep` prints a clear offline message and exits 0.
 CI never pulls gated weights.
 
-Sister: [Antares Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md).
+Related: [Antares Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md).

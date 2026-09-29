@@ -1,12 +1,22 @@
 {
   "schemaVersion": "zeroday-factory-inventory/v1",
-  "repoRoot": "/workspace/fixtures/locate/demo-app",
-  "generatedAt": "2026-09-10T21:46:43.489Z",
-  "fileCount": 6,
+  "repoRoot": "/home/user/ZERODAY/fixtures/locate/demo-app",
+  "generatedAt": "2026-09-29T21:30:35.840Z",
+  "fileCount": 8,
   "files": [
     {
       "path": ".github/CODEOWNERS",
       "bytes": 110,
+      "kind": "config"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 231,
+      "kind": "config"
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 190,
       "kind": "config"
     },
     {
@@ -50,6 +60,151 @@
       "pattern": "/src/",
       "owners": [
         "@demo-app-backend"
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "JavaScript",
+      "fileCount": 2,
+      "bytes": 817
+    },
+    {
+      "language": "Dockerfile",
+      "fileCount": 1,
+      "bytes": 190
+    },
+    {
+      "language": "YAML",
+      "fileCount": 1,
+      "bytes": 231
+    }
+  ],
+  "configHotspots": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "surface": "github_actions",
+      "score": 90,
+      "reason": "GitHub Actions workflow — CI/CD config surface"
+    },
+    {
+      "path": "Dockerfile",
+      "surface": "docker",
+      "score": 80,
+      "reason": "Dockerfile — container build surface"
+    },
+    {
+      "path": "package.json",
+      "surface": "package_manifest",
+      "score": 70,
+      "reason": "Package / language manifest"
+    },
+    {
+      "path": ".github/CODEOWNERS",
+      "surface": "codeowners",
+      "score": 65,
+      "reason": "CODEOWNERS ownership map"
+    }
+  ],
+  "rankedPaths": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "rank": 1,
+      "score": 90,
+      "surface": "github_actions",
+      "reason": "GitHub Actions workflow — CI/CD config surface"
+    },
+    {
+      "path": "Dockerfile",
+      "rank": 2,
+      "score": 80,
+      "surface": "docker",
+      "reason": "Dockerfile — container build surface"
+    },
+    {
+      "path": "package.json",
+      "rank": 3,
+      "score": 70,
+      "surface": "package_manifest",
+      "reason": "Package / language manifest"
+    },
+    {
+      "path": ".github/CODEOWNERS",
+      "rank": 4,
+      "score": 65,
+      "surface": "codeowners",
+      "reason": "CODEOWNERS ownership map"
+    },
+    {
+      "path": "src/app.js",
+      "rank": 5,
+      "score": 45,
+      "surface": "source",
+      "reason": "Source file — candidate locate target path"
+    },
+    {
+      "path": "src/users.js",
+      "rank": 6,
+      "score": 45,
+      "surface": "source",
+      "reason": "Source file — candidate locate target path"
+    }
+  ],
+  "findings": [
+    {
+      "id": "surface:codeowners:.github/CODEOWNERS",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/CODEOWNERS",
+      "pattern": "codeowners",
+      "title": "Config surface `codeowners`",
+      "summary": "CODEOWNERS ownership map",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "codeowners"
+      ]
+    },
+    {
+      "id": "surface:github_actions:.github/workflows/ci.yml",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": ".github/workflows/ci.yml",
+      "pattern": "github_actions",
+      "title": "Config surface `github_actions`",
+      "summary": "GitHub Actions workflow — CI/CD config surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "github_actions"
+      ]
+    },
+    {
+      "id": "surface:docker:Dockerfile",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "Dockerfile",
+      "pattern": "docker",
+      "title": "Config surface `docker`",
+      "summary": "Dockerfile — container build surface",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "docker"
+      ]
+    },
+    {
+      "id": "surface:package_manifest:package.json",
+      "kind": "config_surface",
+      "severity": "note",
+      "path": "package.json",
+      "pattern": "package_manifest",
+      "title": "Config surface `package_manifest`",
+      "summary": "Package / language manifest",
+      "tags": [
+        "inventory",
+        "config-surface",
+        "package_manifest"
       ]
     }
   ],

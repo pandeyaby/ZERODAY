@@ -69,7 +69,7 @@ export function draftNoteMarkdown(rec: HardenRecommendation): string {
   lines.push("- Localization ≠ exploitability · `needs_human: true`");
   lines.push("");
   lines.push(
-    `_Project CodeGuard: https://project-codeguard.org/ · Foundry Security Spec roles compose separately._`,
+    `_Project CodeGuard: https://project-codeguard.org/ (independent project; ZERODAY is not affiliated)._`,
   );
   lines.push("");
 

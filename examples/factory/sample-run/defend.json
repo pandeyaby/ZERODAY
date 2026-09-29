@@ -1,6 +1,6 @@
 {
   "schemaVersion": "zeroday-factory-defend/v1",
-  "generatedAt": "2026-09-10T21:46:43.506Z",
+  "generatedAt": "2026-09-29T21:30:35.887Z",
   "checks": [
     {
       "kind": "package_test_script",
@@ -15,8 +15,8 @@
     },
     {
       "kind": "ci_workflow_present",
-      "ok": false,
-      "summary": "No CI workflow detected (informational)"
+      "ok": true,
+      "summary": "CI workflow config present"
     },
     {
       "kind": "fail_closed_posture",
