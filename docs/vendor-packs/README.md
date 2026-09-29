@@ -5,7 +5,7 @@ There is **no** partnership claim, **no** live push, and **no** credentials bund
 
 | Desk | File | How *your* team ingests |
 |------|------|-------------------------|
-| **Cisco** | `report.sarif` (+ Foundry Detector-lane candidates in report.md) | Upload SARIF to Code Scanning / review as Detector-lane **candidates**. Compose [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — do not replace. |
+| **Cisco** | `report.sarif` | Upload SARIF to Code Scanning; review the ranked files as **candidates**. |
 | **Splunk** | `splunk-cim-vulnerabilities.json` | Customer TA: sourcetype `zeroday:antares:json` → CIM Vulnerabilities. Your credentials. |
 | **Palo Alto** | `xsoar-incidents.json` | Customer XSOAR mapper / generic webhook. No live incident POST. |
 | **Fortinet** | `fortisiem-custom.json` | Customer FortiSIEM parser or rawupload. No live `/rawupload`. |
@@ -22,6 +22,6 @@ Full notes: [`docs/exporters.md`](../exporters.md).
 - ZERODAY does **not** push to vendor clouds
 - No partnership claims (Cisco / Splunk / Palo Alto / Fortinet / CrowdStrike / AWS)
 - No credentials bundled
-- Detector-lane **candidates** only — human triage for true-positive
-- Compose Foundry Security Spec + Project CodeGuard; do not replace them
+- **Candidates** only — human triage for true-positive
+- Patch drafts follow Project CodeGuard guidance; not a CodeGuard approval
 

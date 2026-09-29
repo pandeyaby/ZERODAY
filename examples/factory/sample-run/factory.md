@@ -4,8 +4,8 @@
 
 | | |
 |--|--|
-| Run | `factory-1789076803484` |
-| Repo | `/workspace/fixtures/locate/demo-app` |
+| Run | `factory-1790717435829` |
+| Repo | `/home/user/ZERODAY/fixtures/locate/demo-app` |
 | Advisory | `CWE-89` |
 | Findings | **2** |
 | Locate mode | `fixture` |
@@ -17,7 +17,7 @@
 
 ## Stages
 
-1. **Inventory** — files + CODEOWNERS + manifests
+1. **Inventory** — repos/paths + config surfaces (Actions, Docker, manifests, agent/skills) → locate hints
 2. **Locate** — Antares fixture / live / agent candidates
 3. **Classify** — optional CISO rollup (fixture telemetry)
 4. **Own** — CODEOWNERS / blame → review markdown + GitHub comment
@@ -27,16 +27,17 @@
 
 ## Artifacts
 
-- **inventory:** `/workspace/examples/factory/sample-run/inventory.json`
-- **locateReport:** `/workspace/examples/factory/sample-run/locate/report.json`
-- **classifyJson:** `/workspace/examples/factory/sample-run/classify/ciso.json`
-- **ownership:** `/workspace/examples/factory/sample-run/ownership.json`
-- **ownershipMd:** `/workspace/examples/factory/sample-run/ownership.md`
-- **ownershipComment:** `/workspace/examples/factory/sample-run/ownership-comment.md`
-- **defend:** `/workspace/examples/factory/sample-run/defend.json`
-- **verifyJson:** `/workspace/examples/factory/sample-run/verify.json`
-- **summaryJson:** `/workspace/examples/factory/sample-run/factory.json`
-- **summaryMd:** `/workspace/examples/factory/sample-run/factory.md`
+- **inventory:** `/home/user/ZERODAY/examples/factory/sample-run/inventory.json`
+- **inventoryMd:** `/home/user/ZERODAY/examples/factory/sample-run/inventory.md`
+- **locateReport:** `/home/user/ZERODAY/examples/factory/sample-run/locate/report.json`
+- **classifyJson:** `/home/user/ZERODAY/examples/factory/sample-run/classify/ciso.json`
+- **ownership:** `/home/user/ZERODAY/examples/factory/sample-run/ownership.json`
+- **ownershipMd:** `/home/user/ZERODAY/examples/factory/sample-run/ownership.md`
+- **ownershipComment:** `/home/user/ZERODAY/examples/factory/sample-run/ownership-comment.md`
+- **defend:** `/home/user/ZERODAY/examples/factory/sample-run/defend.json`
+- **verifyJson:** `/home/user/ZERODAY/examples/factory/sample-run/verify.json`
+- **summaryJson:** `/home/user/ZERODAY/examples/factory/sample-run/factory.json`
+- **summaryMd:** `/home/user/ZERODAY/examples/factory/sample-run/factory.md`
 
 ## Hard limits
 

@@ -101,11 +101,10 @@ Local Ollama import of Antares-350M-class weights (official HF gated; community
 GGUF unofficial; prefer Q8/Q6; **no File F1 claim**; you import first — ZERODAY
 never auto-downloads): [`antares-350m-ollama.md`](./antares-350m-ollama.md).
 
-## Sister pieces
+## Related
 
 - [`gpu-claims.md`](./gpu-claims.md) · [`runpod-antares.md`](./runpod-antares.md) · [`remote-antares-vllm.md`](./remote-antares-vllm.md)
 - [Antares site](https://cisco-foundation-ai.github.io/antares/) · [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md)
-- [Foundry Security Spec](https://github.com/CiscoDevNet/foundry) — Detector-lane **candidates** only; human triage for true-positive
 - [Project CodeGuard](https://project-codeguard.org/) — patch DRAFT rule map (`--i-asked-for-a-fix`)
 
 ## Exporters

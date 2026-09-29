@@ -99,7 +99,7 @@ const ORG_SECTIONS = [
   },
   {
     role: "Security analyst",
-    body: "Run `locate` on a workstation (fixture or live). Ingest SARIF into GitHub Code Scanning. Triage ranked files as detector-lane candidates.",
+    body: "Run `locate` on a workstation (fixture or live). Ingest SARIF into GitHub Code Scanning. Triage ranked files as candidates for human review.",
   },
   {
     role: "SOC / Splunk / Cisco Security Cloud buyer",

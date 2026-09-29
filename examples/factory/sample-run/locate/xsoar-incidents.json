@@ -2,7 +2,7 @@
   {
     "type": "ZERODAY Antares Localization",
     "name": "CWE-89: SQL query built via string concatenation",
-    "occurred": "2026-09-10T21:46:43.493Z",
+    "occurred": "2026-09-29T21:30:35.850Z",
     "severity": 0.5,
     "details": "User-controlled `name` is concatenated into a SQL string before db.query.",
     "cwe": "CWE-89",
@@ -18,7 +18,7 @@
   {
     "type": "ZERODAY Antares Localization",
     "name": "CWE-89: Request parameter passed to unsafe finder",
-    "occurred": "2026-09-10T21:46:43.493Z",
+    "occurred": "2026-09-29T21:30:35.850Z",
     "severity": 0.5,
     "details": "HTTP query `name` flows into findUserByName without neutralization.",
     "cwe": "CWE-89",

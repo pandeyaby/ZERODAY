@@ -9,10 +9,10 @@
       "Types": [
         "Software and Configuration Checks/Vulnerabilities/CWE-89"
       ],
-      "CreatedAt": "2026-09-10T21:46:43.493Z",
-      "UpdatedAt": "2026-09-10T21:46:43.493Z",
+      "CreatedAt": "2026-09-29T21:30:35.850Z",
+      "UpdatedAt": "2026-09-29T21:30:35.850Z",
       "Title": "CWE-89: SQL query built via string concatenation",
-      "Description": "ZERODAY Antares localization candidate: src/users.js for CWE-89 (sql-injection), rank 1. User-controlled `name` is concatenated into a SQL string before db.query. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Description": "ZERODAY Antares localization candidate: src/users.js for CWE-89 (sql-injection), rank 1. User-controlled `name` is concatenated into a SQL string before db.query. Candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
       "Resources": [
         {
           "Type": "Other",
@@ -68,10 +68,10 @@
       "Types": [
         "Software and Configuration Checks/Vulnerabilities/CWE-89"
       ],
-      "CreatedAt": "2026-09-10T21:46:43.493Z",
-      "UpdatedAt": "2026-09-10T21:46:43.493Z",
+      "CreatedAt": "2026-09-29T21:30:35.850Z",
+      "UpdatedAt": "2026-09-29T21:30:35.850Z",
       "Title": "CWE-89: Request parameter passed to unsafe finder",
-      "Description": "ZERODAY Antares localization candidate: src/app.js for CWE-89 (sql-injection), rank 2. HTTP query `name` flows into findUserByName without neutralization. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Description": "ZERODAY Antares localization candidate: src/app.js for CWE-89 (sql-injection), rank 2. HTTP query `name` flows into findUserByName without neutralization. Candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
       "Resources": [
         {
           "Type": "Other",

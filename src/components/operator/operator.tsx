@@ -33,9 +33,9 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 const VENDOR_PACKS = [
   {
     desk: "Cisco",
-    file: "report.sarif (+ Foundry Detector-lane candidates)",
+    file: "report.sarif (candidates for human review)",
     ingest:
-      "Upload SARIF to Code Scanning / Foundry Detector-lane review. Candidates only — human triage.",
+      "Upload SARIF to Code Scanning. Candidates only — human triage.",
   },
   {
     desk: "Splunk",

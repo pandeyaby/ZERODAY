@@ -180,12 +180,12 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     slug: "antares",
     title: "Antares (optional)",
-    summary: "Local completions-only sister path.",
+    summary: "Local completions-only path.",
     group: "reference",
     body: [
       {
         type: "p",
-        text: "Optional `locate --live` wraps cisco-antares-cli against your local /v1/completions. Antares CLI expects vLLM 0.19.1+. ZERODAY never downloads model.safetensors. Sister cookbook: Cisco Foundation AI Quickstart_Antares.",
+        text: "Optional `locate --live` wraps cisco-antares-cli against your local /v1/completions. Antares CLI expects vLLM 0.19.1+. ZERODAY never downloads model.safetensors. See the Antares Quickstart in the Cisco Foundation AI cookbook.",
       },
     ],
   },

@@ -282,10 +282,9 @@ and no submit. Never invent file paths.
 Tips: `GET /v1/models` + smoke `POST /v1/completions`; `--tool-budget 45`;
 `--no-live-recovery` / `--no-fail-on-incomplete` as needed.
 
-Sister pieces: [Antares](https://cisco-foundation-ai.github.io/antares/) ·
+Related (independent projects): [Antares](https://cisco-foundation-ai.github.io/antares/) ·
 [cookbook Quickstart](https://github.com/cisco-foundation-ai/cookbook/blob/main/1_quickstarts/Quickstart_Antares.md) ·
-[Foundry](https://github.com/CiscoDevNet/foundry) ·
-[CodeGuard](https://project-codeguard.org/)
+[Project CodeGuard](https://project-codeguard.org/)
 
 ---
 

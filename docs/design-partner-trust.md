@@ -31,7 +31,7 @@ Door B cite): [`design-partner-day1.md`](./design-partner-day1.md).
 | **CI default** | Fixture / keyless smoke → SARIF → human-reviewed PR comment |
 | **DIPTYCH (optional)** | Paired-probe / trust layer that grades calibration on locate artifacts — **not** required for `locate` / Desk / SARIF ([DIPTYCH](https://github.com/pandeyaby/DIPTYCH) · [`paired-probes.md`](./paired-probes.md)) |
 
-Localization is detector-lane **candidates**. Always `needs_human: true`.
+Localization produces **candidates** for human review. Always `needs_human: true`.
 Localization ≠ exploitability. DIPTYCH greens ≠ vulnerability proof.
 
 ### Stranger trust loop (after locate)

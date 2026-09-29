@@ -1,4 +1,5 @@
 {
+  "schema": "zeroday.report/v1",
   "mode": "fixture",
   "advisory": {
     "kind": "cwe",
@@ -6,9 +7,9 @@
     "cweId": "CWE-89",
     "title": "Improper Neutralization of Special Elements used in an SQL Command"
   },
-  "targetRepo": "/workspace/fixtures/locate/demo-app",
+  "targetRepo": "/home/user/ZERODAY/fixtures/locate/demo-app",
   "model": "fixture/antares-1b-recorded",
-  "generatedAt": "2026-09-10T21:46:43.493Z",
+  "generatedAt": "2026-09-29T21:30:35.850Z",
   "rankedFiles": [
     {
       "filePath": "src/users.js",
@@ -26,7 +27,8 @@
           "note": "User-controlled `name` is concatenated into a SQL string before db.query.",
           "excerpt": "const sql = \"SELECT id, name, email FROM users WHERE name = '\" + name + \"'\";\n  return db.query(sql);"
         }
-      ]
+      ],
+      "fingerprint": "12e990e7c3119222fec358da"
     },
     {
       "filePath": "src/app.js",
@@ -44,7 +46,8 @@
           "note": "HTTP query `name` flows into findUserByName without neutralization.",
           "excerpt": "const name = req.query.name ?? \"\";\n  return findUserByName(db, name);"
         }
-      ]
+      ],
+      "fingerprint": "81617af60448f9af0b989ace"
     }
   ],
   "explorationTrace": [
@@ -87,10 +90,9 @@
   ],
   "warnings": [
     "Fixture mode: results come from a recorded Antares-style localization, not live model inference.",
-    "Read-only snapshot: 5 files (destroyed after run)",
+    "Read-only snapshot: 6 files (destroyed after run)",
     "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
-    "Fixture mode is container-free (no Docker) — CI-safe.",
-    "Live Antares CLI not on PATH. Install the official CLI from PyPI: `uv tool install cisco-antares-cli` then ensure `$(uv tool dir --bin)` is on PATH. Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI."
+    "Fixture mode is container-free (no Docker) — CI-safe."
   ],
   "posture": {
     "localizationOnly": true,
@@ -104,7 +106,7 @@
     "terminalCallBudget": 15,
     "terminalCallsUsed": 6
   },
-  "snapshotPath": "/tmp/zeroday-snap-TtVO7Z/repo",
+  "snapshotPath": "/tmp/zeroday-snap-qtngqc/repo",
   "evidence": {
     "runId": "locate",
     "claimIds": [

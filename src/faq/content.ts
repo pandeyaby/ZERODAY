@@ -179,7 +179,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     answer: [
       {
         type: "p",
-        text: "No. Findings are detector-lane candidates. Human review required (`needs_human: true`). No auto-merge. ZERODAY never writes exploits, PoCs, payloads, or attack procedures.",
+        text: "No. Findings are candidates for human review. Human review required (`needs_human: true`). No auto-merge. ZERODAY never writes exploits, PoCs, payloads, or attack procedures.",
       },
     ],
   },
@@ -199,7 +199,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     answer: [
       {
         type: "p",
-        text: "No. Not an official Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, AWS, or RunPod product. Sister tools — Antares, Foundry Security Spec, Project CodeGuard — compose; they do not make ZERODAY a partnership claim.",
+        text: "No. Not an official Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, AWS, or RunPod product. ZERODAY uses Antares and follows Project CodeGuard guidance for patch drafts; those are independent projects and ZERODAY is not affiliated with them.",
       },
     ],
   },

@@ -85,7 +85,7 @@ export function buildOperatorInstructions(opts: {
   lines.push(``);
   lines.push(`## Posture`);
   lines.push(``);
-  lines.push(`- Detector-lane **candidates** only (Foundry Security Spec)`);
+  lines.push(`- **Candidates** for human review only`);
   lines.push(`- Compose with Project CodeGuard for patch drafts — never auto-merge`);
   lines.push(`- Source stays on this machine; keyless by default (no Antares HF token required)`);
   lines.push(``);

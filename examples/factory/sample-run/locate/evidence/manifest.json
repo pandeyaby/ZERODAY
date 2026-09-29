@@ -1,8 +1,8 @@
 {
   "schemaVersion": "zeroday-evidence-manifest/v1",
   "runId": "locate",
-  "createdAt": "2026-09-10T21:46:43.493Z",
-  "updatedAt": "2026-09-10T21:46:43.498Z",
+  "createdAt": "2026-09-29T21:30:35.851Z",
+  "updatedAt": "2026-09-29T21:30:35.863Z",
   "entries": [
     {
       "id": "ev_input_001",
@@ -10,8 +10,8 @@
       "title": "Locate inputs",
       "summary": "CWE-89 → CWE-89 (fixture)",
       "relativePath": "evidence/inputs/advisory.json",
-      "sha256": "f1c2ad64f1844a4b8171edf9666a64a347a308ec4f9b9503cc74afb8559ffc90",
-      "createdAt": "2026-09-10T21:46:43.494Z",
+      "sha256": "8f074936b6a6f2a62ecb4dc714a1300594601316cfa1c6427b36dc80dc5065d7",
+      "createdAt": "2026-09-29T21:30:35.852Z",
       "tags": [
         "input",
         "locate"
@@ -23,8 +23,8 @@
       "title": "Candidate: src/users.js",
       "summary": "SQL query built via string concatenation (rank 1)",
       "relativePath": "evidence/claims/2-candidate-src-users-js.json",
-      "sha256": "66cfcd2726595ec6e1c0ebb71ab571d4bcbd05d8e56f46b16100f7bd2ab974a7",
-      "createdAt": "2026-09-10T21:46:43.494Z",
+      "sha256": "d6b5a6d8bc2262ce25b45de6b2f0b0c6021edc80479b7e143bdf39a8070175fd",
+      "createdAt": "2026-09-29T21:30:35.852Z",
       "cites": [],
       "tags": [
         "claim"
@@ -36,8 +36,8 @@
       "title": "Candidate: src/app.js",
       "summary": "Request parameter passed to unsafe finder (rank 2)",
       "relativePath": "evidence/claims/3-candidate-src-app-js.json",
-      "sha256": "36b4aec23f45749b5ec6ca25fee847f9e5202acea00ec849f331aaa125e94e74",
-      "createdAt": "2026-09-10T21:46:43.494Z",
+      "sha256": "0dafb303e5e02ae18b0b36939497c97377b303fbbdc07332a36e324ef9887cf7",
+      "createdAt": "2026-09-29T21:30:35.853Z",
       "cites": [],
       "tags": [
         "claim"
@@ -49,8 +49,8 @@
       "title": "report.json",
       "summary": "Run artifact report.json",
       "relativePath": "report.json",
-      "sha256": "6e5d6f5ab0f53176c6e3b699b2fd0f93c52e4156c27d88253eec4da3e0c0bb18",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "0fd8f3a140bcef788c00e0bf7002ef98dd448a62292e295e0f6d185f730e470a",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -61,8 +61,8 @@
       "title": "report.sarif",
       "summary": "Run artifact report.sarif",
       "relativePath": "report.sarif",
-      "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "f61392372ff82d6869f7dadae2b9b2b45e40af62670520547091cb7039f8a68d",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -73,8 +73,8 @@
       "title": "report.md",
       "summary": "Run artifact report.md",
       "relativePath": "report.md",
-      "sha256": "b91bc737f457146fa3230ef4bf6b97b9083251f3f3f20b6a4869d28dbaab3207",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "94d281a1319454d34645371d9111fb6b305fe118c6bbd5035c083d8e97488e09",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -85,8 +85,8 @@
       "title": "comment.md",
       "summary": "Run artifact comment.md",
       "relativePath": "comment.md",
-      "sha256": "ee39b67ed4d524b3a2d530d35c1ec8a279924b8b5ca5e350a69135388abefaeb",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "fdc3b0285fb2e0eb964262a3862f1187458597e54f292b11712830f34e56c236",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -97,8 +97,8 @@
       "title": "report.sarif",
       "summary": "Run artifact report.sarif",
       "relativePath": "report.sarif",
-      "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "f61392372ff82d6869f7dadae2b9b2b45e40af62670520547091cb7039f8a68d",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -109,8 +109,8 @@
       "title": "asff-findings.json",
       "summary": "Run artifact asff-findings.json",
       "relativePath": "asff-findings.json",
-      "sha256": "2b96251d744a114188bf7c009a9a78ab0378b763f4274b98723ba9439d7c7219",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "ed457fc4b01ea993b3af71186f8a07442092ee5331998cde173dda697b14f56b",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -121,8 +121,8 @@
       "title": "splunk-cim-vulnerabilities.json",
       "summary": "Run artifact splunk-cim-vulnerabilities.json",
       "relativePath": "splunk-cim-vulnerabilities.json",
-      "sha256": "65c4d2554a20cdf4746d3265942026d4ebaba6cb82656d375e013f595c2139b7",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "1cf112e44e177b758937dbeed63d56fa94641676ed1f71dc47922f319e0e0d2d",
+      "createdAt": "2026-09-29T21:30:35.862Z",
       "tags": [
         "artifact"
       ]
@@ -133,8 +133,8 @@
       "title": "xsoar-incidents.json",
       "summary": "Run artifact xsoar-incidents.json",
       "relativePath": "xsoar-incidents.json",
-      "sha256": "af7a63184d5b7253891fba4f9ae423ff12a0f4d08fd396e0509589548ebcb943",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "546e141d40b6cf7fc0a2de713310805f3b8bffbe2dd1e67905bc2e0e2d0eff43",
+      "createdAt": "2026-09-29T21:30:35.863Z",
       "tags": [
         "artifact"
       ]
@@ -145,8 +145,8 @@
       "title": "fortisiem-custom.json",
       "summary": "Run artifact fortisiem-custom.json",
       "relativePath": "fortisiem-custom.json",
-      "sha256": "2529eb40917147a481e0df12eaa9e9206908e2b67d61e52eb8cdae6c93c34ad3",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "68369c9898d7572a7fc7fe075f574184c0094ce18dd5c0fb055b3325162805f4",
+      "createdAt": "2026-09-29T21:30:35.863Z",
       "tags": [
         "artifact"
       ]
@@ -157,8 +157,8 @@
       "title": "crowdstrike-hec-events.ndjson",
       "summary": "Run artifact crowdstrike-hec-events.ndjson",
       "relativePath": "crowdstrike-hec-events.ndjson",
-      "sha256": "eb72728d474e0ccc54b51c5198b32cb2ef1e6ac8a40ad9372e89b239ede13516",
-      "createdAt": "2026-09-10T21:46:43.498Z",
+      "sha256": "7925be33b964368b203014c21de7c3e3b4294e5bd65fe3f8903a9224ea7f9c75",
+      "createdAt": "2026-09-29T21:30:35.863Z",
       "tags": [
         "artifact"
       ]
@@ -168,61 +168,61 @@
     {
       "name": "report.json",
       "relativePath": "report.json",
-      "sha256": "6e5d6f5ab0f53176c6e3b699b2fd0f93c52e4156c27d88253eec4da3e0c0bb18",
-      "bytes": 3678
+      "sha256": "0fd8f3a140bcef788c00e0bf7002ef98dd448a62292e295e0f6d185f730e470a",
+      "bytes": 3363
     },
     {
       "name": "report.sarif",
       "relativePath": "report.sarif",
-      "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
-      "bytes": 6690
+      "sha256": "f61392372ff82d6869f7dadae2b9b2b45e40af62670520547091cb7039f8a68d",
+      "bytes": 6347
     },
     {
       "name": "report.md",
       "relativePath": "report.md",
-      "sha256": "b91bc737f457146fa3230ef4bf6b97b9083251f3f3f20b6a4869d28dbaab3207",
-      "bytes": 3524
+      "sha256": "94d281a1319454d34645371d9111fb6b305fe118c6bbd5035c083d8e97488e09",
+      "bytes": 3083
     },
     {
       "name": "comment.md",
       "relativePath": "comment.md",
-      "sha256": "ee39b67ed4d524b3a2d530d35c1ec8a279924b8b5ca5e350a69135388abefaeb",
-      "bytes": 1928
+      "sha256": "fdc3b0285fb2e0eb964262a3862f1187458597e54f292b11712830f34e56c236",
+      "bytes": 1896
     },
     {
       "name": "report.sarif",
       "relativePath": "report.sarif",
-      "sha256": "5065a4e75fa82ee2a5c96af2776e90689579bc94f3b741a8479cb8ca2db66e30",
-      "bytes": 6690
+      "sha256": "f61392372ff82d6869f7dadae2b9b2b45e40af62670520547091cb7039f8a68d",
+      "bytes": 6347
     },
     {
       "name": "asff-findings.json",
       "relativePath": "asff-findings.json",
-      "sha256": "2b96251d744a114188bf7c009a9a78ab0378b763f4274b98723ba9439d7c7219",
-      "bytes": 3930
+      "sha256": "ed457fc4b01ea993b3af71186f8a07442092ee5331998cde173dda697b14f56b",
+      "bytes": 3902
     },
     {
       "name": "splunk-cim-vulnerabilities.json",
       "relativePath": "splunk-cim-vulnerabilities.json",
-      "sha256": "65c4d2554a20cdf4746d3265942026d4ebaba6cb82656d375e013f595c2139b7",
-      "bytes": 1628
+      "sha256": "1cf112e44e177b758937dbeed63d56fa94641676ed1f71dc47922f319e0e0d2d",
+      "bytes": 1644
     },
     {
       "name": "xsoar-incidents.json",
       "relativePath": "xsoar-incidents.json",
-      "sha256": "af7a63184d5b7253891fba4f9ae423ff12a0f4d08fd396e0509589548ebcb943",
+      "sha256": "546e141d40b6cf7fc0a2de713310805f3b8bffbe2dd1e67905bc2e0e2d0eff43",
       "bytes": 1135
     },
     {
       "name": "fortisiem-custom.json",
       "relativePath": "fortisiem-custom.json",
-      "sha256": "2529eb40917147a481e0df12eaa9e9206908e2b67d61e52eb8cdae6c93c34ad3",
+      "sha256": "68369c9898d7572a7fc7fe075f574184c0094ce18dd5c0fb055b3325162805f4",
       "bytes": 1370
     },
     {
       "name": "crowdstrike-hec-events.ndjson",
       "relativePath": "crowdstrike-hec-events.ndjson",
-      "sha256": "eb72728d474e0ccc54b51c5198b32cb2ef1e6ac8a40ad9372e89b239ede13516",
+      "sha256": "7925be33b964368b203014c21de7c3e3b4294e5bd65fe3f8903a9224ea7f9c75",
       "bytes": 971
     }
   ],

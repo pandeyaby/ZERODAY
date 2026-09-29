@@ -78,7 +78,7 @@ function findingToAsff(
   const description =
     `ZERODAY Antares localization candidate: ${f.filePath} for ${f.cweId} ` +
     `(${f.category}), rank ${f.rank}. ${evidenceNote} ` +
-    `Detector-lane candidate only — human triage required. ` +
+    `Candidate only — human triage required. ` +
     `Not proof of exploitability. Antares-1B File F1=${f.modelFileF1}.`.slice(
       0,
       1024,
