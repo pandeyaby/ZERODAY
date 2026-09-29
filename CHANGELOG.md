@@ -3,7 +3,7 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 0.10.0
 
 ### Security
 - **Desk web UI review** ([`docs/desk-security.md`](./docs/desk-security.md)). Fixed:
@@ -53,6 +53,9 @@ All notable changes to ZERODAY. The stable surface is defined in
   `scripts/desk-ui-advisory-demo.mjs` rehearses the browser part.
 
 ### Changed
+- Findings in tests, specs, fixtures and vendored / minified code rank after
+  application code (still reported).
+- `zeroday scan` merges 2 Antares sweeps by default (`--samples`).
 - README rewritten for a first-time reader; trust / reproducibility material
   (Prove doors, DIPTYCH, live Antares in depth) moved to
   [`docs/trust.md`](./docs/trust.md). Desk labels in plain language
