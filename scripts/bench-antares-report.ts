@@ -171,7 +171,9 @@ function samplesLine(): string {
   const overlap = two.ci && one.ci && two.ci[0] <= one.ci[1];
   return (
     `Run live on all ${two.cases} cases (${passes} pass${passes > 1 ? "es" : ""} each), it ranked the fixed file first in ${f(two)} of runs, against ${f(one)} for a single run. ` +
-    (overlap ? "The intervals still overlap, so the gain is likely but not yet measured with confidence." : "The intervals do not overlap.")
+    (overlap
+      ? "The intervals overlap: at this sample size merging two runs has not measurably improved rank-1 hits, and it costs a second run."
+      : "The intervals do not overlap.")
   );
 }
 

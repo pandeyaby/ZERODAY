@@ -7,7 +7,7 @@ Model: `fdtn-ai/antares-1b` via `cisco-antares-cli`.
 ## What this shows
 
 - **Antares reaches weaknesses the rules cannot model.** On missing authorization, authentication, ReDoS and prototype pollution the rules find nothing; Antares-1B finds the fixed file in some of them (tables below).
-- **Antares-1B varies from run to run**, so ZERODAY runs it twice and merges by vote (`--samples 2`, the default for `scan`). Run live on all 36 cases (3 passes each), it ranked the fixed file first in 28% (95% CI 17–40) of runs, against 25% (95% CI 16–36) for a single run. The intervals still overlap, so the gain is likely but not yet measured with confidence.
+- **Antares-1B varies from run to run**, so ZERODAY runs it twice and merges by vote (`--samples 2`, the default for `scan`). Run live on all 36 cases (3 passes each), it ranked the fixed file first in 28% (95% CI 17–40) of runs, against 25% (95% CI 16–36) for a single run. The intervals overlap: at this sample size merging two runs has not measurably improved rank-1 hits, and it costs a second run.
 - **Rules and Antares complement each other** — the fixed file is more often in the top 3 of *either* list than of one. `scan` and `locate --live` show both, and mark where they agree.
 - **Sending the rules findings to Antares as context did not help** (fewer hits and lower recall where context was sent), so it is off by default (`--context` opts in). Runs where the rules had nothing to send are identical to Antares alone; the gap on model-only CWEs is run-to-run variation, which shows how noisy single runs are.
 
