@@ -6,6 +6,11 @@ All notable changes to ZERODAY. The stable surface is defined in
 ## Unreleased
 
 ### Benchmark
+- **Three live runs per case** (RunPod A40, 108 new runs, no errors, ≈ $1.13):
+  Antares-1B ranks the fixed file first in 25% of runs (95% CI 16–36), two
+  runs merged in 28% (17–40), the rules in 14% (6–25). Merging is within the
+  noise and lowers File F1 (0.190 vs 0.233); the first single pass (36%) was
+  on the lucky side. README table and the report summary updated to match.
 - **Error bars, File F1 and training-data overlap** in
   [`docs/antares-benchmark.md`](./docs/antares-benchmark.md): 95% intervals
   (bootstrap over cases) for Hit@1 / Hit@3; File F1 computed as on the
