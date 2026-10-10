@@ -326,6 +326,7 @@ details: [`docs/paths.md`](./docs/paths.md#live-antares-opt-in) ·
 | Stable commands, outputs, exit codes, `report.json` schema | [`docs/stability.md`](./docs/stability.md) · [`CHANGELOG.md`](./CHANGELOG.md) |
 | Verify a release (signatures, SBOMs) | [`docs/verify-release.md`](./docs/verify-release.md) |
 | Every mode and flag | [`docs/paths.md`](./docs/paths.md) |
+| Specialist commands (inventory, factory, paired probes, …) | `zeroday labs` · [`docs/stability.md`](./docs/stability.md#experimental) |
 | Desk security model | [`docs/desk-security.md`](./docs/desk-security.md) |
 | Trust, reproducibility, DIPTYCH | [`docs/trust.md`](./docs/trust.md) |
 | Coding-agent operator path | [`docs/agent-operator.md`](./docs/agent-operator.md) |
