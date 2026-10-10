@@ -3,7 +3,7 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## 0.11.1
+## 0.12.0
 
 ### Changed
 - **`scan` runs Antares once by default** (`--samples` default 2 → 1, same as
