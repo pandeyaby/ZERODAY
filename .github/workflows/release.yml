@@ -4,6 +4,8 @@
 #     with BuildKit SBOM + provenance, a keyless cosign signature and a GitHub
 #     build-provenance attestation
 #   - npm package zeroday-cli (only when the NPM_TOKEN secret is set; with provenance)
+#   - pre-release versions (X.Y.Z-rc.N): no :latest image, npm dist-tag "next",
+#     GitHub release marked pre-release
 #   - GitHub release: npm tarball, CycloneDX SBOM, SHA256SUMS, each attested
 # Signing is keyless (GitHub OIDC → Sigstore): no signing keys or extra secrets.
 # How to verify: docs/verify-release.md. Never runs on pull requests. No GPU / HF / RunPod.
@@ -23,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +45,8 @@ jobs:
             exit 1
           fi
           echo "version=$pkg" >> "$GITHUB_OUTPUT"
+          # 1.0.0-rc.1 and the like: no :latest image, npm dist-tag "next", GitHub pre-release.
+          case "$pkg" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
 
       - run: npm ci
       - run: npx tsc --noEmit
@@ -81,7 +86,7 @@ jobs:
           provenance: mode=max
           tags: |
             ${{ steps.image.outputs.name }}:${{ needs.verify.outputs.version }}
-            ${{ steps.image.outputs.name }}:latest
+            ${{ needs.verify.outputs.prerelease == 'false' && format('{0}:latest', steps.image.outputs.name) || '' }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ needs.verify.outputs.version }}
@@ -152,17 +157,21 @@ jobs:
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PRERELEASE: ${{ needs.verify.outputs.prerelease }}
         run: |
           if [ -z "${NODE_AUTH_TOKEN}" ]; then
             echo "::notice::NPM_TOKEN not set — skipping npm publish (tarball still attached to the release)."
             exit 0
           fi
-          cd dist/npm && npm publish --provenance --access public
+          tag=latest; [ "${PRERELEASE}" = "true" ] && tag=next
+          cd dist/npm && npm publish --provenance --access public --tag "$tag"
 
       - name: GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: ${{ needs.verify.outputs.prerelease }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/zeroday-cli-*.tgz dist/zeroday-cli-*.cdx.json dist/SHA256SUMS \
+          pre=(); [ "${PRERELEASE}" = "true" ] && pre=(--prerelease)
+          gh release create "${GITHUB_REF_NAME}" "${pre[@]}" dist/zeroday-cli-*.tgz dist/zeroday-cli-*.cdx.json dist/SHA256SUMS \
             --title "ZERODAY ${GITHUB_REF_NAME}" \
             --notes "See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md). Verify these files and the Docker image: [docs/verify-release.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/verify-release.md)."
