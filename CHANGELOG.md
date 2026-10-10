@@ -3,7 +3,14 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 0.12.0
+
+### Changed
+- **`scan` runs Antares once by default** (`--samples` default 2 → 1, same as
+  `locate --live`). Over 3 live passes on the 36-advisory benchmark, merging
+  two runs by vote was within the noise of one run (28% vs 25% hit@1) and
+  lowered File F1 (0.190 vs 0.233), for twice the GPU time. `--samples 2`
+  still merges runs when you want it.
 
 ### Benchmark
 - **Three live runs per case** (RunPod A40, 108 new runs, no errors, ≈ $1.13):

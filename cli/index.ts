@@ -882,7 +882,7 @@ program
   .option("--cwe <ids>", "Antares CWEs to investigate instead of automatic selection (comma-separated)")
   .option("--rules-only", "Don't use Antares even if one is available", false)
   .option("--context", "Also send the rules findings to Antares as starting context (off by default; they are always compared)", false)
-  .option("--samples <n>", "Antares sweeps merged by vote (1–5; default 2 — Antares-1B varies run to run)", "2")
+  .option("--samples <n>", "Antares sweeps merged by vote (1–5; default 1 — merging did not measurably help on the benchmark)", "1")
   .option("--require-antares", "Fail if no Antares endpoint is available", false)
   .option("--endpoint <url>", "Antares completions endpoint (default: discovered)")
   .option("--model <id>", "Served model id")

@@ -41,7 +41,7 @@ export interface ScanOptions {
   cwes?: string[];
   workers?: number;
   toolBudget?: number;
-  /** Antares sweeps merged by vote (1–5). Default 2. */
+  /** Antares sweeps merged by vote (1–5). Default 1. */
   samples?: number;
   /** Also send the rules findings to Antares via --query (default off; always compared). */
   context?: boolean;
@@ -168,9 +168,10 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         antaresCwes = opts.cwes?.length ? opts.cwes : antaresPlan(cli.binary, snap.snapshotPath, opts.maxCwes ?? 8);
         if (!antaresCwes.length) throw new Error("antares plan selected no CWEs for this repository");
         const query = opts.context === true ? scanContext(rulesByCwe, antaresCwes) : "";
-        // Antares-1B varies run to run; merging runs by vote lifted top-3 hits
-        // from 32% to 47% on the real-advisory benchmark — two sweeps by default.
-        const samples = Math.max(1, Math.min(5, Math.round(opts.samples ?? 2)));
+        // One sweep by default: over 3 passes on the real-advisory benchmark,
+        // merging two runs by vote was within the noise of one run (28% vs 25%
+        // hit@1) and lowered File F1, for twice the GPU time. --samples N opts in.
+        const samples = Math.max(1, Math.min(5, Math.round(opts.samples ?? 1)));
         const t0 = Date.now();
         const perRun: RankedFile[][] = [];
         let toolCalls = 0, failed = 0, anyCounts = false;
