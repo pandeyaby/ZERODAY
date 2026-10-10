@@ -3,7 +3,16 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 1.0.0-rc.1
+
+Release candidate for 1.0. From 1.0 the stable surface in
+[`docs/stability.md`](./docs/stability.md) changes only in a new major version.
+Published to npm under the `next` tag (`npm i zeroday-cli@next`) and as a
+GitHub pre-release; `latest` stays on 0.12.0 until 1.0.0.
+
+### Release
+- Pre-release versions get no `:latest` Docker tag, the npm dist-tag `next`
+  and a GitHub pre-release.
 
 ### Changed
 - **Shorter `zeroday --help`.** Core commands come first, in reading order,
