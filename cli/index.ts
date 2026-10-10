@@ -3542,16 +3542,47 @@ live
 // Stability contract (docs/stability.md): these commands, their documented
 // flags, output files and exit codes follow semver. Everything else may change.
 const STABLE_COMMANDS = new Set(["mvp", "locate", "scan", "antares", "verify", "operate", "doctor"]);
+// Experimental but part of the everyday flow: shown under the core commands.
+const MORE_COMMANDS = new Set(["plan", "export", "upload-sarif", "draft-fix", "play"]);
+// Everything else is listed by `zeroday labs` instead of the main help. The
+// commands themselves keep working unchanged.
+const labsCommands = program.commands.filter(
+  (cmd) => !STABLE_COMMANDS.has(cmd.name()) && !MORE_COMMANDS.has(cmd.name()) && cmd.name() !== "help",
+);
 for (const cmd of program.commands) {
-  cmd.helpGroup(
-    STABLE_COMMANDS.has(cmd.name())
-      ? "Core commands (stable):"
-      : "Advanced / experimental commands:",
-  );
+  if (STABLE_COMMANDS.has(cmd.name())) cmd.helpGroup("Core commands (stable):");
+  else if (MORE_COMMANDS.has(cmd.name())) cmd.helpGroup("More commands (experimental):");
 }
+for (const cmd of labsCommands) (cmd as unknown as { _hidden: boolean })._hidden = true;
+// `zeroday <command> --help` covers what the implicit `help` command did.
+program.helpCommand(false);
+// Core commands in reading order (commander lists them in definition order).
+const HELP_ORDER = ["locate", "scan", "antares", "verify", "mvp", "doctor", "operate", ...MORE_COMMANDS, "labs"];
+program.configureHelp({
+  visibleCommands: (cmd) =>
+    cmd.commands
+      .filter((c) => !(c as unknown as { _hidden: boolean })._hidden)
+      .sort((x, y) => HELP_ORDER.indexOf(x.name()) - HELP_ORDER.indexOf(y.name())),
+});
+
+program
+  .command("labs")
+  .helpGroup("More commands (experimental):")
+  .description(`List ${labsCommands.length} specialist and experimental commands (inventory, factory, paired-probe, …)`)
+  .action(() => {
+    const width = Math.max(...labsCommands.map((c) => c.name().length)) + 2;
+    console.log("Labs — specialist and experimental commands. They can change or be removed in any minor release.\n");
+    for (const c of labsCommands) {
+      // First sentence, cut at a word boundary to one line.
+      let summary = c.description().split(/(?<=\.)\s|\s—\s/)[0]!.replace(/\.$/, "");
+      if (summary.length > 88) summary = `${summary.slice(0, summary.lastIndexOf(" ", 86))} …`;
+      console.log(`  ${c.name().padEnd(width)}${summary}`);
+    }
+    console.log("\nDetails: zeroday <command> --help");
+  });
 program.addHelpText(
   "after",
-  "\nStable surface, output files and exit codes: docs/stability.md",
+  "\nMore: zeroday labs · stable surface, output files and exit codes: docs/stability.md",
 );
 
 program.parseAsync(process.argv);

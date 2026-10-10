@@ -3,6 +3,15 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+### Changed
+- **Shorter `zeroday --help`.** Core commands come first, in reading order,
+  then five everyday experimental ones (`plan`, `export`, `upload-sarif`,
+  `draft-fix`, `play`). The 21 specialist commands (`factory`, `inventory`,
+  `paired-probe`, `prove-doors`, `gpu-evidence`, `sweep`, …) are listed by
+  the new `zeroday labs`; they run exactly as before.
+
 ## 0.12.0
 
 ### Changed

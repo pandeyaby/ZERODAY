@@ -48,10 +48,12 @@ documented in [`github-action.md`](./github-action.md) follow the same rules.
 
 `locate --context` / `scan --context` (sending the rules findings to Antares;
 it did not help in the [benchmark](./antares-benchmark.md)), `antares doctor`,
-and every other command (`factory`, `inventory`, `paired-probe`, `prove-doors`,
-`report`, `evidence-pack`, the Desk web UI and its HTTP API, …) can change or be
-removed in any minor release. `zeroday --help` lists them under
-**Advanced / experimental commands**.
+and every other command can change or be removed in any minor release. In
+`zeroday --help`, `plan`, `export`, `upload-sarif`, `draft-fix` and `play` are
+listed under **More commands (experimental)**; the specialist commands
+(`factory`, `inventory`, `paired-probe`, `prove-doors`, `gpu-evidence`,
+`sweep`, …) are listed by `zeroday labs`. The Desk web UI and its HTTP API are
+experimental too.
 
 ## Changes to the stable surface
 
