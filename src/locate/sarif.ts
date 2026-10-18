@@ -37,6 +37,7 @@ interface SarifRun {
         artifactLocation: { uri: string; uriBaseId: string };
         region?: { startLine: number; endLine?: number };
       };
+      logicalLocations?: Array<{ name: string; kind: "function" }>;
     }>;
     partialFingerprints?: Record<string, string>;
     baselineState?: "new" | "unchanged" | "updated" | "absent";
@@ -135,6 +136,7 @@ export function toSarif(result: LocalizationResult): SarifLog {
                 }
               : {}),
           },
+          ...(primary?.function ? { logicalLocations: [{ name: primary.function, kind: "function" as const }] } : {}),
         },
       ],
       partialFingerprints: {
@@ -153,6 +155,9 @@ export function toSarif(result: LocalizationResult): SarifLog {
         exploration_steps: result.explorationTrace.length,
         zeroday_posture: result.posture,
         foundry_lane: "detector-candidate",
+        ...(file.evidence.some((e) => e.function)
+          ? { functions: [...new Set(file.evidence.flatMap((e) => (e.function ? [e.function] : [])))] }
+          : {}),
       },
     };
   });

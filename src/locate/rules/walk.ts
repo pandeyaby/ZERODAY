@@ -37,6 +37,8 @@ export const SOURCE_EXTENSIONS = new Set([
   ".java",
   ".cs",
   ".sql",
+  ".c",
+  ".h",
 ]);
 
 export const MAX_FILE_BYTES = 512 * 1024; // 512 KiB per file for rules scan

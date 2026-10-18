@@ -21,6 +21,8 @@ export interface EvidenceSpan {
   endLine?: number;
   excerpt?: string;
   note: string;
+  /** C sources: the function enclosing startLine (src/locate/c-functions.ts). */
+  function?: string;
 }
 
 export interface RankedFile {
@@ -174,6 +176,11 @@ export interface LocateOptions {
    * static pass is always compared with Antares' answer afterwards.
    */
   context?: boolean;
+  /**
+   * Live: public advisory text (e.g. a CVE one-liner) sent to Antares via
+   * `--query` alongside the CWE. Never pass fix diffs here.
+   */
+  description?: string;
   /** Live: run Antares N times (1–5) and merge by vote. Default 1. */
   samples?: number;
   /**

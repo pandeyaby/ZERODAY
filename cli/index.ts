@@ -1675,6 +1675,10 @@ program
     `Antares exploration budget 1–50 (live; default ${DEFAULT_LIVE_TOOL_BUDGET})`,
   )
   .option(
+    "--description <text>",
+    "Live: public advisory one-liner sent to Antares with the CWE (never a fix diff)",
+  )
+  .option(
     "--fail-on-incomplete",
     "Exit 2 when live run is incomplete (default for live)",
   )
@@ -1722,6 +1726,7 @@ program
     remoteInference: boolean;
     model?: string;
     toolBudget?: string;
+    description?: string;
     failOnIncomplete?: boolean;
     noFailOnIncomplete: boolean;
     noLiveRecovery: boolean;
@@ -1811,6 +1816,7 @@ program
         failOnIncomplete,
         liveRecovery: !opts.noLiveRecovery,
         context: opts.context === true,
+        ...(opts.description ? { description: opts.description } : {}),
         samples: Number(opts.samples) || 1,
         failOnFindings: opts.failOnFindings,
         remoteInference: opts.remoteInference,

@@ -9,6 +9,7 @@ import path from "node:path";
 import { resolveAdvisory } from "./resolve";
 import { categoryForCwe } from "./categories";
 import { addFingerprints, applyBaseline, applyChangedSince } from "./baseline";
+import { annotateCFunctions } from "./c-functions";
 import { detectAdvisoryKind } from "./advisory-id";
 import { canonicalOsvId, packageRecords } from "./advisory/osv";
 import { createSnapshot, destroySnapshot } from "./snapshot";
@@ -386,7 +387,9 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
       // --context (on the real-advisory benchmark it did not raise hits and
       // lowered recall — docs/antares-benchmark.md).
       const hybridCtx = await buildAntaresContext(advisory, snap.snapshotPath, { offline: options.offline === true });
-      const liveQuery = options.context === true ? hybridCtx.query || undefined : undefined;
+      const descriptionQuery = options.description?.trim() ? `Advisory description: ${options.description.trim()}` : "";
+      const contextQuery = options.context === true ? hybridCtx.query : "";
+      const liveQuery = [descriptionQuery, contextQuery].filter(Boolean).join("\n\n") || undefined;
       const samples = Math.max(1, Math.min(5, Math.round(options.samples ?? 1)));
 
       if (wantMockAntares) {
@@ -461,9 +464,9 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
         );
       }
       result.snapshotPath = snap.snapshotPath;
-      mergeHybrid(result, hybridCtx, { contextSent: Boolean(liveQuery) });
+      mergeHybrid(result, hybridCtx, { contextSent: Boolean(contextQuery) });
       result.warnings.push(
-        liveQuery
+        contextQuery
           ? `ZERODAY context sent to Antares (--context): ${hybridCtx.rules.rankedFiles.length} static candidate(s)` +
               (hybridCtx.rules.summary.advisoryMatch ? `, dependency verdict ${hybridCtx.rules.summary.advisoryMatch.verdict}` : "") +
               ". Antares still explores and decides; files it did not confirm are listed as rules-only."
@@ -536,6 +539,7 @@ export async function locate(options: LocateOptions): Promise<LocateArtifacts> {
     const fingerprintRoot = result.mode === "fixture" ? result.targetRepo : repo;
     if (options.changedSince) applyChangedSince(result, fingerprintRoot, options.changedSince);
     addFingerprints(result, fingerprintRoot);
+    annotateCFunctions(result, fingerprintRoot);
     if (options.baseline) applyBaseline(result, fingerprintRoot, options.baseline);
 
     const runId = path.basename(outputDir);

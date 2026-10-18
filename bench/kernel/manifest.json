@@ -1,0 +1,395 @@
+{
+  "schema": "zeroday.kernel-bench.manifest/v1",
+  "source": "Linux kernel CNA (security/vulns.git) + torvalds/linux on git.kernel.org; CWE from CVE ADP or NVD",
+  "selection": {
+    "years": [
+      2025,
+      2026
+    ],
+    "stride": 23,
+    "fixAuthoredAfter": "2025-04-10",
+    "target": 24,
+    "examined": 131,
+    "rules": [
+      "mainline fix commit from vulns.git <CVE>.sha1",
+      "fix authored after 2025-04-10 (Antares-1B training-data cutoff)",
+      "exactly one Fixes: trailer, resolvable in mainline",
+      "single parent; exactly one changed file, a .c outside tools/ samples/ scripts/ Documentation/ usr/",
+      "every changed line inside 1-2 functions of the pre-fix file (src/locate/c-functions.ts)",
+      "a numeric CWE (CVE ADP container, else NVD)",
+      "one entry per directory (scope)"
+    ],
+    "rejected": {
+      "fix authored on or before #": 34,
+      "no CWE": 29,
+      "change outside a function #": 10,
+      "# Fixes: trailers": 18,
+      "# files changed": 13,
+      "not a kernel .c file #": 2,
+      "# functions changed": 1
+    }
+  },
+  "groundTruth": "file and function(s) changed by the fix; input tree = parent commit, limited to the files directly in `scope`",
+  "entries": [
+    {
+      "cve": "CVE-2025-37864",
+      "cwe": "CWE-617",
+      "cweSource": "nvd",
+      "description": "net: dsa: clean up FDB, MDB, VLAN entries on unbind",
+      "fixCommit": "7afb5fb42d4950f33af2732b8147c552659f79b7",
+      "fixDate": "2025-04-14",
+      "fixesCommit": "0832cd9f1f023226527e95002d537123061ddac4",
+      "parentCommit": "ea08dfc35f83cfc73493c52f63ae4f2e29edfe8d",
+      "file": "net/dsa/dsa.c",
+      "functions": [
+        "dsa_switch_release_ports"
+      ],
+      "scope": "net/dsa"
+    },
+    {
+      "cve": "CVE-2025-37887",
+      "cwe": "CWE-908",
+      "cweSource": "nvd",
+      "description": "pds_core: handle unsupported PDS_CORE_CMD_FW_CONTROL result",
+      "fixCommit": "2567daad69cd1107fc0ec29b1615f110d7cf7385",
+      "fixDate": "2025-04-21",
+      "fixesCommit": "45d76f492938cdc27ddadc16e1e75103f4cfbf56",
+      "parentCommit": "d9e2f070d8af60f2c8c02b2ddf0a9e90b4e9220c",
+      "file": "drivers/net/ethernet/amd/pds_core/devlink.c",
+      "functions": [
+        "pdsc_dl_info_get"
+      ],
+      "scope": "drivers/net/ethernet/amd/pds_core"
+    },
+    {
+      "cve": "CVE-2025-37911",
+      "cwe": "CWE-125",
+      "cweSource": "nvd",
+      "description": "bnxt_en: Fix out-of-bound memcpy() during ethtool -w",
+      "fixCommit": "6b87bd94f34370bbf1dfa59352bed8efab5bf419",
+      "fixDate": "2025-04-28",
+      "fixesCommit": "c74751f4c39232c31214ec6a3bc1c7e62f5c728b",
+      "parentCommit": "ea9376cf68230e05492f22ca45d329f16e262c7b",
+      "file": "drivers/net/ethernet/broadcom/bnxt/bnxt_coredump.c",
+      "functions": [
+        "bnxt_hwrm_dbg_dma_data"
+      ],
+      "scope": "drivers/net/ethernet/broadcom/bnxt"
+    },
+    {
+      "cve": "CVE-2025-37958",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "mm/huge_memory: fix dereferencing invalid pmd migration entry",
+      "fixCommit": "be6e843fc51a584672dfd9c4a6a24c8cb81d5fb7",
+      "fixDate": "2025-04-21",
+      "fixesCommit": "84c3fc4e9c563d8fb91cfdf5948da48fe1af34d3",
+      "parentCommit": "e81224f0ba22e13038381d41a8356ab256d56f23",
+      "file": "mm/huge_memory.c",
+      "functions": [
+        "split_huge_pmd_locked"
+      ],
+      "scope": "mm"
+    },
+    {
+      "cve": "CVE-2025-38101",
+      "cwe": "CWE-787",
+      "cweSource": "nvd",
+      "description": "ring-buffer: Fix buffer locking in ring_buffer_subbuf_order_set()",
+      "fixCommit": "40ee2afafc1d9fe3aa44a6fbe440d78a5c96a72e",
+      "fixDate": "2025-06-06",
+      "fixesCommit": "f9b94daa542a8d2532f0930f01cd9aec2d19621b",
+      "parentCommit": "a9d0aab5eb33a44792a66b7af13ff50d7b3e7022",
+      "file": "kernel/trace/ring_buffer.c",
+      "functions": [
+        "ring_buffer_subbuf_order_set"
+      ],
+      "scope": "kernel/trace"
+    },
+    {
+      "cve": "CVE-2025-38124",
+      "cwe": "CWE-401",
+      "cweSource": "nvd",
+      "description": "net: fix udp gso skb_segment after pull from frag_list",
+      "fixCommit": "3382a1ed7f778db841063f5d7e317ac55f9e7f72",
+      "fixDate": "2025-05-30",
+      "fixesCommit": "a1e40ac5b5e9077fe1f7ae0eb88034db0f9ae1ab",
+      "parentCommit": "558428921eddbd5083fe8116e31b8af460712f44",
+      "file": "net/ipv4/udp_offload.c",
+      "functions": [
+        "__udp_gso_segment"
+      ],
+      "scope": "net/ipv4"
+    },
+    {
+      "cve": "CVE-2025-38147",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "calipso: Don't call calipso functions for AF_INET sk.",
+      "fixCommit": "6e9f2df1c550ead7cecb3e450af1105735020c92",
+      "fixDate": "2025-05-22",
+      "fixesCommit": "ceba1832b1b2da0149c51de62a847c00bca1677a",
+      "parentCommit": "fc6895345fe682e68bc594a186cbf90d35b3bf7c",
+      "file": "net/netlabel/netlabel_kapi.c",
+      "functions": [
+        "netlbl_conn_setattr"
+      ],
+      "scope": "net/netlabel"
+    },
+    {
+      "cve": "CVE-2025-38541",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "wifi: mt76: mt7925: Fix null-ptr-deref in mt7925_thermal_init()",
+      "fixCommit": "03ee8f73801a8f46d83dfc2bf73fb9ffa5a21602",
+      "fixDate": "2025-06-25",
+      "fixesCommit": "396e41a74a88654f23e36c46d2995752c91654a5",
+      "parentCommit": "dedf2ec30fe417d181490896adf89cd6b9885b23",
+      "file": "drivers/net/wireless/mediatek/mt76/mt7925/init.c",
+      "functions": [
+        "mt7925_thermal_init"
+      ],
+      "scope": "drivers/net/wireless/mediatek/mt76/mt7925"
+    },
+    {
+      "cve": "CVE-2025-38613",
+      "cwe": "CWE-908",
+      "cweSource": "nvd",
+      "description": "staging: gpib: fix unset padding field copy back to userspace",
+      "fixCommit": "a739d3b13bff0dfa1aec679d08c7062131a2a425",
+      "fixDate": "2025-06-23",
+      "fixesCommit": "9dde4559e93955ccc47d588f7fd051684d55c4e7",
+      "parentCommit": "a87d8d7bcc664fc8302e2ba1cc213addaa87d689",
+      "file": "drivers/staging/gpib/common/gpib_os.c",
+      "functions": [
+        "board_info_ioctl"
+      ],
+      "scope": "drivers/staging/gpib/common"
+    },
+    {
+      "cve": "CVE-2025-38659",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "gfs2: No more self recovery",
+      "fixCommit": "deb016c1669002e48c431d6fd32ea1c20ef41756",
+      "fixDate": "2025-07-16",
+      "fixesCommit": "601ef0d52e9617588fcff3df26953592f2eb44ac",
+      "parentCommit": "557c024ca7250bb65ae60f16c02074106c2f197b",
+      "file": "fs/gfs2/util.c",
+      "functions": [
+        "signal_our_withdraw"
+      ],
+      "scope": "fs/gfs2"
+    },
+    {
+      "cve": "CVE-2025-38682",
+      "cwe": "CWE-415",
+      "cweSource": "nvd",
+      "description": "i2c: core: Fix double-free of fwnode in i2c_unregister_device()",
+      "fixCommit": "1c24e5fc0c7096e00c202a6a3e0c342c1afb47c2",
+      "fixDate": "2025-07-19",
+      "fixesCommit": "df6d7277e5525d6cce63127dd93ebec4c6354fa0",
+      "parentCommit": "f61389a9cd26b424485acade726ccfff96c749de",
+      "file": "drivers/i2c/i2c-core-base.c",
+      "functions": [
+        "i2c_unregister_device"
+      ],
+      "scope": "drivers/i2c"
+    },
+    {
+      "cve": "CVE-2025-39709",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "media: venus: protect against spurious interrupts during probe",
+      "fixCommit": "3200144a2fa4209dc084a19941b9b203b43580f0",
+      "fixDate": "2025-06-06",
+      "fixesCommit": "af2c3834c8ca7cc65d15592ac671933df8848115",
+      "parentCommit": "b179234b5e59013f8772da17b273f463f9720bdd",
+      "file": "drivers/media/platform/qcom/venus/core.c",
+      "functions": [
+        "venus_probe"
+      ],
+      "scope": "drivers/media/platform/qcom/venus"
+    },
+    {
+      "cve": "CVE-2025-39756",
+      "cwe": "CWE-401",
+      "cweSource": "nvd",
+      "description": "fs: Prevent file descriptor table allocations exceeding INT_MAX",
+      "fixCommit": "04a2c4b4511d186b0fce685da21085a5d4acd370",
+      "fixDate": "2025-06-29",
+      "fixesCommit": "9cfe015aa424b3c003baba3841a60dd9b5ad319b",
+      "parentCommit": "b39f7d75dc41b5f5d028192cd5d66cff71179f35",
+      "file": "fs/file.c",
+      "functions": [
+        "alloc_fdtable"
+      ],
+      "scope": "fs"
+    },
+    {
+      "cve": "CVE-2025-39803",
+      "cwe": "CWE-617",
+      "cweSource": "nvd",
+      "description": "scsi: ufs: core: Remove WARN_ON_ONCE() call from ufshcd_uic_cmd_compl()",
+      "fixCommit": "e5203d89d59bfcbe1f348aa0d2dc4449a8ba644c",
+      "fixDate": "2025-08-15",
+      "fixesCommit": "fcd8b0450a9acbf3f0e88d749a72ef932df97663",
+      "parentCommit": "eabcac808ca3ee9878223d4b49b750979029016b",
+      "file": "drivers/ufs/core/ufshcd.c",
+      "functions": [
+        "ufshcd_uic_cmd_compl"
+      ],
+      "scope": "drivers/ufs/core"
+    },
+    {
+      "cve": "CVE-2025-39849",
+      "cwe": "CWE-787",
+      "cweSource": "nvd",
+      "description": "wifi: cfg80211: sme: cap SSID length in __cfg80211_connect_result()",
+      "fixCommit": "62b635dcd69c4fde7ce1de4992d71420a37e51e3",
+      "fixDate": "2025-08-29",
+      "fixesCommit": "c38c701851011c94ce3be1ccb3593678d2933fd8",
+      "parentCommit": "c786794bd27b0d7a5fd9063695df83206009be59",
+      "file": "net/wireless/sme.c",
+      "functions": [
+        "__cfg80211_connect_result"
+      ],
+      "scope": "net/wireless"
+    },
+    {
+      "cve": "CVE-2025-39873",
+      "cwe": "CWE-416",
+      "cweSource": "nvd",
+      "description": "can: xilinx_can: xcan_write_frame(): fix use-after-free of transmitted SKB",
+      "fixCommit": "ef79f00be72bd81d2e1e6f060d83cf7e425deee4",
+      "fixDate": "2025-08-22",
+      "fixesCommit": "1598efe57b3e768056e4ca56cb9cf33111e68d1c",
+      "parentCommit": "06e02da29f6f1a45fc07bd60c7eaf172dc21e334",
+      "file": "drivers/net/can/xilinx_can.c",
+      "functions": [
+        "xcan_write_frame"
+      ],
+      "scope": "drivers/net/can"
+    },
+    {
+      "cve": "CVE-2025-39943",
+      "cwe": "CWE-125",
+      "cweSource": "nvd",
+      "description": "ksmbd: smbdirect: validate data_offset and data_length field of smb_direct_data_transfer",
+      "fixCommit": "5282491fc49d5614ac6ddcd012e5743eecb6a67c",
+      "fixDate": "2025-09-10",
+      "fixesCommit": "2ea086e35c3d726a3bacd0a971c1f02a50e98206",
+      "parentCommit": "d162694037215fe25f1487999c58d70df809a2fd",
+      "file": "fs/smb/server/transport_rdma.c",
+      "functions": [
+        "recv_done"
+      ],
+      "scope": "fs/smb/server"
+    },
+    {
+      "cve": "CVE-2025-71086",
+      "cwe": "CWE-129",
+      "cweSource": "nvd",
+      "description": "net: rose: fix invalid array index in rose_kill_by_device()",
+      "fixCommit": "6595beb40fb0ec47223d3f6058ee40354694c8e4",
+      "fixDate": "2025-12-22",
+      "fixesCommit": "64b8bc7d5f1434c636a40bdcfcd42b278d1714be",
+      "parentCommit": "5939b6dbcda8b0f5f03a8e5179c13dc0195eb6cd",
+      "file": "net/rose/af_rose.c",
+      "functions": [
+        "rose_kill_by_device"
+      ],
+      "scope": "net/rose"
+    },
+    {
+      "cve": "CVE-2026-22976",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "net/sched: sch_qfq: Fix NULL deref when deactivating inactive aggregate in qfq_reset",
+      "fixCommit": "c1d73b1480235731e35c81df70b08f4714a7d095",
+      "fixDate": "2026-01-06",
+      "fixesCommit": "0545a3037773512d3448557ba048cebb73b3e4af",
+      "parentCommit": "6abcf751bc084804a9e5b3051442e8a2ce67f48a",
+      "file": "net/sched/sch_qfq.c",
+      "functions": [
+        "qfq_reset_qdisc"
+      ],
+      "scope": "net/sched"
+    },
+    {
+      "cve": "CVE-2026-23022",
+      "cwe": "CWE-401",
+      "cweSource": "nvd",
+      "description": "idpf: fix memory leak in idpf_vc_core_deinit()",
+      "fixCommit": "e111cbc4adf9f9974eed040aeece7e17460f6bff",
+      "fixDate": "2025-11-21",
+      "fixesCommit": "6aa53e861c1a0c042690c9b7c5c153088ae61079",
+      "parentCommit": "f6242b354605faff263ca45882b148200915a3f6",
+      "file": "drivers/net/ethernet/intel/idpf/idpf_virtchnl.c",
+      "functions": [
+        "idpf_vc_core_deinit"
+      ],
+      "scope": "drivers/net/ethernet/intel/idpf"
+    },
+    {
+      "cve": "CVE-2026-23137",
+      "cwe": "CWE-401",
+      "cweSource": "nvd",
+      "description": "of: unittest: Fix memory leak in unittest_data_add()",
+      "fixCommit": "235a1eb8d2dcc49a6cf0a5ee1aa85544a5d0054b",
+      "fixDate": "2025-12-31",
+      "fixesCommit": "2eb46da2a760e5764c48b752a5ef320e02b96b21",
+      "parentCommit": "4f4f6b4467e63317ec3fd0a5b7405757ad55c169",
+      "file": "drivers/of/unittest.c",
+      "functions": [
+        "unittest_data_add"
+      ],
+      "scope": "drivers/of"
+    },
+    {
+      "cve": "CVE-2026-23160",
+      "cwe": "CWE-401",
+      "cweSource": "nvd",
+      "description": "octeon_ep: Fix memory leak in octep_device_setup()",
+      "fixCommit": "8016dc5ee19a77678c264f8ba368b1e873fa705b",
+      "fixDate": "2026-01-21",
+      "fixesCommit": "577f0d1b1c5f3282fa2011177b0af692a7c21aee",
+      "parentCommit": "6de4436bf369e1444606445e4cd5df5bcfc74b48",
+      "file": "drivers/net/ethernet/marvell/octeon_ep/octep_main.c",
+      "functions": [
+        "octep_device_setup"
+      ],
+      "scope": "drivers/net/ethernet/marvell/octeon_ep"
+    },
+    {
+      "cve": "CVE-2026-23206",
+      "cwe": "CWE-476",
+      "cweSource": "nvd",
+      "description": "dpaa2-switch: prevent ZERO_SIZE_PTR dereference when num_ifs is zero",
+      "fixCommit": "ed48a84a72fefb20a82dd90a7caa7807e90c6f66",
+      "fixDate": "2026-01-28",
+      "fixesCommit": "0b1b71370458860579831e77485883fcf2e8fbbe",
+      "parentCommit": "de5720f91b0b64c603f14da3c6298cba4febeb01",
+      "file": "drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c",
+      "functions": [
+        "dpaa2_switch_init"
+      ],
+      "scope": "drivers/net/ethernet/freescale/dpaa2"
+    },
+    {
+      "cve": "CVE-2026-23298",
+      "cwe": "CWE-835",
+      "cweSource": "nvd",
+      "description": "can: ucan: Fix infinite loop from zero-length messages",
+      "fixCommit": "1e446fd0582ad8be9f6dafb115fc2e7245f9bea7",
+      "fixDate": "2026-02-23",
+      "fixesCommit": "9f2d3eae88d26c29d96e42983b755940d9169cd9",
+      "parentCommit": "38a01c9700b0dcafe97dfa9dc7531bf4a245deff",
+      "file": "drivers/net/can/usb/ucan.c",
+      "functions": [
+        "ucan_read_bulk_callback"
+      ],
+      "scope": "drivers/net/can/usb"
+    }
+  ]
+}
