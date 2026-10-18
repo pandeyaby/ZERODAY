@@ -6,7 +6,8 @@
 # the composite Action) + operate→verify + desk-ui (UI-2 reports + UI-3
 # live-endpoint unit tests) + locate-rules (K1) + locate-ingest (K2) +
 # locate-record (K3) + paired-probe / freezedry (DIPTYCH diptych_schema 0.2) +
-# stranger-verify (Door A keyless + Door B citation-only; no RunPod / HF / live).
+# stranger-verify (Door A keyless + Door B citation-only; no RunPod / HF / live) +
+# kernel-bench (Linux kernel CVE localization manifest; rules baseline only).
 # Never auto-merges. Localization ≠ exploitability.
 # Org daily-driver runbook: docs/org-ops-runbook.md · cassette: docs/cassette-runbook.md
 # Paired probes: docs/paired-probes.md · docs/diptych-onepager.md
@@ -31,6 +32,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  kernel-bench:
+    name: Kernel localization bench (rules baseline, keyless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Pre-fix scope files only (no kernel clone), fetched once per manifest version.
+      - name: Cache pre-fix kernel files
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/zeroday/bench-kernel
+          key: bench-kernel-${{ hashFiles('bench/kernel/manifest.json', 'scripts/bench-kernel.ts') }}
+
+      - name: Fetch pre-fix files (git.kernel.org, blob-verified)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run --silent bench:kernel -- fetch
+
+      - name: Rules baseline → hit@1/3/5 (file + function)
+        run: |
+          set -euo pipefail
+          npm run --silent bench:kernel -- run --arms rules
+          npm run --silent bench:kernel -- score --arm rules | tee kernel-bench-rules.md
+          test -s zeroday-reports/bench-kernel/rules/summary.json
+          {
+            echo "## Kernel localization bench — rules baseline, measured"
+            echo ""
+            cat kernel-bench-rules.md
+            echo ""
+            echo "No GPU / no Antares in CI. Antares numbers are not claimed until a measured run."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload kernel bench summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-bench-rules
+          path: zeroday-reports/bench-kernel/rules/summary.json
+          if-no-files-found: error
+
   quality:
     name: Typecheck + lint + Next.js build + Docker build
     runs-on: ubuntu-latest

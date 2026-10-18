@@ -79,7 +79,8 @@
               "startLine": { "type": "integer" },
               "endLine": { "type": "integer" },
               "excerpt": { "type": "string" },
-              "note": { "type": "string" }
+              "note": { "type": "string" },
+              "function": { "type": "string", "description": "C sources: function enclosing startLine" }
             }
           }
         },
