@@ -14,7 +14,7 @@ no signing key to leak or rotate. What you can check:
 Applies from 0.11.0. Set the version you use once; the commands below use it:
 
 ```bash
-V=1.0.0-rc.1        # the version, without the leading v
+V=1.0.0-rc.2        # the version, without the leading v
 ```
 
 ## CLI tarball and SBOM
