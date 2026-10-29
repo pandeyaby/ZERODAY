@@ -7,6 +7,26 @@ All notable changes to ZERODAY. The stable surface is defined in
 
 Fixes from a blinded end-to-end validation (five independent reviewers).
 
+### Benchmark
+- **Ground truth corrected.** Three cases counted files that the fix *added*,
+  which do not exist in the vulnerable snapshot: one case
+  (GHSA-w6w4-rjh9-9r58) could not be solved at all and is now excluded; two
+  had recall capped at 50% and drop the added file. `curate.py` keeps only
+  modified files from now on. The report re-scores every run from its
+  recorded ranked list. 35 cases.
+- **Statistics fixed.** The bootstrap used a 31-bit LCG whose multiply lost
+  precision in JavaScript doubles; it is now mulberry32 with 10,000
+  resamples. Medians are true medians. File F1 has a 95% interval. A new
+  *Paired differences* section compares arms per case instead of reading
+  overlapping intervals.
+- **Claims match the data.** Antares beats the rules measurably only where
+  the rules cannot look (+22 points top-3 on the 4 model-only CWEs); overall
+  and on rules-covered CWEs the difference is within the noise. File F1 0.242
+  (95% CI 0.15–0.34) is consistent with, not above, the model card's 0.209.
+  "Both lists" now reports true union recall and says it means up to 6 files;
+  the replayed merge row is labelled as a replay; "% of cases" → "% of runs";
+  the curation's lean towards rules-covered languages and CWEs is disclosed.
+
 ### Fixed
 - **No more silent "clean" results for code the rules cannot read.** PHP, Ruby
   and C# files were skipped for 7 of the 10 CWEs without a word, so a PHP repo
@@ -80,7 +100,8 @@ GitHub pre-release; `latest` stays on 0.12.0 until 1.0.0.
 - **Error bars, File F1 and training-data overlap** in
   [`docs/antares-benchmark.md`](./docs/antares-benchmark.md): 95% intervals
   (bootstrap over cases) for Hit@1 / Hit@3; File F1 computed as on the
-  Antares-1B model card (0.239 for a single run here, 0.209 on the card's VLoc
+  Antares-1B model card (0.239 for a single run here at the time — 0.233 after the
+  3-run repeat, 0.242 after the ground-truth correction in 1.0.0-rc.2 — and 0.209 on the card's VLoc
   Bench); fix-commit dates for all 36 cases (`npm run bench:antares:fixdates`)
   checked against the model's 2025-04-10 data cutoff. 35 of 36 fixes postdate
   it; the one that does not is named and a table leaves it out.

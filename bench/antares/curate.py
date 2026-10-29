@@ -45,8 +45,10 @@ def inspect(owner, repo, sha):
         if len(parents) != 2:  # merge commits and roots make ambiguous ground truth
             return None
         parent = parents[1]
-        changed = git(["diff-tree", "--no-commit-id", "--name-only", "-r", parent, sha], d).stdout.split("\n")
-        changed = [c for c in changed if c]
+        # Modified files only: a file the fix added does not exist in the vulnerable
+        # snapshot, so no localizer could rank it (deletions and renames are skipped too).
+        status = git(["diff-tree", "--no-commit-id", "--name-status", "-r", parent, sha], d).stdout.split("\n")
+        changed = [line.split("\t", 1)[1] for line in status if line.startswith("M\t")]
         files = git(["ls-tree", "-r", "--name-only", parent], d).stdout.split("\n")
         return {"parent": parent, "changed": changed, "treeFiles": len([x for x in files if x])}
 
@@ -110,7 +112,7 @@ def main():
     out = Path(__file__).with_name("cases.json")
     out.write_text(json.dumps({
         "schema": "zeroday.antares-bench.cases/v1",
-        "source": "OSV bulk export (GitHub-reviewed advisories); ground truth = non-test source files changed by the single fix commit",
+        "source": "OSV bulk export (GitHub-reviewed advisories); ground truth = non-test source files the single fix commit modified (files the fix added are excluded: they do not exist in the vulnerable snapshot)",
         "selection": {"perCwe": per_cwe, "newestFirst": True, "srcFilesChanged": "1-3", "treeFiles": "30-3000", "oneCasePerRepo": True},
         "cases": cases,
     }, indent=1) + "\n")

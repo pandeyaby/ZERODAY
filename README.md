@@ -25,17 +25,21 @@ advisory, a scan of OWASP Juice Shop, and the benchmark. Total GPU cost: $0.53.
 
 https://github.com/user-attachments/assets/abe2599a-498b-44f1-aa0e-84495c77ced5
 
-| Fixed file ranked #1 · [36 real advisories, 3 runs each](./docs/antares-benchmark.md) | Hit@1 | Top 3 |
+| Fixed file ranked #1 · [35 real advisories, 3 runs each](./docs/antares-benchmark.md) | Hit@1 | Top 3 |
 |---|---:|---:|
-| ZERODAY rules alone | 14% | 19% |
-| **Antares-1B, one run** | **25%** | **31%** |
-| Antares-1B, two runs merged (`--samples 2`) | 28% | 35% |
-| Antares-1B on the 4 weakness types rules can't scan (rules: 0%) | 14% | 22% |
+| ZERODAY rules alone | 14% | 20% |
+| **Antares-1B, one run** | **26%** | **31%** |
+| Antares-1B, two runs merged (`--samples 2`) | 29% | 36% |
+| **Antares-1B on the 4 weakness types rules can't scan** (rules: 0%) | **14%** | **22%** |
 
-Antares-1B's File F1 on these advisories is **0.233**, against 0.209 on its model card's own
-benchmark; 35 of the 36 fixes postdate its training data. 95% intervals, the per-case results
-and the comparison are in [`docs/antares-benchmark.md`](./docs/antares-benchmark.md). (The video
-shows the first single pass, which put two merged runs at 36%; three passes settle at 28%.)
+What the data supports: where the rules cannot look, Antares finds fixed files they
+cannot (+22 points in the top 3, a measurable difference). Elsewhere, at 35 cases, the
+gap between Antares and the rules — and between one and two Antares runs — is within
+the noise. Antares-1B's File F1 here is 0.24 (95% CI 0.15–0.34), consistent with the
+0.209 on its model card's own benchmark; 34 of the 35 fixes postdate its training data.
+Intervals, paired differences, per-case results and caveats:
+[`docs/antares-benchmark.md`](./docs/antares-benchmark.md). (The video shows the first
+single pass of an earlier 36-case set, which put two merged runs at 36%.)
 
 **How it decides.** By default there is no AI model involved: `--rules` parses
 JavaScript/TypeScript, Python, Java and Go with tree-sitter and traces request
@@ -273,10 +277,11 @@ ZERODAY also makes Antares more useful with no extra setup:
 - **Shows rules and Antares side by side.** ZERODAY's static pass runs on the
   same snapshot and the result marks which files **both** flagged, which only
   Antares found, and which rules candidates Antares did not confirm. On real
-  advisories the two lists together catch more than either alone.
+  advisories the top 3 of either list holds a fixed file more often than one
+  list alone — at the cost of more files to read.
 - **Can merge runs.** Antares-1B varies from run to run; `--samples 2` runs it
-  twice and ranks files by votes. Over 3 passes on 36 real advisories that put
-  the fixed file first in 28% of cases, against 25% for a single run — within
+  twice and ranks files by votes. Over 3 passes on 35 real advisories that put
+  the fixed file first in 29% of runs, against 26% for a single run — within
   the noise at this sample size — and 14% for the rules alone. (`--context`
   also sends the rules findings to Antares as starting context — it did not
   help there, so it is off by default.)
