@@ -43,6 +43,22 @@ const PATH_PATTERNS: Array<{
     score: 70,
   },
   {
+    id: "php-include-request",
+    // PHP: include($_GET['page']);  file_get_contents($_REQUEST['f'])
+    re: /\b(?:include|require|include_once|require_once|file_get_contents|fopen|readfile|file)\b\s*\(?[^;\n]*\$_(?:GET|POST|REQUEST|COOKIE)\b/,
+    title: "PHP file access with request input",
+    note: "include / file read takes a PHP request superglobal — candidate for CWE-22 review.",
+    score: 85,
+  },
+  {
+    id: "php-include-variable",
+    // PHP: $file = $_GET['page']; … include($file);
+    re: /\b(?:include|require|include_once|require_once)\b\s*\(?\s*\$[A-Za-z_]\w*\s*\)?\s*;/,
+    title: "PHP include of a variable path",
+    note: "include / require loads a path held in a variable — check where it comes from (CWE-22 / file inclusion).",
+    score: 55,
+  },
+  {
     // ../ only counts inside a filesystem call — not in any string literal.
     id: "dotdot-in-fs-call",
     re: new RegExp(

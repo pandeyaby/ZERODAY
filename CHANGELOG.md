@@ -3,6 +3,47 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+Fixes from a blinded end-to-end validation (five independent reviewers).
+
+### Fixed
+- **No more silent "clean" results for code the rules cannot read.** PHP, Ruby
+  and C# files were skipped for 7 of the 10 CWEs without a word, so a PHP repo
+  scanned for CWE-78 printed `Findings : 0` with exit 0. Now the CLI prints
+  `Coverage : PARTIAL — N PHP file(s) NOT checked for CWE-78`, `report.md` and
+  the PR comment say "Partly scanned", and `report.json` carries
+  `summary.notScannedFiles`.
+- **PHP, Ruby and C# line patterns that actually match the classic cases.**
+  CWE-89: SQL built with PHP interpolation (`"… '$id'"`) or `.` concatenation
+  with a variable, Ruby `#{…}`, C# `$"…{…}"`. CWE-79: request superglobals
+  echoed or concatenated into HTML; Rails `raw` / `html_safe`. CWE-22: PHP
+  `include` / file reads of request input or a variable path. DVWA's SQL
+  injection, reflected XSS and file-inclusion pages are now found (they
+  returned 0 findings before).
+- **`zeroday verify --from zeroday-reports/mvp`** (the README's own command)
+  failed: `npm run mvp` writes two runs under that folder. `verify` now checks
+  every run folder one level down when the folder has no manifest of its own.
+- **`scan --endpoint <url>`**: when Antares cannot be used at a named endpoint
+  (remote without `--remote-inference`, unhealthy, no CLI), `scan` now fails
+  with exit 2 instead of falling back to rules only with exit 0. Nothing was
+  ever sent to a refused endpoint.
+- **`--samples`** outside 1–5 is an error instead of silently becoming 2.
+
+### Changed
+- **The recorded demo is labelled as one.** `--fixture` output was labelled
+  `fixture/antares-1b-recorded` under an "Antares localization" heading; its
+  ranked files and notes are hand-written sample data. It is now
+  `fixture/recorded-demo`, headed "recorded demo", described as "not produced
+  by Antares", and no longer carries an exploit-likelihood rating.
+- **Wording:** the Desk page description and `docs/overview.md` no longer say
+  the tool is "for Cisco, Splunk, …" or "specialized for" those vendors; SARIF
+  no longer emits a `foundry_lane` property.
+- **`report.json` has `needs_human: true` at the top level** for every
+  command (added to the schema).
+- `scan` names why Antares was not used in one line and points to
+  `zeroday antares doctor`.
+
 ## 1.0.0-rc.1
 
 Release candidate for 1.0. From 1.0 the stable surface in

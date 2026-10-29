@@ -39,7 +39,7 @@ function loadRecording(cweId: string): Recording {
     // Fallback empty recording with informative warning
     return {
       cweId,
-      model: "fixture/antares-1b-recorded",
+      model: "fixture/recorded-demo",
       rankedFiles: [],
       explorationTrace: [
         {

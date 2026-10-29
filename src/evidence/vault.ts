@@ -209,6 +209,8 @@ export interface VerifyResult {
   checked: number;
   failures: Array<{ path: string; reason: string }>;
   manifest?: EvidenceManifest;
+  /** When runDir holds several runs (e.g. zeroday-reports/mvp): the run folders verified. */
+  runs?: string[];
 }
 
 /** Offline verify: recompute hashes and check schemaVersion. */
@@ -219,6 +221,24 @@ export function verifyRunDir(runDir: string): VerifyResult {
   let checked = 0;
 
   if (!fs.existsSync(mp)) {
+    // A folder of runs (`npm run mvp` writes mvp/locate and mvp/operate): verify each.
+    const runs = fs.existsSync(abs) && fs.statSync(abs).isDirectory()
+      ? fs
+          .readdirSync(abs, { withFileTypes: true })
+          .filter((d) => d.isDirectory() && fs.existsSync(manifestPathFor(path.join(abs, d.name))))
+          .map((d) => path.join(abs, d.name))
+          .sort()
+      : [];
+    if (runs.length > 0) {
+      const results = runs.map((r) => verifyRunDir(r));
+      return {
+        ok: results.every((r) => r.ok),
+        runDir: abs,
+        checked: results.reduce((n, r) => n + r.checked, 0),
+        failures: results.flatMap((r) => r.failures),
+        runs,
+      };
+    }
     return {
       ok: false,
       runDir: abs,

@@ -34,6 +34,29 @@ const XSS_PATTERNS: Array<{
     note: "dangerouslySetInnerHTML — candidate for CWE-79 review.",
     score: 75,
   },
+  {
+    id: "php-echo-request",
+    // PHP: echo "Hello " . $_GET['name'];
+    re: /\b(?:echo|print)\b[^;\n]*\$_(?:GET|POST|REQUEST|COOKIE)\b/,
+    title: "PHP output of request input",
+    note: "echo / print writes a PHP request superglobal to the page — candidate for CWE-79 review (escape with htmlspecialchars).",
+    score: 85,
+  },
+  {
+    id: "php-html-concat-request",
+    // PHP: $html .= '<pre>Hello ' . $_GET['name'] . '</pre>';
+    re: /<[a-z!/][^'"\n]*['"]\s*\.\s*\$_(?:GET|POST|REQUEST|COOKIE)\b/i,
+    title: "HTML built from PHP request input",
+    note: "HTML string joined to a PHP request superglobal — candidate for CWE-79 review.",
+    score: 85,
+  },
+  {
+    id: "ruby-raw-html",
+    re: /<%==|\.html_safe\b|\braw\s*\(/,
+    title: "Rails raw / html_safe output",
+    note: "Output marked safe skips Rails escaping — candidate for CWE-79 review.",
+    score: 70,
+  },
 ];
 
 export function scanRepoForCwe79(files: WalkedFile[]): {
@@ -45,7 +68,7 @@ export function scanRepoForCwe79(files: WalkedFile[]): {
     {
       step: 1,
       tool: "grep",
-      command: "rules:cwe-79 innerHTML|document.write|dangerouslySetInnerHTML",
+      command: "rules:cwe-79 innerHTML|document.write|dangerouslySetInnerHTML|PHP echo $_GET|Rails raw",
       summary: "Applied thin optional CWE-79 DOM-sink patterns.",
     },
   ];

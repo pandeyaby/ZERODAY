@@ -20,7 +20,7 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "ZERODAY — Agent Operator",
   description:
-    "Keyless defensive security operator for Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, and AWS Security. Localization + durable evidence. No exploits.",
+    "Keyless defensive vulnerability localization: ranks the files a human should review for a CWE, CVE or GHSA, with SARIF and verifiable evidence. Independent open source; no exploits.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

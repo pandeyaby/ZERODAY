@@ -10,7 +10,7 @@
     "title": "Improper Neutralization of Special Elements used in an SQL Command"
   },
   "targetRepo": "<repo>",
-  "model": "fixture/antares-1b-recorded",
+  "model": "fixture/recorded-demo",
   "rankedFiles": [
     {
       "filePath": "src/users.js",

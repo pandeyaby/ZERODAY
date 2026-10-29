@@ -1,5 +1,6 @@
 {
   "schema": "zeroday.report/v1",
+  "needs_human": true,
   "mode": "fixture",
   "advisory": {
     "kind": "cwe",
@@ -8,8 +9,8 @@
     "title": "Improper Neutralization of Special Elements used in an SQL Command"
   },
   "targetRepo": "/home/user/ZERODAY/fixtures/locate/demo-app",
-  "model": "fixture/antares-1b-recorded",
-  "generatedAt": "2026-09-29T21:30:35.850Z",
+  "model": "fixture/recorded-demo",
+  "generatedAt": "2026-10-29T22:07:29.241Z",
   "rankedFiles": [
     {
       "filePath": "src/users.js",
@@ -18,7 +19,6 @@
         "CWE-89"
       ],
       "title": "SQL query built via string concatenation",
-      "likelihoodOfExploit": "High",
       "evidence": [
         {
           "filePath": "src/users.js",
@@ -37,7 +37,6 @@
         "CWE-89"
       ],
       "title": "Request parameter passed to unsafe finder",
-      "likelihoodOfExploit": "High",
       "evidence": [
         {
           "filePath": "src/app.js",
@@ -92,7 +91,8 @@
     "Fixture mode: results come from a recorded Antares-style localization, not live model inference.",
     "Read-only snapshot: 6 files (destroyed after run)",
     "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
-    "Fixture mode is container-free (no Docker) — CI-safe."
+    "Fixture mode is container-free (no Docker) — CI-safe.",
+    "Live Antares CLI not on PATH. Install the official CLI from PyPI: `uv tool install cisco-antares-cli` then ensure `$(uv tool dir --bin)` is on PATH. Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI."
   ],
   "posture": {
     "localizationOnly": true,
@@ -106,7 +106,7 @@
     "terminalCallBudget": 15,
     "terminalCallsUsed": 6
   },
-  "snapshotPath": "/tmp/zeroday-snap-qtngqc/repo",
+  "snapshotPath": "/tmp/zeroday-snap-xyftFn/repo",
   "evidence": {
     "runId": "locate",
     "claimIds": [

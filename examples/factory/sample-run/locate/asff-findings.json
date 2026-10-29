@@ -9,8 +9,8 @@
       "Types": [
         "Software and Configuration Checks/Vulnerabilities/CWE-89"
       ],
-      "CreatedAt": "2026-09-29T21:30:35.850Z",
-      "UpdatedAt": "2026-09-29T21:30:35.850Z",
+      "CreatedAt": "2026-10-29T22:07:29.241Z",
+      "UpdatedAt": "2026-10-29T22:07:29.241Z",
       "Title": "CWE-89: SQL query built via string concatenation",
       "Description": "ZERODAY Antares localization candidate: src/users.js for CWE-89 (sql-injection), rank 1. User-controlled `name` is concatenated into a SQL string before db.query. Candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
       "Resources": [
@@ -45,7 +45,7 @@
       },
       "ProductFields": {
         "zeroday/mode": "fixture",
-        "zeroday/model": "fixture/antares-1b-recorded",
+        "zeroday/model": "fixture/recorded-demo",
         "zeroday/cwe": "CWE-89",
         "zeroday/fileF1": "0.209",
         "zeroday/lane": "detector-candidate"
@@ -68,8 +68,8 @@
       "Types": [
         "Software and Configuration Checks/Vulnerabilities/CWE-89"
       ],
-      "CreatedAt": "2026-09-29T21:30:35.850Z",
-      "UpdatedAt": "2026-09-29T21:30:35.850Z",
+      "CreatedAt": "2026-10-29T22:07:29.241Z",
+      "UpdatedAt": "2026-10-29T22:07:29.241Z",
       "Title": "CWE-89: Request parameter passed to unsafe finder",
       "Description": "ZERODAY Antares localization candidate: src/app.js for CWE-89 (sql-injection), rank 2. HTTP query `name` flows into findUserByName without neutralization. Candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
       "Resources": [
@@ -104,7 +104,7 @@
       },
       "ProductFields": {
         "zeroday/mode": "fixture",
-        "zeroday/model": "fixture/antares-1b-recorded",
+        "zeroday/model": "fixture/recorded-demo",
         "zeroday/cwe": "CWE-89",
         "zeroday/fileF1": "0.209",
         "zeroday/lane": "detector-candidate"

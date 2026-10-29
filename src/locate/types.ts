@@ -94,6 +94,11 @@ export interface LocalizationResult {
      * scanned for it. Zero findings here is never a clean negative.
      */
     unsupportedCwe?: boolean;
+    /**
+     * Rules mode: source files in languages the CWE's rules cannot read (e.g.
+     * PHP for CWE-78). They were not checked; no finding there is not clean.
+     */
+    notScannedFiles?: { count: number; languages: Record<string, number> };
     /** With --baseline: counts against the baseline report. */
     baseline?: { file: string; new: number; unchanged: number; absent: number };
     /** With --changed-since: findings limited to files changed since the ref. */

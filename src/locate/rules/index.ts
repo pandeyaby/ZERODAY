@@ -53,6 +53,29 @@ const HONEST_WARNINGS = [
   "No PoC / exploit / payload content is emitted.",
 ];
 
+/** Display name for a source file the tree-sitter engine does not parse. */
+const OTHER_LANGUAGE: Record<string, string> = { ".php": "PHP", ".rb": "Ruby", ".cs": "C#" };
+
+/** Count files the engine does not parse, by language (.sql is data, not code that handles requests). */
+function otherLanguages(files: WalkedFile[]): { count: number; languages: Record<string, number> } {
+  const languages: Record<string, number> = {};
+  let count = 0;
+  for (const f of files) {
+    const ext = path.extname(f.relPath).toLowerCase();
+    if (ext === ".sql") continue;
+    const name = OTHER_LANGUAGE[ext] ?? ext.slice(1);
+    languages[name] = (languages[name] ?? 0) + 1;
+    count += 1;
+  }
+  return { count, languages };
+}
+
+export const describeLanguages = (languages: Record<string, number>): string =>
+  Object.entries(languages)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, n]) => `${n} ${name}`)
+    .join(", ");
+
 function normalizeCwe(cweId: string): string {
   const m = String(cweId).match(/CWE-?(\d{1,4})/i);
   return m ? `CWE-${m[1]}` : cweId.toUpperCase();
@@ -124,6 +147,7 @@ export async function runRulesLocalization(
 
   const explorationTrace: TraceStep[] = [];
   let unsupportedCwe = false;
+  let notScannedFiles: { count: number; languages: Record<string, number> } | undefined;
   let rankedFiles = hitsToRankedFiles([], cweId);
   const hits: RuleHit[] = [];
   const warnings: string[] = [...HONEST_WARNINGS, ...walkWarnings];
@@ -154,6 +178,7 @@ export async function runRulesLocalization(
     hits.push(...engine.hits);
     const fallback = FALLBACK[cweId];
     const otherFiles = files.filter((f) => !langForPath(f.relPath));
+    const other = otherLanguages(otherFiles);
     if (fallback && otherFiles.length > 0) {
       hits.push(...fallback(otherFiles).hits);
       explorationTrace.push({
@@ -161,6 +186,25 @@ export async function runRulesLocalization(
         tool: "grep",
         command: `rules:${cweId.toLowerCase()} line heuristics (other languages)`,
         summary: `Applied line heuristics to ${otherFiles.length} file(s) the engine does not parse.`,
+      });
+      if (other.count > 0) {
+        warnings.push(
+          `${describeLanguages(other.languages)} file(s) were checked for ${cweId} with line patterns only (no data-flow tracking): ` +
+            "a finding there is a lead, and no finding is weaker evidence than for JavaScript/TypeScript, Python, Java or Go.",
+        );
+      }
+    } else if (other.count > 0) {
+      // Never let "0 findings" read as clean for code the rules cannot read.
+      notScannedFiles = other;
+      warnings.push(
+        `PARTIAL: ${describeLanguages(other.languages)} file(s) were NOT checked for ${cweId} — its rules read JavaScript/TypeScript, Python, Java and Go only. ` +
+          "Zero findings in those files is not a clean result.",
+      );
+      explorationTrace.push({
+        step: explorationTrace.length + 1,
+        tool: "other",
+        command: `rules:${cweId.toLowerCase()} not-scanned (${Object.keys(other.languages).join(", ")})`,
+        summary: `${other.count} file(s) in languages without ${cweId} rules were not checked.`,
       });
     }
   } else {
@@ -242,6 +286,7 @@ export async function runRulesLocalization(
       findingCount: rankedFiles.length,
       incompleteReason: null,
       ...(unsupportedCwe ? { unsupportedCwe: true } : {}),
+      ...(notScannedFiles ? { notScannedFiles } : {}),
       ...(advisoryMatch && advisoryMatch.verdict !== "no-data"
         ? {
             advisoryMatch: {

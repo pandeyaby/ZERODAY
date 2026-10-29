@@ -152,7 +152,6 @@ export function toSarif(result: LocalizationResult): SarifLog {
         likelihood_of_exploit: file.likelihoodOfExploit ?? "",
         exploration_steps: result.explorationTrace.length,
         zeroday_posture: result.posture,
-        foundry_lane: "detector-candidate",
       },
     };
   });

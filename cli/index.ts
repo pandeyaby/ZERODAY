@@ -41,6 +41,7 @@ import {
   RULES_SUPPORTED_CWES,
   assertRecordingReplayArtifacts,
 } from "../src/locate/index.ts";
+import { describeLanguages } from "../src/locate/rules/index.ts";
 import {
   RecordRefuseError,
   CassetteReplayAssertError,
@@ -909,7 +910,7 @@ program
         ...(opts.output ? { outputDir: opts.output } : {}),
         antares: opts.rulesOnly ? "off" : opts.requireAntares ? "require" : "auto",
         context: opts.context,
-        samples: Number(opts.samples) || 2,
+        samples: parseSamples(opts.samples),
         maxCwes: Number(opts.maxCwes) || 8,
         ...(opts.cwe ? { cwes: opts.cwe.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean) } : {}),
         ...(opts.endpoint ? { endpoint: opts.endpoint } : {}),
@@ -967,6 +968,13 @@ const antares = program
   .description(
     "Live Antares: `up` starts Antares-1B on your RunPod account (confirmed, capped, auto-deleted), `down` / `status`, `doctor` checklist",
   );
+
+/** --samples: an integer 1–5; anything else is an error, not a silent default. */
+function parseSamples(value: string): number {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1 || n > 5) throw new Error(`--samples must be a whole number from 1 to 5 (got "${value}")`);
+  return n;
+}
 
 function fmtUsd(n: number | null): string {
   return n === null ? "unknown" : `$${n.toFixed(2)}`;
@@ -1565,6 +1573,7 @@ program
         console.log("ZERODAY verify");
         console.log("─────────────");
         console.log(`Run dir  : ${result.runDir}`);
+        if (result.runs) console.log(`Runs     : ${result.runs.map((r) => path.basename(r)).join(", ")}`);
         console.log(`Checked  : ${result.checked}`);
         console.log(`Status   : ${result.ok ? "PASS" : "FAIL"}`);
         if (!result.ok) {
@@ -1811,7 +1820,7 @@ program
         failOnIncomplete,
         liveRecovery: !opts.noLiveRecovery,
         context: opts.context === true,
-        samples: Number(opts.samples) || 1,
+        samples: parseSamples(opts.samples),
         failOnFindings: opts.failOnFindings,
         remoteInference: opts.remoteInference,
         ...(opts.baseline ? { baseline: path.resolve(opts.baseline) } : {}),
@@ -1832,6 +1841,11 @@ program
         console.log(
           `Findings : ${r.summary.findingCount}${r.summary.baseline ? ` (${r.summary.baseline.new} new, ${r.summary.baseline.unchanged} unchanged, ${r.summary.baseline.absent} fixed)` : ""}`,
         );
+        if (r.summary.notScannedFiles) {
+          console.log(
+            `Coverage : PARTIAL — ${describeLanguages(r.summary.notScannedFiles.languages)} file(s) NOT checked for ${r.advisory.cweId} (its rules read JS/TS, Python, Java, Go). No finding there is not a clean result.`,
+          );
+        }
         if (r.summary.changedSince) {
           console.log(`Diff     : ${r.summary.changedSince.changedFiles} file(s) changed since ${r.summary.changedSince.ref} (${r.summary.changedSince.droppedFindings} finding(s) elsewhere hidden)`);
         }

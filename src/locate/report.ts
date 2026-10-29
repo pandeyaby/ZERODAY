@@ -115,6 +115,15 @@ export function toHumanReport(
             ];
       tips.forEach((t, i) => lines.push(`${i + 1}. ${t}`));
       lines.push(``);
+    } else if (result.summary.notScannedFiles && result.rankedFiles.length === 0) {
+      lines.push(`### Partly scanned`);
+      lines.push(``);
+      lines.push(
+        `> **No candidates in the files that were checked.** ${result.summary.notScannedFiles.count} file(s) ` +
+          `in languages without ${result.advisory.cweId} rules (${Object.keys(result.summary.notScannedFiles.languages).join(", ")}) were **not** checked. ` +
+          `This is **not** a clean negative for them.`,
+      );
+      lines.push(``);
     } else if (result.summary.unsupportedCwe) {
       lines.push(`### Not scanned`);
       lines.push(``);

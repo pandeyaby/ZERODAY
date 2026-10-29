@@ -7,7 +7,7 @@
     "title": "SQL Injection"
   },
   "targetRepo": "/workspace/fixtures/locate/demo-app",
-  "model": "fixture/antares-1b-recorded",
+  "model": "fixture/recorded-demo",
   "generatedAt": "2026-09-02T21:35:49.974Z",
   "rankedFiles": [
     {

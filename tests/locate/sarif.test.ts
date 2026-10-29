@@ -13,7 +13,7 @@ function sampleResult(overrides?: Partial<LocalizationResult>): LocalizationResu
       title: "SQL Injection",
     },
     targetRepo: "/tmp/demo",
-    model: "fixture/antares-1b-recorded",
+    model: "fixture/recorded-demo",
     generatedAt: "2026-01-01T00:00:00.000Z",
     rankedFiles: [
       {

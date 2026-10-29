@@ -71,8 +71,9 @@ npm run mvp        # self-test on a bundled demo app → PASS + report.sarif
 ```
 
 `npm run mvp` replays a recorded run (`--fixture`) to prove your setup works —
-it does not read your code. Open the printed `report.sarif` under
-`zeroday-reports/mvp/`, then point ZERODAY at your own repo.
+it does not read your code. Open `zeroday-reports/mvp/locate/report.md` (or
+`report.sarif` beside it) to see what a result looks like, then point ZERODAY at
+your own repo.
 
 **No clone needed:**
 
@@ -136,9 +137,12 @@ CWE-502 / 94 also cover ML model loading: `torch.load` without
 `weights_only=True`, `numpy.load(allow_pickle=True)`, joblib / pickle model files,
 Keras `safe_mode=False` and Hugging Face `trust_remote_code=True`.
 
-Other languages (Ruby, PHP, C#) get line heuristics for CWE-89 / 79 / 22. Ask for
-a CWE with no rules and it prints **NOT SCANNED** and exits `2` — it never reports
-an unscanned CWE as clean.
+PHP, Ruby and C# get line patterns (no data-flow tracking) for CWE-89 / 79 / 22 —
+e.g. SQL built with `"… '$id'"` or `"…" . $_GET[…]`, request input echoed into HTML,
+`include` of a request variable. For the other CWEs those files are not read, and
+the result says so: **`Coverage : PARTIAL — 184 PHP file(s) NOT checked for CWE-78`**.
+Ask for a CWE with no rules at all and it prints **NOT SCANNED** and exits `2`. It
+never reports code it did not check as clean.
 
 **Measured accuracy** (high-confidence findings, [`docs/benchmark.md`](./docs/benchmark.md)):
 OWASP Benchmark Java **57.7** (80% precision, 80% recall) and Python **53.7**
