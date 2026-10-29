@@ -1,6 +1,6 @@
 {
  "schema": "zeroday.antares-bench.cases/v1",
- "source": "OSV bulk export (GitHub-reviewed advisories); ground truth = non-test source files changed by the single fix commit",
+ "source": "OSV bulk export (GitHub-reviewed advisories); ground truth = non-test source files the single fix commit modified (files the fix added are excluded: they do not exist in the vulnerable snapshot)",
  "selection": {
   "perCwe": 3,
   "newestFirst": true,
@@ -98,13 +98,18 @@
    "fixCommit": "8bf032a5200f293b482dd945d436e25cd08bd953",
    "vulnerableCommit": "a1cd6b44d25cb20665859a0e0f1bc5bbfce460a9",
    "groundTruth": [
-    "lightrag_webui/src/components/retrieval/ChatMessage.tsx",
-    "lightrag_webui/src/utils/markdownSanitizeSchema.ts"
+    "lightrag_webui/src/components/retrieval/ChatMessage.tsx"
    ],
    "changedFiles": 5,
    "treeFiles": 806,
    "rulesCoverCwe": true,
-   "fixDate": "2026-07-20T12:45:13+08:00"
+   "fixDate": "2026-07-20T12:45:13+08:00",
+   "groundTruthDropped": [
+    {
+     "file": "lightrag_webui/src/utils/markdownSanitizeSchema.ts",
+     "reason": "added by the fix; absent from the vulnerable snapshot"
+    }
+   ]
   },
   {
    "id": "GHSA-3rm2-h79c-8qw6",
@@ -274,13 +279,18 @@
    "fixCommit": "362e61892052e250c56cb1ee852024d6f98c467b",
    "vulnerableCommit": "54ac682699407310b5a71fbaed8c33f581b84301",
    "groundTruth": [
-    "src/qwed_mcp/engines/math_engine.py",
-    "src/qwed_mcp/engines/safe_parser.py"
+    "src/qwed_mcp/engines/math_engine.py"
    ],
    "changedFiles": 2,
    "treeFiles": 36,
    "rulesCoverCwe": true,
-   "fixDate": "2026-06-13T19:01:24+05:30"
+   "fixDate": "2026-06-13T19:01:24+05:30",
+   "groundTruthDropped": [
+    {
+     "file": "src/qwed_mcp/engines/safe_parser.py",
+     "reason": "added by the fix; absent from the vulnerable snapshot"
+    }
+   ]
   },
   {
    "id": "GHSA-3496-9g83-7v6x",
@@ -358,7 +368,8 @@
    "changedFiles": 2,
    "treeFiles": 232,
    "rulesCoverCwe": true,
-   "fixDate": "2026-05-31T21:42:28-03:00"
+   "fixDate": "2026-05-31T21:42:28-03:00",
+   "excluded": "Its only fixed source file (C3P0BeanInfoGen.java) was added by the fix, so it does not exist in the vulnerable snapshot and no arm can find it."
   },
   {
    "id": "GHSA-h7vf-4x9w-h99v",
