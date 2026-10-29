@@ -55,6 +55,7 @@
       }
     },
     "summary": { "$ref": "#/$defs/summary" },
+    "needs_human": { "const": true, "description": "Always true: every result is a candidate for human review." },
     "evidence": {
       "description": "Evidence vault written alongside the report; check it with `zeroday verify --from <dir>`.",
       "type": "object"
@@ -99,6 +100,15 @@
         "incompleteTips": { "type": "array", "items": { "type": "string" } },
         "recoveryAttempted": { "type": "boolean" },
         "unsupportedCwe": { "type": "boolean", "description": "Rules mode has no rules for this CWE: NOT scanned, never a clean result" },
+        "notScannedFiles": {
+          "description": "Rules mode: source files in languages this CWE's rules cannot read (e.g. PHP for CWE-78). They were not checked, so no finding there is not a clean result.",
+          "type": "object",
+          "required": ["count", "languages"],
+          "properties": {
+            "count": { "type": "integer", "minimum": 1 },
+            "languages": { "type": "object", "additionalProperties": { "type": "integer" } }
+          }
+        },
         "terminalCallBudget": { "type": "integer", "minimum": 0 },
         "terminalCallsUsed": { "type": "integer", "minimum": 0 },
         "baseline": {

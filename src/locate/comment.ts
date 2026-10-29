@@ -7,9 +7,11 @@ import type { LocalizationResult } from "./types";
 export function toPullRequestComment(result: LocalizationResult): string {
   const lines: string[] = [];
   lines.push(
-    result.mode === "live" || result.mode === "fixture"
+    result.mode === "live"
       ? "## ZERODAY Antares localization (CI)"
-      : "## ZERODAY localization (CI)",
+      : result.mode === "fixture"
+        ? "## ZERODAY localization (CI) — recorded demo"
+        : "## ZERODAY localization (CI)",
   );
   lines.push("");
   lines.push(
@@ -21,7 +23,7 @@ export function toPullRequestComment(result: LocalizationResult): string {
   lines.push("|--|--|");
   const modeNote =
     result.mode === "fixture"
-      ? "fixture CI / no-GPU — recorded localization, not live weights"
+      ? "recorded demo for CI / no GPU — hand-written sample output, not produced by Antares"
       : result.mode === "live"
         ? "live Antares — local completions endpoint"
         : result.mode === "rules"
@@ -69,6 +71,13 @@ export function toPullRequestComment(result: LocalizationResult): string {
         "_Do not treat this as a clean negative. Tips: " +
           tips.join("; ") +
           "._",
+      );
+      lines.push("");
+    } else if (result.summary.notScannedFiles && result.rankedFiles.length === 0) {
+      lines.push(
+        `**Partly scanned** — no candidates in the files that were checked; ${result.summary.notScannedFiles.count} file(s) in ` +
+          `${Object.keys(result.summary.notScannedFiles.languages).join(", ")} have no ${result.advisory.cweId} rules and were not checked. ` +
+          "Do not treat this as a clean result.",
       );
       lines.push("");
     } else if (result.summary.unsupportedCwe) {

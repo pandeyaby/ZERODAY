@@ -1,6 +1,6 @@
 {
   "cweId": "CWE-89",
-  "model": "fixture/antares-1b-recorded",
+  "model": "fixture/recorded-demo",
   "terminalCallBudget": 15,
   "terminalCallsUsed": 6,
   "rankedFiles": [
@@ -9,7 +9,6 @@
       "rank": 1,
       "cweIds": ["CWE-89"],
       "title": "SQL query built via string concatenation",
-      "likelihoodOfExploit": "High",
       "evidence": [
         {
           "filePath": "src/users.js",
@@ -25,7 +24,6 @@
       "rank": 2,
       "cweIds": ["CWE-89"],
       "title": "Request parameter passed to unsafe finder",
-      "likelihoodOfExploit": "High",
       "evidence": [
         {
           "filePath": "src/app.js",

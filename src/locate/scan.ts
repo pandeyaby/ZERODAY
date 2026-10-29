@@ -252,9 +252,12 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         };
         if (query) warnings.push(`ZERODAY rules findings for ${antaresCwes.length} planned CWE(s) sent to Antares as starting context (--query).`);
       } catch (e) {
-        if (mode === "require") throw e;
-        skipped = (e as Error).message.split("\n")[0]!;
-        warnings.push(`Antares not used: ${skipped} — start one with \`zeroday antares up\`, or scan with rules only.`);
+        // A named --endpoint is a request for Antares there: refusing it (remote
+        // without --remote-inference, unhealthy, no CLI) must not pass as rules-only.
+        if (mode === "require" || opts.endpoint) throw e;
+        // First sentence only: the full setup guide is in `zeroday antares doctor`.
+        skipped = (e as Error).message.split("\n")[0]!.split(/(?<=\.)\s/)[0]!.replace(/\.$/, "");
+        warnings.push(`Antares not used: ${skipped}. Setup: \`zeroday antares doctor\` · start one: \`zeroday antares up\`.`);
       }
     }
 

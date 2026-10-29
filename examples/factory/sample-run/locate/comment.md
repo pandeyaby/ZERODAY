@@ -1,12 +1,12 @@
-## ZERODAY Antares localization (CI)
+## ZERODAY localization (CI) — recorded demo
 
 > **Human review required.** File-level localization candidates — **not** proof of exploitability. No auto-merge. No exploits, PoCs, or payloads.
 
 | | |
 |--|--|
 | Advisory | `CWE-89` → `CWE-89` |
-| Mode | `fixture` (fixture CI / no-GPU — recorded localization, not live weights) |
-| Model | `fixture/antares-1b-recorded` |
+| Mode | `fixture` (recorded demo for CI / no GPU — hand-written sample output, not produced by Antares) |
+| Model | `fixture/recorded-demo` |
 | Findings | **2** ranked file(s) |
 | Incomplete | no |
 

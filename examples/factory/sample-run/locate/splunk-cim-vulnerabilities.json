@@ -17,9 +17,9 @@
       "evidence": "User-controlled `name` is concatenated into a SQL string before db.query.",
       "advisory": "CWE-89",
       "mode": "fixture",
-      "model": "fixture/antares-1b-recorded",
+      "model": "fixture/recorded-demo",
       "file_f1": 0.209,
-      "time": "2026-09-29T21:30:35.850Z"
+      "time": "2026-10-29T22:07:29.241Z"
     },
     {
       "sourcetype": "zeroday:antares:json",
@@ -36,9 +36,9 @@
       "evidence": "HTTP query `name` flows into findUserByName without neutralization.",
       "advisory": "CWE-89",
       "mode": "fixture",
-      "model": "fixture/antares-1b-recorded",
+      "model": "fixture/recorded-demo",
       "file_f1": 0.209,
-      "time": "2026-09-29T21:30:35.850Z"
+      "time": "2026-10-29T22:07:29.241Z"
     }
   ]
 }

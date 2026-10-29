@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "ZERODAY",
-          "version": "0.11.0",
+          "version": "1.0.0-rc.1",
           "informationUri": "https://github.com/pandeyaby/ZERODAY",
           "rules": [
             {
@@ -64,15 +64,14 @@
             ],
             "advisory": "CWE-89",
             "mode": "fixture",
-            "likelihood_of_exploit": "High",
+            "likelihood_of_exploit": "",
             "exploration_steps": 6,
             "zeroday_posture": {
               "localizationOnly": true,
               "notExploitProof": true,
               "noAutoMerge": true,
               "noPoC": true
-            },
-            "foundry_lane": "detector-candidate"
+            }
           }
         },
         {
@@ -107,15 +106,14 @@
             ],
             "advisory": "CWE-89",
             "mode": "fixture",
-            "likelihood_of_exploit": "High",
+            "likelihood_of_exploit": "",
             "exploration_steps": 6,
             "zeroday_posture": {
               "localizationOnly": true,
               "notExploitProof": true,
               "noAutoMerge": true,
               "noPoC": true
-            },
-            "foundry_lane": "detector-candidate"
+            }
           }
         }
       ],
@@ -131,9 +129,9 @@
           "cweId": "CWE-89",
           "title": "Improper Neutralization of Special Elements used in an SQL Command"
         },
-        "model": "fixture/antares-1b-recorded",
+        "model": "fixture/recorded-demo",
         "mode": "fixture",
-        "generatedAt": "2026-09-29T21:30:35.850Z",
+        "generatedAt": "2026-10-29T22:07:29.241Z",
         "summary": {
           "findingCount": 2,
           "incompleteReason": null,
@@ -188,7 +186,8 @@
           "Fixture mode: results come from a recorded Antares-style localization, not live model inference.",
           "Read-only snapshot: 6 files (destroyed after run)",
           "Resolved CWE-89 → CWE-89 (sql-injection) via vendored",
-          "Fixture mode is container-free (no Docker) — CI-safe."
+          "Fixture mode is container-free (no Docker) — CI-safe.",
+          "Live Antares CLI not on PATH. Install the official CLI from PyPI: `uv tool install cisco-antares-cli` then ensure `$(uv tool dir --bin)` is on PATH. Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI."
         ]
       }
     }

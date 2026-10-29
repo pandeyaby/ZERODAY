@@ -74,6 +74,39 @@ const SQL_CONCAT_PATTERNS: Array<{
     score: 85,
   },
   {
+    id: "php-sql-dot-concat",
+    // PHP: "SELECT … WHERE id = '" . $_GET['id'] . "'"
+    // Either quote style; the other quote may appear inside (SQL string values).
+    re: /(?:"[^"\n]{0,160}\b(?:SELECT|INSERT|UPDATE|DELETE|WHERE)\b[^"\n]{0,160}"|'[^'\n]{0,160}\b(?:SELECT|INSERT|UPDATE|DELETE|WHERE)\b[^'\n]{0,160}')\s*\.\s*\$/i,
+    title: "SQL fragment concatenated with a PHP variable",
+    note: "SQL string literal joined to a PHP variable with `.` — candidate for CWE-89 review (not exploit proof).",
+    score: 95,
+  },
+  {
+    id: "php-sql-interpolation",
+    // PHP: "SELECT … WHERE user_id = '$id'"  or  "… {$row['id']}"
+    re: /"[^"\n]*\b(?:SELECT|INSERT|UPDATE|DELETE)\b[^"\n]*(?:\$[A-Za-z_]|\{\$)/i,
+    title: "SQL built with PHP variable interpolation",
+    note: "Double-quoted SQL interpolates a PHP variable — candidate for parameterized-query review.",
+    score: 92,
+  },
+  {
+    id: "ruby-sql-interpolation",
+    // Ruby: "SELECT … WHERE id = #{params[:id]}"
+    re: /"[^"\n]*\b(?:SELECT|INSERT|UPDATE|DELETE|WHERE)\b[^"\n]*#\{/i,
+    title: "SQL built with Ruby string interpolation",
+    note: "SQL string interpolates a Ruby expression — candidate for CWE-89 review.",
+    score: 90,
+  },
+  {
+    id: "csharp-sql-interpolation",
+    // C#: $"SELECT … WHERE id = {id}"
+    re: /\$@?"[^"\n]*\b(?:SELECT|INSERT|UPDATE|DELETE|WHERE)\b[^"\n]*\{/i,
+    title: "SQL built with C# string interpolation",
+    note: "Interpolated C# string builds SQL — candidate for parameterized-query review.",
+    score: 90,
+  },
+  {
     id: "sql-exec-concat",
     re: /(?:execute|query|raw)\s*\(\s*(["'`]).*(?:SELECT|INSERT|UPDATE|DELETE).*\1\s*\+/i,
     title: "DB execute/query with concatenated SQL",
@@ -100,6 +133,8 @@ export function scanFileForCwe89(file: WalkedFile): RuleHit[] {
   }
   const hits: RuleHit[] = [];
   const seen = new Set<string>();
+  // PHP files that read request input rank above SQL built from other values.
+  const readsRequest = lines.some((l) => /\$_(?:GET|POST|REQUEST|COOKIE)\b/.test(l));
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!;
@@ -122,7 +157,10 @@ export function scanFileForCwe89(file: WalkedFile): RuleHit[] {
         title: pat.title,
         note: pat.note,
         excerpt: excerptAround(lines, i),
-        score: pat.score,
+        score: pat.score + (readsRequest && pat.id.startsWith("php-") ? 3 : 0),
+        ...(readsRequest && pat.id.startsWith("php-")
+          ? { note: `${pat.note} This file reads request input ($_GET / $_POST / $_REQUEST / $_COOKIE).` }
+          : {}),
       });
       break; // one pattern per line is enough
     }

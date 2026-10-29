@@ -8,5 +8,5 @@ export const REPORT_SCHEMA = "zeroday.report/v1" as const;
 
 /** Serialize a report with its format id first. */
 export function reportJson(report: object): string {
-  return JSON.stringify({ schema: REPORT_SCHEMA, ...report }, null, 2);
+  return JSON.stringify({ schema: REPORT_SCHEMA, needs_human: true, ...report }, null, 2);
 }

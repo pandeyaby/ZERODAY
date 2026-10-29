@@ -11,8 +11,8 @@
 | Category | sql-injection |
 | Target | `/home/user/ZERODAY/fixtures/locate/demo-app` |
 | Mode | fixture |
-| Model | `fixture/antares-1b-recorded` |
-| Generated | 2026-09-29T21:30:35.850Z |
+| Model | `fixture/recorded-demo` |
+| Generated | 2026-10-29T22:07:29.241Z |
 
 ## What files
 
@@ -46,6 +46,7 @@ Material claims above cite vault ids: `ev_claim_002`, `ev_claim_003`. Verify off
 - Read-only snapshot: 6 files (destroyed after run)
 - Resolved CWE-89 → CWE-89 (sql-injection) via vendored
 - Fixture mode is container-free (no Docker) — CI-safe.
+- Live Antares CLI not on PATH. Install the official CLI from PyPI: `uv tool install cisco-antares-cli` then ensure `$(uv tool dir --bin)` is on PATH. Model weights stay gated — accept Cisco terms on https://huggingface.co/fdtn-ai/antares-1b and serve locally with vLLM 0.19.1+ (`vllm serve fdtn-ai/antares-1b`) exposing POST /v1/completions. Do not use /v1/chat/completions. Do not clone antares-cli onto operator machines — install from PyPI.
 
 ## Exploration trace (analyst detail)
 

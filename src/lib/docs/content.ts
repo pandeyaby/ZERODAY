@@ -236,7 +236,7 @@ export const DOC_SECTIONS: DocSection[] = [
     body: [
       {
         type: "p",
-        text: "ZERODAY turns an existing AI coding agent into a structured, auditable security operator specialized for Cisco, Splunk, Palo Alto, Fortinet, CrowdStrike, and AWS Security desks — keyless, self-hosted, offline-capable, durable evidence.",
+        text: "ZERODAY turns an existing AI coding agent into a structured, auditable security operator — keyless, self-hosted, offline-capable, durable evidence. Results export to SARIF and to common security-tool formats; ZERODAY is independent and not affiliated with any vendor.",
       },
     ],
   },
