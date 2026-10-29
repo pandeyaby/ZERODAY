@@ -3,9 +3,11 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 1.0.0-rc.2
 
-Fixes from a blinded end-to-end validation (five independent reviewers).
+Second release candidate for 1.0: fixes from a blinded end-to-end validation
+(five independent reviewers). Published to npm under `next` and as a GitHub
+pre-release; `latest` stays on 0.12.0 until 1.0.0.
 
 ### Security
 - **`antares up` pods require an API key.** vLLM on the pod starts with a
