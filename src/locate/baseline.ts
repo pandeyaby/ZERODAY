@@ -44,7 +44,7 @@ function rerank(result: LocalizationResult): void {
 }
 
 /** Files changed since `ref` (merge-base diff + uncommitted + untracked). Throws when git can't answer. */
-export function changedFiles(repo: string, ref: string): Set<string> {
+export function changedFiles(repo: string, ref: string): Set<string> & { untracked?: number } {
   const git = (args: string[]) => {
     const r = spawnSync("git", ["-C", repo, ...args], { encoding: "utf8" });
     if (r.status !== 0) {
@@ -58,15 +58,21 @@ export function changedFiles(repo: string, ref: string): Set<string> {
   const top = git(["rev-parse", "--show-toplevel"])[0]!;
   const prefix = path.relative(top, path.resolve(repo)).split(path.sep).join("/");
   const toRepoRel = (p: string) => (prefix && p.startsWith(`${prefix}/`) ? p.slice(prefix.length + 1) : prefix ? null : p);
-  const out = new Set<string>();
-  for (const p of [
-    ...git(["diff", "--name-only", `${ref}...HEAD`]),
-    ...git(["diff", "--name-only", "HEAD"]),
-    ...git(["ls-files", "--others", "--exclude-standard"]).map((p) => (prefix ? `${prefix}/${p}` : p)),
-  ]) {
+  const out: Set<string> & { untracked?: number } = new Set<string>();
+  for (const p of [...git(["diff", "--name-only", `${ref}...HEAD`]), ...git(["diff", "--name-only", "HEAD"])]) {
     const rel = toRepoRel(p);
     if (rel) out.add(rel);
   }
+  // New files not yet committed count as changed (new code); reported separately.
+  let untracked = 0;
+  for (const p of git(["ls-files", "--others", "--exclude-standard"])) {
+    const rel = toRepoRel(prefix ? `${prefix}/${p}` : p);
+    if (rel && !out.has(rel)) {
+      out.add(rel);
+      untracked += 1;
+    }
+  }
+  out.untracked = untracked;
   return out;
 }
 
@@ -83,9 +89,17 @@ export function applyChangedSince(result: LocalizationResult, repo: string, ref:
       f.evidence.some((e) => [...changed].some((c) => e.note?.includes(`Request input from ${c} `))),
   );
   rerank(result);
-  result.summary.changedSince = { ref, changedFiles: changed.size, droppedFindings: before - result.rankedFiles.length };
+  const untracked = changed.untracked ?? 0;
+  result.summary.changedSince = {
+    ref,
+    changedFiles: changed.size,
+    droppedFindings: before - result.rankedFiles.length,
+    untrackedFiles: untracked,
+  };
   result.warnings.push(
-    `Diff mode: ${changed.size} file(s) changed since ${ref}; kept ${result.rankedFiles.length} of ${before} finding(s).`,
+    `Diff mode: ${changed.size} file(s) changed since ${ref}` +
+      (untracked ? ` (${untracked} of them untracked, not yet committed)` : "") +
+      `; kept ${result.rankedFiles.length} of ${before} finding(s).`,
   );
 }
 

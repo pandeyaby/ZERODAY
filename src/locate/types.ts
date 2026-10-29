@@ -102,7 +102,7 @@ export interface LocalizationResult {
     /** With --baseline: counts against the baseline report. */
     baseline?: { file: string; new: number; unchanged: number; absent: number };
     /** With --changed-since: findings limited to files changed since the ref. */
-    changedSince?: { ref: string; changedFiles: number; droppedFindings: number };
+    changedSince?: { ref: string; changedFiles: number; droppedFindings: number; untrackedFiles?: number };
     /** Live `--samples N`: runs merged and how many ranked each file. */
     samples?: { runs: number; votes: Record<string, number> };
     /**

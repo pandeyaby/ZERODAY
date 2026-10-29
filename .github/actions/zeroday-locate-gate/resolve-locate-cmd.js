@@ -1,6 +1,6 @@
 /**
  * Resolve the keyless locate CLI invocation for the composite Action.
- * Default: fixture (CI / no-GPU). Live / endpoint never allowed here.
+ * Default: rules on the caller's checkout (`.`). fixture = bundled demo. Live / endpoint never allowed here.
  *
  * @param {{ mode?: string, cwe?: string, advisory?: string, repo?: string, output?: string, recording?: string, baseline?: string, changedSince?: string, offline?: string }} inputs
  * @returns {{ argv: string[], cliArgs: string[], expectedMode: string, label: string }}
@@ -27,9 +27,9 @@ function advisoryArgs(cwe, advisory) {
 }
 
 function resolveBase(inputs) {
-  const mode = String(inputs.mode || "fixture").trim().toLowerCase();
+  const mode = String(inputs.mode || "rules").trim().toLowerCase();
   const cwe = String(inputs.cwe || "CWE-89").trim();
-  const repo = String(inputs.repo || "fixtures/locate/demo-app").trim();
+  const repo = String(inputs.repo || (mode === "fixture" ? "fixtures/locate/demo-app" : ".")).trim();
   const output = String(inputs.output || "zeroday-reports/ci").trim();
   const recording = String(inputs.recording || "").trim();
   const advisory = String(inputs.advisory || "").trim();
@@ -118,7 +118,7 @@ function resolveBase(inputs) {
 module.exports = { resolveLocateCmd };
 
 if (require.main === module) {
-  const mode = process.env.ZERODAY_GATE_MODE || process.argv[2] || "fixture";
+  const mode = process.env.ZERODAY_GATE_MODE || process.argv[2] || "rules";
   const resolved = resolveLocateCmd({
     mode,
     cwe: process.env.CWE || process.argv[3],

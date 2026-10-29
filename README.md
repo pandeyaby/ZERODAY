@@ -17,7 +17,7 @@ authentication, ReDoS — one command starts
 [Antares-1B](https://cisco-foundation-ai.github.io/antares/) on your own GPU
 account, and `zeroday scan` puts both answers side by side.
 
-<a href="#demo"><img src="./docs/images/zeroday-demo-poster.png" alt="ZERODAY + Antares-1B demo video (3:28): antares up, then rules vs Antares on a real Traefik authentication advisory — rules say NOT SCANNED, Antares ranks the file the real fix changed first — then a whole-repo scan, the benchmark, and antares down" width="720"></a>
+<a href="#demo"><img src="./docs/images/zeroday-demo-poster.png" alt="ZERODAY + Antares-1B demo video (3:32): antares up, then rules vs Antares on a real Traefik authentication advisory — rules say NOT SCANNED, Antares ranks the file the real fix changed first — then a whole-repo scan, the benchmark, and antares down" width="720"></a>
 
 <a id="demo"></a>▶ **The 3-minute demo** ([download MP4](./docs/media/zeroday-demo.mp4)) — every run in it is real:
 `antares up` on a RunPod A40 (ready in 2 minutes), a real authentication-bypass
@@ -301,7 +301,9 @@ npm run zeroday -- antares down        # delete the pod now (status: antares sta
 
 ZERODAY never downloads weights to your machine and **never creates paid RunPod
 pods** unless you run `antares up` and confirm; every pod it creates has a
-deadline and a watchdog that deletes it. Already serving Antares yourself
+deadline and a watchdog (a background process on your machine) that deletes it,
+and its vLLM answers only requests that carry a random per-pod API key, which
+ZERODAY sends for you. Already serving Antares yourself
 (vLLM / Ollama / LM Studio, or `docs/runpod-antares.md`)? `--live` finds it.
 Non-loopback endpoints need `--remote-inference` (`antares up` sets it for the pod
 it creates). **No silent fixture fallback** if the endpoint is down. Measured
@@ -315,6 +317,9 @@ npm run zeroday -- antares doctor          # print-only checklist, no spend
 npm run zeroday -- doctor --local-brain    # any local OpenAI-compatible brain
 # or: bash scripts/quickstart-live.sh /path/to/repo CWE-89
 ```
+
+Your own endpoint needs a key? Export `ZERODAY_ENDPOINT_API_KEY` (or
+`ANTARES_API_KEY`); ZERODAY and the Antares CLI send it as `Authorization: Bearer`.
 
 Arbitrary local models ≠ Antares File F1 — see
 [`docs/local-brain.md`](./docs/local-brain.md). Install, HF access and RunPod

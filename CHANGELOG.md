@@ -7,6 +7,36 @@ All notable changes to ZERODAY. The stable surface is defined in
 
 Fixes from a blinded end-to-end validation (five independent reviewers).
 
+### Security
+- **`antares up` pods require an API key.** vLLM on the pod starts with a
+  random per-pod `--api-key`; ZERODAY's health checks and discovery send it, and
+  the Antares CLI gets it as `ANTARES_API_KEY`. Before, anyone who guessed the
+  pod's public proxy URL could use the GPU for the pod's lifetime. The key lives
+  only in `.zeroday/antares-pod.json` (owner-only) and dies with the pod. For
+  your own endpoint, export `ZERODAY_ENDPOINT_API_KEY` (or `ANTARES_API_KEY`).
+- **`verify` checks `evidence/manifest.sha256`.** An edited `manifest.json`
+  (for example, an artifact removed from it) now fails verification instead of
+  passing because every remaining hash still matched.
+
+### Changed
+- **The GitHub Action defaults to `mode: rules` on your checkout (`repo: .`).**
+  The old default, `fixture`, posted the bundled recorded demo on your PR when
+  `mode:` was left out. `mode: fixture` still runs the demo. Docs list every
+  input, including `sarif-category`, `recording` and the soft-fail behaviour of
+  `upload-sarif`.
+- **Advisory scans rank the advisory's own findings first.** Under
+  `--cve` / `--ghsa`, code-rule hits that only share the CWE (an `eval` under a
+  lodash CVE) rank after the dependency findings and say they are not linked
+  to the package.
+- **`--changed-since` reports untracked files separately** (`summary.changedSince.untrackedFiles`
+  and "N of them untracked" in the warning). They still count as changed.
+- An unresolved CVE / GHSA now suggests `--map-cwe` (keeps the advisory)
+  rather than `--cwe`.
+- Evidence manifests list each artifact once (`report.sarif` was listed twice).
+- `docs/verify-release.md`: exact cosign certificate identity per tag,
+  pre-release channels (`@next`, no Docker `:latest`), Linux x64 SBOM scope.
+  `docs/stability.md`: the 1.0 promise.
+
 ### Benchmark
 - **Ground truth corrected.** Three cases counted files that the fix *added*,
   which do not exist in the vulnerable snapshot: one case

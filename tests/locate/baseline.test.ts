@@ -64,6 +64,8 @@ describe("baseline + diff mode", () => {
     const r = await locate({ repo: dir, advisory: "CWE-89", rules: true, offline: true, outputDir: out(), changedSince: "HEAD" });
     assert.deepEqual(r.result.rankedFiles.map((f) => f.filePath), ["src/new.js"]);
     assert.equal(r.result.summary.changedSince?.droppedFindings, 1);
+    assert.equal(r.result.summary.changedSince?.untrackedFiles, 1, "src/new.js is untracked");
+    assert.ok(r.result.warnings.some((w) => /1 file\(s\) changed since HEAD \(1 of them untracked/.test(w)));
   });
 
   it("--changed-since outside a git repo fails closed", async () => {

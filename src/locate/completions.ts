@@ -9,6 +9,8 @@
  * completions-only smoke request (no repository source in the probe).
  */
 
+import { endpointAuthHeaders } from "./endpoint-auth";
+
 export function normalizeCompletionsEndpoint(endpoint: string): string {
   const trimmed = endpoint.trim().replace(/\/+$/, "");
   if (/\/v1\/completions$/i.test(trimmed)) return trimmed;
@@ -44,6 +46,7 @@ export async function probeCompletionsEndpoint(
   const fetchFn = opts?.fetchImpl ?? fetch;
   try {
     const res = await fetchFn(modelsUrl, {
+      headers: endpointAuthHeaders(normalized),
       signal: AbortSignal.timeout(opts?.timeoutMs ?? 3000),
     });
     if (!res.ok) {
@@ -107,7 +110,7 @@ export async function postCompletions(
   try {
     const res = await fetchFn(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...endpointAuthHeaders(endpoint) },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(req.timeoutMs ?? 30_000),
     });

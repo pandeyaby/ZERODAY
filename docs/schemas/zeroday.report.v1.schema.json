@@ -127,7 +127,8 @@
           "properties": {
             "ref": { "type": "string" },
             "changedFiles": { "type": "integer" },
-            "droppedFindings": { "type": "integer" }
+            "droppedFindings": { "type": "integer" },
+            "untrackedFiles": { "type": "integer", "description": "Of changedFiles: new files not yet committed (counted as changed)" }
           }
         },
         "advisoryMatch": {

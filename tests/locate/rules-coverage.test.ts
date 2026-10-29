@@ -87,6 +87,22 @@ describe("verify a folder of runs", () => {
     assert.equal(verifyRunDir(parent).ok, false, "a tampered run fails the whole folder");
     assert.equal(verifyRunDir(out()).ok, false, "an empty folder still fails");
   });
+
+  it("lists each artifact once and fails when manifest.json is edited", async () => {
+    const dir = out();
+    await locate({ repo: PHP, advisory: "CWE-89", rules: true, offline: true, outputDir: dir });
+    const mp = path.join(dir, "evidence", "manifest.json");
+    const manifest = JSON.parse(fs.readFileSync(mp, "utf8")) as { artifacts: Array<{ relativePath: string }> };
+    const paths = manifest.artifacts.map((a) => a.relativePath);
+    assert.equal(new Set(paths).size, paths.length, `duplicates in ${paths.join(", ")}`);
+    assert.equal(verifyRunDir(dir).ok, true);
+    // Drop an artifact from the manifest: every remaining hash still matches.
+    manifest.artifacts = manifest.artifacts.filter((a) => a.relativePath !== "comment.md");
+    fs.writeFileSync(mp, JSON.stringify(manifest, null, 2));
+    const res = verifyRunDir(dir);
+    assert.equal(res.ok, false);
+    assert.ok(res.failures.some((f) => /manifest\.sha256/.test(f.reason)));
+  });
 });
 
 describe("scan with a named endpoint", () => {

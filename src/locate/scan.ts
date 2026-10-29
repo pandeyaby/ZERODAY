@@ -21,6 +21,7 @@ import { runRulesLocalization, RULES_SUPPORTED_CWES } from "./rules/index";
 import { discoverLiveEndpoint } from "./discover";
 import { assertLiveEndpointHealthy, resolveLocateMode } from "./live-guard";
 import { normalizeCompletionsEndpoint } from "./completions";
+import { antaresCliEnv } from "./endpoint-auth";
 import { adaptAntaresReport, detectAntaresCli } from "./live";
 import { toSarif } from "./sarif";
 import { EvidenceVault } from "../evidence/vault";
@@ -199,7 +200,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
           ];
           const run = spawnSync(cli.binary, args, {
             encoding: "utf8",
-            env: { ...process.env, ANTARES_MODEL: model },
+            env: antaresCliEnv(endpoint, { ANTARES_MODEL: model }),
             timeout: 60 * 60 * 1000,
             maxBuffer: 64 * 1024 * 1024,
           });

@@ -7,7 +7,11 @@ via an OpenAI-compatible API that exposes **`POST /v1/completions`** (required b
 > **One command:** `npm run zeroday -- antares up` creates the pod described
 > here on your own account (after you confirm), waits for Antares, saves the
 > endpoint and deletes the pod at a deadline (`--max-minutes`, default 30);
-> `antares down` deletes it sooner. Otherwise ZERODAY never creates or starts
+> `antares down` deletes it sooner. The pod's vLLM runs with a random
+> per-pod `--api-key`, kept with the pod in `.zeroday/antares-pod.json` (owner-only)
+> and sent by ZERODAY and the Antares CLI, so the public proxy URL does not
+> answer anyone else. A pod you start by hand: add `--api-key` yourself and
+> export `ZERODAY_ENDPOINT_API_KEY`. Otherwise ZERODAY never creates or starts
 > paid RunPod pods — this doc + `npm run zeroday -- antares doctor` (wraps
 > `scripts/runpod-vllm-antares.sh --print-only`) print the manual steps.
 
