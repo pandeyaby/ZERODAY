@@ -23,7 +23,7 @@ describe("GitHub Action PR comment (fail-closed)", () => {
     assert.match(yml, /Ranked candidate files/);
     assert.match(yml, /resolve-locate-cmd\.js/);
     assert.match(yml, /mode:\s*\n\s*description:/);
-    assert.match(yml, /default:\s*fixture/);
+    assert.match(yml, /mode:\s*\n\s*description:[\s\S]*?default: rules\n/);
 
     // Comment step must not soft-fail
     const commentBlock = yml.slice(

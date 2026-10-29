@@ -15,10 +15,22 @@ const { resolveLocateCmd } = require(
 );
 
 describe("zeroday-locate-gate resolveLocateCmd", () => {
-  it("defaults to fixture mode", () => {
+  it("defaults to rules mode on the caller's checkout", () => {
     const r = resolveLocateCmd({});
+    assert.equal(r.expectedMode, "rules");
+    assert.ok(r.argv.includes("--rules"));
+    assert.equal(r.argv[r.argv.indexOf("--repo") + 1], ".");
+    assert.ok(!r.argv.includes("--fixture"));
+    assert.ok(!r.argv.includes("--recording"));
+    assert.ok(!r.argv.includes("--endpoint"));
+    assert.ok(!r.argv.includes("--live"));
+  });
+
+  it("fixture mode scans the bundled demo app", () => {
+    const r = resolveLocateCmd({ mode: "fixture" });
     assert.equal(r.expectedMode, "fixture");
     assert.ok(r.argv.includes("--fixture"));
+    assert.ok(r.argv.includes("fixtures/locate/demo-app"));
     assert.ok(!r.argv.includes("--rules"));
     assert.ok(!r.argv.includes("--recording"));
     assert.ok(!r.argv.includes("--endpoint"));

@@ -1,6 +1,7 @@
 name: ZERODAY locate gate
 description: >
-  Keyless localization CI gate — fixture (default), rules, or org cassette replay.
+  Keyless localization CI gate — rules on your checkout (default), the bundled
+  fixture demo, or org cassette replay.
   SARIF upload + reviewable PR comment. No model weights, no HF pull, no GPU.
   Live Antares / --endpoint is never supported here (workstation opt-in only).
   Never auto-merges. Localization ≠ exploitability.
@@ -8,18 +9,19 @@ description: >
 inputs:
   mode:
     description: >
-      Locate door: fixture (default CI smoke) | rules (authorized repo snapshot) |
-      recording (org cassette replay). Live / endpoint refused.
+      Locate door: rules (default — scans `repo`, your checkout) | fixture
+      (bundled recorded demo, not your code) | recording (org cassette replay).
+      Live / endpoint refused.
     required: false
-    default: fixture
+    default: rules
   cwe:
     description: CWE id for fixture/rules localization (e.g. CWE-89). Ignored for recording.
     required: false
     default: CWE-89
   repo:
-    description: Path to scan (fixture demo-app by default; set to checkout root for rules)
+    description: Path to scan (default `.`, your checkout; the bundled demo app in fixture mode)
     required: false
-    default: fixtures/locate/demo-app
+    default: ""
   recording:
     description: Org cassette path when mode=recording (zeroday-org-cassette/v1)
     required: false
@@ -160,7 +162,10 @@ runs:
         ZERODAY_CMD: ${{ steps.cli.outputs.cmd }}
       run: |
         set -euo pipefail
-        # Bundled fixtures (fixture mode default) live in the Action's copy, not the caller's tree.
+        if [ -z "$REPO" ]; then
+          if [ "$ZERODAY_GATE_MODE" = "fixture" ]; then REPO="fixtures/locate/demo-app"; else REPO="."; fi
+        fi
+        # Bundled fixtures (fixture mode) live in the Action's copy, not the caller's tree.
         if [ ! -e "$REPO" ] && [ -e "$ZERODAY_ROOT/$REPO" ]; then REPO="$ZERODAY_ROOT/$REPO"; fi
         if [ -n "$RECORDING" ] && [ ! -e "$RECORDING" ] && [ -e "$ZERODAY_ROOT/$RECORDING" ]; then RECORDING="$ZERODAY_ROOT/$RECORDING"; fi
         export REPO RECORDING

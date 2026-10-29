@@ -137,6 +137,9 @@ export class EvidenceVault {
   /** Register an already-written artifact outside evidence/ (report.json etc.). */
   registerArtifact(absPath: string, name?: string): EvidenceEntry {
     const rel = path.relative(this.runDir, absPath).split(path.sep).join("/");
+    // Registered once: exports may hand back a file that is already listed (report.sarif).
+    const known = this.manifest.entries.find((e) => e.kind === "artifact" && e.relativePath === rel);
+    if (known) return known;
     const hash = sha256File(absPath);
     const st = fs.statSync(absPath);
     const display = name || path.basename(absPath);
@@ -257,6 +260,16 @@ export function verifyRunDir(runDir: string): VerifyResult {
       checked: 0,
       failures: [{ path: mp, reason: `invalid JSON: ${(e as Error).message}` }],
     };
+  }
+
+  // manifest.sha256 (written beside it) catches an edited manifest.json.
+  const hashPath = path.join(evidenceDirFor(abs), "manifest.sha256");
+  if (fs.existsSync(hashPath)) {
+    checked += 1;
+    const expected = fs.readFileSync(hashPath, "utf8").trim();
+    if (expected !== sha256File(mp)) {
+      failures.push({ path: "evidence/manifest.json", reason: "does not match evidence/manifest.sha256 (manifest edited after the run)" });
+    }
   }
 
   if (manifest.schemaVersion !== "zeroday-evidence-manifest/v1") {

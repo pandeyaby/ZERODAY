@@ -15,6 +15,7 @@ import {
   normalizeCompletionsEndpoint,
 } from "../locate/completions";
 import { runPairedProbesFromSarif } from "../locate/paired-probes/from-sarif";
+import { endpointAuthHeaders } from "../locate/endpoint-auth";
 import {
   assertAllowedReadPath,
   PathPolicyError,
@@ -194,6 +195,7 @@ export async function probeOperatorEndpoint(
   try {
     const res = await fetchFn(modelsUrl, {
       method: "GET",
+      headers: endpointAuthHeaders(endpoint),
       signal: AbortSignal.timeout(timeoutMs),
     });
     const latencyMs = Date.now() - started;

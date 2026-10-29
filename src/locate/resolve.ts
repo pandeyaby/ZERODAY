@@ -297,7 +297,7 @@ export async function resolveAdvisory(
 
   throw new Error(
     `${id} could not be resolved to a CWE. ` +
-      `Pass --cwe CWE-NNN explicitly, add a vendored mapping in data/advisory-map.json, ` +
+      `Pass --map-cwe CWE-NNN with the advisory (or run --cwe CWE-NNN instead), add a vendored mapping in data/advisory-map.json, ` +
       `or enable network resolve (unset ZERODAY_OFFLINE). Antares queries by CWE.`,
   );
 }

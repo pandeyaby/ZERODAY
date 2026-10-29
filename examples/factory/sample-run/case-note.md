@@ -4,7 +4,7 @@
 
 | | |
 |--|--|
-| Generated | 2026-10-29T22:07:29.229Z |
+| Generated | 2026-10-29T22:36:39.952Z |
 | Repo | `demo-app` |
 | Findings | **4** |
 | Posture | inventory only · needs human · no auto-merge |

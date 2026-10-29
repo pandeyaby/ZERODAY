@@ -6,9 +6,12 @@
  * Hugging Face token (terms for fdtn-ai/antares-1b accepted by them), both read
  * from the environment and never written to disk. Every pod gets a deadline: a
  * detached watchdog deletes it when the deadline passes, and `antares down`
- * deletes it sooner. State lives in .zeroday/antares-pod.json (no secrets).
+ * deletes it sooner. vLLM on the pod requires a random API key, so its public
+ * proxy URL does not answer strangers. State lives in .zeroday/antares-pod.json
+ * (mode 0600): the pod id and that per-pod key, never the operator's tokens.
  */
 
+import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
@@ -27,6 +30,8 @@ export interface PodState {
   gpu: string | null;
   model: string;
   endpoint: string;
+  /** vLLM --api-key for this pod only (random; useless once the pod is deleted). */
+  apiKey?: string;
   createdAt: string;
   deadline: string;
   maxMinutes: number;
@@ -110,6 +115,7 @@ export async function createPod(opts: CreatePodOptions = {}): Promise<PodState> 
   const token = hfToken(opts.env);
   const model = opts.model ?? DEFAULT_MODEL;
   const maxMinutes = opts.maxMinutes ?? DEFAULT_MAX_MINUTES;
+  const apiKey = `zd-${randomBytes(24).toString("base64url")}`;
   const res = await api<{ id?: string; costPerHr?: number; machine?: { gpuTypeId?: string }; gpu?: { id?: string } }>("POST", "/pods", key, {
     name: `zeroday-antares-${Date.now().toString(36)}`,
     imageName: "vllm/vllm-openai:latest",
@@ -121,7 +127,7 @@ export async function createPod(opts: CreatePodOptions = {}): Promise<PodState> 
     volumeInGb: 0,
     ports: ["8000/http"],
     env: { HF_TOKEN: token, HUGGING_FACE_HUB_TOKEN: token },
-    dockerStartCmd: ["--model", model, "--max-model-len", String(opts.maxModelLen ?? DEFAULT_MAX_MODEL_LEN), "--host", "0.0.0.0", "--port", "8000"],
+    dockerStartCmd: ["--model", model, "--max-model-len", String(opts.maxModelLen ?? DEFAULT_MAX_MODEL_LEN), "--host", "0.0.0.0", "--port", "8000", "--api-key", apiKey],
   });
   if (res.status >= 300 || !res.data?.id) {
     throw new RunpodError(`RunPod did not create the pod (HTTP ${res.status}): ${res.text}`);
@@ -132,6 +138,7 @@ export async function createPod(opts: CreatePodOptions = {}): Promise<PodState> 
     gpu: res.data.machine?.gpuTypeId ?? res.data.gpu?.id ?? null,
     model,
     endpoint: proxyEndpoint(res.data.id),
+    apiKey,
     createdAt: now.toISOString(),
     deadline: new Date(now.getTime() + maxMinutes * 60_000).toISOString(),
     maxMinutes,
@@ -172,7 +179,10 @@ export async function waitReady(
   let last = "";
   while (Date.now() < until) {
     try {
-      const res = await fetch(`${state.endpoint}/models`, { signal: AbortSignal.timeout(10_000) });
+      const res = await fetch(`${state.endpoint}/models`, {
+        headers: state.apiKey ? { Authorization: `Bearer ${state.apiKey}` } : {},
+        signal: AbortSignal.timeout(10_000),
+      });
       if (res.ok) {
         const body = (await res.json()) as { data?: Array<{ id?: string }> };
         if ((body.data ?? []).some((m) => m.id === state.model)) return true;

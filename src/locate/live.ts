@@ -17,6 +17,7 @@ import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, RankedFile, TraceStep } from "./types";
 import { normalizeCompletionsEndpoint } from "./completions";
 import { resolveLiveModel, DEFAULT_ANTARES_MODEL } from "./model";
+import { antaresCliEnv, endpointAuthHeaders } from "./endpoint-auth";
 import {
   classifyIncomplete,
   resolveLiveToolBudget,
@@ -168,7 +169,7 @@ export function runLiveAntaresCli(
     args.push("--query", params.query);
   }
 
-  const env = { ...process.env, ANTARES_MODEL: model };
+  const env = antaresCliEnv(params.endpoint, { ANTARES_MODEL: model });
 
   const run = spawnSync(detected.binary, args, {
     encoding: "utf8",
@@ -507,6 +508,7 @@ export function runAntaresSweep(
 
   const run = spawnSync(detected.binary, args, {
     encoding: "utf8",
+    env: antaresCliEnv(opts?.endpoint, {}),
     timeout: 600_000,
   });
   return {
@@ -528,6 +530,7 @@ export async function probeLocalEndpoint(
   const modelsUrl = `${base}/v1/models`;
   try {
     const res = await fetch(modelsUrl, {
+      headers: endpointAuthHeaders(endpoint),
       signal: AbortSignal.timeout(3000),
     });
     return {

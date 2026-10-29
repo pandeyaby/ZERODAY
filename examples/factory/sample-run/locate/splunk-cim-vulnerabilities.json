@@ -19,7 +19,7 @@
       "mode": "fixture",
       "model": "fixture/recorded-demo",
       "file_f1": 0.209,
-      "time": "2026-10-29T22:07:29.241Z"
+      "time": "2026-10-29T22:36:39.960Z"
     },
     {
       "sourcetype": "zeroday:antares:json",
@@ -38,7 +38,7 @@
       "mode": "fixture",
       "model": "fixture/recorded-demo",
       "file_f1": 0.209,
-      "time": "2026-10-29T22:07:29.241Z"
+      "time": "2026-10-29T22:36:39.960Z"
     }
   ]
 }

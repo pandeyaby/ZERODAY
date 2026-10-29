@@ -1,13 +1,13 @@
 {
   "ok": true,
   "runDir": "/home/user/ZERODAY/examples/factory/sample-run",
-  "checked": 32,
+  "checked": 33,
   "failures": [],
   "manifest": {
     "schemaVersion": "zeroday-evidence-manifest/v1",
-    "runId": "factory-1793311649219",
-    "createdAt": "2026-10-29T22:07:29.278Z",
-    "updatedAt": "2026-10-29T22:07:29.279Z",
+    "runId": "factory-1793313399944",
+    "createdAt": "2026-10-29T22:36:39.988Z",
+    "updatedAt": "2026-10-29T22:36:39.988Z",
     "entries": [
       {
         "id": "ev_input_001",
@@ -15,8 +15,8 @@
         "title": "Repo inventory",
         "summary": "8 file(s); hotspots=4; CODEOWNERS=.github/CODEOWNERS",
         "relativePath": "evidence/inputs/inventory.json",
-        "sha256": "f00901281bcf7eb17ebe5b98dd195adee5aa25897de04adf8c2428bf67e99114",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "8d338eaf8505a01b5801eb2872f847fc6d948ee21350d4d0bf0a7e28adba9a5b",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "factory",
           "inventory"
@@ -28,8 +28,8 @@
         "title": "inventory.json",
         "summary": "Run artifact inventory.json",
         "relativePath": "inventory.json",
-        "sha256": "f00901281bcf7eb17ebe5b98dd195adee5aa25897de04adf8c2428bf67e99114",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "8d338eaf8505a01b5801eb2872f847fc6d948ee21350d4d0bf0a7e28adba9a5b",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -40,8 +40,8 @@
         "title": "inventory.md",
         "summary": "Run artifact inventory.md",
         "relativePath": "inventory.md",
-        "sha256": "427ba3e85b9d808e5fbde6a3f118dd9360de9886c32818eedd39b8b4b626f5f5",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "450310a0c48b1a32caecc3666f760243b16bb4fa8e0b74cb6bcbff83b33f7e4e",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -52,8 +52,8 @@
         "title": "report.json",
         "summary": "Run artifact report.json",
         "relativePath": "report.json",
-        "sha256": "03822603fa047c462513606c30bf88edffc66afb59a65200a068f79295165f67",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "36aa11a542f96bcadeb32ebc492d15359a9642a5c076abd4383da2899097cc8b",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -64,8 +64,8 @@
         "title": "report.md",
         "summary": "Run artifact report.md",
         "relativePath": "report.md",
-        "sha256": "bf21bf4a419c08ae91fb7d8500e0c0ca8e3fac04c411447d20aa004a9d8ff2e6",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "a01e0869a993618034b70178d62b9ebc597979a705835db688cf01c6df541b68",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -76,8 +76,8 @@
         "title": "report.sarif",
         "summary": "Run artifact report.sarif",
         "relativePath": "report.sarif",
-        "sha256": "1ab3a732a9908357c3439f617f6acba391c3a38753b7f1fdb7c5e56d562d52b5",
-        "createdAt": "2026-10-29T22:07:29.278Z",
+        "sha256": "2ad77940bcaccbdfc67dee77305a241cb85c1b6d69828ca2ec0095310e93c5f3",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -89,7 +89,7 @@
         "summary": "Run artifact comment.md",
         "relativePath": "comment.md",
         "sha256": "22665b81c46bcd1edf1e0f3768f04a79a63001ef7be8eb9874f07c22ae4f189e",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -100,8 +100,8 @@
         "title": "ownership.json",
         "summary": "Run artifact ownership.json",
         "relativePath": "ownership.json",
-        "sha256": "9caacd8fc0c79001491b14f33d76745f32e0f751bc4a7faf49bbae7796ea374b",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "d2a1e2ac5bf04fdceef922090f0e0efb46114c846f9d7106c0a3709b32eac2ad",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -113,7 +113,7 @@
         "summary": "Run artifact ownership.md",
         "relativePath": "ownership.md",
         "sha256": "459f8314632a43bfe8f93c9f660de349fa136a6566f60c61659ff5a9c048762c",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -125,7 +125,7 @@
         "summary": "Run artifact ownership-comment.md",
         "relativePath": "ownership-comment.md",
         "sha256": "766348a927758656b5f2c930621ee26522e5c992644fe0855490294e04c142c4",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -136,8 +136,8 @@
         "title": "classify/ciso.json",
         "summary": "Run artifact classify/ciso.json",
         "relativePath": "classify/ciso.json",
-        "sha256": "4171f4d37db5f25d058b88230b554d5f60491a82b2ecb6135998bb571e698eed",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "82277aff31745f85c876b3f486d027c6fcb72859a3d28fb952937d9b51637b59",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -148,8 +148,8 @@
         "title": "classify/ciso.md",
         "summary": "Run artifact classify/ciso.md",
         "relativePath": "classify/ciso.md",
-        "sha256": "76c199187defc41f29e766dd1732c75bbc3e488a928cfbe6de825203e5f882b9",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "91e9335d5567420e1f1ac9c7879b60e56c84cf197c296e4bb979b9fbbebed207",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -160,8 +160,8 @@
         "title": "classify/classify.json",
         "summary": "Run artifact classify/classify.json",
         "relativePath": "classify/classify.json",
-        "sha256": "99e28043ed355017bf3c8cedae722b60ead9bf53d4f1be67f91f3a2f54ef683e",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "685bd4a463dbdb302fe2c55989a9b2f5afccde7185e6b9747c8b37799feb7b2c",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -172,8 +172,8 @@
         "title": "classify/classify.md",
         "summary": "Run artifact classify/classify.md",
         "relativePath": "classify/classify.md",
-        "sha256": "ce8243fe1f0e4dacf5560849a0ee89986927cddeb2688e04c4a29e1e74b0ff04",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "9c4908e73351aa3df4575ee57bd84be94a38e7235408b587d30823c036d21090",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -184,8 +184,8 @@
         "title": "defend.json",
         "summary": "Run artifact defend.json",
         "relativePath": "defend.json",
-        "sha256": "8794f0f1c561c486379df758f0246f5fea19b825f0def81d191e9c23cf2ce088",
-        "createdAt": "2026-10-29T22:07:29.279Z",
+        "sha256": "befb99e199ca583c8c2ba588583ebec44cfb2e0d056bbcace1cf2b81d6523223",
+        "createdAt": "2026-10-29T22:36:39.988Z",
         "tags": [
           "artifact"
         ]
@@ -195,31 +195,31 @@
       {
         "name": "inventory.json",
         "relativePath": "inventory.json",
-        "sha256": "f00901281bcf7eb17ebe5b98dd195adee5aa25897de04adf8c2428bf67e99114",
+        "sha256": "8d338eaf8505a01b5801eb2872f847fc6d948ee21350d4d0bf0a7e28adba9a5b",
         "bytes": 4846
       },
       {
         "name": "inventory.md",
         "relativePath": "inventory.md",
-        "sha256": "427ba3e85b9d808e5fbde6a3f118dd9360de9886c32818eedd39b8b4b626f5f5",
+        "sha256": "450310a0c48b1a32caecc3666f760243b16bb4fa8e0b74cb6bcbff83b33f7e4e",
         "bytes": 1653
       },
       {
         "name": "report.json",
         "relativePath": "report.json",
-        "sha256": "03822603fa047c462513606c30bf88edffc66afb59a65200a068f79295165f67",
+        "sha256": "36aa11a542f96bcadeb32ebc492d15359a9642a5c076abd4383da2899097cc8b",
         "bytes": 3760
       },
       {
         "name": "report.md",
         "relativePath": "report.md",
-        "sha256": "bf21bf4a419c08ae91fb7d8500e0c0ca8e3fac04c411447d20aa004a9d8ff2e6",
+        "sha256": "a01e0869a993618034b70178d62b9ebc597979a705835db688cf01c6df541b68",
         "bytes": 3526
       },
       {
         "name": "report.sarif",
         "relativePath": "report.sarif",
-        "sha256": "1ab3a732a9908357c3439f617f6acba391c3a38753b7f1fdb7c5e56d562d52b5",
+        "sha256": "2ad77940bcaccbdfc67dee77305a241cb85c1b6d69828ca2ec0095310e93c5f3",
         "bytes": 6697
       },
       {
@@ -231,7 +231,7 @@
       {
         "name": "ownership.json",
         "relativePath": "ownership.json",
-        "sha256": "9caacd8fc0c79001491b14f33d76745f32e0f751bc4a7faf49bbae7796ea374b",
+        "sha256": "d2a1e2ac5bf04fdceef922090f0e0efb46114c846f9d7106c0a3709b32eac2ad",
         "bytes": 1751
       },
       {
@@ -249,31 +249,31 @@
       {
         "name": "classify/ciso.json",
         "relativePath": "classify/ciso.json",
-        "sha256": "4171f4d37db5f25d058b88230b554d5f60491a82b2ecb6135998bb571e698eed",
+        "sha256": "82277aff31745f85c876b3f486d027c6fcb72859a3d28fb952937d9b51637b59",
         "bytes": 1469
       },
       {
         "name": "classify/ciso.md",
         "relativePath": "classify/ciso.md",
-        "sha256": "76c199187defc41f29e766dd1732c75bbc3e488a928cfbe6de825203e5f882b9",
+        "sha256": "91e9335d5567420e1f1ac9c7879b60e56c84cf197c296e4bb979b9fbbebed207",
         "bytes": 1477
       },
       {
         "name": "classify/classify.json",
         "relativePath": "classify/classify.json",
-        "sha256": "99e28043ed355017bf3c8cedae722b60ead9bf53d4f1be67f91f3a2f54ef683e",
+        "sha256": "685bd4a463dbdb302fe2c55989a9b2f5afccde7185e6b9747c8b37799feb7b2c",
         "bytes": 3406
       },
       {
         "name": "classify/classify.md",
         "relativePath": "classify/classify.md",
-        "sha256": "ce8243fe1f0e4dacf5560849a0ee89986927cddeb2688e04c4a29e1e74b0ff04",
+        "sha256": "9c4908e73351aa3df4575ee57bd84be94a38e7235408b587d30823c036d21090",
         "bytes": 2205
       },
       {
         "name": "defend.json",
         "relativePath": "defend.json",
-        "sha256": "8794f0f1c561c486379df758f0246f5fea19b825f0def81d191e9c23cf2ce088",
+        "sha256": "befb99e199ca583c8c2ba588583ebec44cfb2e0d056bbcace1cf2b81d6523223",
         "bytes": 1024
       }
     ],

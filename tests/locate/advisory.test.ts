@@ -136,6 +136,19 @@ describe("advisory matching (recorded OSV fixtures, offline)", () => {
     assert.ok(!m.hits.some((h) => h.filePath === "src/util.js"));
   });
 
+  it("locate: same-CWE code hits rank after the advisory's dependency findings", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-adv-rank-"));
+    fs.cpSync(fx("npm-lodash"), dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "src/calc.js"), "module.exports = (req) => eval(req.query.expr);\n");
+    const { result } = await locate({ repo: dir, advisory: "CVE-2021-23337", rules: true, offline: true, outputDir: fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-adv-rank-out-")) });
+    const order = result.rankedFiles.map((f) => f.filePath);
+    assert.equal(order[0], "src/email.js");
+    const calc = result.rankedFiles.find((f) => f.filePath === "src/calc.js");
+    assert.ok(calc, `eval file still listed: ${order.join(", ")}`);
+    assert.equal(calc.rank, order.length, "ranked last");
+    assert.match(calc.evidence[0]!.note, /not linked to lodash/);
+  });
+
   it("npm: fixed version is not affected", async () => {
     const m = await matchAdvisory("GHSA-35jh-r3h4-6jhm", fx("npm-lodash-fixed"), { offline: true });
     assert.equal(m.verdict, "not-affected");

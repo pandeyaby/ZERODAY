@@ -1,6 +1,6 @@
 # Desk web UI — security model and review
 
-The Desk (`npm run dev` → <http://127.0.0.1:3333/play>) runs the same scans as the
+The Desk (`npm run play` → <http://127.0.0.1:3333/play>) runs the same scans as the
 CLI, reads repositories and writes reports **on the machine it runs on**. It is a
 local tool, not a multi-user service. This page states what it protects against
 and records the 1.0 review.

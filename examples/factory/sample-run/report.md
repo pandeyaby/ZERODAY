@@ -12,7 +12,7 @@
 | Target | `/home/user/ZERODAY/fixtures/locate/demo-app` |
 | Mode | fixture |
 | Model | `fixture/recorded-demo` |
-| Generated | 2026-10-29T22:07:29.241Z |
+| Generated | 2026-10-29T22:36:39.960Z |
 
 ## What files
 

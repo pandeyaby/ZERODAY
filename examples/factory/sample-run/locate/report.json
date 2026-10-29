@@ -10,7 +10,7 @@
   },
   "targetRepo": "/home/user/ZERODAY/fixtures/locate/demo-app",
   "model": "fixture/recorded-demo",
-  "generatedAt": "2026-10-29T22:07:29.241Z",
+  "generatedAt": "2026-10-29T22:36:39.960Z",
   "rankedFiles": [
     {
       "filePath": "src/users.js",
@@ -106,7 +106,7 @@
     "terminalCallBudget": 15,
     "terminalCallsUsed": 6
   },
-  "snapshotPath": "/tmp/zeroday-snap-xyftFn/repo",
+  "snapshotPath": "/tmp/zeroday-snap-5T8zXO/repo",
   "evidence": {
     "runId": "locate",
     "claimIds": [

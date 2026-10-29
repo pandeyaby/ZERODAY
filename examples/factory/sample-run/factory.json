@@ -1,7 +1,7 @@
 {
   "schemaVersion": "zeroday-factory-run/v1",
-  "runId": "factory-1793311649219",
-  "generatedAt": "2026-10-29T22:07:29.281Z",
+  "runId": "factory-1793313399944",
+  "generatedAt": "2026-10-29T22:36:39.989Z",
   "repo": "/home/user/ZERODAY/fixtures/locate/demo-app",
   "advisory": "CWE-89",
   "stages": {

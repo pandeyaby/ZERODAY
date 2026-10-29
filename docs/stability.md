@@ -1,7 +1,8 @@
 # Stability contract
 
-From **0.7.0**, part of ZERODAY is a stable surface you can build scripts and CI
-on. Everything else is marked experimental and may change in any 0.x release.
+From **1.0**, the surface below is stable: breaking changes to it come only in a new major
+version. Commands under `zeroday labs`, and the ones listed below, are
+experimental and may change in any release.
 
 ## Stable
 
@@ -9,7 +10,7 @@ on. Everything else is marked experimental and may change in any 0.x release.
 |---------|----------------|
 | `zeroday locate` | Flags `--cwe` `--cve` `--ghsa` `--map-cwe` `--repo` `--rules` `--live` `--samples` `--endpoint` `--model` `--remote-inference` `--from-sarif` `--fixture` `--offline` `--output` `--json` `--fail-on-findings` `--baseline` `--changed-since`; output files below; exit codes |
 | `zeroday scan` | Flags `--repo` `--output` `--max-cwes` `--cwe` `--rules-only` `--samples` `--require-antares` `--endpoint` `--model` `--remote-inference` `--json`; `report.json` / `report.sarif` / `report.md` / `evidence/`; exit codes |
-| `zeroday antares up` / `down` / `status` | `up`: `--max-minutes` `--gpu` `--model` `--yes`; the pod is always capped and deleted at `--max-minutes`; keys are read from `RUNPOD_API_KEY` / `HF_TOKEN` and never written to disk. Exit codes |
+| `zeroday antares up` / `down` / `status` | `up`: `--max-minutes` `--gpu` `--model` `--yes`; the pod is always capped and deleted at `--max-minutes`; keys are read from `RUNPOD_API_KEY` / `HF_TOKEN` and never written to disk; the pod's vLLM requires a random per-pod API key (`ZERODAY_ENDPOINT_API_KEY` / `ANTARES_API_KEY` set one for any endpoint). Exit codes |
 | `zeroday verify` | `--from <dir>`; PASS / FAIL result and exit code |
 | `zeroday operate` | `--cwe` `--repo` `--emit-brief` `--from` `--output` `--fixture`; submission schema `zeroday-operator-submission/v1` |
 | `zeroday doctor` | `--json` `--out`; `zeroday.doctor/v1` JSON |

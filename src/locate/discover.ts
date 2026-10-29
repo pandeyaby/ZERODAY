@@ -11,6 +11,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { endpointAuthHeaders } from "./endpoint-auth";
 
 export const LOCAL_CANDIDATES = [
   { endpoint: "http://127.0.0.1:8000/v1", server: "vLLM" },
@@ -56,7 +57,10 @@ function baseOf(endpoint: string): string {
 async function listModels(endpoint: string, opts: DiscoverOptions): Promise<string[] | null> {
   const f = opts.fetchImpl ?? fetch;
   try {
-    const res = await f(`${baseOf(endpoint)}/v1/models`, { signal: AbortSignal.timeout(opts.timeoutMs ?? 1500) });
+    const res = await f(`${baseOf(endpoint)}/v1/models`, {
+      headers: endpointAuthHeaders(endpoint, { env: opts.env, cwd: opts.cwd }),
+      signal: AbortSignal.timeout(opts.timeoutMs ?? 1500),
+    });
     if (!res.ok) return null;
     const body = (await res.json()) as { data?: Array<{ id?: unknown }> };
     return (body.data ?? []).map((m) => String(m.id ?? "")).filter(Boolean);

@@ -226,6 +226,15 @@ export async function runRulesLocalization(
   let advisoryMatch: AdvisoryMatch | undefined;
   if (advisory.kind === "cve" || advisory.kind === "ghsa") {
     advisoryMatch = await matchAdvisory(advisory.id, root, { offline: opts.offline === true });
+    if (advisoryMatch.hits.length > 0) {
+      // Code-rule hits share the advisory's CWE but are not tied to its package:
+      // rank them after the dependency findings and say so.
+      const pkgs = [...new Set(advisoryMatch.packages.map((p) => p.name))].join(", ");
+      for (const h of hits) {
+        h.score -= 100;
+        h.note += ` Same CWE as ${advisory.id}, but not linked to ${pkgs || "its package"}.`;
+      }
+    }
     hits.push(...advisoryMatch.hits);
     warnings.push(...advisoryMatch.notes);
     const pkgs = advisoryMatch.packages.map((p) => `${p.name}@${p.installed}${p.affected ? " (affected)" : ""}`).join(", ");

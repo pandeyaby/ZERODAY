@@ -104,18 +104,24 @@ bump. Set `offline: "true"` to never fetch.
 
 | Input | Default | Meaning |
 |-------|---------|---------|
-| `mode` | `fixture` | `rules` for your code · `fixture` bundled demo · `recording` cassette replay. Live inference is never allowed in the Action. |
-| `repo` | bundled demo | Path to scan, relative to your workspace (`.`). |
+| `mode` | `rules` | `rules` scans your code · `fixture` the bundled recorded demo (not your code) · `recording` cassette replay. Live inference is never allowed in the Action. |
+| `repo` | `.` | Path to scan, relative to your workspace (in `fixture` mode: the bundled demo app). |
 | `cwe` | `CWE-89` | One of the 10 rules-mode CWEs ([list](../README.md#what-it-covers)). An unsupported CWE fails closed (exit 2). |
 | `advisory` | — | `CVE-…` / `GHSA-…`: dependency matching + the advisory's CWE rules. |
 | `changed-since` | — | Git ref; keep findings in changed files. |
 | `baseline` | — | Earlier `report.json`; mark findings new / unchanged. |
 | `fail-on-findings` | `false` | Fail the job when there are (new) findings — after SARIF + comment are published. |
 | `offline` | `auto` | `auto`: CWE scans never fetch; advisory scans read OSV metadata. `true`: never fetch. |
-| `upload-sarif` / `post-comment` | `true` | Code Scanning upload / PR comment (fail-closed on `pull_request`). |
+| `upload-sarif` | `true` | Upload to Code Scanning. **Soft-fail:** a failed upload (no `security-events: write`, Code Scanning off on a private repo) is a warning, not a failed job — the PR comment and `fail-on-findings` still apply. |
+| `post-comment` | `true` | PR comment with the ranked files. Fail-closed on `pull_request`: the job fails if it cannot be posted. |
+| `sarif-category` | `zeroday-antares` | Code Scanning category. Give each matrix entry its own (e.g. `zeroday-${{ matrix.cwe }}`) or uploads replace each other. |
 | `output` | `zeroday-reports/ci` | Report directory in your workspace. |
+| `recording` | — | `mode: recording` only: path to a redacted org cassette (`zeroday-org-cassette/v1`). |
+| `working-directory` | `.` | Deprecated, ignored: paths are relative to your workspace. |
+| `run-unit-tests` | `false` | ZERODAY's own CI only: runs ZERODAY's test suite first. Leave off. |
 
 Outputs: `sarif-path`, `comment-path`, `finding-count`, `new-finding-count`, `locate-mode`.
 
-Pin the Action to a release tag (`@v0.12.0`). It runs the matching published
+Forgetting `mode:` scans your checkout with the rules (it never silently shows
+the demo). Pin the Action to a release tag (`@v0.12.0`). It runs the matching published
 `zeroday-cli` package; an unreleased ref installs from the Action's own copy.
