@@ -202,7 +202,7 @@ reviewable comment:
 ```yaml
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.1
         with:
           mode: rules
           repo: .
