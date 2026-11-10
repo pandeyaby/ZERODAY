@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "ZERODAY",
-          "version": "1.0.0-rc.1",
+          "version": "1.0.0",
           "informationUri": "https://github.com/pandeyaby/ZERODAY",
           "rules": [
             {
@@ -131,7 +131,7 @@
         },
         "model": "fixture/recorded-demo",
         "mode": "fixture",
-        "generatedAt": "2026-10-29T22:36:39.960Z",
+        "generatedAt": "2026-11-10T06:24:50.547Z",
         "summary": {
           "findingCount": 2,
           "incompleteReason": null,

@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createSnapshot, destroySnapshot } from "./snapshot";
-import { runRulesLocalization, RULES_SUPPORTED_CWES } from "./rules/index";
+import { runRulesLocalization, RULES_SUPPORTED_CWES, type RulesShared } from "./rules/index";
 import { discoverLiveEndpoint } from "./discover";
 import { assertLiveEndpointHealthy, resolveLocateMode } from "./live-guard";
 import { normalizeCompletionsEndpoint } from "./completions";
@@ -136,9 +136,32 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
   try {
     // 1 · rules, every covered CWE, one snapshot
     const rulesByCwe = new Map<string, RankedFile[]>();
+    const shared: RulesShared = {};
+    const coverage: { truncated?: { fileLimit: number; filesScanned: number }; skippedFiles?: number } = {};
+    const notScannedByLang: Record<string, string[]> = {};
     for (const cwe of RULES_SUPPORTED_CWES) {
-      const r = await runRulesLocalization({ kind: "cwe", id: cwe, cweId: cwe }, snap.snapshotPath, { offline: true });
+      const r = await runRulesLocalization({ kind: "cwe", id: cwe, cweId: cwe }, snap.snapshotPath, { offline: true, shared });
       rulesByCwe.set(cwe, r.rankedFiles.map((f) => ({ ...f, cweIds: [cwe] })));
+      coverage.truncated ??= r.summary.truncated;
+      coverage.skippedFiles ??= r.summary.skippedFiles;
+      if (r.summary.notScannedFiles) {
+        for (const lang of Object.keys(r.summary.notScannedFiles.languages)) {
+          (notScannedByLang[lang] ??= []).push(cwe);
+        }
+      }
+    }
+    // Never let a partial rules pass read as a clean scan.
+    if (coverage.truncated) {
+      warnings.push(
+        `PARTIAL: the rules stopped at ${coverage.truncated.fileLimit} source files; the rest of the repository was NOT checked. ` +
+          "Scan sub-directories separately, or raise ZERODAY_RULES_MAX_FILES.",
+      );
+    }
+    if (coverage.skippedFiles) {
+      warnings.push(`PARTIAL: ${coverage.skippedFiles} oversized or unreadable source file(s) were NOT checked by the rules.`);
+    }
+    for (const [lang, cwes] of Object.entries(notScannedByLang)) {
+      warnings.push(`PARTIAL: ${lang} files were NOT checked by the rules for ${cwes.join(", ")} (no rules for that language).`);
     }
 
     // 2 · Antares, when available
@@ -170,7 +193,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         if (!antaresCwes.length) throw new Error("antares plan selected no CWEs for this repository");
         const query = opts.context === true ? scanContext(rulesByCwe, antaresCwes) : "";
         // One sweep by default: over 3 passes on the real-advisory benchmark,
-        // merging two runs by vote was within the noise of one run (28% vs 25%
+        // merging two runs by vote was within the noise of one run (29% vs 26%
         // hit@1) and lowered File F1, for twice the GPU time. --samples N opts in.
         const samples = Math.max(1, Math.min(5, Math.round(opts.samples ?? 1)));
         const t0 = Date.now();
@@ -340,6 +363,7 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
       explorationTrace: [],
       warnings: [
         ...warnings,
+        ...snap.warnings,
         `Read-only snapshot: ${snap.fileCount} files (destroyed after run)`,
         "Localization only: candidates for human review — not proof of exploitability.",
       ],
@@ -350,6 +374,8 @@ export async function scanRepo(opts: ScanOptions): Promise<ScanArtifacts> {
         incompleteReason: antaresInfo?.incomplete ?? null,
         terminalCallBudget: 0,
         terminalCallsUsed: antaresInfo?.toolCalls ?? 0,
+        ...(coverage.truncated ? { truncated: coverage.truncated } : {}),
+        ...(coverage.skippedFiles ? { skippedFiles: coverage.skippedFiles } : {}),
         scan,
       },
     } as unknown as ScanArtifacts["result"];
@@ -388,6 +414,15 @@ export function scanReport(result: ScanArtifacts["result"]): string {
       : `Rules only (${s.cwesRules.length} CWEs). Antares not used: ${s.antaresSkipped ?? "disabled"}.`,
   );
   L.push("");
+  const partial = result.warnings.filter((w) => w.startsWith("PARTIAL: "));
+  if (partial.length > 0) {
+    L.push("## Partly scanned");
+    L.push("");
+    L.push("> Not everything was checked. No finding in the parts below is **not** a clean result.");
+    L.push("");
+    for (const w of partial) L.push(`- ${w.slice("PARTIAL: ".length)}`);
+    L.push("");
+  }
   L.push("## By CWE");
   L.push("");
   L.push("| CWE | Rules | Antares | Both |");

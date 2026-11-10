@@ -8,9 +8,8 @@ import path from "node:path";
 import { locate } from "../locate/index";
 import { defaultFixtureRepo } from "../locate/fixture";
 import { assertNoExploitInvariant } from "../locate/invariant";
-import type { ClassificationLabel, CisoObject } from "./types";
+import type { ClassificationLabel } from "./types";
 import { runClassify } from "./index";
-import { toCisoMarkdown } from "./ciso-report";
 
 /** The four finding classes a mixed pack must demonstrate (needs_human is ambiguity only). */
 export const FOUR_FINDING_CLASSES: ClassificationLabel[] = [

@@ -2,14 +2,11 @@ services:
   zeroday:
     build: .
     ports:
-      - "3000:3000"
+      # Loopback only: the Desk trusts a localhost Host header, so never publish
+      # this port on a LAN interface without ZERODAY_UI_ALLOWED_HOSTS + ZERODAY_UI_TOKEN.
+      - "127.0.0.1:3000:3000"
     environment:
       - ZERODAY_DATA_DIR=/data
-      - ZERODAY_LLM_BASE_URL=${ZERODAY_LLM_BASE_URL:-}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OLLAMA_HOST=${OLLAMA_HOST:-}
     volumes:
       - zeroday-data:/data
     restart: unless-stopped

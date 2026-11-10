@@ -9,7 +9,7 @@
 | East-west suspected (telemetry input) | no |
 | Confidence (rule heuristic) | 0.7 |
 | Needs human | **yes** (always) |
-| Generated | 2026-10-29T22:36:39.974Z |
+| Generated | 2026-11-10T06:24:50.560Z |
 | Advisory | `CWE-89` → `CWE-89` |
 
 ## Signals observed

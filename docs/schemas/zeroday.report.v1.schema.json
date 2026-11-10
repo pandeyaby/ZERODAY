@@ -109,6 +109,16 @@
             "languages": { "type": "object", "additionalProperties": { "type": "integer" } }
           }
         },
+        "truncated": {
+          "description": "Rules mode: the scan stopped at the source-file limit (ZERODAY_RULES_MAX_FILES, default 50000). Files past it were not checked, so no finding there is not a clean result.",
+          "type": "object",
+          "required": ["fileLimit", "filesScanned"],
+          "properties": {
+            "fileLimit": { "type": "integer", "minimum": 1 },
+            "filesScanned": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "skippedFiles": { "type": "integer", "minimum": 1, "description": "Rules mode: source files skipped as oversized (> 512 KiB) or unreadable; not checked." },
         "terminalCallBudget": { "type": "integer", "minimum": 0 },
         "terminalCallsUsed": { "type": "integer", "minimum": 0 },
         "baseline": {

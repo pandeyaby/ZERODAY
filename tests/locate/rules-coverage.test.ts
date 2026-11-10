@@ -112,3 +112,27 @@ describe("scan with a named endpoint", () => {
     );
   });
 });
+
+describe("file limit", () => {
+  it("reports PARTIAL instead of clean when the walk stops at the limit", async () => {
+    const files: Record<string, string> = {};
+    for (let i = 0; i < 6; i++) files[`a/f${i}.js`] = "module.exports = 1;\n";
+    files["z/vuln.js"] = `const q = "SELECT * FROM t WHERE id = " + req.query.id;\ndb.query(q);\n`;
+    const dir = repo(files);
+    process.env.ZERODAY_RULES_MAX_FILES = "5";
+    try {
+      const a = await locate({ repo: dir, advisory: "CWE-89", rules: true, offline: true, outputDir: out() });
+      assert.equal(a.result.rankedFiles.length, 0);
+      assert.deepEqual(a.result.summary.truncated, { fileLimit: 5, filesScanned: 5 });
+      assert.ok(a.result.warnings.some((w) => /^PARTIAL: the scan stopped at 5 source files/.test(w)));
+      assert.match(fs.readFileSync(a.reportPath, "utf8"), /### Partly scanned/);
+      const s = await scanRepo({ repo: dir, outputDir: out(), antares: "off" });
+      assert.ok(s.result.warnings.some((w) => /^PARTIAL: the rules stopped at 5 source files/.test(w)));
+    } finally {
+      delete process.env.ZERODAY_RULES_MAX_FILES;
+    }
+    const full = await locate({ repo: dir, advisory: "CWE-89", rules: true, offline: true, outputDir: out() });
+    assert.deepEqual(full.result.rankedFiles.map((f) => f.filePath), ["z/vuln.js"]);
+    assert.equal(full.result.summary.truncated, undefined);
+  });
+});

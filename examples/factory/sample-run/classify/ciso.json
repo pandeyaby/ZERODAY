@@ -1,6 +1,6 @@
 {
   "schema": "zeroday-ciso-v1",
-  "generatedAt": "2026-10-29T22:36:39.974Z",
+  "generatedAt": "2026-11-10T06:24:50.560Z",
   "classification": "software_defect",
   "finding_class": "software_defect",
   "east_west_suspected": false,

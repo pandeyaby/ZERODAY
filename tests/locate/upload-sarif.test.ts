@@ -227,3 +227,21 @@ describe("VS Code / Codespaces upload-sarif (dry-run) task", () => {
     assert.doesNotMatch(String(dryRun.command), /(?<!-)-live\b|--upload\b/);
   });
 });
+
+describe("upload-sarif ref from the local checkout", () => {
+  it("uses the current branch, never a git option, when no ref is given", () => {
+    const saved = { ref: process.env.GITHUB_REF, up: process.env.ZERODAY_UPLOAD_REF };
+    delete process.env.GITHUB_REF;
+    delete process.env.ZERODAY_UPLOAD_REF;
+    try {
+      const payload = buildUploadPayload({ sarifPath: FIXTURE_SARIF, repository: FAKE_REPO, commit: FAKE_COMMIT, dryRun: true });
+      assert.match(payload.body.ref, /^refs\/heads\/[\w./-]+$/);
+    } catch (e) {
+      // Detached HEAD (CI checkouts): fails closed and asks for --ref.
+      assert.ok(e instanceof UploadSarifError && e.code === "missing_ref", String(e));
+    } finally {
+      if (saved.ref !== undefined) process.env.GITHUB_REF = saved.ref;
+      if (saved.up !== undefined) process.env.ZERODAY_UPLOAD_REF = saved.up;
+    }
+  });
+});

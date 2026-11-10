@@ -4,7 +4,7 @@
 
 | | |
 |--|--|
-| Generated | 2026-10-29T22:36:39.974Z |
+| Generated | 2026-11-10T06:24:50.560Z |
 | Schema | `zeroday-classify-evidence/v1` |
 | Desk | **E** (crash classify + evidence) |
 | Classification | `software_defect` |

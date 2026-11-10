@@ -45,6 +45,10 @@ function rerank(result: LocalizationResult): void {
 
 /** Files changed since `ref` (merge-base diff + uncommitted + untracked). Throws when git can't answer. */
 export function changedFiles(repo: string, ref: string): Set<string> & { untracked?: number } {
+  // A ref that starts with "-" would be read by git as an option (e.g. --output=<file>).
+  if (!/^[A-Za-z0-9_.@^~/{}:][A-Za-z0-9_.@^~/{}:+-]*$/.test(ref)) {
+    throw new Error(`--changed-since ${ref}: not a valid git ref (use a branch, tag or commit, e.g. origin/main).`);
+  }
   const git = (args: string[]) => {
     const r = spawnSync("git", ["-C", repo, ...args], { encoding: "utf8" });
     if (r.status !== 0) {

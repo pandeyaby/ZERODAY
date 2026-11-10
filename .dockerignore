@@ -4,11 +4,17 @@ node_modules
 data/*.db
 data/*.db-*
 data/zeroday-store.json
-data/st3gg
-.venv-st3gg
 coverage
 *.md
 !README.md
-!vendor/plinius/README.md
 .env*
 .DS_Store
+# Local run output and caches: never bake them into an image
+zeroday-reports
+.zeroday
+out
+dist
+.cache
+artifacts
+bench/antares/results/runs
+tsconfig.tsbuildinfo

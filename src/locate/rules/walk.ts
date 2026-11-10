@@ -40,7 +40,16 @@ export const SOURCE_EXTENSIONS = new Set([
 ]);
 
 export const MAX_FILE_BYTES = 512 * 1024; // 512 KiB per file for rules scan
-export const MAX_FILES = 5_000;
+/**
+ * Source files one rules run reads. Past this the run is reported as PARTIAL —
+ * never as clean. Raise with ZERODAY_RULES_MAX_FILES for very large monorepos.
+ */
+export const MAX_FILES = 50_000;
+
+export function maxFiles(env: Record<string, string | undefined> = process.env): number {
+  const n = Number(env.ZERODAY_RULES_MAX_FILES);
+  return Number.isInteger(n) && n > 0 ? n : MAX_FILES;
+}
 
 export interface WalkedFile {
   absPath: string;
@@ -59,27 +68,27 @@ export function walkSourceFiles(root: string): {
   files: WalkedFile[];
   skipped: number;
   warnings: string[];
+  /** Set when the walk stopped at the file limit: files past it were not read. */
+  truncated?: { limit: number };
 } {
   const absRoot = path.resolve(root);
   const files: WalkedFile[] = [];
   let skipped = 0;
   const warnings: string[] = [];
+  const limit = maxFiles();
+  let truncated = false;
 
   function walk(dir: string): void {
-    if (files.length >= MAX_FILES) return;
+    if (truncated) return;
     let entries: fs.Dirent[];
     try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
+      // Sorted, so the same tree always yields the same files in the same order.
+      entries = fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
     } catch {
       return;
     }
     for (const entry of entries) {
-      if (files.length >= MAX_FILES) {
-        warnings.push(
-          `Rules walk stopped at ${MAX_FILES} files (remaining paths skipped).`,
-        );
-        return;
-      }
+      if (truncated) return;
       if (entry.isDirectory()) {
         if (shouldSkipDir(entry.name)) continue;
         walk(path.join(dir, entry.name));
@@ -99,13 +108,17 @@ export function walkSourceFiles(root: string): {
         skipped += 1;
         continue;
       }
+      if (files.length >= limit) {
+        truncated = true;
+        return;
+      }
       const relPath = path.relative(absRoot, absPath).split(path.sep).join("/");
       files.push({ absPath, relPath });
     }
   }
 
   walk(absRoot);
-  return { files, skipped, warnings };
+  return { files, skipped, warnings, ...(truncated ? { truncated: { limit } } : {}) };
 }
 
 export function readFileLines(absPath: string): string[] {

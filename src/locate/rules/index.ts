@@ -14,7 +14,7 @@ import path from "node:path";
 import type { AdvisoryRef, LocalizationResult, TraceStep } from "../types";
 import { analyzeProject } from "../engine/analyze";
 import { langForPath } from "../engine/grammar";
-import { walkSourceFiles, type WalkedFile } from "./walk";
+import { MAX_FILE_BYTES, walkSourceFiles, type WalkedFile } from "./walk";
 import { hitsToRankedFiles, scanRepoForCwe89, type RuleHit } from "./cwe-89";
 import { matchAdvisory, type AdvisoryMatch } from "../advisory/match";
 import { scanRepoForCwe79 } from "./cwe-79";
@@ -91,8 +91,8 @@ function excerpt(lines: string[], startLine: number, endLine: number): string {
 async function runEngine(
   root: string,
   files: WalkedFile[],
-  cweId: string,
-): Promise<{ hits: RuleHit[]; parsed: number; failed: number }> {
+  cweIds: string[],
+): Promise<{ hitsByCwe: Map<string, RuleHit[]>; parsed: number; failed: number }> {
   const inputs: Array<{ relPath: string; lang: NonNullable<ReturnType<typeof langForPath>>; source: string }> = [];
   let failed = 0;
   for (const f of files) {
@@ -110,15 +110,15 @@ async function runEngine(
   } catch {
     /* not a Go module */
   }
-  const result = await analyzeProject(inputs, new Set([cweId]), { goModule });
+  const result = await analyzeProject(inputs, new Set(cweIds), { goModule });
   failed += result.failed.length;
-  const hits: RuleHit[] = [];
+  const hitsByCwe = new Map<string, RuleHit[]>(cweIds.map((c) => [c, []]));
   for (const input of inputs) {
     const found = result.hits.get(input.relPath);
     if (!found?.length) continue;
     const lines = input.source.split(/\r?\n/);
     for (const h of found) {
-      hits.push({
+      hitsByCwe.get(h.cwe)?.push({
         ruleId: h.ruleId,
         filePath: input.relPath,
         startLine: h.startLine,
@@ -130,7 +130,16 @@ async function runEngine(
       });
     }
   }
-  return { hits, parsed: inputs.length - result.failed.length, failed };
+  return { hitsByCwe, parsed: inputs.length - result.failed.length, failed };
+}
+
+/**
+ * Work shared by several rules runs over the same tree (`scan` runs every
+ * covered CWE): one walk and one engine pass instead of one per CWE.
+ */
+export interface RulesShared {
+  walk?: ReturnType<typeof walkSourceFiles>;
+  engine?: ReturnType<typeof runEngine>;
 }
 
 /**
@@ -139,11 +148,14 @@ async function runEngine(
 export async function runRulesLocalization(
   advisory: AdvisoryRef,
   targetRepo: string,
-  opts: { offline?: boolean } = {},
+  opts: { offline?: boolean; shared?: RulesShared } = {},
 ): Promise<LocalizationResult> {
   const cweId = normalizeCwe(advisory.cweId);
   const root = path.resolve(targetRepo);
-  const { files, skipped, warnings: walkWarnings } = walkSourceFiles(root);
+  const shared = opts.shared;
+  const walked = shared?.walk ?? walkSourceFiles(root);
+  if (shared) shared.walk = walked;
+  const { files, skipped, warnings: walkWarnings, truncated } = walked;
 
   const explorationTrace: TraceStep[] = [];
   let unsupportedCwe = false;
@@ -152,8 +164,16 @@ export async function runRulesLocalization(
   const hits: RuleHit[] = [];
   const warnings: string[] = [...HONEST_WARNINGS, ...walkWarnings];
 
+  if (truncated) {
+    warnings.push(
+      `PARTIAL: the scan stopped at ${truncated.limit} source files; the rest of the repository was NOT checked. ` +
+        "Zero findings there is not a clean result. Scan sub-directories separately, or raise ZERODAY_RULES_MAX_FILES.",
+    );
+  }
   if (skipped > 0) {
-    warnings.push(`Skipped ${skipped} oversized or unreadable source file(s).`);
+    warnings.push(
+      `PARTIAL: ${skipped} source file(s) larger than ${Math.round(MAX_FILE_BYTES / 1024)} KiB (or unreadable) were NOT checked.`,
+    );
   }
 
   if ((RULES_SUPPORTED_CWES as readonly string[]).includes(cweId)) {
@@ -164,7 +184,14 @@ export async function runRulesLocalization(
       summary: `Rules walk listed ${files.length} source file(s).`,
     });
 
-    const engine = await runEngine(root, files, cweId);
+    let engineRun: ReturnType<typeof runEngine>;
+    if (shared) {
+      shared.engine ??= runEngine(root, files, [...RULES_SUPPORTED_CWES]);
+      engineRun = shared.engine;
+    } else {
+      engineRun = runEngine(root, files, [cweId]);
+    }
+    const engine = await engineRun;
     explorationTrace.push({
       step: explorationTrace.length + 1,
       tool: "grep",
@@ -175,7 +202,7 @@ export async function runRulesLocalization(
       warnings.push(`Rules engine could not analyze ${engine.failed} file(s) (unreadable or parse failure).`);
     }
 
-    hits.push(...engine.hits);
+    hits.push(...(engine.hitsByCwe.get(cweId) ?? []).map((h) => ({ ...h })));
     const fallback = FALLBACK[cweId];
     const otherFiles = files.filter((f) => !langForPath(f.relPath));
     const other = otherLanguages(otherFiles);
@@ -296,6 +323,8 @@ export async function runRulesLocalization(
       incompleteReason: null,
       ...(unsupportedCwe ? { unsupportedCwe: true } : {}),
       ...(notScannedFiles ? { notScannedFiles } : {}),
+      ...(truncated ? { truncated: { fileLimit: truncated.limit, filesScanned: files.length } } : {}),
+      ...(skipped > 0 ? { skippedFiles: skipped } : {}),
       ...(advisoryMatch && advisoryMatch.verdict !== "no-data"
         ? {
             advisoryMatch: {
