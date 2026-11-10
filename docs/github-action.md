@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0             # changed-since needs history
 
-      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.1
         with:
           mode: rules
           repo: .
@@ -57,7 +57,7 @@ git add .zeroday/CWE-89/report.json
 Then gate on new findings only:
 
 ```yaml
-      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.1
         with:
           mode: rules
           repo: .
@@ -86,7 +86,7 @@ jobs:
     permissions: { contents: read, security-events: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v1.0.1
         with:
           mode: rules
           repo: .
@@ -123,5 +123,5 @@ bump. Set `offline: "true"` to never fetch.
 Outputs: `sarif-path`, `comment-path`, `finding-count`, `new-finding-count`, `locate-mode`.
 
 Forgetting `mode:` scans your checkout with the rules (it never silently shows
-the demo). Pin the Action to a release tag (`@v1.0.0`). It runs the matching published
+the demo). Pin the Action to a release tag (`@v1.0.1`). It runs the matching published
 `zeroday-cli` package; an unreleased ref installs from the Action's own copy.

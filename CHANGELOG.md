@@ -3,9 +3,12 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
-## Unreleased
+## 1.0.1
 
-Pre-launch audit: security, correctness and speed fixes.
+Security and correctness release from a pre-launch audit. **Upgrade from
+1.0.0**, in particular if you run the Desk web UI or the Docker image
+(Next.js advisory), scan repositories you do not fully trust (symbolic links),
+or scan repositories with more than 5,000 source files (silent partial scan).
 
 ### Security
 - **Next.js 15.5.25 → 15.5.29** (Desk web UI and Docker image). 15.5.25 has
