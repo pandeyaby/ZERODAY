@@ -3,6 +3,18 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## 1.0.0
+
+First stable release. From here the stable surface in
+[`docs/stability.md`](./docs/stability.md) (`locate`, `scan`, `antares up` /
+`down` / `status`, `verify`, `operate`, `doctor`, `mvp`, the `report.json`
+schema and exit codes) has breaking changes only in a new major version. npm
+`latest` and Docker `:latest` move to 1.0.0.
+
+No code changes since 1.0.0-rc.2. That candidate was checked on a real RunPod
+pod: the pod refuses requests without its API key (HTTP 401), and `scan` runs
+Antares through it. Action examples in the docs are pinned to `@v1.0.0`.
+
 ## 1.0.0-rc.2
 
 Second release candidate for 1.0: fixes from a blinded end-to-end validation
