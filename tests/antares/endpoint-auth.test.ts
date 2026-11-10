@@ -92,6 +92,13 @@ describe("endpoint API key lookup", () => {
     assert.equal(endpointApiKey(POD_ENDPOINT, { env: { ZERODAY_ENDPOINT_API_KEY: "z", ANTARES_API_KEY: "a" }, cwd }), "z");
   });
 
+  it("an env key stays with the endpoint the environment names", () => {
+    const env = { ANTARES_API_KEY: "a", ANTARES_ENDPOINT: "https://gpu.example.com/v1" };
+    assert.equal(endpointApiKey("https://gpu.example.com/v1/completions", { env }), "a");
+    assert.equal(endpointApiKey("https://other.example.net/v1", { env }), undefined);
+    assert.deepEqual(endpointAuthHeaders("http://169.254.169.254/v1", { env }), {});
+  });
+
   it("passes the key to the Antares CLI as ANTARES_API_KEY", () => {
     const env = antaresCliEnv("http://127.0.0.1:8000/v1", { ANTARES_MODEL: "m" }, { ZERODAY_ENDPOINT_API_KEY: "z" });
     assert.equal(env.ANTARES_API_KEY, "z");

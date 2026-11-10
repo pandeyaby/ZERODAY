@@ -4,7 +4,7 @@
 
 | | |
 |--|--|
-| Run | `factory-1793313399944` |
+| Run | `factory-1794291890528` |
 | Repo | `/home/user/ZERODAY/fixtures/locate/demo-app` |
 | Advisory | `CWE-89` |
 | Findings | **2** |

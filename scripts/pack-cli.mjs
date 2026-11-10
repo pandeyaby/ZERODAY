@@ -49,7 +49,6 @@ const EXCLUDE = new Set([
   "docs/images",
   "docs/media",
   "scripts/demo-video",
-  "data/st3gg",
 ]);
 
 const EXCLUDE_FILE = /\.(db|db-shm|db-wal)$|^zeroday-store\.json$|^\.DS_Store$/;

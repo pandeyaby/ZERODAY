@@ -12,6 +12,15 @@ const EXPLOIT_REPRO_REFUSAL =
   "ZERODAY defend harness refuses vulnerability reproduction and exploit confirmation. " +
   "It only runs existing project tests / fail-closed posture checks.";
 
+/** Drops credential-looking variables before running a scanned repo's own scripts. */
+function withoutSecrets(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const out: NodeJS.ProcessEnv = { ...env };
+  for (const k of Object.keys(out)) {
+    if (/(TOKEN|SECRET|PASSWORD|PASSWD|API_?KEY|CREDENTIAL|PRIVATE_KEY)/i.test(k)) delete out[k];
+  }
+  return out;
+}
+
 export function refuseExploitReproduction(request?: string): string {
   if (request && /exploit|poc|payload|repro(duce)?\s+vuln/i.test(request)) {
     return EXPLOIT_REPRO_REFUSAL;
@@ -137,7 +146,8 @@ export function runExistingTests(
       encoding: "utf8",
       timeout: opts?.timeoutMs ?? 120_000,
       stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env, CI: "1" },
+      // The repo's own test script runs here: keep the operator's credentials out of it.
+      env: withoutSecrets({ ...process.env, CI: "1" }),
     });
     return {
       kind: "existing_test_run",

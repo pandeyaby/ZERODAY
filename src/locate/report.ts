@@ -82,6 +82,21 @@ export function toHumanReport(
 
   lines.push(`## What files`);
   lines.push(``);
+  if (result.summary.truncated || result.summary.skippedFiles) {
+    lines.push(`### Partly scanned`);
+    lines.push(``);
+    if (result.summary.truncated) {
+      lines.push(
+        `> The scan stopped at **${result.summary.truncated.fileLimit}** source files; the rest of the repository was **not** checked ` +
+          "(scan sub-directories separately, or raise `ZERODAY_RULES_MAX_FILES`).",
+      );
+    }
+    if (result.summary.skippedFiles) {
+      lines.push(`> **${result.summary.skippedFiles}** oversized or unreadable source file(s) were **not** checked.`);
+    }
+    lines.push("> No finding in those files is **not** a clean result.");
+    lines.push(``);
+  }
   if (result.rankedFiles.length === 0) {
     if (result.summary.incompleteReason) {
       lines.push(`### Incomplete localization (no submission)`);

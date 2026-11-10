@@ -158,8 +158,8 @@ export function parseOwnerRepo(spec: string): { owner: string; repo: string } {
   );
 }
 
-function gitRevParse(arg: string): string | undefined {
-  const r = spawnSync("git", ["rev-parse", arg], {
+function gitRevParse(...args: string[]): string | undefined {
+  const r = spawnSync("git", ["rev-parse", ...args], {
     encoding: "utf8",
     cwd: process.cwd(),
   });
@@ -208,7 +208,7 @@ function resolveRef(explicit?: string): string {
   if (fromEnv) {
     return fromEnv.startsWith("refs/") ? fromEnv : `refs/heads/${fromEnv}`;
   }
-  const abbrev = gitRevParse("--abbrev-ref HEAD");
+  const abbrev = gitRevParse("--abbrev-ref", "HEAD");
   if (abbrev && abbrev !== "HEAD") {
     return `refs/heads/${abbrev}`;
   }

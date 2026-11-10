@@ -9,7 +9,6 @@ import {
   buildSampleDiptychGradeReport,
   loadMatrixOrJustifications,
   renderSampleGradeMarkdown,
-  writeSampleGradeReport,
 } from "../../src/locate/paired-probes/index.ts";
 import { runAllPairedProbes } from "../../src/locate/paired-probes/run-all.ts";
 import { gateAxisMutateAllEight } from "../../src/locate/paired-probes/gate-axis-mutate.ts";

@@ -2,7 +2,7 @@
   "name": "zeroday",
   "version": "1.0.0",
   "private": true,
-  "description": "ZERODAY \u2014 defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate \u2192 SARIF). Not a Cisco product.",
+  "description": "ZERODAY — defensive vulnerability localization daily driver around Antares (keyless operate + fixture/live locate → SARIF). Not a Cisco product.",
   "license": "Apache-2.0",
   "bin": {
     "zeroday": "./bin/zeroday.mjs"
@@ -63,11 +63,10 @@
     "bench:antares:fixdates": "tsx scripts/bench-antares-fixdates.ts"
   },
   "dependencies": {
-    "better-sqlite3": "^12.11.1",
     "clsx": "^2.1.1",
     "commander": "^15.0.0",
     "lucide-react": "^1.24.0",
-    "next": "15.5.25",
+    "next": "15.5.29",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.6.0",
@@ -76,14 +75,13 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^9",
-    "eslint-config-next": "15.5.25",
+    "eslint-config-next": "15.5.29",
     "playwright": "1.56.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",

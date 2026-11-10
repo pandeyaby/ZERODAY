@@ -10,7 +10,7 @@
 | Config hotspots | 4 |
 | Findings | 0 |
 | CODEOWNERS | `.github/CODEOWNERS` |
-| Generated | 2026-10-29T22:36:39.952Z |
+| Generated | 2026-11-10T06:24:50.538Z |
 
 ## Languages
 

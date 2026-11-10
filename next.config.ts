@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["better-sqlite3", "web-tree-sitter"],
+  serverExternalPackages: ["web-tree-sitter"],
   output: "standalone",
   poweredByHeader: false,
+  // The Desk serves no remote or user-supplied images: keep the optimizer off.
+  images: { unoptimized: true },
   devIndicators: false,
   async headers() {
     return [

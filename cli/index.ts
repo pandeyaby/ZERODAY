@@ -932,6 +932,9 @@ program
           ? `Antares  : ${s.antares.model} — ${s.cwesAntares.length} CWEs picked for this repo (${s.cwesAntares.join(", ")}), ${s.antares.samples} run(s) merged, ${s.antares.toolCalls ?? "?"} tool calls, ${s.antares.seconds}s${s.antares.incomplete ? ` · incomplete: ${s.antares.incomplete}` : ""}`
           : `Antares  : not used — ${s.antaresSkipped ?? "--rules-only"}`,
       );
+      for (const w of a.result.warnings.filter((w) => w.startsWith("PARTIAL: "))) {
+        console.log(`Coverage : PARTIAL — ${w.slice("PARTIAL: ".length)}`);
+      }
       console.log("");
       const rows = s.perCwe.filter((r) => r.rules || r.antares);
       if (rows.length) {
@@ -1845,6 +1848,17 @@ program
           console.log(
             `Coverage : PARTIAL — ${describeLanguages(r.summary.notScannedFiles.languages)} file(s) NOT checked for ${r.advisory.cweId} (its rules read JS/TS, Python, Java, Go). No finding there is not a clean result.`,
           );
+        }
+        if (r.summary.truncated) {
+          console.log(
+            `Coverage : PARTIAL — stopped at ${r.summary.truncated.fileLimit} source files; the rest was NOT checked (raise ZERODAY_RULES_MAX_FILES or scan sub-directories).`,
+          );
+        }
+        if (r.summary.skippedFiles) {
+          console.log(`Coverage : PARTIAL — ${r.summary.skippedFiles} oversized or unreadable source file(s) NOT checked.`);
+        }
+        for (const w of r.warnings.filter((w) => /^PARTIAL: (?:stopped copying|the snapshot)/.test(w))) {
+          console.log(`Coverage : PARTIAL — ${w.slice("PARTIAL: ".length)}`);
         }
         if (r.summary.changedSince) {
           console.log(`Diff     : ${r.summary.changedSince.changedFiles} file(s) changed since ${r.summary.changedSince.ref} (${r.summary.changedSince.droppedFindings} finding(s) elsewhere hidden)`);

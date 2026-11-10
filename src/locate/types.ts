@@ -99,6 +99,10 @@ export interface LocalizationResult {
      * PHP for CWE-78). They were not checked; no finding there is not clean.
      */
     notScannedFiles?: { count: number; languages: Record<string, number> };
+    /** Rules mode: the walk stopped at the file limit; files past it were not checked. */
+    truncated?: { fileLimit: number; filesScanned: number };
+    /** Rules mode: source files skipped as oversized or unreadable (not checked). */
+    skippedFiles?: number;
     /** With --baseline: counts against the baseline report. */
     baseline?: { file: string; new: number; unchanged: number; absent: number };
     /** With --changed-since: findings limited to files changed since the ref. */

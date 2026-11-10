@@ -3,6 +3,50 @@
 All notable changes to ZERODAY. The stable surface is defined in
 [`docs/stability.md`](./docs/stability.md).
 
+## Unreleased
+
+Pre-launch audit: security, correctness and speed fixes.
+
+### Security
+- **Next.js 15.5.25 → 15.5.29** (Desk web UI and Docker image). 15.5.25 has
+  critical advisories, including remote code execution in the image optimizer.
+  The Desk does not use the optimizer: it is now switched off and its route is
+  behind the same host / token guard as every other page.
+- **Snapshots no longer follow symbolic links out of the repository.** A link
+  such as `notes -> ~/.ssh/id_rsa` in a scanned repo used to be copied into the
+  snapshot, where it could appear in reports or be sent to a remote Antares
+  endpoint. Links to files inside the repository still work.
+- **`--changed-since` refuses values git would read as an option**
+  (`--output=<file>` could overwrite a file).
+- **An API key from the environment stays with its endpoint.** When
+  `ANTARES_ENDPOINT` (or `LOCATE_BASE_URL` / `ZERODAY_ANTARES_BASE_URL`) is set,
+  `ZERODAY_ENDPOINT_API_KEY` / `ANTARES_API_KEY` is sent only to that host, not
+  to another URL typed into a probe. `ZERODAY_ANTARES_API_KEY` (documented in
+  `.env.example`) is now read too.
+- **`factory run --defend`** runs the scanned repo's own test script without
+  the operator's tokens and keys in its environment.
+- `docker-compose.yml` publishes the Desk on `127.0.0.1` only; unused API-key
+  variables are no longer passed into the container. `.dockerignore` keeps local
+  reports and caches out of images.
+
+### Fixed
+- **No silent "clean" on very large repositories.** The rules stopped reading
+  after 5,000 source files and still printed `Findings : 0`. The limit is now
+  50,000 (`ZERODAY_RULES_MAX_FILES`), files are read in a stable order, and a
+  run that hits the limit, skips oversized files or fills the snapshot says
+  `Coverage : PARTIAL` in the terminal, `report.md`, the PR comment and
+  `report.json` (`summary.truncated`, `summary.skippedFiles`). `scan` reports
+  partial rules coverage too (it used to drop those warnings).
+- **`upload-sarif` outside CI** sent the branch as `refs/heads/--abbrev-ref HEAD`.
+
+### Changed
+- **`scan` is about 6× faster on the rules pass**: one walk and one syntax-tree
+  pass for all 10 CWEs instead of one per CWE (33 s → 5 s on this repository;
+  identical results).
+- Removed the unused native dependency `better-sqlite3` (and the compiler
+  toolchain it needed in the Docker build), a dead module, and stale ignore
+  entries. Lint is clean (0 warnings).
+
 ## 1.0.0
 
 First stable release. From here the stable surface in

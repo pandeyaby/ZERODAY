@@ -46,5 +46,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Only hashed static assets skip the guard. The image optimizer (/_next/image)
+  // is not used by the Desk and stays behind the host / token check.
+  matcher: ["/((?!_next/static|favicon.ico).*)"],
 };

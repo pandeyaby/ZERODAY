@@ -92,3 +92,15 @@ describe("baseline + diff mode", () => {
     assert.match(added.stdout, /\[new\] src\/new\.js/);
   });
 });
+
+describe("--changed-since ref validation", () => {
+  it("refuses a ref git would read as an option", async () => {
+    const dir = repoWithHistory();
+    const target = path.join(os.tmpdir(), `zeroday-ref-inject-${process.pid}`);
+    await assert.rejects(
+      () => locate({ repo: dir, advisory: "CWE-89", rules: true, offline: true, outputDir: out(), changedSince: `--output=${target}` }),
+      /not a valid git ref/,
+    );
+    assert.equal(fs.existsSync(target), false);
+  });
+});

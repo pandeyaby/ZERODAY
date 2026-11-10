@@ -45,8 +45,9 @@ function shouldSkip(name: string): boolean {
 function copyTree(
   src: string,
   dest: string,
-  stats: { files: number; bytes: number; skipped: number },
+  stats: { files: number; bytes: number; skipped: number; outside: number; capped: number },
   warnings: string[],
+  repoRoot: string,
 ): void {
   fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
@@ -54,10 +55,22 @@ function copyTree(
     const from = path.join(src, entry.name);
     const to = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      copyTree(from, to, stats, warnings);
+      copyTree(from, to, stats, warnings, repoRoot);
     } else if (entry.isFile() || entry.isSymbolicLink()) {
       try {
+        if (entry.isSymbolicLink()) {
+          // A link may only bring in a file of the repository itself: one that
+          // points elsewhere (~/.ssh, /etc) would copy that file into the
+          // snapshot, and from there into reports or a remote inference call.
+          const real = fs.realpathSync(from);
+          if (real !== repoRoot && !real.startsWith(repoRoot + path.sep)) {
+            stats.skipped += 1;
+            stats.outside += 1;
+            continue;
+          }
+        }
         const st = fs.statSync(from);
+        if (!st.isFile()) continue;
         if (st.size > SNAPSHOT_CAPS.maxFileBytes) {
           stats.skipped += 1;
           warnings.push(
@@ -67,12 +80,13 @@ function copyTree(
         }
         if (stats.files >= SNAPSHOT_CAPS.maxFiles) {
           stats.skipped += 1;
+          stats.capped += 1;
           continue;
         }
         if (stats.bytes + st.size > SNAPSHOT_CAPS.maxTotalBytes) {
           stats.skipped += 1;
           warnings.push(
-            `Stopped copying at Antares 2 GiB snapshot cap (${stats.files} files retained)`,
+            `PARTIAL: stopped copying at the 2 GiB snapshot cap (${stats.files} files kept); the rest of the repository was NOT checked.`,
           );
           return;
         }
@@ -99,12 +113,17 @@ export function createSnapshot(repoPath: string): SnapshotResult {
 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "zeroday-snap-"));
   const snapshotPath = path.join(root, "repo");
-  const stats = { files: 0, bytes: 0, skipped: 0 };
+  const stats = { files: 0, bytes: 0, skipped: 0, outside: 0, capped: 0 };
   const warnings: string[] = [];
-  copyTree(abs, snapshotPath, stats, warnings);
+  copyTree(abs, snapshotPath, stats, warnings, fs.realpathSync(abs));
 
-  if (stats.files >= SNAPSHOT_CAPS.maxFiles) {
-    warnings.push(`Hit Antares 100k file snapshot cap`);
+  if (stats.capped > 0) {
+    warnings.push(
+      `PARTIAL: the snapshot holds ${SNAPSHOT_CAPS.maxFiles} files (the Antares CLI limit); ${stats.capped} more file(s) were NOT checked.`,
+    );
+  }
+  if (stats.outside > 0) {
+    warnings.push(`Skipped ${stats.outside} symbolic link(s) that point outside the repository (not copied, not scanned).`);
   }
 
   try {

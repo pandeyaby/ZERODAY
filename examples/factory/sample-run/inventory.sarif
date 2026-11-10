@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "ZERODAY-Inventory",
-          "version": "1.0.0-rc.1",
+          "version": "1.0.0",
           "informationUri": "https://github.com/pandeyaby/ZERODAY",
           "rules": []
         }

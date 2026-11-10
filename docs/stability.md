@@ -10,7 +10,7 @@ experimental and may change in any release.
 |---------|----------------|
 | `zeroday locate` | Flags `--cwe` `--cve` `--ghsa` `--map-cwe` `--repo` `--rules` `--live` `--samples` `--endpoint` `--model` `--remote-inference` `--from-sarif` `--fixture` `--offline` `--output` `--json` `--fail-on-findings` `--baseline` `--changed-since`; output files below; exit codes |
 | `zeroday scan` | Flags `--repo` `--output` `--max-cwes` `--cwe` `--rules-only` `--samples` `--require-antares` `--endpoint` `--model` `--remote-inference` `--json`; `report.json` / `report.sarif` / `report.md` / `evidence/`; exit codes |
-| `zeroday antares up` / `down` / `status` | `up`: `--max-minutes` `--gpu` `--model` `--yes`; the pod is always capped and deleted at `--max-minutes`; keys are read from `RUNPOD_API_KEY` / `HF_TOKEN` and never written to disk; the pod's vLLM requires a random per-pod API key (`ZERODAY_ENDPOINT_API_KEY` / `ANTARES_API_KEY` set one for any endpoint). Exit codes |
+| `zeroday antares up` / `down` / `status` | `up`: `--max-minutes` `--gpu` `--model` `--yes`; the pod is always capped and deleted at `--max-minutes`; keys are read from `RUNPOD_API_KEY` / `HF_TOKEN` and never written to disk; the pod's vLLM requires a random per-pod API key (`ZERODAY_ENDPOINT_API_KEY` / `ANTARES_API_KEY` set one for your own endpoint). Exit codes |
 | `zeroday verify` | `--from <dir>`; PASS / FAIL result and exit code |
 | `zeroday operate` | `--cwe` `--repo` `--emit-brief` `--from` `--output` `--fixture`; submission schema `zeroday-operator-submission/v1` |
 | `zeroday doctor` | `--json` `--out`; `zeroday.doctor/v1` JSON |
@@ -58,11 +58,12 @@ experimental too.
 
 ## Changes to the stable surface
 
-- **Before 1.0:** a breaking change to anything above ships in a new minor
-  version (0.8, 0.9, …), is listed under **Breaking** in
-  [`CHANGELOG.md`](../CHANGELOG.md), and — where practical — keeps working with a
-  deprecation warning for one minor release first.
-- **From 1.0:** breaking changes only in a new major version.
+- Breaking changes ship only in a new major version and are listed under
+  **Breaking** in [`CHANGELOG.md`](../CHANGELOG.md).
+- Where practical, the old behaviour keeps working with a deprecation warning
+  for at least one minor release first.
+- New flags, new optional `report.json` fields and new exit-code-neutral output
+  can arrive in any minor release.
 
 ## Release integrity
 

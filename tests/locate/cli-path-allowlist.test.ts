@@ -16,8 +16,6 @@ const cli = path.join(root, "cli/index.ts");
 
 const FIXTURE_PROVE = "fixtures/locate/report-sample/prove-doors.json";
 const FIXTURE_SARIF = "fixtures/locate/ingest-sample/sample.sarif";
-const FIXTURE_CASSETTE =
-  "fixtures/locate/org-recordings/rules-cwe-89.cassette.json";
 
 function runCli(
   args: string[],
